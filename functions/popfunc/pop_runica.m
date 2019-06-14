@@ -13,7 +13,7 @@
 %   EEG         - input EEG dataset or array of datasets
 %
 % Optional inputs:
-%   'icatype'   - ['runica'|'binica'|'jader'|'fastica'] ICA algorithm 
+%   'icatype'   - ['binica'|'runica'|'cudaica'|'jader'|'fastica'] ICA algorithm 
 %                 to use for the ICA decomposition. The nature of any 
 %                 differences in the results of these algorithms have 
 %                 not been well characterized. {default: binica(), if
@@ -108,7 +108,7 @@ end
 
 % find available algorithms
 % -------------------------
-allalgs   = { 'runica' 'binica' 'jader' 'jadeop' 'jade_td_p' 'MatlabshibbsR' 'fastica' ...
+allalgs   = { 'binica' 'runica' 'cudaica' 'jader' 'jadeop' 'jade_td_p' 'MatlabshibbsR' 'fastica' ...
               'tica' 'erica' 'simbec' 'unica' 'amuse' 'fobi' 'evd' 'evd24' 'sons' 'sobi' 'ng_ol' ...
               'acsobiro' 'acrsobibpf' 'pearson_ica' 'egld_ica' 'eeA' 'tfbss' 'icaML' 'icaMS' 'picard' }; % do not use egld_ica => too slow
 selectalg = {};
@@ -123,7 +123,7 @@ end
 % special AMICA
 % -------------
 selectamica = 0;
-defaultopts = [ '''extended'', 1' ] ;
+defaultopts = [ '''pca,'' 20'',extended'', 1' ] ;
 if nargin > 1
     if ischar(varargin{1})
         if strcmpi(varargin{1}, 'selectamica')
@@ -238,7 +238,7 @@ end
 
 % decode input arguments
 % ----------------------
-[ g, addoptions ] = finputcheck( options, { 'icatype'        'string'  allalgs   'runica'; ...
+[ g, addoptions ] = finputcheck( options, { 'icatype'        'string'  allalgs   'binica'; ...
                             'dataset'        'integer' []        [1:length(ALLEEG)];
                             'options'        'cell'    []        {};
                             'concatenate'    'string'  { 'on','off' }   'off';
@@ -398,7 +398,7 @@ if ~strcmpi(lower(g.icatype), 'binica')
 end
 switch lower(g.icatype)
     case 'runica' 
-        try, if ismatlab, g.options = {  g.options{:}, 'interrupt', 'on' }; end; catch, end; 
+        try, if ismatlab, g.options = {  g.options{:}, 'pca', 20, 'interrupt', 'on' }; end; catch, end; 
         if tmprank == size(tmpdata,1) || pca_opt
             [EEG.icaweights,EEG.icasphere] = runica( tmpdata, 'lrate', 0.001,  g.options{:} );
         else 
@@ -436,6 +436,8 @@ switch lower(g.icatype)
             disp(['Data rank (' int2str(tmprank) ') is smaller than the number of channels (' int2str(size(tmpdata,1)) ').']);
             [EEG.icaweights,EEG.icasphere] = binica( tmpdata, 'lrate', 0.001, 'pca', tmprank, g.options{:} );
         end
+    case 'cudaica' % Add by Yunhui on 2018-09-09
+        [EEG.icaweights,EEG.icasphere] = cudaica(tmpdata, 'lrate', 0.001, g.options{:} ); 
     case 'amica' 
         tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
         fprintf('Now Running AMICA\n');
