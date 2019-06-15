@@ -165,16 +165,6 @@ if ~isdeployed
         clear tmpComputer
     end
 else
-    ICABINARY = fullfile(ctfroot, 'EEGLAB', 'functions', 'supportfiles', 'ica_linux');
-endif ~isdeployed
-    eeglab_p = fileparts(which('eeglab'));
-    ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'binica.exe'); 
-    tmpComputer = computer;
-    if strcmpi(tmpComputer(1:3), 'MAC')
-        ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'ica_osx_intel_64');
-        clear tmpComputer
-    end
-else
     ICABINARY = fullfile(ctfroot, 'EEGLAB', 'functions', 'supportfiles', 'binica.exe');
 end
 
