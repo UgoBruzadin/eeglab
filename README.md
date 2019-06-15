@@ -1,4 +1,7 @@
+# Changes made by Ugo Bruzadin Nunes for the INL lab
 
+This fork of the eeglab was modified for the team at the INL lab.
+This package contains binica installed, many plugins and a variety of different defaults for data viewing that we use weekly. 
 
 # What is EEGLAB?
 EEGLAB is an open source signal processing environment for electrophysiological signals running on Matlab and Octave (command line only for Octave). This folder contains original Matlab functions from the EEGLAB (formerly ICA/EEG) Matlab toolbox, all released under the Gnu public license (see eeglablicence.txt). See the EEGLAB tutorial and reference paper (URLs given below) for more information.
