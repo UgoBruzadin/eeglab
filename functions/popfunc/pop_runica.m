@@ -123,7 +123,7 @@ end
 % special AMICA
 % -------------
 selectamica = 0;
-defaultopts = [ '''extended'', 1' ] ;
+defaultopts = [ '''pca'', 20,''extended'', 1' ] ;
 if nargin > 1
     if ischar(varargin{1})
         if strcmpi(varargin{1}, 'selectamica')
