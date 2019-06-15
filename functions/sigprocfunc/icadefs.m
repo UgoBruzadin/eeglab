@@ -166,6 +166,22 @@ if ~isdeployed
     end
 else
     ICABINARY = fullfile(ctfroot, 'EEGLAB', 'functions', 'supportfiles', 'ica_linux');
+endif ~isdeployed
+    eeglab_p = fileparts(which('eeglab'));
+    ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'binica.exe'); 
+    tmpComputer = computer;
+    if strcmpi(tmpComputer(1:3), 'MAC')
+        ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'ica_osx_intel_64');
+        clear tmpComputer
+    end
+else
+    ICABINARY = fullfile(ctfroot, 'EEGLAB', 'functions', 'supportfiles', 'binica.exe');
+end
+
+if ispc
+    CUDAICABINARY = fullfile(eeglab_p, 'plugins', 'CudaICA1.0', 'cudaica_win.exe'); % Add by Yunhui on 2018-09-09
+else
+    CUDAICABINARY = fullfile(eeglab_p, 'plugins', 'CudaICA1.0', 'cudaica'); % Add by Yunhui on 2018-04-27
 end
 
 try
