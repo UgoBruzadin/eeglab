@@ -1,0 +1,27 @@
+MATLAB is selecting SOFTWARE OPENGL rendering.
+[?1h=
+                                                                               < M A T L A B (R) >
+                                                                     Copyright 1984-2019 The MathWorks, Inc.
+                                                                     R2019a (9.6.0.1072779) 64-bit (glnxa64)
+                                                                                  March 8, 2019
+
+ 
+To get started, type doc.
+For product information, visit www.mathworks.com.
+ 
+******************************************************
+[Warning: There are at least two versions of EEGLAB in your path] 
+[Warning: One is at /data/common/matlab/eeglab-testcases/eeglabtmp/] 
+[Warning: The other one is at /data/common/matlab/eeglab/] 
+eeglab: options file is ~/eeg_options.m
+[Warning: MATLAB has disabled some advanced graphics rendering features by switching to software OpenGL. For more information, click <a href="matlab:opengl('problems')">here</a>.] 
+Retrieving plugin versions from server...
+WARNING: for plugin "BDFimport" vesion in the folder name "1.10" and in the eegplugin_ file "1.1" differ
+EEGLAB: adding "BDFimport" v1.10 (see >> help eegplugin_bdfimport)
+EEGLAB: adding "Biosig" to the path; subfolders (if any) might be missing from the path
+EEGLAB: adding "Fieldtrip-lite" to the path; subfolders (if any) might be missing from the path
+EEGLAB: adding "Fileio" to the path; subfolders (if any) might be missing from the path
+EEGLAB: adding "bva-io" v1.5.13 (see >> help eegplugin_bva_io)
+EEGLAB: adding "corrmap" v2.02.1 (see >> help eegplugin_corrmap)
+EEGLAB: adding "dipfit" v3.0 (see >> help eegplugin_dipfit)EEGLAB: adding "erpssimport" v1.01 (see >> help eegplugin_erpssimport)
+EEGLAB: adding "firfilt" v2.1 (see >> help eegplugin_firfilt)EEGLAB: adding "neuroscanio" v1.1 (see >> help eegplugin_neuroscanio)[?1l>
