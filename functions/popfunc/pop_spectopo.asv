@@ -140,8 +140,7 @@ end
 a = EEG.pnts
 
 switch a
-    case a > 2048
-        a = 2048
+        case a > 2048
     case a > 1024 & a < 2048
         a = 1024
     case a > 512 & a < 1024
