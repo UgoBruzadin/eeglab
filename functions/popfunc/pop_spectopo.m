@@ -137,19 +137,19 @@ if ~isempty(EEG.chanlocs)
     end
 end
 
-a = EEG.pnts
+totalPoints = EEG.pnts;
 
-switch a
-    case a > 2048
-        a = 2048
-    case a > 1024 & a < 2048
-        a = 1024
-    case a > 512 & a < 1024
-        a = 512
-    case a > 256 & a < 512
-        a = 256
+switch totalPoints
+    case totalPoints > 2048
+        totalPoints = 2048
+    case totalPoints > 1024 & totalPoints < 2048
+        totalPoints = 1024
+    case totalPoints > 512 & totalPoints < 1024
+        totalPoints = 512
+    case totalPoints > 256 & totalPoints < 512
+        totalPoints = 256
     otherwise
-        a = EEG.pnts
+        totalPoints = EEG.pnts
 end
 
 if nargin < 3

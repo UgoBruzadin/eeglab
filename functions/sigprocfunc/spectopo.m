@@ -169,7 +169,7 @@ allcolors = { [0 0.7500 0.7500]
               [0.2500 0.2500 0.2500] 
               [0.7500 0.7500 0] 
               [0.7500 0 0.7500] }; % colors from real plots                };
-
+         
 if nargin<3
    help spectopo
    return
@@ -619,9 +619,11 @@ if ~isempty(g.weights)
     [tmp indexfreq] = min(abs(g.freq-freqs));
     for index = 1:length(g.icacomps)
         if strcmp(g.icamode, 'normal')
+            
             % note: maxdatadb = eegspecdBtoplot (RMS power of data)
             resvar(index)  = 100*exp(-(maxdatadb-compeegspecdB(index, indexfreq))/10*log(10));
             myfprintf(g.verbose, 'Component %d percent relative variance: %6.2f\n', g.icacomps(index), resvar(index));
+            newVariance{g.icacomps(index)} = {resvar(index)};
         else
             if g.plotchan == 0
                 resvartmp = [];

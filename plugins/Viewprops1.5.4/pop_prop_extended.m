@@ -242,12 +242,12 @@ if ~typecomp
     else
         icachansind = 1:EEG.nbchan;
     end
-    datavar = mean(var(EEG.data(icachansind, samp_ind), [], 2));
+    datavar = mean(var(EEG.data(icachansind, samp_ind), [], 2))
     projvar = mean(var(EEG.data(icachansind, samp_ind) - ...
-        EEG.icawinv(:, chanorcomp) * icaacttmp(1, samp_ind), [], 2));
-    pvafval = 100 *(1 - projvar/ datavar);
-    pvaf = num2str(pvafval, '%3.1f');
-
+        EEG.icawinv(:, chanorcomp) * icaacttmp(1, samp_ind), [], 2))
+    pvafval = 100 *(1 - projvar/ datavar)
+    pvaf = num2str(pvafval, '%3.1f')
+       
     text(0.5, -0.12, {['{% scalp data var. accounted for}: ' pvaf '%']}, ...
         'fontsize', 13,'Units','Normalized', 'HorizontalAlignment', 'center');
 end
