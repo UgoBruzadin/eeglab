@@ -55,6 +55,9 @@ function [EEG com] = pop_interp(EEG, bad_elec, method)
         help pop_interp;
         return;
     end
+    if nargin > 1 && nargin < 3
+        method = 'spherical';
+    end
     
     if nargin < 2
         disp('Warning: interpolation can be done on the fly in studies'); 
@@ -79,10 +82,12 @@ function [EEG com] = pop_interp(EEG, bad_elec, method)
                    { } ...
                    { 'style' 'text'  'string' 'Interpolation method'} ...
                    { 'style' 'popupmenu'  'string' 'Spherical|Planar (slow)'  'tag' 'method' } ...
+                   {} { 'Style' 'text' 'string' 'Note: for group level analysis, interpolate in STUDY' } ...
                    };
                
-        geom = { 1 1 1 1 1 1 1 [1.1 1] };
-        [res userdata tmp restag ] = inputgui( 'uilist', uilist, 'title', 'Interpolate channel(s) -- pop_interp()', 'geometry', geom, 'helpcom', 'pophelp(''pop_interp'')');
+        geom     = { 1 1 1 1 1 1 1 [1.1 1] 1   1 };
+        geomvert = [ 1 1 1 1 1 1 1 1       0.5 1 ];
+        [res userdata tmp restag ] = inputgui( 'uilist', uilist, 'title', 'Interpolate channel(s) -- pop_interp()', 'geometry', geom, 'geomvert', geomvert, 'helpcom', 'pophelp(''pop_interp'')');
         if isempty(res) || isempty(userdata), return; end
         
         if restag.method == 1

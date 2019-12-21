@@ -45,10 +45,12 @@
 %                   for the GLM. Currently, only "ERP" and "spectrum" are 
 %                   supported.
 %
-%  "Optimization method" - [pop up meny] may be Ordinary Least Square (OLS) 
-%                   or Weighted Least Square (WTS). WTS should be used as it 
-%                   is more robust. OLS is a standard solution and WTS is a
-%                   solution that automatically exclude some outlier trials.
+%  "Optimization method" - [pop up meny] may be Ordinary Least Squares (OLS), 
+%                   Weighted Least Squares (WLS), or Iterative Reweighted Least 
+%                   Squares. WTS should be used as it is more robust to trials
+%                   with different time course. OLS is a standard solution and 
+%                   WLS/IRLS are solution that automatically weight down outliers
+%                   (trials/data point).
 %
 %  "Options"        - [edit box] additional options. These are given
 %                   directly as input to the std_limo.m function. They may
@@ -118,9 +120,9 @@ else
 end
     
 if nargin < 4
-    dataMeasures = { 'ERP' 'Spectrum' };
-    fileMeasures = { 'daterp' 'datspec'; 'icaerp' 'icaspec' };
-    methods      = { 'OLS' 'WLS' };
+    dataMeasures = { 'ERP' 'Spectrum' 'ERSP'};
+    fileMeasures = { 'daterp' 'datspec' 'dattimef'; 'icaerp' 'icaspec' 'icatimef'};
+    methods      = { 'WLS' 'OLS' 'IRLS'};
     cb_measure   = [ 'if get(gcbo, ''value'') == 1,' ...
                      '   set(findobj(gcbf, ''tag'', ''options''), ''string'', '''');' ...
                      'else,' ...
@@ -159,7 +161,7 @@ if nargin < 4
                 'splitreg'    fastif(res.splitreg, 'on', 'off') ...
                 'interaction' fastif(res.interaction, 'on', 'off') };
 else
-    options = varargin;
+    options = varargin; 
 end
 
 [STUDY tmp] = std_limo(STUDY, ALLEEG, options{:});
