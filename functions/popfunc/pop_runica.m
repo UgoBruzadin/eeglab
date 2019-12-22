@@ -123,7 +123,7 @@ end
 % special AMICA
 % -------------
 selectamica = 0;
-defaultopts = [ '''pca'', 40,''extended'', 1, ''verbose'', ''off''' ] ;
+defaultopts = [ '''PCA'', 40,''extended'', 1, ''verbose'', ''off''' ] ;
 if nargin > 1
     if ischar(varargin{1})
         if strcmpi(varargin{1}, 'selectamica')
@@ -184,17 +184,18 @@ if nargin < 2 || selectamica
                      { 'style' 'checkbox'   'string' '' 'value' 1 'tag' 'concat2' 'callback' cb2 } };
         geometry = { geometry{:} [ 2 0.2 ] [ 2 0.2 ]};
         geomvert = [ geomvert 1 1];
-    end;                 
+    end
+    
     % channel types
     % -------------
-    if isfield(ALLEEG(1).chanlocs, 'type'), 
+    if isfield(ALLEEG(1).chanlocs, 'type')
         tmpchanlocs = ALLEEG(1).chanlocs;
         alltypes = { tmpchanlocs.type };
         indempty = cellfun('isempty', alltypes);
         alltypes(indempty) = '';
-        try, 
+        try
             alltypes = unique_bc(alltypes);
-        catch, 
+        catch
             alltypes = '';
         end
     else
@@ -217,7 +218,7 @@ if nargin < 2 || selectamica
     result       = inputgui( 'geometry', geometry, 'geomvert', geomvert, 'uilist', promptstr, ...
                              'helpcom', 'pophelp(''pop_runica'')', ...
                              'title', 'Run ICA decomposition -- pop_runica()', 'userdata', { alllabels alltypes } );
-    if length(result) == 0 return; end;        
+    if length(result) == 0 return; end      
     options = { 'icatype' allalgs{result{1}} 'dataset' [1:length(ALLEEG)] 'options' eval( [ '{' result{2} '}' ]) 'reorder' fastif(result{3}, 'on', 'off') };
     if ~isempty(result{4})
         if ~isempty(str2num(result{4})), options = { options{:} 'chanind' str2num(result{4}) };
@@ -238,7 +239,7 @@ end
 
 % decode input arguments
 % ----------------------
-[ g, addoptions ] = finputcheck( options, { 'icatype'        'string'  allalgs   'binica'; ...
+[ g, addoptions ] = finputcheck( options, { 'icatype'        'string'  allalgs   'runica'; ...
                             'dataset'        'integer' []        [1:length(ALLEEG)];
                             'options'        'cell'    []        {};
                             'concatenate'    'string'  { 'on','off' }   'off';
@@ -255,7 +256,7 @@ if length(g.dataset) == 1
     EEG = ALLEEG(g.dataset);
     EEG = eeg_checkset(EEG, 'loaddata');
 elseif length(ALLEEG) > 1 && ~strcmpi(g.concatenate, 'on') && ~strcmpi(g.concatcond, 'on')
-    [ ALLEEG com ] = eeg_eval( 'pop_runica', ALLEEG, 'warning', 'off', 'params', ...
+    [ ALLEEG, com ] = eeg_eval( 'pop_runica', ALLEEG, 'warning', 'off', 'params', ...
            { 'icatype' g.icatype 'options' g.options 'chanind' g.chanind } );
     return;
 elseif length(ALLEEG) > 1 && strcmpi(g.concatcond, 'on')
@@ -322,7 +323,7 @@ else
     EEG.trials = 1;
     EEG.pnts   = size(EEG.data,2);
     EEG.saved  = 'no';
-end;    
+end
 
 % Store and then remove current EEG ICA weights and sphere
 % ---------------------------------------------------
@@ -354,7 +355,7 @@ if isempty(g.chanind)
     g.chanind = 1:EEG.nbchan;
 end
 if iscell(g.chanind)
-    datatype = {data.chanlocs.type};
+    datatype = {EEG.chanlocs.type};
     tmpChanInd = [];
     for iChan = 1:length(datatype)
         if ~isempty(datatype{iChan}) && ~isempty(strmatch(datatype{iChan}, g.chanind))
@@ -372,6 +373,7 @@ for i = 1:length(g.options)
     if ischar(g.options{i})
         if strcmpi(g.options{i}, 'pca')
             pca_opt = 1;
+            pca_ind = i;
         end
     end
 end
@@ -382,7 +384,7 @@ end
 tmpdata = reshape( EEG.data(g.chanind,:,:), length(g.chanind), EEG.pnts*EEG.trials);
 tmprank = getrank(double(tmpdata(:,1:min(3000, size(tmpdata,2)))));
 tmpdata = tmpdata - repmat(mean(tmpdata,2), [1 size(tmpdata,2)]); % zero mean 
-if ~strcmpi(lower(g.icatype), 'binica')
+if ~strcmpi(g.icatype, 'binica')
     try
         disp('Attempting to convert data matrix to double precision for more accurate ICA results.')
         tmpdata = double(tmpdata);
@@ -398,7 +400,7 @@ if ~strcmpi(lower(g.icatype), 'binica')
 end
 switch lower(g.icatype)
     case 'runica' 
-        try, if ismatlab, g.options = {  g.options{:}, 'interrupt', 'on' }; end; catch, end; 
+        try if ismatlab, g.options = {  g.options{:}, 'interrupt', 'on' }; end; catch, end
         if tmprank == size(tmpdata,1) || pca_opt
             [EEG.icaweights,EEG.icasphere] = runica( tmpdata, 'lrate', 0.001,  g.options{:} );
         else 
@@ -437,8 +439,8 @@ switch lower(g.icatype)
             [EEG.icaweights,EEG.icasphere] = binica( tmpdata, 'lrate', 0.001, 'pca', tmprank, g.options{:} );
         end
     case 'cudaica' % Add by Yunhui on 2018-09-09
-        [EEG.icaweights,EEG.icasphere] = cudaica(tmpdata, 'lrate', 0.001, g.options{:} ); 
-    case 'amica' 
+        [EEG.icaweights,EEG.icasphere] = cudaica(tmpdata, 'lrate', 0.001, g.options{:} );     
+    case 'amica'
         tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
         fprintf('Now Running AMICA\n');
         if length(g.options) > 1
@@ -455,28 +457,40 @@ switch lower(g.icatype)
             return;
         end
      case 'picard' 
-        [tmp, EEG.icaweights] = picard( tmpdata, 'verbose', true, g.options{:});
+         options2 = g.options;
+         if pca_opt
+             if g.options{pca_ind+1} < 0
+                 [tmpdata,eigvec] = runpca(tmpdata, size(tmpdata,1)+g.options{pca_ind+1});
+             else
+                 [tmpdata,eigvec] = runpca(tmpdata, g.options{pca_ind+1});
+             end
+             options2(pca_ind:pca_ind+1) = [];
+         end
+        [~, EEG.icaweights] = picard( tmpdata, 'verbose', true, options2{:});
+         if pca_opt
+            EEG.icaweights = EEG.icaweights*pinv(eigvec);
+         end
      case 'pearson_ica' 
         if isempty(g.options)
             disp('Warning: EEGLAB default for pearson ICA is 1000 iterations and epsilon=0.0005');
-            [tmp EEG.icaweights] = pearson_ica( tmpdata, 'maxNumIterations', 1000,'epsilon',0.0005);
+            [~, EEG.icaweights] = pearson_ica( tmpdata, 'maxNumIterations', 1000,'epsilon',0.0005);
         else    
-            [tmp EEG.icaweights] = pearson_ica( tmpdata, g.options{:});
+            [~, EEG.icaweights] = pearson_ica( tmpdata, g.options{:});
         end
      case 'egld_ica', disp('Warning: This algorithm is very slow!!!');
-                      [tmp EEG.icaweights] = egld_ica( tmpdata, g.options{:} );
+        [~, EEG.icaweights] = egld_ica( tmpdata, g.options{:} );
      case 'tfbss' 
         if  isempty(g.options)
-             [tmp EEG.icaweights] = tfbss( tmpdata, size(tmpdata,1), 8, 512 );
+             [~, EEG.icaweights] = tfbss( tmpdata, size(tmpdata,1), 8, 512 );
         else    
-             [tmp EEG.icaweights] = tfbss( tmpdata, g.options{:} );
+             [~, EEG.icaweights] = tfbss( tmpdata, g.options{:} );
         end
      case 'jader',         [EEG.icaweights] = jader( tmpdata, g.options{:} );
      case 'matlabshibbsr', [EEG.icaweights] = MatlabshibbsR( tmpdata, g.options{:} );
      case 'eea',           [EEG.icaweights] = eeA( tmpdata, g.options{:} );
-     case 'icaml',         [tmp EEG.icawinv] = icaML( tmpdata, g.options{:} );
-     case 'icams',         [tmp EEG.icawinv] = icaMS( tmpdata, g.options{:} );
-     case 'fastica',       [ ICAcomp, EEG.icawinv, EEG.icaweights] = fastica( tmpdata, 'displayMode', 'off', g.options{:} );
+     case 'icaml',         [~, EEG.icawinv] = icaML( tmpdata, g.options{:} );
+     case 'icams',         [~, EEG.icawinv] = icaMS( tmpdata, g.options{:} );
+     case 'fastica',       [~, EEG.icawinv, EEG.icaweights] = fastica( tmpdata, 'displayMode', 'off', g.options{:} );
      case { 'tica' 'erica' 'simbec' 'unica' 'amuse' 'fobi' 'evd' 'sons' ...
             'jadeop' 'jade_td_p' 'evd24' 'sobi' 'ng_ol' 'acsobiro' 'acrsobibpf' } 
         fig = figure('tag', 'alg_is_run', 'visible', 'off');
@@ -488,14 +502,14 @@ switch lower(g.icatype)
          case 'simbec',   EEG.icaweights = simbec( tmpdata, g.options{:} );
          case 'unica',    EEG.icaweights = unica( tmpdata, g.options{:} );
          case 'amuse',    EEG.icaweights = amuse( tmpdata );
-         case 'fobi',     [tmp EEG.icaweights] = fobi( tmpdata, g.options{:} );
+         case 'fobi',     [~, EEG.icaweights] = fobi( tmpdata, g.options{:} );
          case 'evd',      EEG.icaweights = evd( tmpdata, g.options{:} );
          case 'sons',     EEG.icaweights = sons( tmpdata, g.options{:} );
          case 'jadeop',   EEG.icaweights = jadeop( tmpdata, g.options{:} );
          case 'jade_td_p',EEG.icaweights = jade_td_p( tmpdata, g.options{:} );
          case 'evd24',    EEG.icaweights = evd24( tmpdata, g.options{:} );
          case 'sobi',     EEG.icawinv    = sobi( tmpdata, g.options{:} );
-         case 'ng_ol',    [tmp EEG.icaweights] = ng_ol( tmpdata, g.options{:} );
+         case 'ng_ol',    [~, EEG.icaweights] = ng_ol( tmpdata, g.options{:} );
          case 'acsobiro', EEG.icawinv   = acsobiro( tmpdata, g.options{:} );
          case 'acrsobibpf', EEG.icawinv = acrsobibpf( tmpdata, g.options{:} );
         end
@@ -506,7 +520,7 @@ end
 
 % update weight and inverse matrices etc...
 % -----------------------------------------
-if ~isempty(fig), try, close(fig); catch, end; end
+if ~isempty(fig), try close(fig); catch, end; end
 if isempty(EEG.icaweights)
     EEG.icaweights = pinv(EEG.icawinv);
 end
@@ -537,7 +551,7 @@ if length(g.dataset) > 1
         ALLEEG(i).icasphere  = EEG.icasphere;
         ALLEEG(i).icawinv    = EEG.icawinv;
         ALLEEG(i).icachansind = g.chanind;
-    end;            
+    end          
     ALLEEG = eeg_checkset(ALLEEG);
 else
     EEG = eeg_checkset(EEG);
@@ -554,14 +568,14 @@ end
 
 return;
 
-function tmprank2 = getrank(tmpdata);
+function tmprank2 = getrank(tmpdata)
     
     tmprank = rank(tmpdata);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %Here: alternate computation of the rank by Sven Hoffman
     %tmprank = rank(tmpdata(:,1:min(3000, size(tmpdata,2)))); old code
     covarianceMatrix = cov(tmpdata', 1);
-    [E, D] = eig (covarianceMatrix);
+    [~, D] = eig (covarianceMatrix);
     rankTolerance = 1e-7;
     tmprank2=sum (diag (D) > rankTolerance);
     if tmprank ~= tmprank2
