@@ -137,20 +137,7 @@ if ~isempty(EEG.chanlocs)
     end
 end
 
-totalPoints = EEG.pnts;
-
-switch totalPoints
-    case totalPoints > 2048
-        totalPoints = 2048
-    case totalPoints > 1024 & totalPoints < 2048
-        totalPoints = 1024
-    case totalPoints > 512 & totalPoints < 1024
-        totalPoints = 512
-    case totalPoints > 256 & totalPoints < 512
-        totalPoints = 256
-    otherwise
-        totalPoints = EEG.pnts
-end
+maxPower = 2^floor(log2(EEG.pnts))
 
 if nargin < 3
 	if dataflag
@@ -167,7 +154,7 @@ if nargin < 3
 						 { 'style' 'text' 'string' 'Plotting frequency range [lo_Hz hi_Hz]:'}, ...
 						 { 'style' 'edit' 'string' '0 55' }, ...
 						 { 'style' 'text' 'string' 'Spectral and scalp map options (see topoplot):' } ...
-						 { 'style' 'edit' 'string' '''winsize'',totalPoints,''electrodes'',''off''' } };
+						 { 'style' 'edit' 'string' '''winsize'',2^floor(log2(EEG.pnts)),''electrodes'',''off''' } };
 		if EEG.trials == 1
 			geometry(3) = [];
 			promptstr(7:8) = [];
