@@ -17,16 +17,16 @@ classdef pipeliner
             pipeliner.clean();
             fname = strcat(mfilename,'.');
             eeglab;
-            [files,path] = uigetfile({'*.set'},'Multiple File Selection','MultiSelect','on');
-            cd(path);
-            [Codes,path2] = uigetfile({'*.m'},'Multiple Scripts Selection','MultiSelect','on');
+            %[files,path] = uigetfile({'*.set'},'Multiple File Selection','MultiSelect','on');
+            %cd(path);
+            %[Codes,path2] = uigetfile({'*.m'},'Multiple Scripts Selection','MultiSelect','on');
             %cd(path);
             %file = files;
             files = dir('*.set');
             [filePRE, filePOST] = pipeliner.createfolders(files,type);
             cd(filePRE);
             fileCounter = 0;
-            finalReport = [];
+            %finalReport = [];
             for i=1:length(files)
                 [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
                 EEG =  pop_loadset(files(i).name, filePRE,  'all','all','all','all','auto');
@@ -42,10 +42,10 @@ classdef pipeliner
                 catch EEG = pop_saveset(EEG, 'filename', [strcat(files(i).name(1:end-4), '_', Acronym, '.set')], 'filepath',filePOST);
                 end
                 [ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);
-                [temporaryTable] = pipeliner.tempReport(fileCounter, files(i).name,content,type,EEG);
-                finalReport = cat(1,finalReport,temporaryTable);
-                Report_Name = acronym;
-                xlswrite(Report_Name,finalReport);
+                %[temporaryTable] = pipeliner.tempReport(fileCounter, files(i).name,content,type,EEG);
+                %finalReport = cat(1,finalReport,temporaryTable);
+                %Report_Name = acronym;
+                %xlswrite(Report_Name,finalReport);
                 ALLEEG = pop_delset(ALLEEG, 1);
                 trash = dir('bin*');
                 for i=1:length(trash)
@@ -174,9 +174,9 @@ classdef pipeliner
         function [tempTable] = tempReport(fileCounter,filename,content,type,EEG)
             %pipeliner.tempReport(fileCounter, files(i),action,type,EEG)
             if fileCounter == 1
-                ExcelSheetHeader = {'name','process','process info','numchans','ref','srate','trials','events','xmax','components'};
-                if ~isempty(EEG.icaweights)
-                    for j=1:size(EEG.icaweights,1)
+                ExcelSheetHeader = {'name','process','numchans','ref','srate','trials','events','xmax','components'};
+                if ~isempty(EEG.icaweights) & ~isempty(EEG.etc.ic_classification.ICLabel.classifications)
+                    for j=1:2
                         ExcelSheetHeader{end+1} = [j,];
                         ExcelSheetHeader{end+1} = '%';
                     end
@@ -184,11 +184,16 @@ classdef pipeliner
             end
             tempTable = ExcelSheetHeader;
             tempTable = cat(1,tempTable,{filename,content,strcat(type),EEG.nbchan,EEG.chanlocs(1).ref,EEG.srate,EEG.trials,length(EEG.event),EEG.xmax,length(EEG.icaweights)});
-            if ~isempty(EEG.icaweights)
+            
+            if ~isempty(EEG.icaweights) & ~isempty(EEG.etc.ic_classification.ICLabel.classifications) %this picks up the iclabel classifications if any
                 [max_num,max_idx] = max(EEG.etc.ic_classification.ICLabel.classifications(j,:));
                 tempTable{end+1} = cell2mat((EEG.etc.ic_classification.ICLabel.classes(max_idx)));
                 tempTable{end+1} = round(max_num*100,4);
             end
+        end
+        
+        function [tablefilled] = fillTable(table)
+           %if tables are uneven, fill the table until all rows are even 
         end
         
         %         function [finalTable] = report(files, EEG) %untested
