@@ -48,7 +48,7 @@ classdef pipeliner2
                 EEG = pop_saveset(EEG, 'filename', [strcat(files(i).name(1:end-4), '_', scriptName, '.set')], 'filepath',filePOST);
                 
                 [ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);
-                [temporaryTable] = pipeliner2.tempReport(fileCounter, files(i).name,content,type,EEG,t);
+                [temporaryTable] = pipeliner2.tempReport(fileCounter, files(i).name,contents,EEG,t);
                 t = datetime('now','TimeZone','local','Format','dMMMy-HH.mm'); % gets time
                 finalReport = cat(1,finalReport,temporaryTable);
                 ALLEEG = pop_delset(ALLEEG, 1);
