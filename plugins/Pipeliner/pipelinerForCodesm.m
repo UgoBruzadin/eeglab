@@ -3,23 +3,24 @@
 % email: pipelinerbruzadin@gmail.com
 % Dec 2019
 
-classdef pipeliner
+classdef pipeliner2
     methods(Static)
         
         function pipeline(content,type)
-            for i=1:length(content)
-                pipeliner.Function(content(i), type(i))
-            end
+           for i=1:length(content)
+            pipeliner.Function(content(i), type(i))
+           end
         end
         
         function Function(type,content) %magic function, runs the code asked!
-            
+
             pipeliner.clean();
             fname = strcat(mfilename,'.');
             eeglab;
-            [files,path] = uigetfile({'*.set'},'Multiple File Selection','MultiSelect','on');
-            cd(path);
-            [Codes,path2] = uigetfile({'*.m'},'Multiple Scripts Selection','MultiSelect','on');
+            %[files,path] = uigetfile({'*.set'},'Multiple File Selection','MultiSelect','on');
+            %cd(path);
+            [scriptsFun,scriptPath] = uigetfile({'*.m'},'Multiple Scripts Selection','MultiSelect','on');
+            addpath(scriptPath);
             %cd(path);
             %file = files;
             files = dir('*.set');
@@ -32,12 +33,13 @@ classdef pipeliner
                 EEG =  pop_loadset(files(i).name, filePRE,  'all','all','all','all','auto');
                 fileCounter =+ 1;
                 [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG);
-                
                 action = str2func(strcat(fname,type)); %this call a function inside this function with the name asked for!
-                action(content, EEG); %this is where the function runs the asked code!
+                
+                %action = str2func(strcat(fname,type)); %this call a function inside this function with the name asked for!
+                %action(content, EEG); %this is where the function runs the asked code!
                 EEG = eeg_checkset(EEG);
-                [acronym] = pipeliner.makeAcronym(type,content);
-                Acronym = type(1:2);
+                %[acronym] = pipeliner.makeAcronym(type,content);
+                %Acronym = type(1:2);
                 try EEG = pop_saveset(EEG, 'filename', [strcat(files(i).name(1:end-4), '_', [acronym], '.set')], 'filepath',filePOST);
                 catch EEG = pop_saveset(EEG, 'filename', [strcat(files(i).name(1:end-4), '_', Acronym, '.set')], 'filepath',filePOST);
                 end
@@ -45,16 +47,16 @@ classdef pipeliner
                 [temporaryTable] = pipeliner.tempReport(fileCounter, files(i).name,content,type,EEG);
                 finalReport = cat(1,finalReport,temporaryTable);
                 Report_Name = acronym;
-                xlswrite(Report_Name,finalReport);
+                xlswrite(Report_Name,finalReport); 
                 ALLEEG = pop_delset(ALLEEG, 1);
                 trash = dir('bin*');
                 for i=1:length(trash)
                     delete (trash(i).name)
                 end
             end
-            pipeliner.txt(strcat('processing of is over'))
+            pipeliner.txt(strcat('processing of 'char(type,content) ' is over'))
             
-            
+
         end
         
         %functions without EEG
@@ -66,7 +68,7 @@ classdef pipeliner
             end
             acronym = char(acronym);
         end
-        
+
         function clean() %works
             clc;         % clear command window
             clear all;
@@ -78,7 +80,7 @@ classdef pipeliner
             % create the folders where the pipeline will run
             %filePRE = strcat(basefolder,'\', type, '\pre'); %copies files
             %here, so I turned it off)
-            
+
             basefolder = pwd;
             filePRE = basefolder; %made this line later!
             mkdir (type)
@@ -88,11 +90,11 @@ classdef pipeliner
             filePOST = strcat(basefolder,'\',type);
             
             %for i=1:length(files)
-            %copyfile(files(i).name, filePRE)
-            %copyfile(fdtfiles(i).name, filePRE);
+                %copyfile(files(i).name, filePRE)
+                %copyfile(fdtfiles(i).name, filePRE);
             %end
         end
-        
+               
         function txt(content) %works
             number = '6183034686@vtext.com';
             email = 'ugobnunes@hotmail.com';
@@ -118,7 +120,7 @@ classdef pipeliner
             EEG = eeg_checkset( EEG );
             EEG = pop_iclabel(EEG, 'default');
             EEG = eeg_checkset( EEG );
-            flags = [... %this is a variable that contains all the flags for ica label
+            flags = [...
                 NaN NaN;...%brain
                 NaN NaN;...%muscle
                 NaN NaN;...%eye
@@ -136,43 +138,20 @@ classdef pipeliner
                     flags(i,1) = content(i,1);
                     flags(i,2) = content(i,2);
                 end
-                EEG = pop_icflag(EEG, flags);
+                    EEG = pop_icflag(EEG, flags);
             end
-            mybadcomps = [];%not sure what it does. I think its a variable full of bad components to be rejected
-            for j=1:length(EEG.reject.gcompreject) %this loop rejects all components
+            mybadcomps = [];
+            for j=1:length(EEG.reject.gcompreject)
                 if EEG.reject.gcompreject(1,j)> 0
                     mybadcomps(end+1) = j;
                 end
             end
-            EEG = pop_subcomp( EEG, mybadcomps, 0);
-        end
-        
-        function icloop(content, EEG)
-            EEG = pop_runica(EEG, 'extended',1,'interrupt','on','pca',content);
-            [ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);
-            PCA1 = 0;
-            EEG = pop_iclabel(EEG, 'default');
-            EEG = pop_icflag(EEG, [NaN NaN;.9 1;.8 1;.8 1;.8 1;.8 1;NaN NaN]);
-            mybadcomps = [];
-            for j=1:length(EEG.reject.gcompreject)
-                if EEG.reject.gcompreject(j,1)> 0
-                    mybadcomps(end+1) = j;
-                    PCA1 = 1;
-                end
-            end
-            EEG = pop_subcomp( EEG, mybadcomps, 0);
-            %PCA reduction
-            IC=size(EEG.icaweights,1);
-            if PCA1 > 0
-                EEG = pop_runica(EEG,'pca', IC,'extended', 1);
-            else
-                IC=IC-1;
-                EEG = pop_runica(EEG,'pca', IC,'extended', 1);
-            end
+            EEG = pop_subcomp( EEG, mybadcomps, 0);  
         end
         
         function [tempTable] = tempReport(fileCounter,filename,content,type,EEG)
             %pipeliner.tempReport(fileCounter, files(i),action,type,EEG)
+            ExcelSheet = [];
             if fileCounter == 1
                 ExcelSheetHeader = {'name','process','process info','numchans','ref','srate','trials','events','xmax','components'};
                 if ~isempty(EEG.icaweights)
@@ -191,23 +170,23 @@ classdef pipeliner
             end
         end
         
-        %         function [finalTable] = report(files, EEG) %untested
-        %             %finalTable = {'name','ref','numchans','srate','trials','event','xmax'};
-        %             nameOfEvents = {};
-        %
-        %             tempCompTable = {[files.name],EEG.chanlocs(1).ref,EEG.nbchan,EEG.srate,EEG.trials,length(EEG.event),EEG.xmax};
-        %
-        %             sheet = 1;
-        %             writetable(Tab1,filename,'sheet',sheet,'Range','A1')
-        %             sheet = 2;
-        %             writetable(Tab2,filename,'sheet',sheet,'Range','A1')
-        %
-        %         end
+%         function [finalTable] = report(files, EEG) %untested
+%             %finalTable = {'name','ref','numchans','srate','trials','event','xmax'};
+%             nameOfEvents = {};
+%             
+%             tempCompTable = {[files.name],EEG.chanlocs(1).ref,EEG.nbchan,EEG.srate,EEG.trials,length(EEG.event),EEG.xmax};
+%                 
+%             sheet = 1;
+%             writetable(Tab1,filename,'sheet',sheet,'Range','A1')
+%             sheet = 2;
+%             writetable(Tab2,filename,'sheet',sheet,'Range','A1')
+%         
+%         end
         
-        %         function report(EEG) %untested
-        %             TemporaryTable = {EEG.filename,EEG.chanlocs(1).ref,EEG.ref(1),EEG.nbchan,EEG.srate,EEG.trials,EEG.xmax};
-        %             FinalTable = cat(1,FinalTable,TemporaryTable); % the function cat adds the table from file #(i) to the FinalTable matrix
-        %         end
+%         function report(EEG) %untested
+%             TemporaryTable = {EEG.filename,EEG.chanlocs(1).ref,EEG.ref(1),EEG.nbchan,EEG.srate,EEG.trials,EEG.xmax};
+%             FinalTable = cat(1,FinalTable,TemporaryTable); % the function cat adds the table from file #(i) to the FinalTable matrix
+%         end
         
         function filter(content,EEG) %should work
             %store filter somewhere
@@ -225,12 +204,12 @@ classdef pipeliner
                 EEG = eeg_checkset( EEG );
                 EEG = pop_eegfiltnew(EEG, 'locutoff',59,'hicutoff',61,'revfilt',1,'plotfreqz',1);
                 amps = 'NF4460'
-            else
+            else 
                 EEG = eeg_checkset( EEG );
                 EEG = pop_eegfiltnew(EEG, 'locutoff',47,'hicutoff',53,'revfilt',1,'plotfreqz',1);
                 EEG = eeg_checkset( EEG );
                 EEG = pop_eegfiltnew(EEG, 'locutoff',59,'hicutoff',61,'revfilt',1,'plotfreqz',1);
-                amps = 'NF4760'
+            amps = 'NF4760'
             end
         end
         
@@ -261,7 +240,7 @@ classdef pipeliner
         end
         
         function ica(content, EEG) %works
-            EEG = pop_runica(EEG,'extended', 1, 'pca', content);
+            EEG = pop_runica(EEG,'extended', 1, 'verbose', 'off','pca', content);
         end
         
         function cleanline(content,EEG) %can do 50hz, 60hz, 70, and so on! %should work

@@ -2,6 +2,13 @@
 function eegplugin_pipeliner( fig, try_strings, catch_strings)
 
 % create menu
+uimenu( fig, 'label', '[My function]', 'callback', ... 
+    [ 'EEG = pipeliner(EEG); [ALLEEG EEG CURRENTSET] ... = eeg_store(ALLEEG, EEG, CURRENTSET);' ]);
+
+
+uimenu( submenu, 'label', 'My function', 'callback', ... 
+          [ try_strings.anyfield '[EEG LASTCOM] ... = pipeliner(EEG, ...);' arg3.anyfield ]);
+
 toolsmenu = findobj(fig, 'tag', 'file');
 submenu = uimenu( toolsmenu, 'label', 'Run new pipeline');
 

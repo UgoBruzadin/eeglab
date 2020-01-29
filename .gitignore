@@ -19,3 +19,9 @@ plugins/Pipeliner/filter/1101E6DotLoc-1___HM_Av_.3HP55LP_fi255.set
 plugins/Pipeliner/filter/1101E6DotLoc-2___HM_Av_.3HP55LP_fi.fdt
 plugins/Pipeliner/filter/1101E6DotLoc-2___HM_Av_.3HP55LP_fi.set
 binica8147.wts
+plugins/Pipeliner/ica/1101E6DotLoc-2___HM_Av_.3HP55LP_ic40.set
+plugins/Pipeliner/ica/1101E6DotLoc-2___HM_Av_.3HP55LP_ic40.fdt
+plugins/Pipeliner/ica/1101E6DotLoc-1___HM_Av_.3HP55LP_ic40.set
+plugins/Pipeliner/ica/1101E6DotLoc-1___HM_Av_.3HP55LP_ic40.fdt
+*.wts
+*.wts
