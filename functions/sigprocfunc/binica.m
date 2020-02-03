@@ -208,7 +208,7 @@ end
 %
 scriptfile = ['binica' tmpint '.sc'];
 while exist(scriptfile)
-    tmpint = int2str(round(rand*10000));
+    tmpint = int2str(round(rand*10000000));
     scriptfile = ['binica' tmpint '.sc'];
 end
 fprintf('scriptfile = %s\n',scriptfile);
