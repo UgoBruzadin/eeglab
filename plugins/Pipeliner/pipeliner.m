@@ -6,17 +6,44 @@
 classdef pipeliner
     methods(Static)
         
+%         function [fileFolder] = batches(batches,batchFolder) %store all batches to be done
+%             OGfolder = batchFolder;
+%             for i=1:length(batches)
+%                 cd(OGfolder);
+%                 batchCounter = num2str(i);
+%                 files = dir('*.set');
+%                 batchName = char(strcat('Batch_',batchCounter)); %names batch to "Batch"+number of the batch
+%                 [batchFolder] = pipeliner.createBatchFolders(OGfolder,files,batchName); %created batch folder
+%                 fprintf('generating batch folders'); %prints this sentence
+%                 [fileFolder, folderCounter] = pipeliner.pipeIn(batchFolder,batches(i)); %start the pipeline
+%             end
+%         end
+        
         function batches(batches,batchFolder) %store all batches to be done
             OGfolder = batchFolder;
             for i=1:length(batches)
                 cd(OGfolder);
+                batchCounter = num2str(i);
                 files = dir('*.set');
-                batchName = char(strcat('Batch_',num2str(i))); %names batch to "Batch"+number of the batch
+                batchName = char(strcat('Batch_',batchCounter)); %names batch to "Batch"+number of the batch
                 [batchFolder] = pipeliner.createBatchFolders(OGfolder,files,batchName); %created batch folder
                 fprintf('generating batch folders'); %prints this sentence
                 pipeliner.pipeIn(batchFolder,batches(i)); %start the pipeline
             end
         end
+        
+%         function [fileFolder, folderCounter] = pipeIn(batchFolder,commands) %store the functions to be rolled in this batch
+%             commands = table2array(commands); %gets the array of commands to be pipelined
+%             if ~folderCounter
+%                 folderCounter = 0; %start a counter of folders/commands to be run
+%             end
+%             fileFolder = batchFolder; %begins with the files inside the main batch folder
+%             for i=1:length(commands) %for loop, loops the number of commands
+%                 folderCounter = folderCounter + 1;%adds one folder to the counter
+%                 %starts the pipeline
+%                 [fileFolder] = pipeliner.Function(table2array(commands(i)),batchFolder,fileFolder,folderCounter);
+%             end
+%         end
         
         function pipeIn(batchFolder,commands) %store the functions to be rolled in this batch
             commands = table2array(commands); %gets the array of commands to be pipelined
@@ -45,7 +72,7 @@ classdef pipeliner
             [files, filePRE, filePOST] = pipeliner.createfolders(filePath,batchPath,folderNameDate); %creates a folder for the pipeline
             cd(filePRE);
             
-            for i=1:length(files)
+            parfor i=1:length(files)
                 %load EEG
                 EEG =  pop_loadset(files(i).name, filePRE,  'all','all','all','all','auto');
                 EEG = eeg_checkset(EEG);
@@ -90,14 +117,16 @@ classdef pipeliner
         
         function report(folderNameDate)
             reports = dir('*.xlsx');
-            for i=1:length(reports)
-                if i==1
-                    finalReport = readtable(reports(i).name);
+            for i=1:(length(reports)-1)
+                if i == 1
+                    tempReport = readtable(reports(i).name);
                 else
-                    finalReport = cat(1,finalReport,readtable(reports(1).name));
+                    tempReport = finalReport;
                 end
+                nextReport = readtable(reports(i+1).name);
+                finalReport = cat(1,tempReport,nextReport);
             end
-            writetable(finalReport, strcat(folderNameDate,'full_report.xlsx'));
+        writetable(finalReport,strcat(upper(folderNameDate),'.xlsx'));
         end
         
         function emptyTrash()
@@ -239,7 +268,7 @@ classdef pipeliner
             %    EEG = pop_runica(EEG, 'extended',1,'interrupt','on','pca',floor(sqrt(EEG.pnts/20)),'verbose','off');
             %end
             IC = size(EEG.icaweights,1);
-            %oldEEG = EEG;
+            oldEEG = EEG;
             %IC2 = size(EEG.icaweights,1);
             loop = 100;
             for j=1:loop
@@ -344,11 +373,10 @@ classdef pipeliner
                     tempTable{end+1} = round(max_num*100,4);
                 end
                 for l=1:(128-length(EEG.etc.ic_classification.ICLabel.classifications))
-                    tempTable{end+1} = NaN;
-                    tempTable{end+1} = NaN;
+                    tempTable{end+1} = '';
+                    tempTable{end+1} = 0;
                 end
             end
-            
             %finalTable = cat(1,finalTable,tempTable);
         end
         
@@ -470,7 +498,7 @@ classdef pipeliner
             %EEG = pop_epoch( EEG, { 'DIN' }, [0.400 2.448], 'newname', 'Neuroscan EEG data epochs', 'epochinfo', 'yes');
             
             %EEG = eeg_regepochs(EEG,content,4.094,'limits',[0 4.094]); %this is will give you 2.044 epoch lenghts as matlab lose the 1st point like n-scan
-            acronym = 'EP';%make for variable epoc name!
+            acronym = 'RJ';%make for variable epoc name!
         end
         
         function [EEG, acronym] = baseline(commands, EEG) %baseline asks for two numbers %untested
