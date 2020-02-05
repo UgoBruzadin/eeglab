@@ -1,35 +1,44 @@
 % Author: Ugo Bruzadin Nunes
 % SIUC
-% email: pipelinerbruzadin@gmail.com
-% Dec 2019
+% email: ugobruzadin at gmail dot com
+% Dec 2019/Jan2020
 
-classdef pipeliner
+classdef autopipeliner
     methods(Static)
-        
-%         function [fileFolder] = batches(batches,batchFolder) %store all batches to be done
-%             OGfolder = batchFolder;
-%             for i=1:length(batches)
-%                 cd(OGfolder);
-%                 batchCounter = num2str(i);
-%                 files = dir('*.set');
-%                 batchName = char(strcat('Batch_',batchCounter)); %names batch to "Batch"+number of the batch
-%                 [batchFolder] = pipeliner.createBatchFolders(OGfolder,files,batchName); %created batch folder
-%                 fprintf('generating batch folders'); %prints this sentence
-%                 [fileFolder, folderCounter] = pipeliner.pipeIn(batchFolder,batches(i)); %start the pipeline
-%             end
-%         end
-        
-        function batches(batches,batchFolder) %store all batches to be done
+                
+        function batches(batches,batchFolder,folderCounter) %store all batches to be done
+            if nargin < 3
+                folderCounter = 0;
+            end
             OGfolder = batchFolder;
             for i=1:length(batches)
                 cd(OGfolder);
-                batchCounter = num2str(i);
                 files = dir('*.set');
-                batchName = char(strcat('Batch_',batchCounter)); %names batch to "Batch"+number of the batch
-                [batchFolder] = pipeliner.createBatchFolders(OGfolder,files,batchName); %created batch folder
+                folderCounter = folderCounter + 1
+                batchName = char(strcat('Batch_',num2str(folderCounter))); %names batch to "Batch"+number of the batch
+                [batchFolder] = autopipeliner.createBatchFolder(OGfolder,files,batchName); %created batch folder
                 fprintf('generating batch folders'); %prints this sentence
-                pipeliner.pipeIn(batchFolder,batches(i)); %start the pipeline
+                [batchFolder, folderCounter] = autopipeliner.pipeIn(batchFolder,batches(i),folderCounter); %start the pipeline
             end
+        end
+        
+        function forks(commands,batches,batchFolder)
+            OGfolder = batchFolder; %saves the first batch folder
+            folderCounter = 0; %starts the number of processes ran on the files
+            for i=1:length(commands)
+                cd(OGfolder); %go to OG folder
+                files = dir('*.set'); %get director of OG file folder
+                batchName = char(strcat('Batch_',num2str(i))); %names batch to "Batch"+number of the batch
+                [batchFolder] = autopipeliner.createBatchFolder(OGfolder,files,batchName); %created batch folder
+                fprintf('generating batch folders'); %prints this sentence
+                fileFolder = batchFolder;
+                for j=length(commands)
+                    folderCounter = folderCounter + 1;%adds one folder to the counter
+                    %starts the pipeline
+                    [fileFolder] = autopipeliner.Function(commands(i),batchFolder,fileFolder,folderCounter);
+                end
+            end
+            autopipeliner.batches(batches,fileFolder,folderCounter)
         end
         
 %         function [fileFolder, folderCounter] = pipeIn(batchFolder,commands) %store the functions to be rolled in this batch
@@ -41,26 +50,26 @@ classdef pipeliner
 %             for i=1:length(commands) %for loop, loops the number of commands
 %                 folderCounter = folderCounter + 1;%adds one folder to the counter
 %                 %starts the pipeline
-%                 [fileFolder] = pipeliner.Function(table2array(commands(i)),batchFolder,fileFolder,folderCounter);
+%                 [fileFolder] = autopipeliner.Function(table2array(commands(i)),batchFolder,fileFolder,folderCounter);
 %             end
 %         end
         
-        function pipeIn(batchFolder,commands) %store the functions to be rolled in this batch
-            commands = table2array(commands); %gets the array of commands to be pipelined
-            folderCounter = 0; %start a counter of folders/commands to be run
+        function [fileFolder, folderCounter] = pipeIn(batchFolder,commands,folderCounter) %store the functions to be rolled in this batch
+            %commands = table2array(commands); %gets the array of commands to be pipelined
+            %folderCounter = 0; %start a counter of folders/commands to be run
             fileFolder = batchFolder; %begins with the files inside the main batch folder
             for i=1:length(commands) %for loop, loops the number of commands
                 folderCounter = folderCounter + 1;%adds one folder to the counter
                 %starts the pipeline
-                [fileFolder] = pipeliner.Function(table2array(commands(i)),batchFolder,fileFolder,folderCounter);
+                [fileFolder] = autopipeliner.Function(commands(i),batchFolder,fileFolder,folderCounter);
             end
         end
         
         function [filePOST] = Function(commands,batchPath,filePath,counter) %magic function, runs the code asked!
             %type = string, the function to be called
             %content = [], arrayof  the extra information to that function
-            
-            pipeliner.clean(); %wipe the memory
+            commands = table2array(commands);
+            autopipeliner.clean(); %wipe the memory
             t = datetime('now','TimeZone','local','Format','dMMMy-HH.mm'); %gets the datetime
             fname = strcat(mfilename,'.'); %get the name of this function for future use, adds a dot to it
             
@@ -69,7 +78,7 @@ classdef pipeliner
             folderLetter = char(counter+64); %names the folder!
             folderNameDate = strcat(folderLetter,'-',char(commands(1)),'-',char(t));
             
-            [files, filePRE, filePOST] = pipeliner.createfolders(filePath,batchPath,folderNameDate); %creates a folder for the pipeline
+            [files, filePRE, filePOST] = autopipeliner.createfolders(filePath,batchPath,folderNameDate); %creates a folder for the pipeline
             cd(filePRE);
             
             parfor i=1:length(files)
@@ -84,21 +93,22 @@ classdef pipeliner
                     [EEG, acronym] = action(EEG); %this is where the function runs the asked code!
                 end
                 EEG = eeg_checkset(EEG);
-                [individualReport] = pipeliner.tempReport(files(i).name,EEG);%changedneedsfixing
+                [individualReport] = pipe_individualreport(filename,EEG)
+                %[individualReport] = autopipeliner.tempReport(files(i).name,EEG);%changedneedsfixing
                 %saving files & report
                 EEG = pop_saveset(EEG, 'filename', [strcat(files(i).name(1:end-4), [acronym], '.set')], 'filepath',filePOST);
                 writetable(cell2table(individualReport),strcat(files(i).name(1:end-4),'_report.xlsx')); %saves the table in .mat format
-                pipeliner.fft(files(i),EEG);
-                %pipeliner.componentFigures(files(i),EEG) %fixed and added 2/3/2020
+                autopipeliner.fft(files(i),EEG);
+                autopipeliner.componentFigures(files(i),EEG) %fixed and added 2/3/2020
                 EEG = pop_delset(EEG,1); %fixed and added 2/3/2020
             end
             %makes report
-            pipeliner.report(folderNameDate); %fixed and added 2/3/2020
+            autopipeliner.report(folderNameDate); %fixed and added 2/3/2020
             %------
             %cleaning the folder from binica trash
-            pipeliner.emptyTrash(); %deletes binica's leftover trash
+            autopipeliner.emptyTrash(); %deletes binica's leftover trash
             %sends text to me
-            pipeliner.txt(strcat('processing of ', folderNameDate,' is over')); %fixed and added 2/3/2020
+            autopipeliner.txt(strcat('processing of ', folderNameDate,' is over')); %fixed and added 2/3/2020
         end
         
         %functions without EEG
@@ -116,29 +126,7 @@ classdef pipeliner
         %         end
         
         function report(folderNameDate)
-            reports = dir('*.xlsx');
-            for i=1:length(reports)
-                if i==1
-                    finalReport = readtable(reports(i).name);
-                else
-                    finalReport = cat(1,finalReport,readtable(reports(1).name));
-                end
-            end
-            writetable(finalReport, strcat(folderNameDate,'full_report.xlsx'));
-        end
-        
-        function makeReports(folderNameDate)
-            reports = dir('*.xlsx');
-            for i=1:(length(reports)-1)
-                if i == 1
-                    tempReport = readtable(reports(i).name);
-                else
-                    tempReport = finalReport;
-                end
-                nextReport = readtable(reports(i+1).name);
-                finalReport = cat(1,tempReport,nextReport);
-            end
-        writetable(finalReport,strcat(folderNameDate,'.xlsx'));
+            pipe_finalreport(folderNameDate);
         end
         
         function emptyTrash()
@@ -183,7 +171,7 @@ classdef pipeliner
             end
         end
         
-        function [batchFolder] = createBatchFolders(path,files,folderName) %works!!!
+        function [batchFolder] = createBatchFolder(path,files,folderName) %works!!!
             %------ create the folders where the pipeline will run
             %------ filePRE = strcat(basefolder,'\', type, '\pre'); %copies files
             %------ one can I turn it off)
@@ -275,63 +263,7 @@ classdef pipeliner
         %stopped trying to make the loops explain the vriance...!
         
         function [EEG, acronym] = icloop(cut, EEG)
-            %------ pipeliner.icloop([.8],EEG) or pipeliner.icloop(.8,EEG)
-            %if size(EEG.icaweights,1) == 0
-            %    EEG = pop_runica(EEG, 'extended',1,'interrupt','on','pca',floor(sqrt(EEG.pnts/20)),'verbose','off');
-            %end
-            IC = size(EEG.icaweights,1);
-            oldEEG = EEG;
-            %IC2 = size(EEG.icaweights,1);
-            loop = 100;
-            for j=1:loop
-                %------ run IC label & flag 
-                EEG = pop_iclabel(EEG, 'default');
-                EEG = pop_icflag(EEG, [NaN NaN;0.97 1;0.97 1;0.97 1;0.97 1;0.97 1;NaN NaN]);
-                
-                %------ store components and update component number
-                mybadcomps = find(EEG.reject.gcompreject);   %stores the Id of the components to be rejected
-                IC = IC - length(mybadcomps);            %stores the number to be the next components analysis
-                %------- reject flagged components
-                EEG = pop_subcomp(EEG, mybadcomps, 0);       % actually removes the flagged components
-                %------- PCA reduction & break if limit reached
-                if size(EEG.icaweights,1) <= table2array(cut(2)) %stops the loop when the number given in the command line
-                    break
-                else
-                    IC = IC - 1;                    % makes the next PCA of 1 number smaller.
-                end
-                %------- run new relative PCA
-                try EEG = pop_runica(EEG,'extended',1,'pca',IC,'verbose','off'); %does a PCA of IC
-                catch EEG = pop_runica(EEG,'extended',1,'pca',IC,'verbose','off'); %BUG: it looks likes it picks up the wrong binica files. inconsistent error.
-                end
-                    
-                %------ reset IC2, which is the last highest component #
-                if ~isempty(mybadcomps)              %if any components are removed, the IC2 stores the last time a pca removed a comp.
-                    %IC2 = IC;               %reset the original IC number so we can go back in case no components are removed later on.
-                    oldEEG = EEG;
-                end
-            end
-            %------- return to last highest component, store acronym
-            EEG = oldEEG;
-            %EEG = pop_runica(EEG, 'extended',1,'pca',IC2-1,'verbose','off'); %runs a PCA to the last num of ICs since a component was removed
-            acronym = char(strcat('IL',num2str(size(EEG.icaweights,1)))); %the acronym to be passed along to be added to the name of the file
-        end
-        
-        function [EEG, acronym] = explainedLoop(content, EEG) %%%not working yet
-            %explainedLoop([numberOfComponents,percentExplained,percentGood],EEG)
-            IC = size(EEG.icaweights,1);
-            %Z = strfind(file1(i).name, 'C2');
-            %Z = Z+1;
-            if  IC > content(1)
-                if content(2) > content(3)
-                    acronym = char(strcat(content(2,'_BrGood')));
-                else
-                    IC = size(EEG.icaweights,1);
-                    IC = IC - 1;
-                    EEG = pop_runica(EEG, 'extended',1,'pca',IC);
-                end
-            else
-                acronym = char(strcat('PerExp',string(content)));;
-            end
+            [EEG, acronym] = pipe_icloop(cut, EEG);
         end
         
         function [EEG, PercentBrainAccountedFor_Total] = getVarianceExplained(content,EEG)
@@ -375,21 +307,7 @@ classdef pipeliner
         %making the report table!!!
         
         function [tempTable] = tempReport(filename,EEG)
-            
-            tempTable = {filename,EEG.nbchan,EEG.chanlocs(1).ref,EEG.srate,EEG.trials,length(EEG.event),EEG.xmax,size(EEG.icaweights,1)};
-            
-            if ~isempty(EEG.icaweights) & ~isempty(EEG.etc.ic_classification.ICLabel.classifications) %this picks up the iclabel classifications if any
-                for k=1:length(EEG.etc.ic_classification.ICLabel.classifications)
-                    [max_num,max_idx] = max(EEG.etc.ic_classification.ICLabel.classifications(k,:));
-                    tempTable{end+1} = cell2mat((EEG.etc.ic_classification.ICLabel.classes(max_idx)));
-                    tempTable{end+1} = round(max_num*100,4);
-                end
-                for l=1:(128-length(EEG.etc.ic_classification.ICLabel.classifications))
-                    tempTable{end+1} = '';
-                    tempTable{end+1} = 0;
-                end
-            end
-            %finalTable = cat(1,finalTable,tempTable);
+            [tempTable] = pipe_individualreport(filename,EEG);
         end
         
         function [tablefilled] = fillTable(table)
@@ -415,30 +333,11 @@ classdef pipeliner
         %         end
         
         function [EEG, acronym] = filter(commands,EEG) %should work
-            %store filter somewhere
-            %content = cell2mat(content);
-            EEG = pop_eegfiltnew(EEG, 'locutoff',commands(1),'plotfreqz', 0);
-            EEG = eeg_checkset( EEG );
-            EEG = pop_eegfiltnew(EEG, 'hicutoff',commands(2),'plotfreqz', 0);
-            acronym = char(strcat('FI',num2char(commands(1)),'-',num2char(commands(2))));
+            [EEG, acronym] = pipe_filter(commands,EEG);
         end
         
-        function [acronym] = notchfilter(EEG)
-            EEG = eeg_checkset( EEG );
-            twoamps = [2002, 2008, 2010, 2024, 9104, 9109, 9140, 9143, 9243, 9209];
-            threeamps = [1109, 1121, 1143];
-            if ~ismember(str2num(EEG.setname(1:4)),threeamps) && str2num(EEG.setname(1:4)) <= 2000 ||  ismember(str2num(EEG.setname(1:4)), twoamps) %200 amps
-                EEG = pop_eegfiltnew(EEG, 'locutoff',40,'hicutoff',44,'revfilt',1,'plotfreqz',1);
-                EEG = eeg_checkset( EEG );
-                EEG = pop_eegfiltnew(EEG, 'locutoff',59,'hicutoff',61,'revfilt',1,'plotfreqz',1);
-                acronym = 'NF4460'
-            else
-                EEG = eeg_checkset( EEG );
-                EEG = pop_eegfiltnew(EEG, 'locutoff',47,'hicutoff',53,'revfilt',1,'plotfreqz',1);
-                EEG = eeg_checkset( EEG );
-                EEG = pop_eegfiltnew(EEG, 'locutoff',59,'hicutoff',61,'revfilt',1,'plotfreqz',1);
-                acronym = 'NF4760'
-            end
+        function [EEG, acronym] = notchfilter(EEG)
+            [EEG, acronym] = pipe_notchfilter(EEG);
         end
         
         function [EEG, acronym] = rereference(command,EEG) %untested
@@ -490,27 +389,11 @@ classdef pipeliner
         end
         
         function [EEG, acronym] = epoch(content, EEG) %content must be 1.array of names of epochs, 2. first cut and 3. second cut, both in seconds
-            content = table2array(content);
-            %EEG = pop_epoch( EEG, {content(1)},'limits', [content(2) content(3)], 'newname', 'Neuroscan EEG data epochs', 'epochinfo', 'yes');
-            EEG = pop_epoch( EEG, { table2array(content(1)) }, [table2array(content(2)) table2array(content(3))], 'newname', 'Neuroscan EEG data epochs', 'epochinfo', 'yes');
-            fprintf('epoching the data');
-            %EEG = pop_epoch( EEG, { 'DIN' }, [0.400 2.448], 'newname', 'Neuroscan EEG data epochs', 'epochinfo', 'yes');
-            
-            %EEG = eeg_regepochs(EEG,content,4.094,'limits',[0 4.094]); %this is will give you 2.044 epoch lenghts as matlab lose the 1st point like n-scan
-            acronym = 'EP';%make for variable epoc name!
+            [EEG, acronym] = pipe_epoch(content, EEG);
         end
         
         function [EEG, acronym] = epochRejection(content, EEG) %content must be 1.array of names of epochs, 2. first cut and 3. second cut, both in seconds
-            %EEG = pop_epoch( EEG, {content(1)},'limits', [content(2) content(3)], 'newname', 'Neuroscan EEG data epochs', 'epochinfo', 'yes');
-            if length(EEG.trials) > 1
-                EEG = pop_jointprob(EEG,1,[1:129] , table2array(content(1)) , table2array(content(2)) , 1 , 1 , 0 , []);
-            end
-            close all
-            fprintf('epoching the data');
-            %EEG = pop_epoch( EEG, { 'DIN' }, [0.400 2.448], 'newname', 'Neuroscan EEG data epochs', 'epochinfo', 'yes');
-            
-            %EEG = eeg_regepochs(EEG,content,4.094,'limits',[0 4.094]); %this is will give you 2.044 epoch lenghts as matlab lose the 1st point like n-scan
-            acronym = 'RJ';%make for variable epoc name!
+            [EEG, acronym] = pipe_epochrej(content, EEG);
         end
         
         function [EEG, acronym] = baseline(commands, EEG) %baseline asks for two numbers %untested
@@ -520,20 +403,11 @@ classdef pipeliner
         
         %figuregenerators!
         function fft(files,EEG) %works; by ugo 2/3/2020 7:15pm
-            figure; pop_spectopo(EEG, 1, [EEG.xmin*10^3  EEG.xmax*10^3], 'EEG' , 'freq', [4 5 6 7 8 9 10 11 12 18 30 40], 'freqrange',[2 55], 'electrodes','off');
-            saveas(gcf,[strcat(files.name(1:end-4),'_FFT.jpg')]);
-            close all;
+            pipe_fft(files,EEG);
         end
         
         function componentFigures(files,EEG) %maybe fixed by ugo 2/3/2020 7:15pm
-            IC = size(EEG.icaweights,1);
-            if size(EEG.icaweights,1) > 20
-                IC = 20;
-            end
-            pop_viewprops( EEG, 0,[1:IC], {'freqrange', [2 55]}, {}, 1, 'ICLabel' );
-            saveas(gcf,[strcat(files.name(1:end-4),'_ICS.jpg')]);
-            close all;
+            pipe_icfigures(files,EEG);
         end
-        
     end
 end

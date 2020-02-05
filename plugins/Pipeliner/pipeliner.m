@@ -494,10 +494,8 @@ classdef pipeliner
                 EEG = pop_jointprob(EEG,1,[1:129] , table2array(content(1)) , table2array(content(2)) , 1 , 1 , 0 , []);
             end
             close all
-            fprintf('epoching the data');
+            fprintf('rejecting improbable epochs');
             %EEG = pop_epoch( EEG, { 'DIN' }, [0.400 2.448], 'newname', 'Neuroscan EEG data epochs', 'epochinfo', 'yes');
-            
-            %EEG = eeg_regepochs(EEG,content,4.094,'limits',[0 4.094]); %this is will give you 2.044 epoch lenghts as matlab lose the 1st point like n-scan
             acronym = 'RJ';%make for variable epoc name!
         end
         
@@ -511,17 +509,11 @@ classdef pipeliner
             figure; pop_spectopo(EEG, 1, [EEG.xmin*10^3  EEG.xmax*10^3], 'EEG' , 'freq', [4 5 6 7 8 9 10 11 12 18 30 40], 'freqrange',[2 55], 'electrodes','off');
             saveas(gcf,[strcat(files.name(1:end-4),'_FFT.jpg')]);
             close all;
+            fprintf('running FFTs')
         end
         
         function componentFigures(files,EEG) %maybe fixed by ugo 2/3/2020 7:15pm
-            IC = size(EEG.icaweights,1);
-            if size(EEG.icaweights,1) > 20
-                IC = 20;
-            end
-            pop_viewprops( EEG, 0,[1:IC], {'freqrange', [2 55]}, {}, 1, 'ICLabel' );
-            saveas(gcf,[strcat(files.name(1:end-4),'_ICS.jpg')]);
-            close all;
+            pipe_icfigures(files,EEG);
         end
-        
     end
 end

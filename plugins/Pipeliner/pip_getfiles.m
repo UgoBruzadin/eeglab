@@ -30,9 +30,9 @@ classdef pip_getfiles
                 catch
                 end
                 DumpFolder = strcat(foldername, newOld2, '\');
-                
+                mkdir (DumpFolder);
                 %save('OriginalListOfFiles.mat','FullFileList'); %saves the table in .mat format
-                writecell(FullFileList,strcat('list_of_',upper(table2array(extension)),'_files.xls')); %this line makes the .mat table into .xls; can be changed to any format (.csv, .txt, .dat, etc)
+                writecell(FullFileList,strcat('list_of_',upper(table2array(extension)),'_',newOld2(2:end),'_files.xls')); %this line makes the .mat table into .xls; can be changed to any format (.csv, .txt, .dat, etc)
                 for i=1:numel(FileList)
                     TF = contains(table2array(FullFileList(i)),newOld2);
                     if TF == 0

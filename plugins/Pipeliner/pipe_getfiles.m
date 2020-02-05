@@ -1,9 +1,9 @@
 % author: Ugo Bruzadin nunes on 8/7/2019
 % using a script made by author Thokare Nitin D.
 % found on the web.
-classdef pip_getfiles
+classdef pipe_getfiles
     methods(Static)
-        
+        %pipe_getfiles.files(pwd,{'lsx','jpg'});
         function files(foldername,extension)
             if nargin < 1
                 %foldername = uigetdir;
@@ -15,8 +15,8 @@ classdef pip_getfiles
                 extension={'fdt','set','edf','raw','jpg','.sc','sph','wts','xls','asv','mat'};
             end
             
-            FileList = pip_getfiles.readjustnames(foldername, extension);
-            FullFileList = pip_getfiles.readfilenames(foldername, extension);
+            FileList = pipe_getfiles.getjustnames(foldername, extension);
+            FullFileList = pipe_getfiles.getfullnames(foldername, extension);
             
             if numel(FileList)~=0
                 
@@ -30,13 +30,13 @@ classdef pip_getfiles
                 catch
                 end
                 DumpFolder = strcat(foldername, newOld2, '\');
-                
+                mkdir (DumpFolder);
                 %save('OriginalListOfFiles.mat','FullFileList'); %saves the table in .mat format
-                writecell(FullFileList,strcat('list_of_',upper(extension),'_files.xls'); %this line makes the .mat table into .xls; can be changed to any format (.csv, .txt, .dat, etc)
+                writecell(FullFileList,strcat('list_of_',upper(table2array(extension)),'_',newOld2(2:end),'_files.xls')); %this line makes the .mat table into .xls; can be changed to any format (.csv, .txt, .dat, etc)
                 for i=1:numel(FileList)
                     TF = contains(table2array(FullFileList(i)),newOld2);
                     if TF == 0
-                        DumpedFile = strcat(DumpFolder, table2arrayFileList{i});
+                        DumpedFile = strcat(DumpFolder, table2array(FileList(i)));
                         if(strcmpi(DumpedFile,FullFileList{i})==0)
                             movefile (FullFileList{i}, DumpedFile);
                         end
@@ -54,8 +54,8 @@ classdef pip_getfiles
                 extList={'fdt','set','edf','raw','jpg','.sc','sph','wts','xls','asv','mat'};
             end
             ThisFolder = pwd;
-            FileList = pip_getfiles.readjustnames(ThisFolder, extList);
-            FullFileList = pip_getfiles.readfilenames(ThisFolder, extList);
+            FileList = pipe_getfiles.getjustnames(ThisFolder, extList);
+            FullFileList = pipe_getfiles.getfullnames(ThisFolder, extList);
             
             if numel(FileList)~=0
                 
@@ -84,14 +84,14 @@ classdef pip_getfiles
             end
         end
         
-        function [FullFileNamesList] = readfilenames(DataFolder, extList)
+        function [FullFileNamesList] = getfullnames(foldername, extension)
             % Author: Thokare Nitin D., modified by Ugo Bruzadin Nunes
             %
             if nargin < 1
-                DataFolder = pwd;
-                DataFolder = uigetdir;
+                foldername = pwd;
+                foldername = uigetdir;
             end
-            DirContents=dir(DataFolder);
+            DirContents=dir(foldername);
             FullFileNamesList=[];
             if ~isunix
                 NameSeperator='\';
@@ -100,7 +100,7 @@ classdef pip_getfiles
             end
             if nargin < 2
                 %DataFolder = uigetdir;
-                extList={'fdt','set','edf','raw','jpg','.sc','sph','wts'};
+                extension={'fdt','set','edf','raw','jpg','.sc','sph','wts'};
             end
             
             % Here 'peg' is written for .jpeg and 'iff' is written for .tiff
@@ -108,24 +108,24 @@ classdef pip_getfiles
                 if(~(strcmpi(DirContents(i).name,'.') || strcmpi(DirContents(i).name,'..')))
                     if(~DirContents(i).isdir)
                         extension=DirContents(i).name(end-2:end);
-                        if(numel(find(strcmpi(extension,extList)))~=0)
-                            FullFileNamesList=cat(1,FullFileNamesList,{[DataFolder,NameSeperator,DirContents(i).name]});
+                        if(numel(find(strcmpi(extension,extension)))~=0)
+                            FullFileNamesList=cat(1,FullFileNamesList,{[foldername,NameSeperator,DirContents(i).name]});
                         end
                     else
-                        getlist = pip_getfiles.readfilenames([DataFolder,NameSeperator,DirContents(i).name], extList);
+                        getlist = pipe_getfiles.getfullnames([foldername,NameSeperator,DirContents(i).name], extension);
                         FullFileNamesList = cat(1,FullFileNamesList,getlist);
                     end
                 end
             end
         end
         
-        function [FullFileList] = readjustnames(DataFolder, extList)
+        function [FullFileList] = getjustnames(foldername, extList)
             % Author: Thokare Nitin D., modified by Ugo Bruzadin Nunes
             %
             if nargin < 1
-                DataFolder = uigetdir;
+                foldername = uigetdir;
             end
-            DirContents=dir(DataFolder);
+            DirContents=dir(foldername);
             FullFileList=[];
             if ~isunix
                 NameSeperator='\';
@@ -142,7 +142,7 @@ classdef pip_getfiles
                             FullFileList=cat(1,FullFileList,{[DirContents(i).name]});
                         end
                     else
-                        getlist = pip_getfiles.readjustnames([DataFolder,NameSeperator,DirContents(i).name], extList);
+                        getlist = pipe_getfiles.getjustnames([foldername,NameSeperator,DirContents(i).name], extList);
                         FullFileList=cat(1,FullFileList,getlist);
                     end
                 end
