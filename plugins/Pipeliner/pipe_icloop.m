@@ -9,9 +9,12 @@ function [EEG, acronym] = pipe_icloop(cut, EEG)
     loop = 100;
     for j=1:loop
         %------ run IC label & flag 
-        EEG = pop_iclabel(EEG, 'default');
-        EEG = pop_icflag(EEG, [NaN NaN;0.97 1;0.97 1;0.97 1;0.97 1;0.97 1;NaN NaN]);
-
+        try EEG = pop_iclabel(EEG, 'default');
+        catch  EEG = pop_iclabel(EEG, 'default');
+        end
+        try EEG = pop_icflag(EEG, [0 0.03;0.90 1;0.90 1;0.90 1;0.90 1;0.90 1;NaN NaN]);
+        catch
+        end
         %------ store components and update component number
         mybadcomps = find(EEG.reject.gcompreject);   %stores the Id of the components to be rejected
         IC = IC - length(mybadcomps);            %stores the number to be the next components analysis
@@ -26,7 +29,7 @@ function [EEG, acronym] = pipe_icloop(cut, EEG)
         %------- run new relative PCA
         try EEG = pop_runica(EEG,'extended',1,'pca',IC,'verbose','off'); %does a PCA of IC
         catch EEG = pop_runica(EEG,'extended',1,'pca',IC,'verbose','off'); %BUG: it looks likes it picks up the wrong binica files. inconsistent error.
-        end
+        end,l
 
         %------ reset IC2, which is the last highest component #
         if ~isempty(mybadcomps)              %if any components are removed, the IC2 stores the last time a pca removed a comp.

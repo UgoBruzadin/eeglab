@@ -46,7 +46,7 @@ classdef pipeliner
 %         end
         
         function pipeIn(batchFolder,commands) %store the functions to be rolled in this batch
-            commands = table2array(commands); %gets the array of commands to be pipelined
+            %commands = table2array(commands); %gets the array of commands to be pipelined
             folderCounter = 0; %start a counter of folders/commands to be run
             fileFolder = batchFolder; %begins with the files inside the main batch folder
             for i=1:length(commands) %for loop, loops the number of commands
@@ -67,7 +67,7 @@ classdef pipeliner
             cd(filePath); %moves the the last path where files were
             %tic; %start a timer
             folderLetter = char(counter+64); %names the folder!
-            folderNameDate = strcat(folderLetter,'-',char(commands(1)),'-',char(t));
+            folderNameDate = strcat(folderLetter,'-',table2array(commands(1)),'-',char(t));
             
             [files, filePRE, filePOST] = pipeliner.createfolders(filePath,batchPath,folderNameDate); %creates a folder for the pipeline
             cd(filePRE);
@@ -213,7 +213,9 @@ classdef pipeliner
         
         function [EEG, acronym] = ica(components, EEG) %works
             %content = cell2mat(content);
+            EEG = eeg_checkset(EEG);
             EEG = pop_runica(EEG,'extended', 1, 'pca', table2array(components), 'verbose','off');
+            EEG = eeg_checkset(EEG);
             EEG = pop_iclabel(EEG,'default');
             acronym = char(strcat('IC',num2str(table2array(components))));
         end
