@@ -74,7 +74,7 @@ classdef autopipeliner
             [files, filePRE, filePOST] = autopipeliner.createfolders(filePath,batchPath,folderNameDate); %creates a folder for the pipeline
             cd(filePRE);
             
-            for i=1:length(files)
+            parfor i=1:length(files)
                 %load EEG
                 EEG = pop_loadset(files(i).name, filePRE,  'all','all','all','all','auto');
                 EEG = eeg_checkset(EEG);
