@@ -74,7 +74,7 @@ classdef autopipeliner
             [files, filePRE, filePOST] = autopipeliner.createfolders(filePath,batchPath,folderNameDate); %creates a folder for the pipeline
             cd(filePRE);
             
-            parfor i=1:length(files)
+            for i=1:length(files)
                 %load EEG
                 EEG = pop_loadset(files(i).name, filePRE,  'all','all','all','all','auto');
                 EEG = eeg_checkset(EEG);
@@ -209,45 +209,7 @@ classdef autopipeliner
         end
         
         function [EEG, acronym] = iclabel(cuts,EEG) %iclabel({'all',.9},EEG)
-            EEG = eeg_checkset(EEG);
-            EEG = pop_iclabel(EEG,'default');
-            EEG = eeg_checkset(EEG);
-            flags = [... %this is a variable that contains all the flags for ica label
-                NaN NaN;...%brain
-                NaN NaN;...%muscle
-                NaN NaN;...%eye
-                NaN NaN;...%heart
-                NaN NaN;...%line noise
-                NaN NaN;...%channel noise
-                NaN NaN;...%other
-                ];
-            if length(cuts) == 1
-                %content = cell2mat(content);
-                for i=1:length(flags)
-                    flags = [... %this is a variable that contains all the flags for ica label
-                        NaN NaN;...%brain
-                        1 cuts;...%muscle
-                        1 cuts;...%eye
-                        1 cuts;...%heart
-                        1 cuts;...%line noise
-                        1 cuts;...%channel noise
-                        NaN NaN;...%other
-                        ];
-                end
-            else
-                for i=1:length(cuts)
-                    flags(i+1,2) = cell2num(cuts(i));
-                end
-                EEG = pop_icflag(EEG,flags); %???
-            end
-            mybadcomps = []; %not sure what it does. I think its a variable full of bad components to be rejected
-            for j=1:length(EEG.reject.gcompreject) %this loop rejects all components
-                if EEG.reject.gcompreject(1,j)> 0
-                    mybadcomps(end+1) = j;
-                end
-            end
-            EEG = pop_subcomp(EEG,mybadcomps,0);
-            acronym = char(strcat('ICL',strcat(cuts)));
+            [EEG, acronym] = pipe_iclabel(cuts,EEG);
         end
         
         %stopped trying to make the loops explain the vriance...!
