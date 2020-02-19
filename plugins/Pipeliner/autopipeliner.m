@@ -36,10 +36,10 @@ classdef autopipeliner
                 files = dir('*.set');
                 %folderCounter = folderCounter + 1;
                 batchName = char(strcat('Batch_',num2str(folderCounter))); %names batch to "Batch"+number of the batch
-                [batchFolder] = autopipeliner.createBatchFolder(OGfolder,files,batchName); %created batch folder
+                %[batchFolder] = autopipeliner.createBatchFolder(OGfolder,files,batchName); %created batch folder
                 fprintf('generating batch folders'); %prints this sentence
-                nextbatch = table2array(batches(i));
-                [batchFolder, folderCounter] = autopipeliner.pipeIn(nextbatch,batchFolder,folderCounter); %start the pipeline
+                %nextbatch = table2array(batches(i));
+                [batchFolder, folderCounter] = autopipeliner.pipeIn(batches(i),batchFolder,folderCounter); %start the pipeline
             end
         end
                 
@@ -59,6 +59,14 @@ classdef autopipeliner
         end
         
         function [filePOST] = Function(batchPath,commands,filePath,counter) %magic function, runs the code asked!
+            if nargin < 4
+                counter = 0;
+            end
+            if nargin < 3
+                filePath = pwd;
+                counter = 0;
+            end
+                        
             %type = string, the function to be called
             %content = [], arrayof  the extra information to that function
             commands = table2array(commands);
@@ -73,28 +81,32 @@ classdef autopipeliner
             
             [files, filePRE, filePOST] = autopipeliner.createfolders(filePath,batchPath,folderNameDate); %creates a folder for the pipeline
             cd(filePRE);
-            
-            parfor i=1:length(files)
-                %load EEG
-                EEG = pop_loadset(files(i).name, filePRE,  'all','all','all','all','auto');
-                EEG = eeg_checkset(EEG);
-                %call the function = can be susbtituted for a script in the future
-                action = str2func(strcat(fname,char(commands(1)))); %this call a function inside this function with the name asked for!
-                if length(commands) > 1
-                    [EEG, acronym] = action(commands(2:end), EEG); %this is where the function runs the asked code!
-                else
-                    [EEG, acronym] = action(EEG); %this is where the function runs the asked code!
+            %try 
+                parfor i=1:length(files)
+                    %load EEG
+                    EEG = pop_loadset(files(i).name, filePRE,  'all','all','all','all','auto');
+                    EEG = eeg_checkset(EEG);
+                    %call the function = can be susbtituted for a script in the future
+                    action = str2func(strcat(fname,char(commands(1)))); %this call a function inside this function with the name asked for!
+                    if length(commands) > 1
+                        [EEG, acronym] = action(commands(2:end), EEG); %this is where the function runs the asked code!
+                    else
+                        [EEG, acronym] = action(EEG); %this is where the function runs the asked code!
+                    end
+                    
+                    [individualReport] = pipe_individualreport(files(i).name,EEG);
+                    %[individualReport] = autopipeliner.tempReport(files(i).name,EEG);%changedneedsfixing
+                    %saving files & report
+                    EEG = pop_saveset(EEG, 'filename', [strcat(files(i).name(1:end-4), [acronym], '.set')], 'filepath',filePOST);
+                    cd ..
+                    writetable(cell2table(individualReport),strcat(files(i).name(1:end-4),'_report.mat')); %saves the table in .mat format
+                    autopipeliner.fft(files(i),EEG);
+                    autopipeliner.componentFigures(files(i),EEG) %fixed and added 2/3/2020
+                    EEG = pop_delset(EEG,1); %fixed and added 2/3/2020
+                    cd(filePRE);
                 end
-
-                [individualReport] = pipe_individualreport(files(i).name,EEG);
-                %[individualReport] = autopipeliner.tempReport(files(i).name,EEG);%changedneedsfixing
-                %saving files & report
-                EEG = pop_saveset(EEG, 'filename', [strcat(files(i).name(1:end-4), [acronym], '.set')], 'filepath',filePOST);
-                writetable(cell2table(individualReport),strcat(files(i).name(1:end-4),'_report.xlsx')); %saves the table in .mat format
-                autopipeliner.fft(files(i),EEG);
-                autopipeliner.componentFigures(files(i),EEG) %fixed and added 2/3/2020
-                EEG = pop_delset(EEG,1); %fixed and added 2/3/2020
-            end
+           % catch
+                
             %makes report
             autopipeliner.report(folderNameDate); %fixed and added 2/3/2020
             %------
@@ -123,19 +135,15 @@ classdef autopipeliner
         end
         
         function emptyTrash()
-            trash = dir('bin*');
-            for i=1:length(trash)
-                delete (trash(i).name)
+            trashBin = dir('bin*');
+            trashMat = dir('*.mat')
+            parfor i=1:length(trashBin)
+                delete (trashBin(i).name)
+            end
+            parfor i=1:length(trashMat)
+                delete (trashMat(i).name)
             end
         end %%%works
-        
-        function [acronym] = makeAcronym(type,content)
-            acronym = string(type(1:2));
-            for i=1:length(content)
-                acronym = strcat(acronym,string(content(i)));%getAcronym(action)
-            end
-            acronym = char(acronym);
-        end %not being utilized
         
         function clean() %works
             clc;         % clear command window
@@ -144,7 +152,7 @@ classdef autopipeliner
             close all;   % close all figures
         end
         
-        function [files, filePRE, filePOST] = createfolders(filePath,batchPath,folderName) %work!!!
+        function [files, filePRE, filePOST] = createfolders(filePath,batchPath,folderName) %works!!!
             %------ create the folders where the pipeline will run
             %------ filePRE = strcat(basefolder,'\', type, '\pre'); %copies files
             %------ one can I turn it off)
@@ -158,9 +166,10 @@ classdef autopipeliner
             filePRE = strcat(batchPath,'\', folderName, '\pre');
             filePOST = strcat(batchPath,'\',folderName);
             %------
+            
             parfor i=1:length(files)
-                copyfile(files(i).name, filePRE)
-                copyfile(fdtfiles(i).name, filePRE);
+                movefile(files(i).name, filePRE)
+                movefile(fdtfiles(i).name, filePRE);
             end
         end
         
@@ -218,42 +227,9 @@ classdef autopipeliner
             [EEG, acronym] = pipe_icloop(cut, EEG);
         end
         
-        function [EEG, PercentBrainAccountedFor_Total] = getVarianceExplained(content,EEG)
-            %getVarianceEmplained(components,EEG)
-            temporaryList = {};
-            finalList = [];
-            EEG.icaact = (EEG.icaweights*EEG.icasphere)*EEG.data(EEG.icachansind,:);
-            
-            chanorcomp = size(EEG.icaweights,1);
-            for j=1:chanorcomp
-                icaacttmp = EEG.icaact(j, :, :);
-                maxsamp = 1e6;
-                n_samp = min(maxsamp, EEG.pnts*EEG.trials);
-                try
-                    samp_ind = randperm(EEG.pnts*EEG.trials, n_samp);
-                catch
-                    samp_ind = randperm(EEG.pnts*EEG.trials);
-                    samp_ind = samp_ind(1:n_samp);
-                end
-                if ~isempty(EEG.icachansind)
-                    icachansind = EEG.icachansind;
-                else
-                    icachansind = 1:EEG.nbchan;
-                end
-                datavar = mean(var(EEG.data(icachansind, samp_ind), [], 2));
-                projvar = mean(var(EEG.data(icachansind, samp_ind) - ...
-                    EEG.icawinv(:, j) * icaacttmp(1, samp_ind), [], 2));
-                pvafval = 100 *(1 - projvar/ datavar);
-                pvaf = num2str(pvafval, '%3.1f');
-                temporaryList = {pvaf};
-                finalList = cat(1, finalList, temporaryList);
-            end
-            
-            PercentBrainAccountedFor_Total = 0;
-            for a =1:content % This will only count the first X components
-                PercentBrainAccountedFor_Comp = EEG.etc.ic_classification.ICLabel.classifications(a,1)*str2double((finalList{a,1}));
-                PercentBrainAccountedFor_Total = PercentBrainAccountedFor_Total + PercentBrainAccountedFor_Comp;
-            end
+        function [EEG, PercentBrainAccountedFor_Total] = getVarianceExplained(content,EEG) %it works too!
+            %getVarianceEmplained(numOfComponents,EEG)
+            pipe_explainedvariance(content,EEG);
         end
         
         %making the report table!!!

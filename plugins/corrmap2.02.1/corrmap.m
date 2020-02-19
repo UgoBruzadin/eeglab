@@ -106,7 +106,8 @@ end
 
 % dataset indices (only unique ICAs)
 % ----------------------------------
-sameicas = std_findsameica(ALLEEG);
+sameicas = std_findsameica(ALLEEG); % What the fuck is this?
+%sameicas = length(ALLEEG); %Matt Gunn inserted test
 datindsori = [];
 flagtmp = 0;
 for tmpi = 1:length(sameicas)

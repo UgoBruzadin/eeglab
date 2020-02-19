@@ -21,7 +21,6 @@ K = {'baseline',[0 .400]}; %needs to be retested
 %maybe: BSS, 
 %example; Batch1 = {E2,F}; Batch2 = {E3,F,G};
 
-
 %Fork1 = {D1,F,E2};
 path = pwd;
 testIC = {'ica',10};

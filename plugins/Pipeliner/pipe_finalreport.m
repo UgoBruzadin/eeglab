@@ -1,5 +1,7 @@
 function [finalReport] = pipe_finalreport(folderNameDate)
-    reports = dir('*.xlsx');
+    reports = dir('*.mat');
+    finalReport = [];
+    %try and load all files at once then cat all of them? 
     for i=1:(length(reports)-1)
         if i == 1
             tempReport = readtable(reports(i).name);
