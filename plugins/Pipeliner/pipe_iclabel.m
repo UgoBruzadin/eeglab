@@ -1,9 +1,9 @@
 function [EEG, acronym] = pipe_iclabel(commands, EEG)
     %------ pipeliner.iclabel({loop, flag},EEG
-    
-    if size(EEG.icaweights,1) == 0
-        EEG = pop_runica(EEG, 'extended',1,'pca',45,'verbose','off');
-    end
+    %EEG = pop_runica(EEG, 'extended',1,'pca',45,'verbose','off');
+%      if size(EEG.icaweights,1) == 0
+%          EEG = pop_runica(EEG, 'extended',1,'pca',45,'verbose','off');
+%      end
     
     IC = size(EEG.icaweights,1);
     oldEEG = EEG;
@@ -41,6 +41,5 @@ function [EEG, acronym] = pipe_iclabel(commands, EEG)
     %------- return to last highest component, store acronym
     EEG = oldEEG;
     EEG = pop_iclabel(EEG, 'default');
-    %EEG = pop_runica(EEG, 'extended',1,'pca',IC2-1,'verbose','off'); %runs a PCA to the last num of ICs since a component was removed
     acronym = char(strcat('Pc',num2str(size(EEG.icaweights,1)))); %the acronym to be passed along to be added to the name of the file
 end

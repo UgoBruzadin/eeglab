@@ -1,5 +1,5 @@
 function [finalReport] = pipe_finalreport(folderNameDate)
-    reports = dir('*.mat');
+    reports = dir('*.txt');
     finalReport = [];
     %try and load all files at once then cat all of them? 
     for i=1:(length(reports)-1)
@@ -15,5 +15,5 @@ function [finalReport] = pipe_finalreport(folderNameDate)
             finalReport = tempReport;
         end
     end
-    writetable(finalReport,strcat(upper(folderNameDate),'.xlsx'));
+    writematrix(finalReport,strcat(upper(folderNameDate),'.txt'));
 end

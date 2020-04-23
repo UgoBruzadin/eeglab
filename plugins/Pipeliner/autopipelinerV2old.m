@@ -5,7 +5,7 @@
 
 classdef autopipeliner
     methods(Static)
-        
+               
         function batches(batches,batchFolder,folderCounter) %store all batches to be done
             if nargin < 3
                 folderCounter = 0;
@@ -23,7 +23,7 @@ classdef autopipeliner
                 [batchFolder, folderCounter] = autopipeliner.pipeIn(batches(i),batchFolder,folderCounter); %start the pipeline
             end
         end
-        
+                
         function [fileFolder, folderCounter] = pipeIn(commands,batchFolder,folderCounter) %store the functions to be rolled in this batch
             if nargin < 3
                 folderCounter = 0;
@@ -47,7 +47,9 @@ classdef autopipeliner
                 filePath = pwd;
                 counter = 0;
             end
-            
+                        
+            %type = string, the function to be called
+            %content = [], arrayof  the extra information to that function
             commands = table2array(commands);
             autopipeliner.clean(); %wipe the memory
             t = datetime('now','TimeZone','local','Format','dMMMy-HH.mm'); %gets the datetime
@@ -60,31 +62,35 @@ classdef autopipeliner
             
             [files, filePRE, filePOST] = autopipeliner.createfolders(filePath,batchPath,folderNameDate); %creates a folder for the pipeline
             cd(filePRE);
-            parfor i=1:length(files)
-                %load EEG
-                EEG = pop_loadset(files(i).name, filePRE,  'all','all','all','all','auto');
-                if counter == 0
+                parfor i=1:length(files)
+                    %load EEG
+                    EEG = pop_loadset(files(i).name, filePRE,  'all','all','all','all','auto');
+                    if counter == 0
+                        %autopipeliner.fft(files(i),EEG);
+                    end
+                    EEG = eeg_checkset(EEG);
+                    %call the function = can be susbtituted for a script in the future
+                    action = str2func(strcat('pipe_',char(commands(1)))); %this call a function inside this function with the name asked for!
+                    if length(commands) > 1
+                        [EEG, acronym] = action(commands(2:end), EEG); %this is where the function runs the asked code!
+                    else
+                        [EEG, acronym] = action(EEG); %this is where the function runs the asked code!
+                    end
+                    
+                    %[individualReport] = autopipeliner.tempReport(files(i).name,EEG);%changedneedsfixing
+                    %saving files & report
+                    newname = strcat(files(i).name(1:end-4), [acronym], '.set');
+                    EEG = pop_saveset(EEG, 'filename', [newname], 'filepath',filePOST);
+                    %[individualReport] = pipe_individualreport(newname,EEG);
+                    %cd ..
+                    %writetable(cell2table(individualReport),strcat(files(i).name(1:end-4),'_report.txt')); %saves the table in .mat format
                     %autopipeliner.fft(files(i),EEG);
+                    if ~isempty(EEG.icaweights)
+                        %autopipeliner.componentFigures(files(i),EEG) %fixed and added 2/3/2020
+                    end
+                    EEG = pop_delset(EEG,1); %fixed and added 2/3/2020
+                    %cd(filePRE);
                 end
-                EEG = eeg_checkset(EEG);
-                %call the function = can be susbtituted for a script in the future
-                action = str2func(strcat('pipe_',char(commands(1)))); %this call a function inside this function with the name asked for!
-                if length(commands) > 1
-                    [EEG, acronym] = action(commands(2:end), EEG); %this is where the function runs the asked code!
-                else
-                    [EEG, acronym] = action(EEG); %this is where the function runs the asked code!
-                end
-                
-                %[individualReport] = autopipeliner.tempReport(files(i).name,EEG);%changedneedsfixing
-                %saving files & report
-                newname = strcat(files(i).name(1:end-4), [acronym], '.set');
-                EEG = pop_saveset(EEG, 'filename', [newname], 'filepath',filePOST);
-                autopipeliner.fft(files(i),EEG);
-                if ~isempty(EEG.icaweights)
-                    %autopipeliner.componentFigures(files(i),EEG) %fixed and added 2/3/2020
-                end
-                EEG = pop_delset(EEG,1); %fixed and added 2/3/2020
-                %cd(filePRE);
             end
             %makes report
             %autopipeliner.report(folderNameDate); %fixed and added 2/3/2020
@@ -93,7 +99,6 @@ classdef autopipeliner
             autopipeliner.emptyTrash(); %deletes binica's leftover trash
             %sends text to me
             autopipeliner.txt(strcat('processing of ', folderNameDate,' is over')); %fixed and added 2/3/2020
-        %fixed and added 2/3/2020
         end
         
         function Report(filePath) %magic function, runs the code asked!
@@ -131,9 +136,27 @@ classdef autopipeliner
             %makes report
             autopipeliner.report(strcat('finalReport',t)); %fixed and added 2/3/2020
             autopipeliner.emptyTrash(); %deletes binica's leftover trash
-            autopipeliner.txt(strcat('processing of ', folderNameDate,' is over')); %fixed and added 2/3/2020
+            %autopipeliner.txt(strcat('processing of ', folderNameDate,' is over')); %fixed and added 2/3/2020
         end
-                
+        
+        %functions without EEG
+        
+        %         function makeHeader(EEG) %undercontruction
+        %             ExcelSheetHeader = {'name','process','type', 'numchans','ref','srate','trials','events','xmax','components'};
+        %             components = 0;
+        %             if ~isempty(EEG.icaweights) & ~isempty(EEG.etc.ic_classification.ICLabel.classifications)
+        %                 for j=1:128
+        %                         components = components + 1;
+        %                     ExcelSheetHeader{end+1} = [strcat('component ',string(components))];
+        %                     ExcelSheetHeader{end+1} = '%';
+        %                 end
+        %             end
+        %         end
+        
+        function report(folderNameDate)
+            pipe_finalreport(folderNameDate);
+        end
+        
         function emptyTrash()
             trashBin = dir('bin*');
             trashMat = dir('*.mat');
@@ -192,7 +215,7 @@ classdef autopipeliner
         
         function txt(content) %works
             number = '6183034686@vtext.com';
-            
+            email = 'ugobnunes@hotmail.com';
             %who = {number, email};
             who = {number};
             mail = 'ugoslab@gmail.com'; %Your GMail email address
@@ -213,10 +236,41 @@ classdef autopipeliner
         
         %Functions that do EEG
         
+        function [EEG, PercentBrainAccountedFor_Total] = getVarianceExplained(content,EEG) %it works too!
+            %getVarianceEmplained(numOfComponents,EEG)
+            pipe_explainedvariance(content,EEG);
+        end
+        
         %making the report table!!!
         
         function [tempTable] = tempReport(filename,EEG)
             [tempTable] = pipe_individualreport(filename,EEG);
+        end
+        
+        %         function [finalTable] = report(files, EEG) %untested
+        %             %finalTable = {'name','ref','numchans','srate','trials','event','xmax'};
+        %             nameOfEvents = {};
+        %
+        %             tempCompTable = {[files.name],EEG.chanlocs(1).ref,EEG.nbchan,EEG.srate,EEG.trials,length(EEG.event),EEG.xmax};
+        %
+        %             sheet = 1;
+        %             writetable(Tab1,filename,'sheet',sheet,'Range','A1')
+        %             sheet = 2;
+        %             writetable(Tab2,filename,'sheet',sheet,'Range','A1')
+        %
+        %         end
+        
+        %         function report(EEG) %untested
+        %             TemporaryTable = {EEG.filename,EEG.chanlocs(1).ref,EEG.ref(1),EEG.nbchan,EEG.srate,EEG.trials,EEG.xmax};
+        %             FinalTable = cat(1,FinalTable,TemporaryTable); % the function cat adds the table from file #(i) to the FinalTable matrix
+        %         end
+        
+        function [EEG, acronym] = filter(commands,EEG) %should work
+            [EEG, acronym] = pipe_filter(commands,EEG);
+        end
+        
+        function [EEG, acronym] = notchfilter(EEG)
+            [EEG, acronym] = pipe_notchfilter(EEG);
         end
         
         function [EEG, acronym] = rereference(command,EEG) %untested
@@ -266,13 +320,27 @@ classdef autopipeliner
             %EEG = pop_reref( EEG, [],'refloc',struct('labels',{'Cz'},'Y',{0},'X',{0},'Z',{8.7919},'sph_theta',{0},'sph_phi',{0},'sph_radius',{0},'theta',{0},'radius',{0},'type',{''},'ref',{'Cz'},'urchan',{[]},'datachan',{0}));
             acronym = 'IN';%gotta add the interpolated channels
         end
-                        
+        
+        function [EEG, acronym] = epoch(content, EEG) %content must be 1.array of names of epochs, 2. first cut and 3. second cut, both in seconds
+            [EEG, acronym] = pipe_epoch(content, EEG);
+        end
+        
+        function [EEG, acronym] = epochRejection(content, EEG) %content must be 1.array of names of epochs, 2. first cut and 3. second cut, both in seconds
+            [EEG, acronym] = pipe_epochrej(content, EEG);
+        end
+        
         function [EEG, acronym] = baseline(commands, EEG) %baseline asks for two numbers %untested
             EEG = pop_rmbase( EEG, [commands(1) commands(2)]);
             acronym = 'BL'; %make for variable baseline later
         end
         
         %figuregenerators!
+        function fft(files,EEG) %works; by ugo 2/3/2020 7:15pm
+            pipe_fft(files,EEG);
+        end
         
+        function componentFigures(files,EEG) %maybe fixed by ugo 2/3/2020 7:15pm
+            pipe_icfigures(files,EEG);
+        end
     end
 end

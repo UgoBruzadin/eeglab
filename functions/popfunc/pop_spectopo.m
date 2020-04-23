@@ -139,6 +139,10 @@ end
 
 maxPower = 2^floor(log2(EEG.pnts))
 
+if maxPower > 2048
+    maxPower = 2048
+end
+
 if nargin < 3
 	if dataflag
 		geometry = { [2 1] [2 1] [2 1] [2 1] [2 1] [2 1]};
@@ -154,7 +158,7 @@ if nargin < 3
 						 { 'style' 'text' 'string' 'Plotting frequency range [lo_Hz hi_Hz]:'}, ...
 						 { 'style' 'edit' 'string' '0 55' }, ...
 						 { 'style' 'text' 'string' 'Spectral and scalp map options (see topoplot):' } ...
-						 { 'style' 'edit' 'string' '''winsize'',2^floor(log2(EEG.pnts)),''electrodes'',''off''' } };
+						 { 'style' 'edit' 'string' '''winsize'',maxPower,''electrodes'',''off''' } };
 		if EEG.trials == 1
 			geometry(3) = [];
 			promptstr(7:8) = [];
