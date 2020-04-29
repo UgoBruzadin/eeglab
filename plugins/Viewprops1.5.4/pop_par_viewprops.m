@@ -233,22 +233,20 @@ for ri = chanorcomp
          end
 		button = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized', 'Position',...
                            [X Y+sizewy sizewx sizewy*0.18].*s+q, 'tag', ['comp' num2str(ri)]);
-		set( button, 'callback', {@pop_prop_extended, EEG, typecomp, ri, NaN, spec_opt, erp_opt, scroll_event, classifier_name} );
+		set( button, 'callback', {@pop_par_prop_extended, EEG, typecomp, ri, NaN, spec_opt, erp_opt, scroll_event, classifier_name} );
 	end;
     if typecomp
         set( button, 'backgroundcolor', COLACC, 'string', EEG.chanlocs(ri).labels); 	
     else
         set( button, 'backgroundcolor', COLACC, 'string', int2str(ri)); 	
     end
-	%drawnow;
+	drawnow;
 	count = count +1;
 end;
 
-drawnow;
-    
-com = sprintf('pop_viewprops( %s, %d, %s, %s, %s, %d, ''%s'' )', ...
-    inputname(1), typecomp, hlp_tostring(chanorcomp), hlp_tostring(spec_opt), ...
-    hlp_tostring(erp_opt), scroll_event, classifier_name);
+%com = sprintf('pop_viewprops( %s, %d, %s, %s, %s, %d, ''%s'' )', ...
+%    inputname(1), typecomp, hlp_tostring(chanorcomp), hlp_tostring(spec_opt), ...
+%    hlp_tostring(erp_opt), scroll_event, classifier_name);
 end
 
 

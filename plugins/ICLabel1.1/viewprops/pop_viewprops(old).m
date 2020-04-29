@@ -240,12 +240,10 @@ for ri = chanorcomp
     else
         set( button, 'backgroundcolor', COLACC, 'string', int2str(ri)); 	
     end
-	%drawnow;
+	drawnow;
 	count = count +1;
 end;
 
-drawnow;
-    
 com = sprintf('pop_viewprops( %s, %d, %s, %s, %s, %d, ''%s'' )', ...
     inputname(1), typecomp, hlp_tostring(chanorcomp), hlp_tostring(spec_opt), ...
     hlp_tostring(erp_opt), scroll_event, classifier_name);

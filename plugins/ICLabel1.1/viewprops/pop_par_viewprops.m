@@ -39,14 +39,14 @@
 
 % 01-25-02 reformated help & license -ad 
 
-function [com] = pop_viewprops( EEG, typecomp, chanorcomp, spec_opt, erp_opt, scroll_event, classifier_name, fig)
+function [com] = pop_par_viewprops( EEG, typecomp, chanorcomp, spec_opt, erp_opt, scroll_event, classifier_name, fig)
 
 COLACC = [0.75 1 0.75];
 PLOTPERFIG = 35;
 com = '';
 
 if nargin < 1
-	help pop_viewprops;
+	help pop_par_viewprops;
 	return;
 end;
 
@@ -78,7 +78,7 @@ if nargin < 3
     
     try
         result       = inputdlg3( 'prompt', promptstr,'style', stylestr, ...
-            'default',  inistr, 'title', 'View many chan or comp. properties -- pop_viewprops');
+            'default',  inistr, 'title', 'View many chan or comp. properties -- pop_par_viewprops');
     catch
         result = [];
     end
@@ -113,13 +113,31 @@ fprintf('Drawing figure...\n');
 currentfigtag = ['selcomp' num2str(rand)]; % generate a random figure tag
 
 if length(chanorcomp) > PLOTPERFIG
+    tic
     for index = 1:PLOTPERFIG:length(chanorcomp)
-        pop_viewprops(EEG, typecomp, chanorcomp(index:min(length(chanorcomp),index+PLOTPERFIG-1)), ...
+        number = min(length(chanorcomp),index+PLOTPERFIG-1)
+        pop_par_viewprops(EEG, typecomp, chanorcomp(index:number), ...
             spec_opt, erp_opt, scroll_event, classifier_name);
     end;
-    com = sprintf('pop_viewprops( %s, %d, %s, %s, %s, %d, ''%s'' )', ...
-        inputname(1), typecomp, hlp_tostring(chanorcomp), hlp_tostring(spec_opt), ...
-        hlp_tostring(erp_opt), scroll_event, classifier_name);
+    
+%     numoffigs = ceil(length(chanorcomp)/PLOTPERFIG);
+%     for jndex = 1:numoffigs
+%         if length(chanorcomp/PLOTPERFIG) > PLOTPERFIG
+%             CompMax = PLOTPERFIG*jndex;
+%             CompMin = 
+%         else
+%             CompMax = PLOTPERFIG*jndex-PLOTPERFIG+rem(length(chanorcomp),PLOTPERFIG);
+%         end
+%         for index = 1+CompMax-CompMax:CompMax
+%             pop_par_viewprops(EEG, typecomp, chanorcomp(index), ...
+%                 spec_opt, erp_opt, scroll_event, classifier_name);
+%         end
+%     end
+
+    toc
+   % com = sprintf('pop_par_viewprops( %s, %d, %s, %s, %s, %d, ''%s'' )', ...
+      %  inputname(1), typecomp, hlp_tostring(chanorcomp), hlp_tostring(spec_opt), ...
+      %  hlp_tostring(erp_opt), scroll_event, classifier_name);
     return;
 end;
 
@@ -131,10 +149,10 @@ end;
 
 % set up the figure
 % -----------------
-column =ceil(sqrt( length(chanorcomp) ))+1;
+column = ceil(sqrt( length(chanorcomp) ))+1;
 rows = ceil(length(chanorcomp)/column);
 if ~exist('fig','var')
-	figure('name', [ 'View ' fastif(typecomp,'channels','components') ' properties - pop_viewprops() (dataset: ' EEG.setname ')'], 'tag', currentfigtag, ...
+	figure('name', [ 'View ' fastif(typecomp,'channels','components') ' properties - pop_par_viewprops() (dataset: ' EEG.setname ')'], 'tag', currentfigtag, ...
 		   'numbertitle', 'off', 'color', BACKCOLOR);
 	set(gcf,'MenuBar', 'none');
 	pos = get(gcf,'Position');
@@ -166,11 +184,19 @@ else
     plotelec = 1;
 end;
 count = 1;
-for ri = chanorcomp
+
+%Xx = length(chanorcomp);
+%Yy = empty(chanorcomp);
+
+Xx = double(chanorcomp);
+Yy = double(chanorcomp);
+
+
+for rj = chanorcomp
 	if exist('fig','var')
-		button = findobj('parent', fig, 'tag', ['comp' num2str(ri)]);
+		button = findobj('parent', fig, 'tag', ['comp' num2str(rj)]);
 		if isempty(button) 
-			error( 'pop_viewprops(): figure does not contain the component button');
+			error( 'pop_par_viewprops(): figure does not contain the component button');
 		end;	
 	else
 		button = [];
@@ -179,8 +205,27 @@ for ri = chanorcomp
 	if isempty( button )
 		% compute coordinates
 		% -------------------
-		X = mod(count-1, column)/column * incx-10;  
-        Y = (rows-floor((count-1)/column))/rows * incy - sizewy*1.3;  
+		Xx(rj) = mod(count-1, column)/column * incx-10;  
+        Yy(rj) = (rows-floor((count-1)/column))/rows * incy - sizewy*1.3;  
+    end
+count = count +1;    
+end
+
+for ri = chanorcomp
+	if exist('fig','var')
+		button = findobj('parent', fig, 'tag', ['comp' num2str(ri)]);
+		if isempty(button) 
+			error( 'pop_par_viewprops(): figure does not contain the component button');
+		end;	
+	else
+		button = [];
+	end;		
+		 
+	if isempty( button )
+		% compute coordinates
+		% -------------------
+		X = Xx(ri); 
+        Y = Yy(ri);  
 
 		% plot the head
 		% -------------
@@ -240,15 +285,12 @@ for ri = chanorcomp
     else
         set( button, 'backgroundcolor', COLACC, 'string', int2str(ri)); 	
     end
-	%drawnow;
-	count = count +1;
+	%count = count +1;
 end;
-
 drawnow;
-    
-com = sprintf('pop_viewprops( %s, %d, %s, %s, %s, %d, ''%s'' )', ...
-    inputname(1), typecomp, hlp_tostring(chanorcomp), hlp_tostring(spec_opt), ...
-    hlp_tostring(erp_opt), scroll_event, classifier_name);
+%com = sprintf('pop_viewprops( %s, %d, %s, %s, %s, %d, ''%s'' )', ...
+  %  inputname(1), typecomp, hlp_tostring(chanorcomp), hlp_tostring(spec_opt), ...
+ %   hlp_tostring(erp_opt), scroll_event, classifier_name);
 end
 
 
