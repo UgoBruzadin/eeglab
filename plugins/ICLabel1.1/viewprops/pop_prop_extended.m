@@ -404,8 +404,10 @@ for it_dipfit_version = dipfit_order
         if isfield(EEG, 'dipfit') && ~isempty(EEG.dipfit)
             try
                 rv = num2str(EEG.dipfit.model(chanorcomp).rv*100, '%.1f');
+                loc = EEG.dipfit.model(chanorcomp).areadk;
             catch
                 rv = 'N/A';
+                loc = 'N/A';
             end
             dip_background = axes('Parent', fh, 'position', [0.41 0.1 0.1 0.1557*3+0.0109], ...
                 'units', 'normalized', 'XLim', [0 1], 'Ylim', [0 1]);
@@ -468,7 +470,7 @@ for it_dipfit_version = dipfit_order
             end
 
             % dipole text
-            dip_title = title(dip_background, 'Dipole Position', 'FontWeight', 'Normal');
+            dip_title = title(dip_background, loc, 'FontWeight', 'Normal');
             set(dip_title,'FontSize',14);
             set(fh, 'CurrentAxes', ax(1))
             if size(EEG.dipfit.model(chanorcomp).momxyz, 1) == 2
@@ -477,8 +479,10 @@ for it_dipfit_version = dipfit_order
                 if dmr<1
                     dmr = 1/dmr; end
                 text(-50,-173,{['RV: ' rv '%']; ['DMR:' num2str(dmr,'%.1f')]})
+                %text(-50,-193, {loc})
             else
-                text(-50,-163,['RV: ' rv '%'])
+                text(-50,-163,['RV: ' rv '% '])
+                %text(-50,-183,[loc])
             end
             
             % exit loop over dipfit versions
