@@ -98,13 +98,7 @@
 % 03-18-02 add other decomposition options -ad
 % 03-19-02 text edition -sm
 
-function [ALLEEG, com] = pop_runica( ALLEEG, varargin )
-
-
-tmpdata3 = reshape( ALLEEG(1).data(:,:,:), size(ALLEEG(1).data,1), ALLEEG(1).pnts*ALLEEG(1).trials);
-tmprank3 = getrank(double(tmpdata3(:,1:min(3000, size(tmpdata3,2)))));
-tmpdata3 = tmpdata3 - repmat(mean(tmpdata3,2), [1 size(tmpdata3,2)]); % zero mean 
-
+function [ALLEEG, com] = pop_runica2( ALLEEG, varargin )
 
 com = '';
 if nargin < 1   
@@ -114,7 +108,7 @@ end
 
 % find available algorithms
 % -------------------------
-allalgs   = { 'binica' 'runica' 'cudaica' 'jader' 'jadeop' 'jade_td_p' 'MatlabshibbsR' 'fastica' ...
+allalgs   = { 'binica' 'binica2' 'runica' 'cudaica' 'jader' 'jadeop' 'jade_td_p' 'MatlabshibbsR' 'fastica' ...
               'tica' 'erica' 'simbec' 'unica' 'amuse' 'fobi' 'evd' 'evd24' 'sons' 'sobi' 'ng_ol' ...
               'acsobiro' 'acrsobibpf' 'pearson_ica' 'egld_ica' 'eeA' 'tfbss' 'icaML' 'icaMS' 'picard' }; % do not use egld_ica => too slow
 selectalg = {};
@@ -129,7 +123,7 @@ end
 % special AMICA
 % -------------
 selectamica = 0;
-defaultopts = [ '''extended'', 1,''pca'', ', int2str(tmprank3), ',''verbose'', ''off''' ] ;
+defaultopts = [ '''extended'', 1,''pca'', 40,''verbose'', ''off''' ] ;
 if nargin > 1
     if ischar(varargin{1})
         if strcmpi(varargin{1}, 'selectamica')
@@ -165,7 +159,7 @@ if nargin < 2 || selectamica
                    'end;' ...
 				   'clear tmps tmpv tmpstr tmptype tmpchans;' ];
     cb_ica = [ 'if get(gcbo, ''value'') < 3, ' ...
-               '     set(findobj(gcbf, ''tag'', ''params''), ''string'', ''''''extended'''', 1,''''pca'''',40'');' ...  
+               '     set(findobj(gcbf, ''tag'', ''params''), ''string'', ''''''extended'''', 1'');' ...
                'else set(findobj(gcbf, ''tag'', ''params''), ''string'', '''');' ...
                'end;' ];
                
@@ -223,7 +217,7 @@ if nargin < 2 || selectamica
     % ---
     result       = inputgui( 'geometry', geometry, 'geomvert', geomvert, 'uilist', promptstr, ...
                              'helpcom', 'pophelp(''pop_runica'')', ...
-                             'title', 'Run ICA decomposition -- pop_runica()', 'userdata', { alllabels alltypes } );
+                             'title', 'Run ICA 2 decomposition -- pop_runica()', 'userdata', { alllabels alltypes } );
     if length(result) == 0 return; end      
     options = { 'icatype' allalgs{result{1}} 'dataset' [1:length(ALLEEG)] 'options' eval( [ '{' result{2} '}' ]) 'reorder' fastif(result{3}, 'on', 'off') };
     if ~isempty(result{4})
@@ -430,20 +424,6 @@ switch lower(g.icatype)
             disp(['Data rank (' int2str(tmprank) ') is smaller than the number of channels (' int2str(size(tmpdata,1)) ').']);
             [EEG.icaweights,EEG.icasphere] = runica( tmpdata, 'lrate', 0.001, g.options{:} );
         end
-     case 'binica(old)'
-        icadefs;
-        fprintf(['Warning: If the binary ICA function does not work, check that you have added the\n' ...
-                 'binary file location (in the EEGLAB directory) to your Unix /bin directory (.cshrc file)\n']);
-        if exist(ICABINARY) ~= 2
-            error('Pop_runica(): binary ICA executable not found. Edit icadefs.m file to specify the ICABINARY location');
-        end
-        tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
-        if tmprank == size(tmpdata,1) || pca_opt
-            [EEG.icaweights,EEG.icasphere] = binica( tmpdata, 'lrate', 0.001, g.options{:} );
-        else 
-            disp(['Data rank (' int2str(tmprank) ') is smaller than the number of channels (' int2str(size(tmpdata,1)) ').']);
-            [EEG.icaweights,EEG.icasphere] = binica( tmpdata, 'lrate', 0.001, 'pca', tmprank, g.options{:} );
-        end
      case 'binica'
         icadefs;
         fprintf(['Warning: If the binary ICA function does not work, check that you have added the\n' ...
@@ -453,10 +433,24 @@ switch lower(g.icatype)
         end
         tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
         if tmprank == size(tmpdata,1) || pca_opt
-            [EEG.icaweights,EEG.icasphere] = binica(EEG, tmpdata, 'lrate', 0.001, g.options{:} );
+            [EEG.icaweights,EEG.icasphere] = binica( tmpdata, 'lrate', 0.001, EEG.g.options{:} );
         else 
             disp(['Data rank (' int2str(tmprank) ') is smaller than the number of channels (' int2str(size(tmpdata,1)) ').']);
-            [EEG.icaweights,EEG.icasphere] = binica(EEG, tmpdata, 'lrate', 0.001, 'pca', tmprank, g.options{:});
+            [EEG.icaweights,EEG.icasphere] = binica( tmpdata, 'lrate', 0.001, 'pca', EEG, tmprank, g.options{:} );
+        end
+     case 'binica2'
+        icadefs;
+        fprintf(['Warning: If the binary ICA function does not work, check that you have added the\n' ...
+                 'binary file location (in the EEGLAB directory) to your Unix /bin directory (.cshrc file)\n']);
+        if exist(ICABINARY) ~= 2
+            error('Pop_runica(): binary ICA executable not found. Edit icadefs.m file to specify the ICABINARY location');
+        end
+        tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
+        if tmprank == size(tmpdata,1) || pca_opt
+            [EEG.icaweights,EEG.icasphere] = binica2( tmpdata, 'lrate', 0.001, g.options{:} );
+        else 
+            disp(['Data rank (' int2str(tmprank) ') is smaller than the number of channels (' int2str(size(tmpdata,1)) ').']);
+            [EEG.icaweights,EEG.icasphere] = binica2( tmpdata, 'lrate', 0.001, 'pca', tmprank, g.options{:} );
         end
     case 'cudaica' % Add by Yunhui on 2018-09-09
         [EEG.icaweights,EEG.icasphere] = cudaica(tmpdata, 'lrate', 0.001, g.options{:} );     

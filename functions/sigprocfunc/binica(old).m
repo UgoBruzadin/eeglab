@@ -93,10 +93,9 @@
 % 11/06/01 add absolute path of files (lines 157-170 & 198) -ad
 % 01-25-02 reformated help & license, added links -ad 
  
-function [wts,sph,tmpint] = binica(EEG,data,var2,var3,var4,var5,var6,var7,var8,var9,var10,var11,var12,var13,var14,var15,var16,var17,var18,var19,var20,var21,var22,var23,var24,var25)
-%changed name to binica2, added EEG
-%if nargin < 1 || nargin > 25 changed total vars
-if nargin < 1 || nargin > 26
+function [wts,sph,tmpint] = binica(data,var2,var3,var4,var5,var6,var7,var8,var9,var10,var11,var12,var13,var14,var15,var16,var17,var18,var19,var20,var21,var22,var23,var24,var25)
+
+if nargin < 1 || nargin > 25
     more on
     help binica
     more off
@@ -137,30 +136,26 @@ end
 tmpint=[];
 
 if ~ischar(data) % data variable given
-  %firstarg = 2;
   firstarg = 2;
 else % data filename given
-  %firstarg = 4;
   firstarg = 4;
 end
 
 arg = firstarg;
-if arg > nargin-1
+if arg > nargin
    fprintf('binica(): no optional (flag, argument) pairs received.\n');
 else
- if (nargin-1-arg+1)/2 > 1
+ if (nargin-arg+1)/2 > 1
     fprintf('binica(): processing %d (flag, arg) pairs.\n',(nargin-arg+1)/2);
  else
     fprintf('binica(): processing one (flag, arg) pair.\n');
  end
- %while arg <= nargin %%%%%%%%%%%% process flags & args %%%%%%%%%%%%%%%%
- while arg <= nargin-1 %%%%%%%%%%%% process flags & args %%%%%%%%%%%%%%%%
+ while arg <= nargin %%%%%%%%%%%% process flags & args %%%%%%%%%%%%%%%%
 
   eval(['OPTIONFLAG = var' int2str(arg) ';']); 
   % NB: Found that here Matlab var 'FLAG' is (64,3) why!?!?
 
-  %if arg == nargin
-  if arg == nargin-1
+  if arg == nargin
     fprintf('\nbinica(): Flag %s needs an argument.\n',OPTIONFLAG)
     return
   end
@@ -211,12 +206,9 @@ end
 % select random integer 1-10000 to index the binica data files
 % make sure no such script file already exists in the pwd
 %
-t = datetime('now','TimeZone','local','Format','ddMMyy_HH.mm.ss'); %gets the datetime
-            
 scriptfile = ['binica' tmpint '.sc'];
 while exist(scriptfile)
-    
-    tmpint = strcat(EEG.filename(1:10),char(t),'_',int2str(round(rand*1000)));
+    tmpint = int2str(round(rand*10000000));
     scriptfile = ['binica' tmpint '.sc'];
 end
 fprintf('scriptfile = %s\n',scriptfile);
