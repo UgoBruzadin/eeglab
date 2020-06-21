@@ -129,7 +129,7 @@ end
 % special AMICA
 % -------------
 selectamica = 0;
-defaultopts = [ '''extended'', 1,''pca'', ', int2str(tmprank3), ',''verbose'', ''off''' ] ;
+defaultopts = [ '''extended'', 1,''pca'', ', int2str(tmprank3-1), ',''verbose'', ''off''' ] ;
 if nargin > 1
     if ischar(varargin{1})
         if strcmpi(varargin{1}, 'selectamica')
@@ -170,7 +170,7 @@ if nargin < 2 || selectamica
                'end;' ];
                
     promptstr    = { { 'style' 'text'       'string' 'ICA algorithm to use (click to select)' } ...
-                     { 'style' 'listbox'    'string' strvcat(allalgs{:}) 'callback', cb_ica } ...
+                     { 'style' 'listbox'    'string' strvcat(allalgs{:}) } ...%'callback', cb_ica } ...
                      { 'style' 'text'       'string' 'Commandline options (See help messages)' } ...
                      { 'style' 'edit'       'string' defaultopts 'tag' 'params' } ...
                      { 'style'  'checkbox'  'string' 'Reorder components by variance (if that''s not already the case)' 'value' 1 } ...
@@ -453,13 +453,13 @@ switch lower(g.icatype)
         end
         tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
         if tmprank == size(tmpdata,1) || pca_opt
-            [EEG.icaweights,EEG.icasphere] = binica(EEG, tmpdata, 'lrate', 0.001, g.options{:} );
+            [EEG.icaweights,EEG.icasphere] = binica(EEG, tmpdata, 'lrate', 0.001, g.options{:} ); % Added EEG by Ugo Nunes 06/21/2020
         else 
             disp(['Data rank (' int2str(tmprank) ') is smaller than the number of channels (' int2str(size(tmpdata,1)) ').']);
-            [EEG.icaweights,EEG.icasphere] = binica(EEG, tmpdata, 'lrate', 0.001, 'pca', tmprank, g.options{:});
+            [EEG.icaweights,EEG.icasphere] = binica(EEG, tmpdata, 'lrate', 0.001, 'pca', tmprank, g.options{:}); % Added EEG by Ugo Nunes 06/21/2020
         end
     case 'cudaica' % Add by Yunhui on 2018-09-09
-        [EEG.icaweights,EEG.icasphere] = cudaica(tmpdata, 'lrate', 0.001, g.options{:} );     
+        [EEG.icaweights,EEG.icasphere] = cudaica(EEG,tmpdata, 'lrate', 0.001, g.options{:} );    % Added EEG by Ugo Nunes 06/21/2020 
     case 'amica'
         tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
         fprintf('Now Running AMICA\n');

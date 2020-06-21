@@ -129,7 +129,7 @@ end
 % special AMICA
 % -------------
 selectamica = 0;
-defaultopts = [ '''extended'', 1,''pca'', ', int2str(tmprank3), ',''verbose'', ''off''' ] ;
+defaultopts = [ '''extended'', 1,''pca'', ', int2str(tmprank3-1), ',''verbose'', ''off''' ] ;
 if nargin > 1
     if ischar(varargin{1})
         if strcmpi(varargin{1}, 'selectamica')
@@ -165,7 +165,7 @@ if nargin < 2 || selectamica
                    'end;' ...
 				   'clear tmps tmpv tmpstr tmptype tmpchans;' ];
     cb_ica = [ 'if get(gcbo, ''value'') < 3, ' ...
-               '     set(findobj(gcbf, ''tag'', ''params''), ''string'', ''''''extended'''', 1,''pca'', 40,''verbose'', ''off'');' ...  
+               '     set(findobj(gcbf, ''tag'', ''params''), ''string'', ''''''extended'''', 1,''''pca'''',',int2str(tmprank3-1),'');' ...  
                'else set(findobj(gcbf, ''tag'', ''params''), ''string'', '''');' ...
                'end;' ];
                
@@ -453,13 +453,13 @@ switch lower(g.icatype)
         end
         tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
         if tmprank == size(tmpdata,1) || pca_opt
-            [EEG.icaweights,EEG.icasphere] = binica(EEG, tmpdata, 'lrate', 0.001, g.options{:} );
+            [EEG.icaweights,EEG.icasphere] = binica(EEG, tmpdata, 'lrate', 0.001, g.options{:} ); % Added EEG by Ugo Nunes 06/21/2020
         else 
             disp(['Data rank (' int2str(tmprank) ') is smaller than the number of channels (' int2str(size(tmpdata,1)) ').']);
-            [EEG.icaweights,EEG.icasphere] = binica(EEG, tmpdata, 'lrate', 0.001, 'pca', tmprank, g.options{:});
+            [EEG.icaweights,EEG.icasphere] = binica(EEG, tmpdata, 'lrate', 0.001, 'pca', tmprank, g.options{:}); % Added EEG by Ugo Nunes 06/21/2020
         end
     case 'cudaica' % Add by Yunhui on 2018-09-09
-        [EEG.icaweights,EEG.icasphere] = cudaica(tmpdata, 'lrate', 0.001, g.options{:} );     
+        [EEG.icaweights,EEG.icasphere] = cudaica(EEG,tmpdata, 'lrate', 0.001, g.options{:} );    % Added EEG by Ugo Nunes 06/21/2020 
     case 'amica'
         tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
         fprintf('Now Running AMICA\n');

@@ -82,7 +82,7 @@
 % 11/06/01 add absolute path of files (lines 157-170 & 198) -ad
 % 01-25-02 reformated help & license, added links -ad
 
-function [weights,sphere,tmpint] = cudaica(data,var2,var3,var4,var5,var6,var7,var8,var9,var10,var11,var12,var13,var14,var15,var16,var17,var18,var19,var20,var21,var22,var23,var24,var25)
+function [weights,sphere,tmpint] = cudaica(EEG,data,var2,var3,var4,var5,var6,var7,var8,var9,var10,var11,var12,var13,var14,var15,var16,var17,var18,var19,var20,var21,var22,var23,var24,var25)
 
 if nargin < 1 || nargin > 25
     more on
@@ -225,7 +225,8 @@ end
 
 scriptfile = ['cudaica' tmpint '.sc'];
 while exist(scriptfile,'file')
-    tmpint = int2str(round(rand*10000));
+    %tmpint = int2str(round(rand*10000));
+    tmpint = strcat(EEG.filename(1:10),char(t),'_',int2str(round(rand*1000))); % Added bu Ugo Nunes 21/06/2020
     scriptfile = ['cudaica' tmpint '.sc'];
 end
 fprintf('scriptfile = %s\n',scriptfile);
