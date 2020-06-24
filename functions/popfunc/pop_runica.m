@@ -100,11 +100,9 @@
 
 function [ALLEEG, com] = pop_runica( ALLEEG, varargin )
 
-
 tmpdata3 = reshape( ALLEEG(1).data(:,:,:), size(ALLEEG(1).data,1), ALLEEG(1).pnts*ALLEEG(1).trials);
 tmprank3 = getrank(double(tmpdata3(:,1:min(3000, size(tmpdata3,2)))));
-tmpdata3 = tmpdata3 - repmat(mean(tmpdata3,2), [1 size(tmpdata3,2)]); % zero mean 
-
+%tmpdata3 = tmpdata3 - repmat(mean(tmpdata3,2), [1 size(tmpdata3,2)]); % zero mean 
 
 com = '';
 if nargin < 1   
@@ -459,7 +457,7 @@ switch lower(g.icatype)
             [EEG.icaweights,EEG.icasphere] = binica(EEG, tmpdata, 'lrate', 0.001, 'pca', tmprank, g.options{:}); % Added EEG by Ugo Nunes 06/21/2020
         end
     case 'cudaica' % Add by Yunhui on 2018-09-09
-        [EEG.icaweights,EEG.icasphere] = cudaica(EEG,tmpdata, 'lrate', 0.001, g.options{:} );    % Added EEG by Ugo Nunes 06/21/2020 
+        [EEG.icaweights,EEG.icasphere] = cudaica(tmpdata, 'lrate', 0.001, g.options{:} );    % Added EEG by Ugo Nunes 06/21/2020 
     case 'amica'
         tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
         fprintf('Now Running AMICA\n');

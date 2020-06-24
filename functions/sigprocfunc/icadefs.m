@@ -161,7 +161,7 @@ if ~isdeployed
     if ispc
         ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'binica.exe'); % Added by Ugo Nunes in 2019
     else
-        ICABINARY = fullfile(ctfroot, 'EEGLAB', 'functions', 'supportfiles', 'ica_linux');
+        ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'ica_linux');
     end
         tmpComputer = computer;
     if strcmpi(tmpComputer(1:3), 'MAC')
@@ -169,7 +169,7 @@ if ~isdeployed
         clear tmpComputer
     end
 else
-    ICABINARY = fullfile(ctfroot, 'EEGLAB', 'functions', 'supportfiles', 'ica_linux'); 
+    ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'ica_linux'); 
 end
 
 if ispc
@@ -233,11 +233,11 @@ MAXTOPOPLOTCHANS  = 264;  % maximum number of channels to plot in topoplot.m
 DEFAULT_ELOC  = 'chan.locs'; % default electrode location file for topoplot.m
 DEFAULT_EPOCH = 10;       % default epoch width to plot in eegplot(s) (in sec)
 
-if ispc                         % Added by Ugo Nunes 06/21/2020
+%if ispc                         % Added by Ugo Nunes 06/21/2020
 SC  =  ['binica.sc'];           % Master .sc script file for binica.m
                                 % MATLAB will use first such file found
                                 % in its path of script directories.
                                 % Copy to pwd to alter ICA defaults
-else                            % Added by Ugo Nunes 06/21/2020
-SC  =  ['ica.sc'];
-end                             % Added by Ugo Nunes 06/21/2020
+%else                            % Added by Ugo Nunes 06/21/2020
+%SC  =  ['ica.sc'];
+%end                             % Added by Ugo Nunes 06/21/2020
