@@ -1,3 +1,0 @@
-Mean error (mm) =  1.015634E+0002
-Worst electrode number = 76
-Worst electrode error (mm) =  1.175163E+0002
