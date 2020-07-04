@@ -32,7 +32,7 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-function com = pop_dipfit_loreta(EEG, select, varargin)
+function com = pop_par_dipfit_loreta(EEG, select, varargin)
 
 if nargin < 1
     help pop_dipfit_loreta;
@@ -130,7 +130,7 @@ cfg.dics.lambda       = 0;
 freqPreTemp = freqPRE;
 
 parfor iSelect = select(:)'
-        
+    freqPreTemp = freqPRE;
     freqPreTemp.powspctrm = EEG.icawinv(:,iSelect).*EEG.icawinv(:,iSelect);
     freqPreTemp.crsspctrm = EEG.icawinv(:,iSelect)*EEG.icawinv(:,iSelect)';
     
