@@ -72,7 +72,7 @@ function vers = eegplugin_dipfit(fig, trystrs, catchstrs)
     comfit     = [ check_dipfitnocheck check_chans [ 'EEG = pop_dipfit_nonlinear(EEG); ' ...
                         'LASTCOM = ''% === History not supported for manual dipole fitting ==='';' ]  catchstrs.store_and_hist ];
     comauto    = [ check_dipfit check_chans  '[EEG LASTCOM] = pop_multifit(EEG);'        catchstrs.store_and_hist ];
-    comparauto    = [ check_dipfit check_chans  '[EEG LASTCOM] = pop_par_multifit(EEG);'        catchstrs.store_and_hist ];
+    comauto    = [ check_dipfit check_chans  '[EEG LASTCOM] = pop_par_multifit(EEG);'        catchstrs.store_and_hist ];
     % preserve the '=" sign in the comment above: it is used by EEGLAB to detect appropriate LASTCOM
     complot    = [ check_dipfit check_chans 'LASTCOM = pop_dipplot(EEG);'                     catchstrs.add_to_hist ];
     comloreta  = [ check_dipfit check_chans 'LASTCOM = pop_dipfit_loreta(EEG);'               catchstrs.add_to_hist ];
