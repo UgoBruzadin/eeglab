@@ -76,6 +76,7 @@ function vers = eegplugin_dipfit(fig, trystrs, catchstrs)
     % preserve the '=" sign in the comment above: it is used by EEGLAB to detect appropriate LASTCOM
     complot    = [ check_dipfit check_chans 'LASTCOM = pop_dipplot(EEG);'                     catchstrs.add_to_hist ];
     comloreta  = [ check_dipfit check_chans 'LASTCOM = pop_dipfit_loreta(EEG);'               catchstrs.add_to_hist ];
+    %comparloreta  = [ check_dipfit check_chans 'LASTCOM = pop_par_dipfit_loreta(EEG);'               catchstrs.add_to_hist ];
     
     % create menus
     % ------------
@@ -86,4 +87,5 @@ function vers = eegplugin_dipfit(fig, trystrs, catchstrs)
     uimenu( submenu, 'Label', 'Autofit (coarse fit, fine fit & plot)', 'CallBack', comauto);
     uimenu( submenu, 'Label', 'Parallel Autofit (coarse fit, fine fit & plot)', 'CallBack', comparauto);
     uimenu( submenu, 'Label', 'Locate components using eLoreta', 'CallBack', comloreta);
+    %uimenu( submenu, 'Label', 'Parallel - Locate components using eLoreta', 'CallBack', comparloreta);
     uimenu( submenu, 'Label', 'Plot component dipoles'   , 'CallBack', complot, 'separator', 'on');

@@ -130,6 +130,10 @@ cfg.dics.lambda       = 0;
 
 %freqPreTemp = freqPRE;
 
+
+for i = 1:select(end)
+eLoretaArray(end+1) = struct
+end
 for iSelect = select(:)'
     %freqPreTemp = freqPre;
     freqPre.powspctrm = EEG.icawinv(:,iSelect).*EEG.icawinv(:,iSelect);
@@ -150,14 +154,11 @@ for iSelect = select(:)'
     
     cfg2              = struct(g.ft_sourceplot_params{:});
     cfg2.funparameter = 'avg.pow';
-   
-    eLoretaMRI = mri;
-    eLoretaFreq = freqPre;
-    eLoretaPost = sourcePost_nocon;
-    eLoretaPostInt = sourcePostInt_nocon;
+%     eLoretaArray(iSelect,1) = freqPre;
+%     eLoretaArray(iSelect,2) = sourcePost_nocon;
+%     eLoretaArray(iSelect,3) = sourcePostInt_nocon;
     
-    figure; ft_sourceplot(cfg2,sourcePostInt_nocon);
-    %ft_sourceplot_interactive(cfg2,sourcePostInt_nocon);
+    eLoretaPlot = ft_sourceplot(cfg2,sourcePostInt_nocon);
     textsc(sprintf('eLoreta source localization of component %d power', iSelect), 'title');
 end
 
