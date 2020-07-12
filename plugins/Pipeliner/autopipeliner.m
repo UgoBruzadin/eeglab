@@ -61,10 +61,11 @@ classdef autopipeliner
             [files, filePRE, filePOST] = autopipeliner.createfolders(filePath,batchPath,folderNameDate); %creates a folder for the pipeline
             cd(filePRE);
             parfor i=1:length(files)
-                %load EEG
+                
+                %------ load EEG
                 EEG = pop_loadset(files(i).name, filePRE,  'all','all','all','all','auto');
                 if counter == 0
-                    %autopipeliner.fft(files(i),EEG);
+                    %------ autopipeliner.fft(files(i),EEG);
                 end
                 EEG = eeg_checkset(EEG);
                 %call the function = can be susbtituted for a script in the future
