@@ -623,7 +623,7 @@ if ~isempty(g.weights)
             % note: maxdatadb = eegspecdBtoplot (RMS power of data)
             resvar(index)  = 100*exp(-(maxdatadb-compeegspecdB(index, indexfreq))/10*log(10));
             myfprintf(g.verbose, 'Component %d percent relative variance: %6.2f\n', g.icacomps(index), resvar(index));
-            newVariance{g.icacomps(index)} = {resvar(index)};
+            %newVariance{g.icacomps(index)} = {resvar(index)};
         else
             if g.plotchan == 0
                 resvartmp = [];
