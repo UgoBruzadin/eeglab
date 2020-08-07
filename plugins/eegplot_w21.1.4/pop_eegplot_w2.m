@@ -143,7 +143,7 @@ if reject
     com1 = ...
         [  'EEGTMP=EEG; '...
         'if ~isempty(TMPREJCHN); '];
-    if icacomp == 1
+    if icacomp == 1 || icacomp == 2
         com1 = [ com1 ...
             '  [EEGTMP LASTCOM1] = pop_select(EEGTMP, ''nochannel'',TMPREJCHN); ' ];
     else
@@ -195,7 +195,7 @@ if reject
 end;
 
 if EEG.trials > 1
-    if icacomp == 1 
+    if icacomp == 1 || icacomp == 2
                     macrorej  = 'EEG.reject.rejmanual';
         			macrorejE = 'EEG.reject.rejmanualE';
     else			macrorej  = 'EEG.reject.icarejmanual';
@@ -375,7 +375,7 @@ if icacomp == 1
 			  'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
 elseif icacomp == 2
 	%EEG2 = EEG.data(channels,1:size(EEG.data,2));
-    eegplot_w2( EEG.data(channels,1:size(EEG.data,2)), 'srate', EEG.srate, 'title', [ 'Scroll channel activities -- eegplot_w(): ' EEG.setname], ...
+    eegplot_w2( EEG.data(channels,:), 'srate', EEG.srate, 'title', [ 'Scroll channel activities -- eegplot_w(): ' EEG.setname], ...
 			  'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
 elseif icacomp == 3
 	tmpdata = eeg_getdatact(EEG, 'component', [channels]);
