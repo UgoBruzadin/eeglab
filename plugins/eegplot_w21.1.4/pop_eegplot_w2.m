@@ -101,8 +101,9 @@ if nargin < 4
 	reject = 1;
 end;
 %if nargin < 5 & icacomp == 2
-    channels = inputdlg('choose which of channels to display');
-    channels = str2num(channels{1})
+    [channels chanliststr] = pop_chansel( { EEG.chanlocs.labels } );
+    %channels = inputdlg('choose which of channels to display');
+    %channels = str2num(channels{1})
     icacomp = 2;
 %end
 if icacomp == 0
