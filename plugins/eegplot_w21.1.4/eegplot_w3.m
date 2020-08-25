@@ -198,7 +198,7 @@
 %    4 - maxfreq    % empty [] if no gfrequency content
 % 'buttons hold other informations' Eposition for instance hold the current postition
 
-function [outvar1] = eegplot_w2(data, varargin); % p1,p2,p3,p4,p5,p6,p7,p8,p9)
+function [outvar1] = eegplot_w(data, varargin); % p1,p2,p3,p4,p5,p6,p7,p8,p9)
 
 % Defaults (can be re-defined):
 

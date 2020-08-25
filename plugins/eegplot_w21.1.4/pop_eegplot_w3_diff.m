@@ -81,7 +81,7 @@
 % 2002-03-27 added event latency recalculation for continuous data -ad
 % 2017-01-24 allow select channels/components for rejection -mb
 
-function com = pop_eegplot_w2( EEG, icacomp, superpose, reject, topcommand, channels, varargin)
+function com = pop_eegplot_w3_diff( EEG, icacomp, superpose, reject, topcommand, channels, varargin)
 
 com = '';
 if ~exist('topcommand','var')
@@ -101,8 +101,14 @@ if nargin < 4
 	reject = 1;
 end;
 %if nargin < 5 & icacomp == 2
-    channels = inputdlg('choose which of channels to display');
-    channels = str2num(channels{1})
+    %[channels chanliststr] = pop_chansel( { EEG.chanlocs.labels } );
+    [channels chanliststr] = pop_chansel( { EEG.chanlocs.labels },'withindex','on','selectionmode','single' );
+    EEG2 = EEG;
+    for i=1:size(EEG2.data,1)
+        EEG2.data(i,:) = EEG2.data(i,:) - EEG.data(channels,:);
+    end
+    %channels = inputdlg('choose which of channels to display');
+    %channels = str2num(channels{1})
     icacomp = 2;
 %end
 if icacomp == 0
@@ -134,7 +140,7 @@ end;
 if icacomp == 1
      elecrange = [1:EEG.nbchan];
 elseif icacomp == 2
-    elecrange = size(channels);
+    elecrange = [1:EEG.nbchan];
 else
     elecrange = [1:size(EEG.icaweights,1)];
 end;
@@ -143,7 +149,7 @@ if reject
     com1 = ...
         [  'EEGTMP=EEG; '...
         'if ~isempty(TMPREJCHN); '];
-    if icacomp == 1
+    if icacomp == 1 || icacomp == 2
         com1 = [ com1 ...
             '  [EEGTMP LASTCOM1] = pop_select(EEGTMP, ''nochannel'',TMPREJCHN); ' ];
     else
@@ -195,7 +201,7 @@ if reject
 end;
 
 if EEG.trials > 1
-    if icacomp == 1 
+    if icacomp == 1 || icacomp == 2
                     macrorej  = 'EEG.reject.rejmanual';
         			macrorejE = 'EEG.reject.rejmanualE';
     else			macrorej  = 'EEG.reject.icarejmanual';
@@ -216,7 +222,7 @@ if EEG.trials > 1
     if icacomp == 1
         nChan = EEG.nbchan;
     elseif icacomp == 2
-        nChan = length(channels);
+        nChan = EEG.nbchan;
     elseif icacomp == 3
         nChan = length(channels);
     else
@@ -348,7 +354,7 @@ end;
 if ~isempty(EEG.chanlocs) && icacomp == 1
     eegplotoptions = { eegplotoptions{:}  'eloc_file', EEG.chanlocs(elecrange) };
 elseif ~isempty(EEG.chanlocs) && icacomp == 2
-    eegplotoptions = { eegplotoptions{:}  'eloc_file', EEG.chanlocs(channels) };
+    eegplotoptions = { eegplotoptions{:}  'eloc_file', EEG.chanlocs(elecrange) };
 else
     if ~icacomp 
         try gcompreject=EEG.reject.gcompreject;
@@ -375,8 +381,8 @@ if icacomp == 1
 			  'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
 elseif icacomp == 2
 	%EEG2 = EEG.data(channels,1:size(EEG.data,2));
-    eegplot_w2( EEG.data(channels,1:size(EEG.data,2)), 'srate', EEG.srate, 'title', [ 'Scroll channel activities -- eegplot_w(): ' EEG.setname], ...
-			  'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
+    eegplot_w2( EEG2.data(:,:), 'srate', EEG2.srate, 'title', [ 'Scroll channel activities -- eegplot_w(): ' EEG2.setname], ...
+			  'limits', [EEG2.xmin EEG2.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
 elseif icacomp == 3
 	tmpdata = eeg_getdatact(EEG, 'component', [channels]);
 	eegplot_w2( tmpdata, 'srate', EEG.srate, 'title', [ 'Scroll component activities -- eegplot_w(): ' EEG.setname], ...

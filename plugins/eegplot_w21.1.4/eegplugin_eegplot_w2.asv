@@ -44,20 +44,15 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function vers = eegplugin_eegplot_w2(fig, trystrs, catchstrs)
-vers='eegplot_w2.2';
+vers='eegplot_w1.1.4';
 % Menu
-plotmenu = findobj(fig, 'tag', 'plot');
-supermenu = uimenu( plotmenu, 'label', 'Channel Scroll ++','userdata', 'startup:off;study:on');
+menu = findobj(fig, 'tag', 'plot');
 
-comm1 = [trystrs.check_data 'LASTCOM = pop_eegplot_w2_list(EEG, 2, 1, 1); ' catchstrs.add_to_hist ] ;
-comm2 = [trystrs.check_data 'LASTCOM = pop_eegplot_w4_type(EEG, 2, 1, 1); ' catchstrs.add_to_hist ] ;
-comm3 = [trystrs.check_data 'LASTCOM = pop_eegplot_w3_diff(EEG, 2, 1, 1); ' catchstrs.add_to_hist ] ;
-
-uimenu( supermenu, 'label', 'Select Channels from List', 'Separator','off', ...
-       'userdata', 'startup:off;study:off', 'Callback', comm1);
-
-uimenu( supermenu, 'label', 'Type Channels in any order', 'Separator','off', ...
-       'userdata', 'startup:off;study:off', 'Callback', comm2);
+comm = [trystrs.check_data 'LASTCOM = pop_eegplot_w2(EEG, 2, 1, 1); ' catchstrs.add_to_hist ] ;
+uimenu( menu, 'label', 'Channel data (scroll) ++', 'Separator','off', ...
+       'userdata', 'startup:off;study:off', 'Callback', comm,...
+       'position',3);
    
-   uimenu( supermenu, 'label', 'Choose a channel for a difference operation', 'Separator','off', ...
-       'userdata', 'startup:off;study:off', 'Callback', comm3);
+   uimenu( menu, 'label', 'Channel data (scroll) ++', 'Separator','off', ...
+       'userdata', 'startup:off;study:off', 'Callback', comm,...
+       'position',3);
