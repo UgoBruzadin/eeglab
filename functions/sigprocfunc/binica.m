@@ -371,6 +371,10 @@ end
 % NOTE: doesn't remove the .sc .wts and .fdt files
 
 if ~isempty(tmpdata)
+    delete(tmpdata);
+    delete(weightsfile);
+    delete(spherefile);
+    delete(scriptfile);
     eval(['!rm -f ' datafile]);
 end
 
