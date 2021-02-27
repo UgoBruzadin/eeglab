@@ -312,7 +312,7 @@ if isnumeric(EEG.data) && v(1) < 7
 end
 EEG.saved = 'justloaded';
 if nargout > 1
-    com = sprintf('EEG = pop_saveset( EEG, %s);', vararg2str(options));
+    %com = sprintf('EEG = pop_saveset( EEG, %s);', vararg2str(options));
 end
 return;
 

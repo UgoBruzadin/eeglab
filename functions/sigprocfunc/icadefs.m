@@ -159,8 +159,13 @@ clear retinaDisplay tmpScreenSize tmpComputer tmpvers indp;
 % INSERT location of ica executable (UNIX ONLY) for binica.m below
 eeglab_p = fileparts(which('eeglab'));
 if ~isdeployed
-    ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'ica_linux'); 
-    tmpComputer = computer;
+    eeglab_p = fileparts(which('eeglab'));
+    if ispc
+        ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'binica.exe'); % Added by Ugo Nunes in 2019
+    else
+        ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'ica_linux');
+    end
+        tmpComputer = computer;
     if strcmpi(tmpComputer(1:3), 'MAC')
         ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'ica_osx');
     elseif strcmpi(tmpComputer(1:2), 'PC')
@@ -168,7 +173,13 @@ if ~isdeployed
     end
     clear tmpComputer
 else
-    ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'ica_linux');
+    ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'ica_linux'); 
+end
+
+if ispc
+    CUDAICABINARY = fullfile(eeglab_p, 'plugins', 'CudaICA1.0', 'cudaica_win.exe'); % Add by Yunhui on 2018-09-09
+else
+    CUDAICABINARY = fullfile(eeglab_p, 'plugins', 'CudaICA1.0', 'cudaica'); % Add by Yunhui on 2018-04-27
 end
 
 try
@@ -226,7 +237,11 @@ MAXTOPOPLOTCHANS  = 264;  % maximum number of channels to plot in topoplot.m
 DEFAULT_ELOC  = 'chan.locs'; % default electrode location file for topoplot.m
 DEFAULT_EPOCH = 10;       % default epoch width to plot in eegplot(s) (in sec)
 
+%if ispc                         % Added by Ugo Nunes 06/21/2020
 SC  =  ['binica.sc'];           % Master .sc script file for binica.m
                                 % MATLAB will use first such file found
                                 % in its path of script directories.
                                 % Copy to pwd to alter ICA defaults
+%else                            % Added by Ugo Nunes 06/21/2020
+%SC  =  ['ica.sc'];
+%end                             % Added by Ugo Nunes 06/21/2020

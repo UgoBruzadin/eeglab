@@ -365,6 +365,7 @@ if ~isempty(opt.channels)
     if ~strcmpi(opt.plotmode, 'none')
         locsOri = eeg_mergelocs(ALLEEG.chanlocs);
         locs = locsOri(std_chaninds(STUDY, opt.channels));
+<<<<<<< HEAD
         
         % in case channels are being averaged
         if ~strcmpi(params.averagechan, 'off') && length(opt.channels) > 1
@@ -379,6 +380,22 @@ if ~isempty(opt.channels)
             locs(2:end) = [];
         end
         
+=======
+        
+        % in case channels are being averaged
+        if ~strcmpi(params.averagechan, 'off') && length(opt.channels) > 1
+            if length(opt.channels) ~= length(locsOri)
+                chanlabels = { locs.labels };
+                chanlabels(2,:) = {','};
+                chanlabels(2,end) = {''};
+                locs(1).labels = [ chanlabels{:} ];
+            else
+                locs(1).labels = 'All channels';
+            end
+            locs(2:end) = [];
+        end
+        
+>>>>>>> eeglab2019
         if ~isempty(params.plottf) % incomtible with averagechan above
             alltitles = std_figtitle('threshold', alpha, 'mcorrect', mcorrect, 'condstat', stats.condstats, 'cond2stat', stats.groupstats, ...
                                      'statistics', method, 'condnames', allconditions, 'cond2names', allgroups, 'chanlabels', { locs.labels }, ...

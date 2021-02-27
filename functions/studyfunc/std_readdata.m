@@ -237,8 +237,11 @@ for iSubj = 1:length(subjectList)
                 [dataTmp{iSubj}{iCond}, eventsTmp{iSubj}{iCond}] = processerpim(dataTmp{iSubj}{iCond}, eventsTmp{iSubj}{iCond}, xvals, params);
             end
             yvals = 1:size(dataTmp{iSubj}{1},1);
+<<<<<<< HEAD
         elseif strcmpi(opt.datatype, 'custom')
             disp('Nothing to do for custom data');
+=======
+>>>>>>> eeglab2019
         else
             dataTmp{iSubj} = cellfun(@(x)processtf(x, xvals, opt.datatype, opt.singletrials, params), dataTmp{iSubj}, 'uniformoutput', false);
         end

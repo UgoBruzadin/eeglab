@@ -1,11 +1,11 @@
 % std_findsameica() - find groups of datasets with identical ICA decomposiotions
 %                     (search identical weight*sphere matrices)
 %
-% Usage: 
+% Usage:
 %        >> clusters = std_findsameica(ALLEEG);
 %        >> clusters = std_findsameica(ALLEEG,icathreshold);
 % Inputs:
-%   ALLEEG           - a vector of loaded EEG dataset structures of all sets 
+%   ALLEEG           - a vector of loaded EEG dataset structures of all sets
 %                      in the STUDY set.
 %   icathreshold     - Threshold to compare icaweights. Default 2e-4.
 %
@@ -55,17 +55,19 @@ if nargin == 1
 elseif nargin == 2
     icathreshold = varargin{1};
 end
-    
+
 cluster = { [1] };
 inds = [1];
 for index = 2:length(ALLEEG)
     
     found = 0;
     for c = 1:length(cluster)
-        w1 = ALLEEG(cluster{c}(1)).icaweights*ALLEEG(cluster{c}(1)).icasphere;
-        w2 = ALLEEG(index).icaweights*ALLEEG(index).icasphere;
+        w1 = ALLEEG(cluster{c}(1)).icaweights*ALLEEG(cluster{c}(1)).icasphere; % Matt Gunn: These are the files for compareison
+        w2 = ALLEEG(index).icaweights*ALLEEG(index).icasphere; % Matt Gunn: These are the files for compareison
+%         w1 = ALLEEG(cluster{c}(1)).icaweights*ALLEEG(cluster{c}(1)).icasphere
+%         w2 = ALLEEG(index).icaweights*ALLEEG(index).icasphere
         if all(size(w1) == size(w2))
-            %if isequal(ALLEEG(cluster{c}(1)).icaweights, ALLEEG(index).icaweights) 
+            %if isequal(ALLEEG(cluster{c}(1)).icaweights, ALLEEG(index).icaweights)
             if sum(sum(abs(w1-w2))) < icathreshold
                 cluster{c}(end+1) = index;
                 inds(index) = c;
@@ -75,7 +77,7 @@ for index = 2:length(ALLEEG)
         end
     end
     if ~found
-        cluster{end+1} = index;
-        inds(index) = index;
+        cluster{end+1} = index
+        inds(index) = index
     end
 end

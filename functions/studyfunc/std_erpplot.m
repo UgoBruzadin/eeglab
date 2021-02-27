@@ -254,18 +254,25 @@ if ~isempty(opt.channels)
         [STUDY, erpdata, alltimes, ~, ~, fileparams] = std_readdata(STUDY, ALLEEG, 'channels', opt.channels(chaninds), 'freqrange', params.freqrange, ...
                 'subject', opt.subject, 'singletrials', stats.singletrials, 'design', opt.design, 'datatype', [dtype dsubtype], 'rmsubjmean', params.subtractsubjectmean);
     end
+<<<<<<< HEAD
     if isfield(fileparams, 'specmode') && ~strcmpi(fileparams.specmode, 'fft'), opt.unitx = [ opt.unitx 'psd' ]; end
+=======
+>>>>>>> eeglab2019
     if ~strcmpi(params.averagechan, 'off') && length(chaninds) > 1
         for index = 1:length(erpdata(:))
             if strcmpi(params.averagechan, 'on')
                 erpdata{index} = squeeze(mean(erpdata{index},2));
             else
                 erpdata{index} = squeeze(sqrt(mean(erpdata{index}.^2,2)));
+<<<<<<< HEAD
                 opt.unitx = 'rmsms';
             end
         end
         if strcmpi(params.averagechan, 'rms')
             opt.unitx = [ 'rms' opt.unitx ];
+=======
+            end
+>>>>>>> eeglab2019
         end
     end
     if isempty(erpdata), return; end

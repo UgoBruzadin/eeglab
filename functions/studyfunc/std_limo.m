@@ -106,7 +106,11 @@ if ischar(varargin{1}) && ( strcmpi(varargin{1}, 'daterp') || ...
 else
     opt = finputcheck( varargin, ...
         { 'measure'        'string'  { 'daterp' 'datspec' 'dattimef' 'icaerp' 'icaspec' 'icatimef' } 'daterp'; ...
+<<<<<<< HEAD
           'method'         'string'  { 'OLS' 'WLS' 'IRLS' } 'WLS';
+=======
+          'method'         'string'  { 'OLS' 'WLS' } 'OLS';
+>>>>>>> eeglab2019
           'design'         'integer' [] STUDY.currentdesign;
           'erase'          'string'  { 'on','off' }   'off';
           'splitreg'       'string'  { 'on','off' }   'off';
@@ -137,6 +141,7 @@ addpath([root filesep 'external' filesep 'psom']);
 addpath([root filesep 'external']);
 addpath([root filesep 'help']);
 
+<<<<<<< HEAD
 % Checking fieldtrip paths to compute gp channel location
 skip_chanlocs   = 0;
 chanloc_created = 0;
@@ -170,15 +175,32 @@ if skip_chanlocs == 0
             root = fileparts(which('ft_prepare_neighbours'));
             addpath([root filesep 'external' filesep 'eeglab']);
         end
+=======
+% Checking fieldtrip paths
+skip_chanlocs = 0;
+if ~exist('ft_prepare_neighbours')
+    warndlg('std_limo error: Fieldtrip extension should be installed - chanlocs NOT generated');
+    skip_chanlocs = 1;
+else
+    if ~exist('eeglab2fieldtrip')
+        root = fileparts(which('ft_prepare_neighbours'));
+        addpath([root filesep 'external' filesep 'eeglab']);
+>>>>>>> eeglab2019
     end
 end
 
 % Detecting type of analysis
 % -------------------------------------------------------------------------
 model.defaults.datatype = opt.measureori(4:end);
+<<<<<<< HEAD
 if ~isempty(strfind(Analysis,'dat'))
     model.defaults.type = 'Channels';
 elseif  ~isempty(strfind(Analysis,'ica'))
+=======
+if strfind(Analysis,'dat')
+    model.defaults.type = 'Channels';
+elseif strfind(Analysis,'ica')
+>>>>>>> eeglab2019
     [STUDY,flags]=std_checkdatasession(STUDY,ALLEEG);
     if sum(flags)>0
         error('some subjects have data from different sessions - can''t do ICA');
@@ -200,7 +222,12 @@ end
 % computing channel neighbour matrix
 % ---------------------------------
 if skip_chanlocs == 0
+<<<<<<< HEAD
     chanloc_created = 1;
+=======
+
+    flag_ok = 1;
+>>>>>>> eeglab2019
     if isempty(opt.chanloc) && isempty(opt.neighbormat)
         if isfield(ALLEEG(1).chanlocs, 'theta') &&  ~strcmp(model.defaults.type,'Components')
             if  ~isfield(STUDY.etc,'statistic')
@@ -211,11 +238,19 @@ if skip_chanlocs == 0
                 [~,~,limoChanlocs] = std_prepare_neighbors(STUDY, ALLEEG, 'force', 'on', opt.neighboropt{:});
                 chanlocname = 'limo_gp_level_chanlocs.mat';
             catch neighbors_error
+<<<<<<< HEAD
                 limoChanlocs = []; chanloc_created = 0;
                 warndlg2(neighbors_error.message,'limo_gp_level_chanlocs.mat not created')
             end
         else
             limoChanlocs = []; chanloc_created = 0;
+=======
+                warndlg2(neighbors_error.message,'limo_gp_level_chanlocs.mat not created')
+            end
+        else
+            limoChanlocs = [];
+            flag_ok = 0;
+>>>>>>> eeglab2019
             if ~isempty(STUDY.cluster(1).child)
                 disp('Warning: cannot compute expected channel distance for correction for multiple comparisons');
             end
@@ -227,9 +262,14 @@ if skip_chanlocs == 0
     end
 end
 
+<<<<<<< HEAD
 if chanloc_created
     % contains will not work in Octave
     if isempty(contains(STUDY.filepath,'derivatives'))
+=======
+if flag_ok % chanloc created
+    if isempty(findstr(STUDY.filepath,'derivatives'))
+>>>>>>> eeglab2019
         if ~exist([STUDY.filepath filesep 'derivatives'],'dir')
             mkdir([STUDY.filepath filesep 'derivatives']);
         end
@@ -306,8 +346,13 @@ measureflags = struct('daterp','off',...
                      'icatimef','off',...
                      'icaersp','off',...
                      'icaitc','off');
+<<<<<<< HEAD
 FN = fieldnames(measureflags);
 measureflags.(lower(opt.measureori))= 'on'; 
+=======
+
+measureflags.(lower(opt.measureori))= 'on';
+>>>>>>> eeglab2019
 STUDY.etc.measureflags = measureflags;
 
 % generate temporary merged datasets needed by LIMO
@@ -384,6 +429,7 @@ for s = 1:nb_subjects
     OUTEEG.etc.datafiles.icaitc   = [];
 
     % Filling fields
+<<<<<<< HEAD
     % contains will not work in Octave
     single_trials_filename = fullfile(STUDY.datasetinfo(index(1)).filepath,  [STUDY.datasetinfo(index(1)).subject '.' FN{find(contains(FN,opt.measureori))}]);
     if exist(single_trials_filename,'file') 
@@ -408,6 +454,37 @@ for s = 1:nb_subjects
         end
     end
 
+=======
+    if isfield(ALLEEG(index(1)).etc, 'datafiles')
+        if isfield(ALLEEG(index(1)).etc.datafiles,'daterp')
+            OUTEEG.etc.datafiles.daterp{1} = rel2fullpath(STUDY.filepath,ALLEEG(index(1)).etc.datafiles.daterp);
+        end
+        if isfield(ALLEEG(index(1)).etc.datafiles,'datspec')
+            OUTEEG.etc.datafiles.datspec{1} = rel2fullpath(STUDY.filepath,ALLEEG(index(1)).etc.datafiles.datspec);
+        end
+        if isfield(ALLEEG(index(1)).etc.datafiles,'dattimef')
+            OUTEEG.etc.datafiles.datersp{1} = rel2fullpath(STUDY.filepath,ALLEEG(index(1)).etc.datafiles.dattimef);
+        end
+        if isfield(ALLEEG(index(1)).etc.datafiles,'datitc')
+            OUTEEG.etc.datafiles.datitc{1} = rel2fullpath(STUDY.filepath,ALLEEG(index(1)).etc.datafiles.datitc);
+        end
+        if isfield(ALLEEG(index(1)).etc.datafiles,'icaerp')
+            OUTEEG.etc.datafiles.icaerp{1} = rel2fullpath(STUDY.filepath,ALLEEG(index(1)).etc.datafiles.icaerp);
+        end
+        if isfield(ALLEEG(index(1)).etc.datafiles,'icaspec')
+            OUTEEG.etc.datafiles.icaspec{1} = rel2fullpath(STUDY.filepath,ALLEEG(index(1)).etc.datafiles.icaspec);
+        end
+        if isfield(ALLEEG(index(1)).etc.datafiles,'icatimef')
+            OUTEEG.etc.datafiles.icaersp{1} = rel2fullpath(STUDY.filepath,ALLEEG(index(1)).etc.datafiles.icatimef);
+        end
+        if isfield(ALLEEG(index(1)).etc.datafiles,'icaitc')
+            OUTEEG.etc.datafiles.icaitc{1} = rel2fullpath(STUDY.filepath,ALLEEG(index(1)).etc.datafiles.icaitc);
+        end
+    end
+
+%     OUTEEG.etc.freqsersp =
+
+>>>>>>> eeglab2019
     % Save info
     EEG = OUTEEG;
     save('-mat', fullfile( filepath_tmp, OUTEEG.filename), 'EEG');
@@ -418,6 +495,7 @@ end
 % -------------------
 fprintf('making up statistical models ... \n')
 % by default we create a design matrix with all condition
+<<<<<<< HEAD
 factors = pop_listfactors(STUDY.design(opt.design), 'gui', 'off', 'level', 'one');
 for s = 1:nb_subjects
     % save continuous and categorical data files
@@ -432,6 +510,14 @@ for s = 1:nb_subjects
         opt.zscore = 0; % regressors are now zscored
     end
     
+=======
+factors = pop_listfactors(STUDY.design(opt.design), 'gui', 'off');
+for s = 1:nb_subjects
+    % save continuous and categorical data files
+    trialinfo = std_combtrialinfo(STUDY.datasetinfo, unique_subjects{s});
+    [catMat,contMat,limodesign] = std_limodesign(factors, trialinfo, 'splitreg', opt.splitreg, 'interaction', opt.interaction);
+
+>>>>>>> eeglab2019
     % copy results
     model.cat_files{s}                 = catMat;
     model.cont_files{s}                = contMat;
@@ -451,6 +537,7 @@ for s = 1:nb_subjects
 end
  
 % then we add contrasts for conditions that were merged during design selection
+<<<<<<< HEAD
 % i.e. multiple categorical variables (factors) and yet not matching the number 
 % of variables (contrasts are then a weigthed sum of the crossed factors)
 if ~isempty(factors) && length(STUDY.design(opt.design).variable) == 1 && isfield(factors, 'value') % only one non-continuous variable 
@@ -466,6 +553,18 @@ if ~isempty(factors) && length(STUDY.design(opt.design).variable) == 1 && isfiel
         end
     end
 end
+=======
+% if length(STUDY.design(opt.design).variable(1).value) ~= length(factors)
+%     limocontrast = zeros(length(STUDY.design(opt.design).variable.value),length(factors)+1); % length(factors)+1 to add the contant
+%     for n=1:length(factors)
+%         factor_names{n} = factors(n).value;
+%     end
+%
+%     for c=1:length(STUDY.design(opt.design).variable.value)
+%         limocontrast(c,1:length(factors)) = single(ismember(factor_names,STUDY.design(opt.design).variable.value{c}));
+%     end
+% end
+>>>>>>> eeglab2019
 
 % transpose
 model.set_files  = model.set_files';
@@ -511,7 +610,11 @@ elseif strcmp(Analysis,'datspec') || strcmp(Analysis,'icaspec')
         error('std_limo: Frequency limits need to be specified');
     end
 
+<<<<<<< HEAD
 elseif strcmp(Analysis,'dattimef') || strcmp(Analysis,'icaersp')
+=======
+elseif strcmp(Analysis,'datersp') || strcmp(Analysis,'dattimef') || strcmp(Analysis,'icaersp')
+>>>>>>> eeglab2019
     model.defaults.analysis = 'Time-Frequency';
     model.defaults.start    = ALLEEG(index(1)).times(1);
     model.defaults.end      = ALLEEG(index(1)).times(end);
@@ -525,13 +628,20 @@ elseif strcmp(Analysis,'dattimef') || strcmp(Analysis,'icaersp')
     if length(opt.freqlim) == 2
         model.defaults.lowf     = opt.freqlim(1);
         model.defaults.highf    = opt.freqlim(2);
+<<<<<<< HEAD
     else
         error('std_limo: Frequency limits need to be specified');
+=======
+>>>>>>> eeglab2019
     end
 end
 
 model.defaults.fullfactorial    = 0;                 % all variables
+<<<<<<< HEAD
 model.defaults.zscore           = opt.zscore;        % done that already
+=======
+model.defaults.zscore           = 0;                 % done that already
+>>>>>>> eeglab2019
 model.defaults.bootstrap        = 0 ;                % only for single subject analyses - not included for studies
 model.defaults.tfce             = 0;                 % only for single subject analyses - not included for studies
 model.defaults.method           = opt.method;        % default is OLS - to be updated to 'WLS' once validated
@@ -544,8 +654,13 @@ if ~exist('limocontrast','var')
 else
     contrast.mat = limocontrast;
     [LIMO_files, procstatus] = limo_batch('both',model,contrast,STUDY);
+<<<<<<< HEAD
     [p,f,~]=fileparts(fullfile(STUDY.filepath,STUDY.filename));
     save(fullfile([p filesep 'LIMO_' f],[STUDY.design(opt.design).name '_contrast.mat']),'limocontrast');
+=======
+    clear contrast.mat;
+    save([STUDY.filepath filesep 'derivatives' filesep STUDY.design(opt.design).name '_contrast.mat'],'limocontrast');
+>>>>>>> eeglab2019
 end
 
 STUDY.limo.model         = model;
@@ -568,8 +683,13 @@ else
     else
         warndlg2('some subjects failed to process, check batch report')
     end
+<<<<<<< HEAD
     % cleanup temp files - except for subjects with errors?
     keep_files = questdlg('Do you want to keep temp files of unsuccessulfully processed subjects','option for manual debugging','yes','no','no');
+=======
+else
+    errordlg2('all subjects failed to process, check batch report')
+>>>>>>> eeglab2019
 end
 
 % delete
@@ -598,6 +718,9 @@ if length(STUDY.group) > 1
         end
     end
 end
+
+%% start 2nd level
+
 
 % -------------------------------------------------------------------------
 % Return full path if 'filepath' is a relative path. The output format will

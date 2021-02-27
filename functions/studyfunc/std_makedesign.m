@@ -225,10 +225,17 @@ if isempty(opt.variable4), opt.values4 = { '' }; end
 % build command list for history
 % ------------------------------
 listcom = { 'name' opt.name 'delfiles' opt.delfiles 'defaultdesign' opt.defaultdesign };
+<<<<<<< HEAD
 if ~isempty(opt.variable1), listcom = { listcom{:} 'variable1' opt.variable1 'values1' opt.values1 'vartype1' opt.vartype1 }; end
 if ~isempty(opt.variable2), listcom = { listcom{:} 'variable2' opt.variable2 'values2' opt.values2 'vartype2' opt.vartype2 }; end
 if ~isempty(opt.variable3), listcom = { listcom{:} 'variable3' opt.variable3 'values3' opt.values3 'vartype3' opt.vartype3 }; end
 if ~isempty(opt.variable4), listcom = { listcom{:} 'variable4' opt.variable4 'values4' opt.values4 'vartype4' opt.vartype4 }; end
+=======
+if ~isempty(opt.values1), listcom = { listcom{:} 'variable1' opt.variable1 'values1' opt.values1 'vartype1' opt.vartype1 }; end
+if ~isempty(opt.values2), listcom = { listcom{:} 'variable2' opt.variable2 'values2' opt.values2 'vartype2' opt.vartype2 }; end
+if ~isempty(opt.values3), listcom = { listcom{:} 'variable3' opt.variable3 'values3' opt.values3 'vartype3' opt.vartype3 }; end
+if ~isempty(opt.values4), listcom = { listcom{:} 'variable4' opt.variable4 'values4' opt.values4 'vartype4' opt.vartype4 }; end
+>>>>>>> eeglab2019
 if ~isempty(opt.subjselect),  listcom = { listcom{:} 'subjselect'  opt.subjselect }; end
 if ~isempty(opt.datselect),   listcom = { listcom{:} 'datselect'  opt.datselect }; end
 if ~isempty(opt.filepath),    listcom = { listcom{:} 'filepath'  opt.filepath }; end
@@ -276,6 +283,34 @@ elseif strcmpi(opt.delfiles, 'limited')
     end
 end
 
+<<<<<<< HEAD
+=======
+% check inputs
+% ------------
+[indvars, indvarvals, ~, paired] = std_getindvar(STUDY);
+if isfield(STUDY.datasetinfo, 'trialinfo')
+     alltrialinfo = { STUDY.datasetinfo.trialinfo };
+     dattrialselect = cellfun(@(x)([1:length(x)]), alltrialinfo, 'uniformoutput', false);
+else alltrialinfo = cell(length(STUDY.datasetinfo));
+     for i=1:length(ALLEEG), dattrialselect{i} = [1:ALLEEG(i).trials]; end
+end
+
+% get values for each independent variable
+% ----------------------------------------
+m1 = strmatch(opt.variable1, indvars, 'exact'); if isempty(m1), opt.variable1 = ''; end
+m2 = strmatch(opt.variable2, indvars, 'exact'); if isempty(m2), opt.variable2 = ''; end
+m3 = strmatch(opt.variable3, indvars, 'exact'); if isempty(m3), opt.variable3 = ''; end
+m4 = strmatch(opt.variable4, indvars, 'exact'); if isempty(m4), opt.variable4 = ''; end
+if isempty(opt.values1) && ~isempty(opt.variable1), opt.values1 = indvarvals{m1}; end
+if isempty(opt.values2) && ~isempty(opt.variable2), opt.values2 = indvarvals{m2}; end
+if isempty(opt.values3) && ~isempty(opt.variable3), opt.values3 = indvarvals{m3}; end
+if isempty(opt.values4) && ~isempty(opt.variable4), opt.values4 = indvarvals{m4}; end
+if isempty(opt.variable1), opt.values1 = { '' }; end
+if isempty(opt.variable2), opt.values2 = { '' }; end
+if isempty(opt.variable3), opt.values3 = { '' }; end
+if isempty(opt.variable4), opt.values4 = { '' }; end
+
+>>>>>>> eeglab2019
 % preselect data
 % --------------
 datselect = [1:length(STUDY.datasetinfo)];

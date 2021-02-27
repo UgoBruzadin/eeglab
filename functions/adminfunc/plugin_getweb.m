@@ -89,6 +89,11 @@ for iRow = 1:length(plugin)
         tmpTags = textscan(plugin(iRow).rawtags, '%s', 'delimiter', ',');
         plugin(iRow).tags = tmpTags{1}';
     end
+    plugin(iRow).contactname  = stats{9}{iRow};
+    plugin(iRow).contactemail = stats{10}{iRow};
+    plugin(iRow).webdoc    = stats{11}{iRow};
+    plugin(iRow).size      = stats{12}(iRow);
+    plugin(iRow).webrating = [ 'https://sccn.ucsd.edu/eeglab/plugin_uploader/simplestar.php?plugin=' plugin(iRow).name '&version=' plugin(iRow).version ];
     
     plugin(iRow).numrating =  str2double(plugin(iRow).numrating);
     plugin(iRow).rating    =  str2double(plugin(iRow).rating);
