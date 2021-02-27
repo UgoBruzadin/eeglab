@@ -371,10 +371,11 @@ end
 % NOTE: doesn't remove the .sc .wts and .fdt files
 
 if ~isempty(tmpdata)
-    delete(tmpdata);
-    delete(weightsfile);
-    delete(spherefile);
-    delete(scriptfile);
+    % removing trash files from directory 
+    delete(tmpdata); %added by Ugo Nunes 02.27.2021
+    delete(weightsfile); %added by Ugo Nunes 02.27.2021
+    delete(spherefile);%added by Ugo Nunes 02.27.2021
+    delete(scriptfile); %added by Ugo Nunes 02.27.2021
     eval(['!rm -f ' datafile]);
 end
 
