@@ -374,7 +374,15 @@ end
 % NOTE: doesn't remove the .sc .wts and .fdt files
 
 if ~isempty(tmpdata)
+<<<<<<< HEAD
     try, delete(datafile); catch, end
+=======
+    delete(tmpdata);
+    delete(weightsfile);
+    delete(spherefile);
+    delete(scriptfile);
+    eval(['!rm -f ' datafile]);
+>>>>>>> parent of 357d1f01b (Added comments to binica.m)
 end
 
 %
