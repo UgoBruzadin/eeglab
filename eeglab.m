@@ -1204,7 +1204,7 @@ function eeg_mainfig(onearg);
 icadefs;
 COLOR = BACKEEGLABCOLOR;
 WINMINX         = 17;
-WINMAXX         = 260;
+WINMAXX         = 360; %changed from 260 to 360
 WINYDEC			= 13;
 NBLINES         = 16;
 WINY		    = WINYDEC*NBLINES;
@@ -1662,8 +1662,8 @@ if study_selected
     % values
     % ------
     fullfilename = fullfile( STUDY.filepath, STUDY.filename);
-    if length(fullfilename) > 26
-        set( g.win1, 'String', sprintf('Study filename: ...%s\n', fullfilename(max(1,length(fullfilename)-26):end) ));
+    if length(fullfilename) > 64 %changed 26 to 64 #mod
+        set( g.win1, 'String', sprintf('Study filename: ...%s\n', fullfilename(max(1,length(fullfilename)-64):end) )); %changed 26 to 64 #mod
     else
         set( g.win1, 'String', sprintf('Study filename: %s\n'   , fullfilename));
     end        	
@@ -1725,7 +1725,7 @@ elseif (exist('EEG') == 1) && ~isnumeric(EEG) && ~isempty(EEG(1).data)
         % -----------
         anyempty    = unique_bc( cellfun( 'isempty', { EEG.icaweights }) );
         if length(anyempty) == 2,   icaweights = 'mixed, yes and no';
-        elseif anyempty == 0,       icaweights = 'yes';
+        elseif anyempty == 0,       icaweights = 'size(EEG.icaweights,1)'; %changed yes to EEG.icaweights size
         else                        icaweights = 'no';
         end
 
