@@ -1,8 +1,0 @@
-# Data files
-*.mat
-
-# Matlab backup files
-*.m~
-
-# Dependency folder
-*dependency*
