@@ -134,6 +134,9 @@ else
 		fprintf('binica(): using binary ica file ''\?/%s''\n', ICABINARY);
 	end
 end
+if any(ICABINARYdir == ' ')
+    error('The ICABINARY path defined in icadefs.m cannot contain spaces');
+end
 
 [flags,args] = read_sc(SC); % read flags and args in master SC file
 
@@ -144,30 +147,26 @@ end
 tmpint=[];
 
 if ~ischar(data) % data variable given
-  %firstarg = 2;
   firstarg = 2;
 else % data filename given
-  %firstarg = 4;
   firstarg = 4;
 end
 
 arg = firstarg;
-if arg > nargin-1
+if arg > nargin
    fprintf('binica(): no optional (flag, argument) pairs received.\n');
 else
- if (nargin-1-arg+1)/2 > 1
+ if (nargin-arg+1)/2 > 1
     fprintf('binica(): processing %d (flag, arg) pairs.\n',(nargin-arg+1)/2);
  else
     fprintf('binica(): processing one (flag, arg) pair.\n');
  end
- %while arg <= nargin %%%%%%%%%%%% process flags & args %%%%%%%%%%%%%%%%
- while arg <= nargin-1 %%%%%%%%%%%% process flags & args %%%%%%%%%%%%%%%%
+ while arg <= nargin %%%%%%%%%%%% process flags & args %%%%%%%%%%%%%%%%
 
   eval(['OPTIONFLAG = var' int2str(arg) ';']); 
   % NB: Found that here Matlab var 'FLAG' is (64,3) why!?!?
 
-  %if arg == nargin
-  if arg == nargin-1
+  if arg == nargin
     fprintf('\nbinica(): Flag %s needs an argument.\n',OPTIONFLAG)
     return
   end
@@ -218,12 +217,9 @@ end
 % select random integer 1-10000 to index the binica data files
 % make sure no such script file already exists in the pwd
 %
-t = datetime('now','TimeZone','local','Format','ddMMyy_HH.mm.ss'); %gets the datetime
-            
 scriptfile = ['binica' tmpint '.sc'];
 while exist(scriptfile)
-    
-    tmpint = strcat(EEG.filename(1:10),char(t),'_',int2str(round(rand*1000)));
+    tmpint = int2str(round(rand*10000));
     scriptfile = ['binica' tmpint '.sc'];
 end
 fprintf('scriptfile = %s\n',scriptfile);
@@ -378,7 +374,7 @@ end
 % NOTE: doesn't remove the .sc .wts and .fdt files
 
 if ~isempty(tmpdata)
-    try, delete(datafile, scriptfile, weightsfile, spherefile); catch, end
+    try, delete(datafile); catch, end
 end
 
 %
