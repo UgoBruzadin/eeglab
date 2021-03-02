@@ -1204,7 +1204,7 @@ function eeg_mainfig(onearg);
 icadefs;
 COLOR = BACKEEGLABCOLOR;
 WINMINX         = 17;
-WINMAXX         = 360; %changed from 260 to 360
+WINMAXX         = 260;
 WINYDEC			= 13;
 NBLINES         = 16;
 WINY		    = WINYDEC*NBLINES;
@@ -1315,10 +1315,9 @@ listui = { { 'style', 'text', 'string', 'Parameters of the current set', 'tag', 
            { 'style', 'text', 'tag', 'win10', 'string', 'Channel locations', 'userdata', 'datinfo'} ...
            { 'style', 'text', 'tag', 'val10', 'string', ' ', 'userdata', 'datinfo' } ...
            { 'style', 'text', 'tag', 'win11', 'string', 'ICA weights', 'userdata', 'datinfo'  } ...
-           { 'style', 'text', 'tag', 'val11', 'string', ' ', 'userdata', 'datinfo' } ...           
+           { 'style', 'text', 'tag', 'val11', 'string', ' ', 'userdata', 'datinfo' } ...
            { 'style', 'text', 'tag', 'win12', 'string', 'Dataset size (Mb)', 'userdata', 'datinfo' } ...
            { 'style', 'text', 'tag', 'val12', 'string', ' ', 'userdata', 'datinfo' } {} };
-
 supergui(gcf, geometry, [], listui{:});
 geometry = { [1] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1] };
 listui = { { } ...
@@ -1591,7 +1590,7 @@ end
 if study_selected
     menustatus = { menustatus{:} 'study' };
     
-    hh = findobj('parent', gcf, 'userdata', 'fullline'); set(hh, 'visible', 'off'); %changed oFF to ON
+    hh = findobj('parent', gcf, 'userdata', 'fullline'); set(hh, 'visible', 'off');
     hh = findobj('parent', gcf, 'userdata', 'datinfo');  set(hh, 'visible', 'on');
 
     % head string
@@ -1663,8 +1662,8 @@ if study_selected
     % values
     % ------
     fullfilename = fullfile( STUDY.filepath, STUDY.filename);
-    if length(fullfilename) > 64 %changed from 26 to 64
-        set( g.win1, 'String', sprintf('Study filename: ...%s\n', fullfilename(max(1,length(fullfilename)-64):end) )); %changed from 26 to 64
+    if length(fullfilename) > 26
+        set( g.win1, 'String', sprintf('Study filename: ...%s\n', fullfilename(max(1,length(fullfilename)-26):end) ));
     else
         set( g.win1, 'String', sprintf('Study filename: %s\n'   , fullfilename));
     end        	
@@ -1688,7 +1687,7 @@ if study_selected
     
 elseif (exist('EEG') == 1) && ~isnumeric(EEG) && ~isempty(EEG(1).data) 
 
-    hh = findobj('parent', gcf, 'userdata', 'fullline'); set(hh, 'visible', 'off'); %changed oFF to ON
+    hh = findobj('parent', gcf, 'userdata', 'fullline'); set(hh, 'visible', 'off');
     hh = findobj('parent', gcf, 'userdata', 'datinfo');  set(hh, 'visible', 'on');
     
     if length(EEG) > 1 % several datasets
@@ -1726,7 +1725,7 @@ elseif (exist('EEG') == 1) && ~isnumeric(EEG) && ~isempty(EEG(1).data)
         % -----------
         anyempty    = unique_bc( cellfun( 'isempty', { EEG.icaweights }) );
         if length(anyempty) == 2,   icaweights = 'mixed, yes and no';
-        elseif anyempty == 0,       icaweights = 'size(EEG.icaweights,1)';
+        elseif anyempty == 0,       icaweights = 'yes';
         else                        icaweights = 'no';
         end
 
@@ -1801,8 +1800,8 @@ elseif (exist('EEG') == 1) && ~isnumeric(EEG) && ~isempty(EEG(1).data)
 
         fullfilename = fullfile(EEG.filepath, EEG.filename);
         if ~isempty(fullfilename)
-            if length(fullfilename) > 64 %changed from 26 to 64
-                set( g.win1, 'String', sprintf('Filename: ...%s\n', fullfilename(max(1,length(fullfilename)-64):end) )); %changed from 26 to 64
+            if length(fullfilename) > 26
+                set( g.win1, 'String', sprintf('Filename: ...%s\n', fullfilename(max(1,length(fullfilename)-26):end) ));
             else
                 set( g.win1, 'String', sprintf('Filename: %s\n', fullfilename));
             end        	
@@ -1847,7 +1846,7 @@ elseif (exist('EEG') == 1) && ~isnumeric(EEG) && ~isempty(EEG(1).data)
             end
         end
         
-        set( g.val11, 'String', fastif(isempty(EEG.icasphere), 'No', size(EEG.icaweights,1)));
+        set( g.val11, 'String', fastif(isempty(EEG.icasphere), 'No', 'Yes'));
         tmp = whos('EEG');
         if ~isa(EEG.data, 'memmapdata') && ~isa(EEG.data, 'mmo') 
             set( g.val12, 'String', num2str(round(tmp.bytes/1E6*10)/10));

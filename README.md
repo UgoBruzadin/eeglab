@@ -1,9 +1,4 @@
-# This edition of EEGLAB
 
-This branch of EEGLAB was constructed to be used by the Integral Neuroscience Lab at SIU Carbondale. We use multiple computers running many batches and we need all plugins to be installed the same way. We also made many mods to many scripts to suit the needs of the lab, mostly minimals changes, like defaults, so we can use the interface quickier. 
-
-I also have added a plugin of my own making called AutoPipeliner, which will be transfered to another folder.
-EEGLAB is not made by me; It's register under the SCCN under free use copyrights. I apologize in advance if you encounter errors, we are constantly changing lines from the original code so we can process our data faster.
 
 # What is EEGLAB?
 EEGLAB is an open source signal processing environment for electrophysiological signals running on Matlab and Octave (command line only for Octave). This folder contains original Matlab functions from the EEGLAB (formerly ICA/EEG) Matlab toolbox, all released under the Gnu public license (see eeglablicence.txt). See the EEGLAB tutorial and reference paper (URLs given below) for more information.

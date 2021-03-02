@@ -128,11 +128,7 @@ if strcmpi(opt.datatype,'channels')
         end
     end
     % DATERSP    
-<<<<<<< HEAD
     if strcmp(opt.timef,'on')
-=======
-    if strcmp(opt.ersp,'on')
->>>>>>> eeglab2019
         data = load('-mat',[name '.dattimef'],'times','freqs');
         EEG.etc.timeersp = data.times;
         EEG.etc.freqersp = data.freqs;

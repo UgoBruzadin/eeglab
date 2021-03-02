@@ -249,14 +249,6 @@ chanformat(3).description  = [ 'Standard 3-D cartesian coordinate files with ele
                                ' and channel labels in column 5' ];
 chanformat(3).importformat = { 'channum' '-Y' 'X' 'Z' 'labels'};
 % ---------------------------------------------------------------------------------------------------
-chanformat(3).type         = 'loretaxyz';
-chanformat(3).typestring   = 'Matlab .xyz file';
-chanformat(3).description  = [ 'Standard 3-D cartesian coordinate files with electrode numbers in ' ...
-                               'the first column and X, Y, and Z coordinates in columns 2, 3, and 4' ...
-                               ' and channel labels in column 5' ];
-chanformat(3).importformat = { '-Y' 'X' 'Z' 'labels'};
-
-% ---------------------------------------------------------------------------------------------------
 chanformat(4).type         = 'sfp';
 chanformat(4).typestring   = 'BESA or EGI 3-D cartesian .sfp file';
 chanformat(4).description  = [ 'Standard BESA 3-D cartesian coordinate files with electrode labels in ' ...
@@ -361,7 +353,6 @@ if ischar(filename)
         case 'xyz', g.filetype = 'xyz'; 
           fprintf( [ 'WARNING: Matlab Cartesian coord. file extension (".xyz") detected.\n' ... 
                   'If importing EGI Cartesian coords, force type "sfp" instead.\n'] );
-        case 'loretaxyz', g.filetype = 'loretaxyz';
         case 'sph', g.filetype = 'sph';
         case 'ced', g.filetype = 'chanedit';
         case 'elp', g.filetype = g.defaultelp;
@@ -484,14 +475,6 @@ if ischar(filename)
            end
        end
 
-       % xyz format, is the first col absent
-       % -----------------------------------
-       if strcmp(g.filetype, 'xyz')
-           if size(array, 2) == 4
-               array(:, 2:5) = array(:, 1:4);
-           end
-       end
-       
        % xyz format, is the first col absent
        % -----------------------------------
        if strcmp(g.filetype, 'xyz')

@@ -46,6 +46,7 @@ if isempty(plugin)
         'https://github.com/sccn/eeglab/issues/20']);
     return;
 end
+
 % sort plugins by download score
 [~,scoreOrder] = sort([ plugin.downloads ], 2, 'descend');
 plugin = plugin(scoreOrder);

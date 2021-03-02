@@ -131,6 +131,7 @@ if ~isfield(HDR.Patient.Impairment, 'Visual')  HDR.Patient.Impairment.Visual = 0
 if ~isfield(HDR.Patient,'Smoking')             HDR.Patient.Smoking = 0; end;           %	0: unknown 1: NO 2: YES 
 if ~isfield(HDR.Patient,'AlcoholAbuse')        HDR.Patient.AlcoholAbuse = 0; end; 	   %	0: unknown 1: NO 2: YES 
 if ~isfield(HDR.Patient,'DrugAbuse')           HDR.Patient.DrugAbuse = 0; end;  	   %	0: unknown 1: NO 2: YES 
+
 % recording time [YYYY MM DD hh mm ss.ccc]
 if ~isfield(HDR,'T0')                          HDR.T0 = clock; end
 if ~isfield(HDR,'SPR')                         HDR.SPR = size(x,2); end

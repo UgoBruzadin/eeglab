@@ -137,10 +137,7 @@ EEG.xmax   = EEG.xmax+EEG.xmin;
 if length(event2) > 1 && event2(1).latency == 0, event2(1) = []; end
 if length(event2) > 1 && event2(end).latency == EEG.pnts, event2(end) = []; end
 if length(event2) > 2 && event2(end).latency == event2(end-1).latency, event2(end) = []; end
-<<<<<<< HEAD
 
-=======
->>>>>>> eeglab2019
 
 % add boundary events
 % -------------------
@@ -157,13 +154,8 @@ end
 if isfield(EEG.event, 'latency') && length(EEG.event) < 3000
     % assess difference between old and new event latencies
     [ eventtmp ] = eeg_insertboundold(oldEEGevents, oldEEGpnts, regions);
-<<<<<<< HEAD
     if ~isempty(eventtmp)
         [~,indEvent] = sort([ eventtmp.latency ]);
-=======
-    [~,indEvent] = sort([ eventtmp.latency ]);
-    if ~isempty(eventtmp)
->>>>>>> eeglab2019
         eventtmp = eventtmp(indEvent);
     end
     if ~isempty(eventtmp) && length(eventtmp) > length(EEG.event) && isfield(eventtmp, 'type') && isequal(eventtmp(1).type, 'boundary')
