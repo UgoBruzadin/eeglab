@@ -363,9 +363,9 @@ if isempty(sph)
 end
 fprintf('\nbinary ica files deleted:\n'); %changed
     try %ADDED changed
-        delete(scriptfile);
-        delete(weightsfile);
-        delete(spherefile);
+        %delete(scriptfile);
+       % delete(weightsfile);
+      %  delete(spherefile);
     catch
     end
 try, eval(['!ls -l ' scriptfile ' ' weightsfile ' ' spherefile]); catch, end
