@@ -367,6 +367,7 @@ fprintf('\nbinary ica files deleted:\n'); %changed
         delete(weightsfile);
         delete(spherefile);
     catch
+    end
 try, eval(['!ls -l ' scriptfile ' ' weightsfile ' ' spherefile]); catch, end
 if exist('wtsin')
    try, eval(['!ls -l ' weightsinfile]); catch end
