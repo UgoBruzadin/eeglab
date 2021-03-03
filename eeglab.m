@@ -1725,7 +1725,7 @@ elseif (exist('EEG') == 1) && ~isnumeric(EEG) && ~isempty(EEG(1).data)
         % -----------
         anyempty    = unique_bc( cellfun( 'isempty', { EEG.icaweights }) );
         if length(anyempty) == 2,   icaweights = 'mixed, yes and no';
-        elseif anyempty == 0,       icaweights = 'size(EEG.icaweights,1)'; %changed yes to EEG.icaweights size
+        elseif anyempty == 0,       icaweights = size(EEG.icaweights,1); %changed yes to EEG.icaweights size
         else                        icaweights = 'no';
         end
 
@@ -1800,8 +1800,8 @@ elseif (exist('EEG') == 1) && ~isnumeric(EEG) && ~isempty(EEG(1).data)
 
         fullfilename = fullfile(EEG.filepath, EEG.filename);
         if ~isempty(fullfilename)
-            if length(fullfilename) > 26
-                set( g.win1, 'String', sprintf('Filename: ...%s\n', fullfilename(max(1,length(fullfilename)-26):end) ));
+            if length(fullfilename) > 64 %changed 26 to 64
+                set( g.win1, 'String', sprintf('Filename: ...%s\n', fullfilename(max(1,length(fullfilename)-64):end) )); %changed 26 to 64
             else
                 set( g.win1, 'String', sprintf('Filename: %s\n', fullfilename));
             end        	
@@ -1846,7 +1846,7 @@ elseif (exist('EEG') == 1) && ~isnumeric(EEG) && ~isempty(EEG(1).data)
             end
         end
         
-        set( g.val11, 'String', fastif(isempty(EEG.icasphere), 'No', 'Yes'));
+        set( g.val11, 'String', fastif(isempty(EEG.icasphere), 'No', size(EEG.icaweights,1)));
         tmp = whos('EEG');
         if ~isa(EEG.data, 'memmapdata') && ~isa(EEG.data, 'mmo') 
             set( g.val12, 'String', num2str(round(tmp.bytes/1E6*10)/10));

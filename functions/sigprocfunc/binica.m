@@ -97,9 +97,10 @@
 % 11/06/01 add absolute path of files (lines 157-170 & 198) -ad
 % 01-25-02 reformated help & license, added links -ad 
  
-function [wts,sph,tmpint] = binica(data,var2,var3,var4,var5,var6,var7,var8,var9,var10,var11,var12,var13,var14,var15,var16,var17,var18,var19,var20,var21,var22,var23,var24,var25)
-
-if nargin < 1 || nargin > 25
+function [wts,sph,tmpint] = binica(EEG,data,var2,var3,var4,var5,var6,var7,var8,var9,var10,var11,var12,var13,var14,var15,var16,var17,var18,var19,var20,var21,var22,var23,var24,var25)
+%changed name to binica2, added EEG
+%if nargin < 1 || nargin > 25 changed total vars
+if nargin < 1 || nargin > 26
     more on
     help binica
     more off
@@ -360,7 +361,12 @@ if isempty(sph)
    fprintf('\nbinica():  sphere matrix not read.\n')
    return
 end
-fprintf('\nbinary ica files left in pwd:\n');
+fprintf('\nbinary ica files deleted:\n'); %changed
+    try %ADDED changed
+        delete(scriptfile);
+        delete(weightsfile);
+        delete(spherefile);
+    catch
 try, eval(['!ls -l ' scriptfile ' ' weightsfile ' ' spherefile]); catch, end
 if exist('wtsin')
    try, eval(['!ls -l ' weightsinfile]); catch end
@@ -378,7 +384,11 @@ end
 % NOTE: doesn't remove the .sc .wts and .fdt files
 
 if ~isempty(tmpdata)
-    try, delete(datafile, scriptfile, weightsfile, spherefile); catch, end
+    try, delete(datafile); 
+    delete(scriptfile);
+    delete(weightsfile);
+    delete(spherefile);
+    catch, end
 end
 
 %
