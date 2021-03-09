@@ -1204,7 +1204,7 @@ function eeg_mainfig(onearg);
 icadefs;
 COLOR = BACKEEGLABCOLOR;
 WINMINX         = 17;
-WINMAXX         = 360; %changed from 260 to 360
+WINMAXX         = 460; %changed from 260 to 360
 WINYDEC			= 13;
 NBLINES         = 16;
 WINY		    = WINYDEC*NBLINES;
