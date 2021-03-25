@@ -387,8 +387,8 @@ end
 if ~isempty(tmpdata)
     try, delete(datafile); 
     delete(scriptfile);
-    delete(weightsfile);
-    delete(spherefile);
+    %delete(weightsfile);
+    %delete(spherefile);
     catch, end
 end
 
