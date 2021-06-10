@@ -1,4 +1,5 @@
 function [EEG, varargout] = pop_iclabel(EEG, icversion)
+icversion = 'default';
 %POP_ICLABEL Function for EEG IC labeling
 %   Label independent components using ICLabel. Go to
 %   https://sccn.ucsd.edu/wiki/ICLabel for a tutorial on this plug-in. Go

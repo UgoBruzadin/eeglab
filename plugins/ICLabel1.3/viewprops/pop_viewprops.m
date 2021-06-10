@@ -42,7 +42,7 @@
 function [com] = pop_viewprops( EEG, typecomp, chanorcomp, spec_opt, erp_opt, scroll_event, classifier_name, fig)
 
 COLACC = [0.75 1 0.75];
-PLOTPERFIG = 35;
+PLOTPERFIG = 54;
 com = '';
 
 if nargin < 1
@@ -59,9 +59,9 @@ if nargin < 3
                      'Spectral options (see spectopo() help):','Erpimage options (see erpimage() help):' ...
                      [' Draw events over scrolling ' fastif(typecomp,'channel','component') ' activity']};
     if typecomp
-        inistr       = { ['1:' int2str(length(EEG.chanlocs))] ['''freqrange'', [2 ' num2str(min(80, EEG.srate/2)) ']'] '' 1};
+        inistr       = { ['1:' int2str(length(EEG.chanlocs))] ['''freqrange'', [2 ' num2str(min(55, EEG.srate/2)) ']'] '' 1};
     else
-        inistr       = { ['1:' int2str(size(EEG.icawinv, 2))] ['''freqrange'', [2 ' num2str(min(80, EEG.srate/2)) ']'] '' 1};
+        inistr       = { ['1:' int2str(size(EEG.icawinv, 2))] ['''freqrange'', [2 ' num2str(min(55, EEG.srate/2)) ']'] '' 1};
     end
     stylestr     = {'edit', 'edit', 'edit', 'checkbox'};
     
@@ -94,11 +94,11 @@ if nargin < 3
         classifier_name = classifiers{result{5}};
     end
 
-    if length(chanorcomp) > PLOTPERFIG
-        ButtonName=questdlg2(strvcat(['More than ' int2str(PLOTPERFIG) fastif(typecomp,' channels',' components') ' so'],...
-            'this function will pop-up several windows'), 'Confirmation', 'Cancel', 'OK','OK');
-        if  ~isempty( strmatch(lower(ButtonName), 'cancel')), return; end;
-    end;
+%     if length(chanorcomp) > PLOTPERFIG
+%         ButtonName=questdlg2(strvcat(['More than ' int2str(PLOTPERFIG) fastif(typecomp,' channels',' components') ' so'],...
+%             'this function will pop-up several windows'), 'Confirmation', 'Cancel', 'OK','OK');
+%         if  ~isempty( strmatch(lower(ButtonName), 'cancel')), return; end;
+%     end;
 
 end;
 if ~exist('spec_opt', 'var') || ~iscell(spec_opt)
