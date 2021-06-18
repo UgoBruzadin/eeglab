@@ -33,6 +33,7 @@ else
         EEG = pop_fastPCAandIClabel(EEG);
     catch
         EEG = pop_loadset();
+        [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);
         EEG = pop_runica(EEG,'icatype','binica','extended', 1, 'verbose','off');
         EEG = pop_fastPCAandIClabel(EEG);
     end

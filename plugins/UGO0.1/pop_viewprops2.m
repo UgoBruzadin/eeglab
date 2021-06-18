@@ -269,7 +269,19 @@ drawnow;
 % -------------
 cancel  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'Cancel', 'Units','Normalized','Position',[-10 -10 15 6].*s+q, 'callback', 'close(gcf);');
 
-% OK button
+
+% PARTIAL REJECTIONG button
+% -------------
+
+command3 = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbox''), ''value'');'...
+    'A = fliplr([tmpstatus{:}]);'...
+    'EEG.reject.gcompreject(' num2str(chanorcomp(1)) ' : ' num2str(chanorcomp(end)) ' ) = A;'...
+    'close(gcf);'...
+    'EEG = pop_fastN1PCA'];
+    
+rjandpca  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'REJ+N-1PCA', 'Units','Normalized', 'Position', [65 -10 15 6].*s+q, 'callback', command3);
+
+% Reject button
 % --------- 
   	command2 = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbox''), ''value'');'...
         'A = fliplr([tmpstatus{:}]);'...
