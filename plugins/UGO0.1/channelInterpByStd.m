@@ -9,6 +9,4 @@ outliers = sum(out,2);
 
 outliersR = reshape(outliers,size(outliers,1),size(outliers,3));
 
-
-
 end
