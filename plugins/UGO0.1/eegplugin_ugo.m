@@ -1,4 +1,9 @@
 % eegplugin_ugo() - Quick Lab plugin
+% this plugin was made by Ugo Bruzadin Nunes
+% I modified original code from the EEGLAB
+% such as viewprops and spectopo
+% to speed up my data processing!
+
 function eegplugin_ugo(fig, try_strings, catch_strings)
 
 supermenu = uimenu(fig, 'label', 'QuickLab');
@@ -9,7 +14,7 @@ pcamenu = uimenu (supermenu, 'label', 'Quick PCA');
 
 toolsmenu = uimenu (supermenu, 'label', 'Quick tools');
 
-uimenu( toolsmenu, 'label', 'Quick Channel Spectra', 'callback', ...
+uimenu( plotmenu, 'label', 'Quick Plot Channel Spectra', 'callback', ...
     ['EEG = pop_fastspectra(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( toolsmenu, 'label', 'Quick Re-reference CZ', 'callback', ...
@@ -18,11 +23,17 @@ uimenu( toolsmenu, 'label', 'Quick Re-reference CZ', 'callback', ...
 uimenu( toolsmenu, 'label', 'Quick Re-reference AVG', 'callback', ...
     ['EEG = pop_fastrerefavg(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
+uimenu( toolsmenu, 'label', 'Quick Interpolate Worse Channels (AVG)', 'callback', ...
+    ['EEG = pop_fastchannelinterp(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+
 uimenu( plotmenu, 'label', 'Quick IClabel & plot', 'callback', ...
     ['EEG = pop_fastIClabel(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( plotmenu, 'label', 'Quick Run N-1 PCA', 'callback', ...
-    ['EEG = pop_fastPCAandIClabel(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['EEG = pop_fastPCA(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+
+uimenu( toolsmenu, 'label', 'Interpolate Worse Trials by Components', 'callback', ...
+    ['EEG =  pop_epochintbycompsbyvar(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( pcamenu, 'label', 'Quick ICA', 'callback', ...
     ['EEG = pop_fastPCA(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
@@ -32,14 +43,8 @@ uimenu( pcamenu, 'label', strcat('Quick PCA ',num2str(i)), 'callback', ...
     ['EEG = pop_fastPCA(EEG,' num2str(i) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 end
 
-
 uimenu( supermenu, 'label', 'Run a pipeline', 'callback', ...
     ['EEG = runapipeline(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
-
-
-
-
-
 
 
 %supermenu;
