@@ -1,5 +1,8 @@
 function [EEG] = pop_fastchannelinterp(EEG,minfreq,maxfreq,sdv)
-
+if isempty(EEG.data)
+    EEG = pop_loadset();
+    eeglab redraw
+end
 if nargin < 2
     minfreq = 2;
     maxfreq = 55;
@@ -13,7 +16,7 @@ end
 ChansForInterp = outlierChannelsFrequency(EEG,minfreq,maxfreq,sdv);
 
 if ChansForInterp
-    fprintf(strcat('marked channels ',num2str(ChansForInterp), '/r'));
+    fprintf(strcat('Marked channels',strcat(num2str(ChansForInterp)), ' /r'));
     EEG = pop_interp(EEG, [ChansForInterp], 'spherical');
 else
     fprintf(strcat('no channels marked above ',num2str(sdv), '/r'));

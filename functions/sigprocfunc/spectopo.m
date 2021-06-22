@@ -781,9 +781,10 @@ if ~isempty(g.freq) &&  strcmpi(g.plot, 'on')
 		end
 		set(tl,'fontsize',AXES_FONTSIZE_L);
 		axis square;
-		drawnow
+		%drawnow limitrate
 		myfprintf(g.verbose, '.');
-	end
+    end
+    drawnow
 	myfprintf(g.verbose, '\n');
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -806,7 +807,7 @@ if ~isempty(g.freq) &&  strcmpi(g.plot, 'on')
 			tl=title(int2str(g.icacomps(compnum)));
 			set(tl,'fontsize',16);
 			axis square;
-			drawnow
+			%drawnow limitrate
             try,
                 if strcmpi(g.icamode, 'normal')
                     set(gca, 'userdata', ['text(-0.6, -0.6, ''Rel. Var.: ' sprintf('%6.2f', resvar(g.icacomps(compnum))) ''');'] );

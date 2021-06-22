@@ -860,7 +860,7 @@ if strcmpi(interrupt, 'on')
     setappdata(gcf, 'run', 1);
     
     if strcmpi(interrupt, 'on')
-        drawnow;
+        drawnow limitrate;
     end
 end
 
@@ -872,7 +872,7 @@ if biasflag && extended
 
         for t=1:block:lastt, %%%%%%%%% ICA Training Block %%%%%%%%%%%%%%%%%%%
             if strcmpi(interrupt, 'on')
-                drawnow;
+                drawnow limitrate;
                 flag = getappdata(fig, 'run');
                 if ~flag,
                     if ~isempty(fid), fclose(fid); end
@@ -1044,7 +1044,7 @@ if biasflag && ~extended
 
         for t=1:block:lastt, %%%%%%%%% ICA Training Block %%%%%%%%%%%%%%%%%%%
             if strcmpi(interrupt, 'on')
-                drawnow;
+                drawnow limitrate;
                 flag = getappdata(fig, 'run');
                 if ~flag,
                     if ~isempty(fid), fclose(fid); end
@@ -1164,7 +1164,7 @@ if ~biasflag && extended
 
         for t=1:block:lastt, %%%%%%%%% ICA Training Block %%%%%%%%%%%%%%%%%%%
             if strcmpi(interrupt, 'on')
-                drawnow;
+                drawnow limitrate;
                 flag = getappdata(fig, 'run');
                 if ~flag,
                     if ~isempty(fid), fclose(fid); end
@@ -1331,7 +1331,7 @@ if ~biasflag && ~extended
 
         for t=1:block:lastt, %%%%%%%%% ICA Training Block %%%%%%%%%%%%%%%%%%%
             if strcmpi(interrupt, 'on')
-                drawnow;
+                drawnow limitrate;
                 flag = getappdata(fig, 'run');
                 if ~flag,
                     if ~isempty(fid), fclose(fid); end

@@ -153,10 +153,10 @@ else % data filename given
 end
 
 arg = firstarg;
-if arg > nargin-1
+if arg > nargin-1 % Ugo had to modify 2021
    fprintf('binica(): no optional (flag, argument) pairs received.\n');
 else
- if (nargin-1-arg+1)/2 > 1
+ if (nargin-1-arg+1)/2 > 1 % Ugo had to modify 2021
     fprintf('binica(): processing %d (flag, arg) pairs.\n',(nargin-arg+1)/2);
  else
     fprintf('binica(): processing one (flag, arg) pair.\n');

@@ -14,37 +14,57 @@ pcamenu = uimenu (supermenu, 'label', 'Quick PCA');
 
 toolsmenu = uimenu (supermenu, 'label', 'Quick tools');
 
+epochsmenu = uimenu (toolsmenu, 'label', 'Quick epoch cleaning');
+
+pcasmenu = uimenu (toolsmenu, 'label', 'Partial PCA cleaning');
+
+channelmenu = uimenu (toolsmenu, 'label', 'Quick channel cleaning');
+
 uimenu( plotmenu, 'label', 'Quick Plot Channel Spectra', 'callback', ...
-    ['EEG = pop_fastspectra(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['EEG = pop_fastspectra(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu( toolsmenu, 'label', 'Quick Re-reference CZ', 'callback', ...
-    ['EEG = pop_fastrerefcz(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['EEG = pop_fastrerefcz(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu( toolsmenu, 'label', 'Quick Re-reference AVG', 'callback', ...
-    ['EEG = pop_fastrerefavg(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['EEG = pop_fastrerefavg(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
-uimenu( toolsmenu, 'label', 'Quick Interpolate Worse Channels (AVG)', 'callback', ...
-    ['EEG = pop_fastchannelinterp(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+uimenu( channelmenu, 'label', 'Quick Reduce to 99 Channels (INL only)', 'callback', ...
+    ['[EEG] = pop_HM99(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+
+uimenu( channelmenu, 'label', 'Quick Interpolate Worse Channels by 3 STD', 'callback', ...
+    ['EEG = pop_fastchannelinterp(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+
+uimenu( channelmenu, 'label', 'Quick Interpolate Channels by Components', 'callback', ...
+    ['[EEG] = channelIntByComps(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu( plotmenu, 'label', 'Quick IClabel & plot', 'callback', ...
-    ['EEG = pop_fastIClabel(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['EEG = pop_fastIClabel(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
-uimenu( plotmenu, 'label', 'Quick Run N-1 PCA', 'callback', ...
-    ['EEG = pop_fastPCA(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
-
-uimenu( toolsmenu, 'label', 'Interpolate Worse Trials by Components', 'callback', ...
-    ['EEG =  pop_epochintbycompsbyvar(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+uimenu( pcamenu, 'label', 'Quick N-1 PCA', 'callback', ...
+    ['EEG = pop_fastN1PCA(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu( pcamenu, 'label', 'Quick ICA', 'callback', ...
-    ['EEG = pop_fastPCA(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['EEG = pop_fastPCA(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 for i=6:2:50
 uimenu( pcamenu, 'label', strcat('Quick PCA ',num2str(i)), 'callback', ...
-    ['EEG = pop_fastPCA(EEG,' num2str(i) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['EEG = pop_fastPCA(EEG,' num2str(i) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 end
 
+uimenu( epochsmenu, 'label', 'Quick Epoch Rej. by Prob (5 sdv)', 'callback', ...
+    ['EEG =  trialrejprob(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+
+uimenu( pcasmenu, 'label', 'Partial Component Removal for Epoch Interpolation', 'callback', ...
+    ['EEG =  pop_epochintbycompsbyvar(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+
+uimenu( pcasmenu, 'label', 'Partial Component Removal for Channel Interpolation', 'callback', ...
+    ['[EEG] = pop_epochandchannelintbycompsbyvar(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+
 uimenu( supermenu, 'label', 'Run a pipeline', 'callback', ...
-    ['EEG = runapipeline(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['EEG = runapipeline(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+
+
 
 
 %supermenu;

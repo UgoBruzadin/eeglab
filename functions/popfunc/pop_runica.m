@@ -112,7 +112,7 @@ end
 
 % find available algorithms
 % -------------------------
-allalgs   = { 'binica' 'runica' 'cudaica' 'jader' 'jadeop' 'jade_td_p' 'MatlabshibbsR' 'fastica' ...
+allalgs   = { 'cudaica' 'binica' 'runica' 'jader' 'jadeop' 'jade_td_p' 'MatlabshibbsR' 'fastica' ...
               'tica' 'erica' 'simbec' 'unica' 'amuse' 'fobi' 'evd' 'evd24' 'sons' 'sobi' 'ng_ol' ...
               'acsobiro' 'acrsobibpf' 'pearson_ica' 'egld_ica' 'eeA' 'tfbss' 'icaML' 'icaMS' 'picard' }; % do not use egld_ica => too slow
 selectalg = {};
@@ -457,6 +457,7 @@ switch lower(g.icatype)
             [EEG.icaweights,EEG.icasphere] = binica( tmpdata, 'lrate', 0.001, 'pca', tmprank, g.options{:} );
         end
      case 'binica'
+        %tic
         icadefs;
         fprintf(['Warning: If the binary ICA function does not work, check that you have added the\n' ...
                  'binary file location (in the EEGLAB directory) to your Unix /bin directory (.cshrc file)\n']);
@@ -470,8 +471,24 @@ switch lower(g.icatype)
             disp(['Data rank (' int2str(tmprank) ') is smaller than the number of channels (' int2str(size(tmpdata,1)) ').']);
             [EEG.icaweights,EEG.icasphere] = binica(EEG, tmpdata, 'lrate', 0.001, 'pca', tmprank, g.options{:}); % Added EEG by Ugo Nunes 06/21/2020
         end
+        %toc
     case 'cudaica' % Add by Yunhui on 2018-09-09
-        [EEG.icaweights,EEG.icasphere] = cudaica(tmpdata, 'lrate', 0.001, g.options{:} );    % Added EEG by Ugo Nunes 06/21/2020 
+        %tic
+        icadefs;
+        fprintf(['Warning: If the CUDAICA ICA function does not work, check that you have added the\n' ...
+                 'binary file location (in the EEGLAB directory) to your Unix /bin directory (.cshrc file)\n']);
+        if exist(ICABINARY) ~= 2
+            error('Pop_runica():CUDAICA ICA executable not found. Edit icadefs.m file to specify the ICABINARY location');
+        end
+        tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
+        if tmprank == size(tmpdata,1) || pca_opt
+            [EEG.icaweights,EEG.icasphere] = cudaica(EEG, tmpdata, 'lrate', 0.001, g.options{:} ); % Added EEG by Ugo Nunes 06/21/2020
+        else 
+            disp(['Data rank (' int2str(tmprank) ') is smaller than the number of channels (' int2str(size(tmpdata,1)) ').']);
+            [EEG.icaweights,EEG.icasphere] = cudaica(EEG, tmpdata, 'lrate', 0.001, 'pca', tmprank, g.options{:}); % Added EEG by Ugo Nunes 06/21/2020
+        end
+        %[EEG.icaweights,EEG.icasphere] = cudaica(tmpdata, 'lrate', 0.001, g.options{:} );    % Added EEG by Ugo Nunes 06/21/2020 
+        %toc
     case 'amica'
         tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
         fprintf('Now Running AMICA\n');
@@ -565,16 +582,17 @@ end
 
 % Reorder components by variance
 % ------------------------------
-meanvar = sum(EEG.icawinv.^2).*sum(transpose((EEG.icaweights *  EEG.icasphere)*EEG.data(EEG.icachansind,:)).^2)/((length(EEG.icachansind)*EEG.pnts)-1);
-[~, windex] = sort(meanvar);
-windex = windex(end:-1:1); % order large to small
-meanvar = meanvar(windex);
-EEG.icaweights = EEG.icaweights(windex,:);
-EEG.icawinv    = pinv( EEG.icaweights *  EEG.icasphere );
-if ~isempty(EEG.icaact)
-    EEG.icaact = EEG.icaact(windex,:,:);
-end
-
+%if lower(g.icatype) ~= 'cudaica'
+    meanvar = sum(EEG.icawinv.^2).*sum(transpose((EEG.icaweights*EEG.icasphere)*EEG.data(EEG.icachansind,:)).^2)/((length(EEG.icachansind)*EEG.pnts)-1);
+    [~, windex] = sort(meanvar);
+    windex = windex(end:-1:1); % order large to small
+    meanvar = meanvar(windex);
+    EEG.icaweights = EEG.icaweights(windex,:);
+    EEG.icawinv    = pinv( EEG.icaweights *  EEG.icasphere );
+    if ~isempty(EEG.icaact)
+        EEG.icaact = EEG.icaact(windex,:,:);
+    end
+%end
 % copy back data to datasets if necessary
 % ---------------------------------------
 if length(g.dataset) > 1

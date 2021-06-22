@@ -1,7 +1,7 @@
 function EEG = pop_fastPCA(EEG,IC)
 if isempty(EEG.data)
     EEG = pop_loadset();
-    [EEG] = eeg_store(EEG);
+    eeglab redraw
 end
 
 mybadcomps = find(EEG.reject.gcompreject);   %stores the Id of the components to be rejected

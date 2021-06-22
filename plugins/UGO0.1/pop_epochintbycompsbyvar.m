@@ -1,5 +1,9 @@
-function [EEG] = pop_epochintbycompsbyvar(EEG,components)
-    
+function [EEG] = pop_epochintbycompsbyvar(EEG,components,sdv)
+
+if nargin < 3
+    sdv = 3;
+end
+
 if nargin < 2
     components = find(EEG.reject.gcompreject);
     if components
@@ -31,7 +35,7 @@ for i=1:length(components)
     % --- calculates the Z score for that array
     Z = zscore(C);
     % --- makes an array bols of the trials which fair above absolute 3 SDVs
-    FlagV = abs(Z) > 3;
+    FlagV = abs(Z) > sdv;
     % --- finds the trial numbers flagged above
     FlagsV = find(FlagV);
     % --- passes the flagged trials to upper variable

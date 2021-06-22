@@ -171,6 +171,12 @@ else
     ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'ica_linux');
 end
 
+if ispc
+    CUDAICABINARY = fullfile(eeglab_p, 'plugins', 'CudaICA1.0', 'cudaica_win.exe'); % Add by Yunhui on 2018-09-09
+else
+    CUDAICABINARY = fullfile(eeglab_p, 'plugins', 'CudaICA1.0', 'cudaica'); % Add by Yunhui on 2018-04-27
+end
+
 try
     set(0,'defaultaxesfontsize',AXES_FONTSIZE);
     set(0,'defaulttextfontsize',TEXT_FONTSIZE);

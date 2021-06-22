@@ -1,4 +1,4 @@
-% POP_VIEWPROPS See  common properties of many EEG channel or component
+% POP_VIEWPROPS2 See  common properties of many EEG channel or component
 %   Creates a figure containing a scalp topography or channel location for
 %   each selected component or channel. Pressing the button above the scalp
 %   topopgraphies will open pop_prop_extended for that component or
@@ -17,7 +17,7 @@
 %           use (must match a field name in EEG.etc.ic_classification)
 %       fig: figure handle for the figure to use.
 %
-%   See also: pop_prop_extended()
+%   See also: pop_prop_extended2()
 %
 %   Adapted from pop_selectcomps Luca Pion-Tonachini (2017)
 
@@ -39,14 +39,14 @@
 
 % 01-25-02 reformated help & license -ad
 
-function [com] = pop_viewprops( EEG, typecomp, chanorcomp, spec_opt, erp_opt, scroll_event, classifier_name, fig)
+function [com] = pop_viewprops2( EEG, typecomp, chanorcomp, spec_opt, erp_opt, scroll_event, classifier_name, fig)
 
 COLACC = [0.75 1 0.75];
 PLOTPERFIG = 54;
 com = '';
 
 if nargin < 1
-    help pop_viewprops;
+    help pop_viewprops2;
     return;
 end;
 
@@ -235,14 +235,13 @@ for ri = chanorcomp
         %button = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized', 'Position',...
         %    [X Y+sizewy sizewx/3 sizewy*0.18].*s+q, 'tag', ['comp' num2str(ri)]);
         
+        % plots smaller buttons
         button = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized', 'Position',...
             [X Y+sizewy sizewx/3 sizewy*0.18].*s+q, 'tag', ['comp' num2str(ri)]);
-        set( button, 'callback', {@pop_prop_extended, EEG, typecomp, ri, NaN, spec_opt, erp_opt, scroll_event, classifier_name} );
+        set( button, 'callback', {@pop_prop_extended2, EEG, typecomp, ri, NaN, spec_opt, erp_opt, scroll_event, classifier_name} );
     
         %         hr = uicontrol(gfc, 'Style', 'pushbutton', 'backgroundcolor', eval(fastif(status,COLREJ,COLACC)), ...
         % 				'string', fastif(status, 'REJECT', 'ACCEPT'), 'Units','Normalized', 'Position', [40 -10 15 6].*s+q, 'userdata', status, 'tag', 'rejstatus');
-        % UNDER CONSTRUCTION
-        % TRYING TO ADD ACCEPT/REJECT button
         % -------------
         
         % --- get components status to give value to checkboxes
@@ -251,7 +250,7 @@ for ri = chanorcomp
         else
             status = 0;
         end
-        % --- make checkboxes
+        % --- plots checkboxes
         check = uicontrol(gcf, 'Style', 'checkbox','Units','Normalized', 'Value',EEG.reject.gcompreject(ri),'Position',...
             [X+sizewx*2/3 Y+sizewy sizewx/3 sizewy*0.18].*s+q);  
         end;
@@ -277,7 +276,7 @@ command3 = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbox'')
     'A = fliplr([tmpstatus{:}]);'...
     'EEG.reject.gcompreject(' num2str(chanorcomp(1)) ' : ' num2str(chanorcomp(end)) ' ) = A;'...
     'close(gcf);'...
-    'EEG = pop_fastN1PCA'];
+    'EEG = pop_fastN1PCA(EEG)'];
     
 rjandpca  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'REJ+N-1PCA', 'Units','Normalized', 'Position', [65 -10 15 6].*s+q, 'callback', command3);
 

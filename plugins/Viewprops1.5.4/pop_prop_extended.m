@@ -494,6 +494,7 @@ set(fh, 'color', BACKCOLOR, 'visible', 'on')
 
 % display buttons
 % ---------------
+%winhandle = fh;
 if ~exist('winhandle', 'var')
     winhandle = nan; end
 if isobject(winhandle) || ~isnan(winhandle)
