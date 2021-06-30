@@ -1,16 +1,12 @@
-function [EEG] = pop_fastchannelinterp(EEG,sdv,minfreq,maxfreq)
+function [EEG] = quick_channelinterp(EEG,minfreq,maxfreq,sdv)
 if isempty(EEG.data)
     EEG = pop_loadset();
     eeglab redraw
 end
-
 if nargin < 2
-    sdv = 3;
-end
-
-if nargin < 3
-    maxfreq = 55;
     minfreq = 2;
+    maxfreq = 55;
+    sdv = 3;
 end
 
 if EEG.ref ~= 'average'

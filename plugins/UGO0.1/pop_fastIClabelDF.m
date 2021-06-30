@@ -1,4 +1,4 @@
-function EEG = pop_fastIClabel(EEG,minfreq,maxfreq)
+function EEG = pop_fastIClabelDF(EEG,minfreq,maxfreq)
 if nargin < 3
     maxfreq = 55;
 end
@@ -16,6 +16,7 @@ if isempty(EEG.icaact)
     EEG.icaact = (EEG.icaweights*EEG.icasphere)*EEG.data(EEG.icachansind,:);
 end
 EEG = pop_iclabel(EEG);
+EEG = quick_dipfit(EEG);
 pop_viewprops2(EEG,0,1:size(EEG.icawinv,2),{'freqrange',[minfreq maxfreq]});
 
  fprintf('You are welcome!  /r')

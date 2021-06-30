@@ -39,7 +39,7 @@
 
 % 01-25-02 reformated help & license -ad
 
-function [com] = pop_viewprops2( EEG, typecomp, chanorcomp, spec_opt, erp_opt, scroll_event, classifier_name, fig)
+function [com] = pop_viewprops3( EEG, typecomp, chanorcomp, spec_opt, erp_opt, scroll_event, classifier_name, fig)
 
 COLACC = [0.75 1 0.75];
 PLOTPERFIG = 54;
@@ -112,6 +112,8 @@ if ~exist('classifier_name', 'var')
 fprintf('Drawing figure...\n');
 currentfigtag = ['selcomp' num2str(rand)]; % generate a random figure tag
 
+chanorcomp = ones(length(EEG));
+
 if length(chanorcomp) > PLOTPERFIG
     for index = 1:PLOTPERFIG:length(chanorcomp)
         pop_viewprops2(EEG, typecomp, chanorcomp(index:min(length(chanorcomp),index+PLOTPERFIG-1)), ...
@@ -138,7 +140,7 @@ if ~exist('fig','var')
         'numbertitle', 'off', 'color', BACKCOLOR);
     set(gcf,'MenuBar', 'none');
     pos = get(gcf,'Position');
-    if ~typecomp && isfield(EEG.etc, 'ic_classification')
+    if ~typecomp && isfield(EEG(1).etc, 'ic_classification')
         set(gcf,'Position', [pos(1) 20 800/7*column 600/5*rows*1.2]);
     else
         set(gcf,'Position', [pos(1) 20 800/7*column 600/5*rows]);
@@ -159,15 +161,14 @@ end;
 
 % figure rows and columns
 % -----------------------
-if ~typecomp && EEG.nbchan > 64
+if ~typecomp && EEG(1).nbchan > 64
     disp('More than 64 electrodes: electrode locations not shown');
     plotelec = 0;
 else
     plotelec = 1;
 end;
 count = 1;
-tic
-for ri = chanorcomp
+for ri = 1:length(chanorcomp)
     if exist('fig','var')
         button = findobj('parent', fig, 'tag', ['comp' num2str(ri)]);
         if isempty(button)
@@ -190,19 +191,19 @@ for ri = chanorcomp
         end;
         ha = axes('Units','Normalized', 'Position',[X Y sizewx sizewy].*s+q);
         if typecomp
-            topoplot( ri, EEG.chanlocs, 'chaninfo', EEG.chaninfo, ...
+            topoplot( ri, EEG(ri).chanlocs, 'chaninfo', EEG(ri).chaninfo, ...
                 'electrodes','off', 'style', 'blank', 'emarkersize1chan', 12);
         else
             if plotelec
-                topoplot( EEG.icawinv(:,ri), EEG.chanlocs, 'verbose', ...
-                    'off', 'style' , 'fill', 'chaninfo', EEG.chaninfo, 'numcontour', 8);
+                topoplot( EEG(ri).icawinv(:,ri), EEG(ri).chanlocs, 'verbose', ...
+                    'off', 'style' , 'fill', 'chaninfo', EEG(ri).chaninfo, 'numcontour', 8);
             else
-                topoplot( EEG.icawinv(:,ri), EEG.chanlocs, 'verbose', ...
-                    'off', 'style' , 'fill','electrodes','off', 'chaninfo', EEG.chaninfo, 'numcontour', 8);
+                topoplot( EEG(ri).icawinv(:,ri), EEG(ri).chanlocs, 'verbose', ...
+                    'off', 'style' , 'fill','electrodes','off', 'chaninfo', EEG(ri).chaninfo, 'numcontour', 8);
             end;
             % labels
-            if ~typecomp && isfield(EEG.etc, 'ic_classification')
-                classifiers = fieldnames(EEG.etc.ic_classification);
+            if ~typecomp && isfield(EEG(ri).etc, 'ic_classification')
+                classifiers = fieldnames(EEG(ri).etc.ic_classification);
                 if ~isempty(classifiers)
                     if ~exist('classifier_name', 'var') || isempty(classifier_name)
                         if any(strcmpi(classifiers, 'ICLabel'));
@@ -213,13 +214,13 @@ for ri = chanorcomp
                     else
                         classifier_name = classifiers{strcmpi(classifiers, classifier_name)};
                     end
-                    if ri == chanorcomp(1) && size(EEG.icawinv, 2) ...
-                            ~= size(EEG.etc.ic_classification.(classifier_name).classifications, 1)
+                    if ri == chanorcomp(1) && size(EEG(ri).icawinv, 2) ...
+                            ~= size(EEG(ri).etc.ic_classification.(classifier_name).classifications, 1)
                         warning(['The number of ICs do not match the number of IC classifications. This will result in incorrectly plotted labels. Please rerun ' classifier_name])
                     end
-                    [prob, classind] = max(EEG.etc.ic_classification.(classifier_name).classifications(ri, :));
+                    [prob, classind] = max(EEG(ri).etc.ic_classification.(classifier_name).classifications(ri, :));
                     t = title(sprintf('%s : %.1f%%', ...
-                        EEG.etc.ic_classification.(classifier_name).classes{classind}, ...
+                        EEG(ri).etc.ic_classification.(classifier_name).classes{classind}, ...
                         prob*100));
                     set(t, 'Position', get(t, 'Position') .* [1 -1.2 1])
                 end
@@ -239,24 +240,24 @@ for ri = chanorcomp
         % plots smaller buttons
         button = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized', 'Position',...
             [X Y+sizewy sizewx/3 sizewy*0.18].*s+q, 'tag', ['comp' num2str(ri)]);
-        set( button, 'callback', {@pop_prop_extended2, EEG, typecomp, ri, NaN, spec_opt, erp_opt, scroll_event, classifier_name} );
+        set( button, 'callback', {@pop_prop_extended2, EEG(ri), typecomp, ri, NaN, spec_opt, erp_opt, scroll_event, classifier_name} );
     
         %         hr = uicontrol(gfc, 'Style', 'pushbutton', 'backgroundcolor', eval(fastif(status,COLREJ,COLACC)), ...
         % 				'string', fastif(status, 'REJECT', 'ACCEPT'), 'Units','Normalized', 'Position', [40 -10 15 6].*s+q, 'userdata', status, 'tag', 'rejstatus');
         % -------------
         
         % --- get components status to give value to checkboxes
-        if ~isempty(EEG.reject.gcompreject)
-            status = EEG.reject.gcompreject(chanorcomp);
+        if ~isempty(EEG(ri).reject.gcompreject)
+            status = EEG(ri).reject.gcompreject(chanorcomp);
         else
             status = 0;
         end
         % --- plots checkboxes
-        check = uicontrol(gcf, 'Style', 'checkbox','Units','Normalized', 'Value',EEG.reject.gcompreject(ri),'Position',...
+        check = uicontrol(gcf, 'Style', 'checkbox','Units','Normalized', 'Value',EEG(ri).reject.gcompreject(ri),'Position',...
             [X+sizewx*2/3 Y+sizewy sizewx/3 sizewy*0.18].*s+q);  
         end;
     if typecomp
-        set( button, 'backgroundcolor', COLACC, 'string', EEG.chanlocs(ri).labels);
+        set( button, 'backgroundcolor', COLACC, 'string', EEG(ri).chanlocs(ri).labels);
     else
         set( button, 'backgroundcolor', COLACC, 'string', int2str(ri));
     end
@@ -264,7 +265,7 @@ for ri = chanorcomp
     count = count +1;
 end;
 drawnow;
-toc
+
 % CANCEL button
 % -------------
 cancel  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'Cancel', 'Units','Normalized','Position',[-10 -10 15 6].*s+q, 'callback', 'close(gcf);');

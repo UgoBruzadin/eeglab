@@ -7,10 +7,13 @@ for a=1:EEG.nbchan
     A = strfind(EEG.chanlocs(1,a).labels,'Cz');
     if A
         B = a;
+        EEG = pop_reref( EEG, B);
         break
+    else
     end
 end
-
-EEG = pop_reref( EEG, B);
-
+if ~B
+    EEG = pop_reref( EEG, [],'refloc',struct('labels',{'Cz'},'Y',{0},'X',{0},'Z',{8.7919},'sph_theta',{0},'sph_phi',{0},'sph_radius',{0},'theta',{0},'radius',{0},'type',{''},'ref',{'Cz'},'urchan',{[]},'datachan',{0}));
+    EEG = pop_reref( EEG, 'Cz');
+end
 end

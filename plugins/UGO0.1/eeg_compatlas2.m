@@ -36,7 +36,7 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-function EEG = eeg_compatlas(EEG, varargin)
+function EEG = eeg_compatlas2(EEG, varargin)
 
 if nargin < 1
     help eeg_compatlas;
