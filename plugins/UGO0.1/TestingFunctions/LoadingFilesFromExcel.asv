@@ -1,0 +1,6 @@
+
+
+
+
+EEG = pop_loadset('filename','1137E2DotLoc-1___HM_Av_2HP55LP_NF4460.set',...
+'filepath','E:\\DotLocContinuousBackup\\');
