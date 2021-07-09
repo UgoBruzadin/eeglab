@@ -224,7 +224,7 @@ t = datetime('now','TimeZone','local','Format','ddMMyy_HH.mm.ss'); %gets the dat
 scriptfile = ['binica' tmpint '.sc'];
 while exist(scriptfile)
     if ~isempty(EEG.filename)
-        tmpint = strcat(EEG.filename(1:10),char(t),'_',int2str(round(rand*1000)));
+        tmpint = strcat(EEG.filename(1:8),char(t),'_',int2str(round(rand*1000)));
     else
         tmpint = strcat(char(t),'_',int2str(round(rand*1000)));
     end
