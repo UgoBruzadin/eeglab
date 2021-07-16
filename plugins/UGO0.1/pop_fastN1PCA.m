@@ -16,7 +16,7 @@ if ~isempty(EEG.icawinv)
         EEG = pop_subcomp(EEG, mybadcomps, 0);       % actually removes the flagged components
     end
     fprintf('Running N-1 PCA \r');
-    EEG = pop_runica(EEG,'icatype','binica','extended', 1,'pca',IC-1,'verbose','off');
+    EEG = pop_runica(EEG,'extended', 1,'icatype','binica','pca',IC-1,'verbose','off');
         
     if isempty(EEG.icaact)
         EEG.icaact = (EEG.icaweights*EEG.icasphere)*EEG.data(EEG.icachansind,:);
@@ -31,12 +31,12 @@ if ~isempty(EEG.icawinv)
 
 else
     try
-        EEG = pop_runica(EEG,'icatype','binica','extended', 1, 'verbose','off');
+        EEG = pop_runica(EEG,'extended','icatype','binica', 1, 'verbose','off');
         EEG = pop_fastPCAandIClabel(EEG);
     catch
         EEG = pop_loadset();
         [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);
-        EEG = pop_runica(EEG,'icatype','binica','extended', 1, 'verbose','off');
+        EEG = pop_runica(EEG,'extended', 1,'icatype','binica', 'verbose','off');
         EEG = pop_fastPCAandIClabel(EEG);
     end
 end

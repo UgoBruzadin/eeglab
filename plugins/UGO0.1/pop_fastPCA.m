@@ -13,13 +13,13 @@ if nargin < 2
         fprintf('Rejecting selected components... \r');
         EEG = pop_subcomp(EEG, mybadcomps, 0);       % actually removes the flagged components
     end
-    EEG = pop_par_runica(EEG,'icatype','binica','extended', 1, 'verbose','off');
+    EEG = pop_par_runica(EEG,'extended', 1,'icatype','binica', 'verbose','off');
 else
     if ~isempty(mybadcomps)
         fprintf('Rejecting selected components... \r');
         EEG = pop_subcomp(EEG, mybadcomps, 0);       % actually removes the flagged components
     end
-    EEG = pop_par_runica(EEG,'icatype','binica','extended', 1,'pca',IC, 'verbose','off');
+    EEG = pop_par_runica(EEG,'extended', 1,'icatype','binica','pca',IC, 'verbose','off');
 end
 
 EEG = pop_fastIClabel(EEG);

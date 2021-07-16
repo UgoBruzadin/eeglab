@@ -112,7 +112,7 @@
 % 03-16-02 add all topoplot options -ad
 % 04-04-02 added outputs -ad & sm
 
-function varargout = pop_spectopo( EEG, dataflag, timerange, processflag, varargin);
+function varargout = pop_spectopo( EEG, difdata, dataflag, timerange, processflag, varargin);
 
 varargout{1} = '';
 if nargin < 2
@@ -333,13 +333,13 @@ end
 popcom = sprintf('figure; pop_spectopo(EEG, %d, [%s], ''%s'' %s);', dataflag, num2str(timerange), processflag, options);
 switch processflag
 	case { 'EEG' 'eeg' }, SIGTMP = reshape(SIGTMP, size(SIGTMP,1), size(SIGTMP,2)*size(SIGTMP,3));
-	            com = sprintf('%s spectopo( SIGTMP, totsiz, EEG.srate %s);', outstr, spectopooptions); 
+	            com = sprintf('%s spectopo3( SIGTMP, totsiz, EEG.srate, difdata %s);', outstr, spectopooptions); 
                 eval(com)
 				
-    case { 'ERP' 'erp' }, com = sprintf('%s spectopo( mean(SIGTMP,3), totsiz, EEG.srate %s);', outstr, spectopooptions); eval(com)
-	case { 'BOTH' 'both' }, sbplot(2,1,1); com = sprintf('%s spectopo( mean(SIGTMP,3), totsiz, EEG.srate, ''title'', ''ERP'' %s);', outstr, spectopooptions); eval(com)
+    case { 'ERP' 'erp' }, com = sprintf('%s spectopo( mean(SIGTMP,3), totsiz, EEG.srate, difdata %s);', outstr, spectopooptions); eval(com)
+	case { 'BOTH' 'both' }, sbplot(2,1,1); com = sprintf('%s spectopo3( mean(SIGTMP,3), totsiz, EEG.srate, difdata, ''title'', ''ERP'' %s);', outstr, spectopooptions); eval(com)
 	             SIGTMP = reshape(SIGTMP, size(SIGTMP,1), size(SIGTMP,2)*size(SIGTMP,3));
-				 sbplot(2,1,2); com = sprintf('%s spectopo( SIGTMP, totsiz, EEG.srate, ''title'', ''EEG'' %s);', outstr, spectopooptions); eval(com)
+				 sbplot(2,1,2); com = sprintf('%s spectopo3( SIGTMP, totsiz, EEG.srate, difdata, ''title'', ''EEG'' %s);', outstr, spectopooptions); eval(com)
 end
 
 if nargout < 2 && nargin < 3

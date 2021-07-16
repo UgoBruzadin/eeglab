@@ -13,11 +13,13 @@ if nargin < 3
     minfreq = 2;
 end
 
-if EEG.ref ~= 'average'
-    EEG = pop_fastrerefavg(EEG);
-end
+% if EEG.ref ~= 'average'
+%     EEG = pop_fastrerefavg(EEG);
+% end
 
 ChansForInterp = outlierChannelsFrequency(EEG,minfreq,maxfreq,sdv);
+
+CentralCircle = [7,31,55,80,106];
 
 if ChansForInterp
     fprintf(strcat('Marked channels',strcat(num2str(ChansForInterp)), ' /r'));
