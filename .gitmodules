@@ -13,6 +13,3 @@
 [submodule "tutorial_scripts"]
 	path = tutorial_scripts
 	url = https://github.com/sccn/eeglab_tutorial_scripts.git
-[submodule "plugins/QuickLab"]
-	path = plugins/QuickLab
-	url = https://github.com/ugobruzadin/QuickLab
