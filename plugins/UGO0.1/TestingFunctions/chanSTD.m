@@ -65,7 +65,7 @@ for channel = 1:EEG.nbchan
         % --- computes the correlation bewteen the two data
         thisStd = std(chanData(a:b), [], 2);
         
-        thisCorr = corrcoef(chanData(a:b),compositeData(a:b));
+        thisCorr = corrcoef(chanData(a:b),surrData(:,a:b));
         
         % --- stores it in the correlation array
         
