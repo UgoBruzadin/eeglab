@@ -238,9 +238,14 @@ eval(sprintf('!%s -f "%s"',CUDAICABINARY,scriptfile));
 
 % Delete temporary data and script file.
 delete(scriptfile);
+
+% delete(weights); %added UGO
+% delete(sphere);%added UGO
+
 if ~ischar(data)
     delete(datafile);
 end
+    
 
 %% Read in wts and sph results.
 try
