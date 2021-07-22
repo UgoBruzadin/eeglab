@@ -112,18 +112,18 @@
 % 03-16-02 add all topoplot options -ad
 % 04-04-02 added outputs -ad & sm
 
-function varargout = pop_spectopo( EEG, dataflag, timerange, processflag, varargin);
+function varargout = pop_par_spectopo( EEG, dataflag, timerange, processflag, varargin);
 
 varargout{1} = '';
-if nargin < 1
+if nargin < 2
 	help pop_spectopo;
 	return;
 end;	
 
-if nargin < 2
+if nargin < 3
 	dataflag = 1;
 end
-if nargin < 3
+if nargin < 4
 	processflag = 'EEG';
 end
 
@@ -143,10 +143,10 @@ if maxPower > 2048
     maxPower = 2048
 end
 
-if nargin < 3
+if nargin < 4
 	if dataflag
 		geometry = { [2 1] [2 1] [2 1] [2 1] [2 1] [2 1]};
-        scalp_freq = fastif(chanlocs_present, { '4 6 8 9 10 11 15 18 21 40' }, { '' 'enable' 'off' });
+        scalp_freq = fastif(chanlocs_present, { '4 6 8 9 10 11 15 18 21 25 30 35 40' }, { '' 'enable' 'off' });
 		promptstr    = { { 'style' 'text' 'string' 'Epoch time range to analyze [min_ms max_ms]:' }, ...
 						 { 'style' 'edit' 'string' [num2str( EEG.xmin*1000) ' ' num2str(EEG.xmax*1000)] }, ...
 						 { 'style' 'text' 'string' 'Percent data to sample (1 to 100):'}, ...
@@ -156,7 +156,7 @@ if nargin < 3
 						 { 'style' 'text' 'string' 'Apply to EEG|ERP|BOTH:'}, ...
 						 { 'style' 'edit' 'string' 'EEG' }, ...
 						 { 'style' 'text' 'string' 'Plotting frequency range [lo_Hz hi_Hz]:'}, ...
-						 { 'style' 'edit' 'string' '0 55' }, ...
+						 { 'style' 'edit' 'string' '2 55' }, ...
 						 { 'style' 'text' 'string' 'Spectral and scalp map options (see topoplot):' } ...
 						 { 'style' 'edit' 'string' '''winsize'',maxPower,''electrodes'',''off''' } };
 		if EEG.trials == 1
@@ -333,18 +333,20 @@ end
 popcom = sprintf('figure; pop_spectopo(EEG, %d, [%s], ''%s'' %s);', dataflag, num2str(timerange), processflag, options);
 switch processflag
 	case { 'EEG' 'eeg' }, SIGTMP = reshape(SIGTMP, size(SIGTMP,1), size(SIGTMP,2)*size(SIGTMP,3));
-	            %com = sprintf('%s spectopo( SIGTMP, totsiz, EEG.srate %s);', outstr, spectopooptions); 
-                %eval(com)
+	            com = sprintf('%s spectopo( SIGTMP, totsiz, EEG.srate %s);', outstr, spectopooptions); 
+                eval(com)
 				
-    case { 'ERP' 'erp' }%, com = sprintf('%s spectopo( mean(SIGTMP,3), totsiz, EEG.srate %s);', outstr, spectopooptions); eval(com)
-	case { 'BOTH' 'both' }, sbplot(2,1,1); %com = sprintf('%s spectopo( mean(SIGTMP,3), totsiz, EEG.srate, ''title'', ''ERP'' %s);', outstr, spectopooptions); eval(com)
+    case { 'ERP' 'erp' }, com = sprintf('%s spectopo( mean(SIGTMP,3), totsiz, EEG.srate %s);', outstr, spectopooptions); eval(com)
+	case { 'BOTH' 'both' }, sbplot(2,1,1); com = sprintf('%s spectopo( mean(SIGTMP,3), totsiz, EEG.srate, ''title'', ''ERP'' %s);', outstr, spectopooptions); eval(com)
 	             SIGTMP = reshape(SIGTMP, size(SIGTMP,1), size(SIGTMP,2)*size(SIGTMP,3));
-				 sbplot(2,1,2); %com = sprintf('%s spectopo( SIGTMP, totsiz, EEG.srate, ''title'', ''EEG'' %s);', outstr, spectopooptions); eval(com)
+				 sbplot(2,1,2); com = sprintf('%s spectopo( SIGTMP, totsiz, EEG.srate, ''title'', ''EEG'' %s);', outstr, spectopooptions); eval(com)
 end
 
 if nargout < 2 && nargin < 3
 	varargout{1} = popcom;
 end
+
+set(gcf,'WindowState','maximized');
 
 return;
 
