@@ -42,11 +42,13 @@
 function [com] = pop_viewprops4( EEG, typecomp, chanorcomp, spec_opt, erp_opt, scroll_event, classifier_name, fig)
 
 COLACC = [0.75 1 0.75];
-PLOTPERFIG = 32;
+
+PLOTPERFIG = size(EEG.icawinv,2); %CHANGED BY UGO 07/23/2021
+
 com = '';
 
 if nargin < 1
-    help pop_viewprops2;
+    help pop_viewprops4;
     return;
 end;
 

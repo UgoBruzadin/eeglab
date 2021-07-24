@@ -330,6 +330,7 @@ end
 
 % plot the data and generate output and history commands
 % ------------------------------------------------------
+%try SIGTMP = gpuArray(SIGTMP); catch; end;
 popcom = sprintf('figure; pop_spectopo(EEG, %d, [%s], ''%s'' %s);', dataflag, num2str(timerange), processflag, options);
 switch processflag
 	case { 'EEG' 'eeg' }, SIGTMP = reshape(SIGTMP, size(SIGTMP,1), size(SIGTMP,2)*size(SIGTMP,3));

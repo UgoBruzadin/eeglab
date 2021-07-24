@@ -1,11 +1,12 @@
-% eegplugin_QuickLab() - Quick Lab plugin
-% this plugin was made by Ugo Bruzadin Nunes
-% I modified original code from the EEGLAB
-% such as viewprops and spectopo
-% to speed up my data processing!
+% eegplugin_QuickLab() - QuickLab plugin version 0.1 for EEGLAB menu.
+%                        QuickLab is a compilation of modified EEGLAB functions
+%                        for experienced users that wish to speed up manual
+%                        process, made by Ugo Bruzadin Nunes in
+%                        colaboration with the INL lab in Carbondale, IL.
 
-function eegplugin_QuickLab(fig, try_strings, catch_strings)
+function vers = eegplugin_QuickLab(fig, try_strings, catch_strings)
 
+vers = 0.1;
 % --- QuickLab sumermenu placeholder
 supermenu = uimenu(fig, 'label', 'QuickLab');
 
