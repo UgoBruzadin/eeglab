@@ -232,7 +232,7 @@ MAXTOPOPLOTCHANS  = 264;  % maximum number of channels to plot in topoplot.m
 DEFAULT_ELOC  = 'chan.locs'; % default electrode location file for topoplot.m
 DEFAULT_EPOCH = 10;       % default epoch width to plot in eegplot(s) (in sec)
 
-SC  =  ['ica.sc'];           % Master .sc script file for binica.m
+SC  =  ['binica.sc'];           % Master .sc script file for binica.m
                                 % MATLAB will use first such file found
                                 % in its path of script directories.
                                 % Copy to pwd to alter ICA defaults
