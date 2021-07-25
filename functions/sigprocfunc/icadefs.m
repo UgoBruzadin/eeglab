@@ -1,4 +1,4 @@
-% icadefs() - function to read in a set of EEGLAB system-wide (i.e. lab-wide)
+open binica% icadefs() - function to read in a set of EEGLAB system-wide (i.e. lab-wide)
 %             or working directory-wide constants and preferences. Change the 
 %             way these are defined in the master icadefs.m file (usually
 %             in dir eeglab/functions/sigprocfunc) or make a custom copy of 
@@ -232,7 +232,7 @@ MAXTOPOPLOTCHANS  = 264;  % maximum number of channels to plot in topoplot.m
 DEFAULT_ELOC  = 'chan.locs'; % default electrode location file for topoplot.m
 DEFAULT_EPOCH = 10;       % default epoch width to plot in eegplot(s) (in sec)
 
-SC  =  ['binica.sc'];           % Master .sc script file for binica.m
+SC  =  ['ica.sc'];           % Master .sc script file for binica.m
                                 % MATLAB will use first such file found
                                 % in its path of script directories.
                                 % Copy to pwd to alter ICA defaults
