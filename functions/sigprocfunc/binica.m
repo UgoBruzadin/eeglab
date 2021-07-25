@@ -223,11 +223,13 @@ t = datetime('now','TimeZone','local','Format','ddMMyy_HH.mm.ss'); %gets the dat
             
 scriptfile = ['binica' tmpint '.sc'];
 while exist(scriptfile)
-    if ~isempty(EEG.filename)
-        tmpint = strcat(EEG.filename(1:8),char(t),'_',int2str(round(rand*1000)));
-    else
-        tmpint = strcat(char(t),'_',int2str(round(rand*1000)));
-    end
+    %if ~isempty(EEG.filename)
+        %tmpint = strcat(EEG.filename(1:8),char(t),'_',int2str(round(rand*1000)));
+        tmpint = int2str(round(rand*10000));
+    %else
+        %tmpint = strcat(char(t),'_',int2str(round(rand*1000)));
+        tmpint = int2str(round(rand*10000));
+    %end
     scriptfile = ['binica' tmpint '.sc'];
 end
 fprintf('scriptfile = %s\n',scriptfile);
@@ -277,7 +279,9 @@ for x=1:length(flags)
      datafile = fullfile(pwd, datafile);
      args{x} = datafile;
   elseif strcmp(flags{x},'pca')
-      ICABINARY = ICABINARY2;
+      if args{x} ~= '0'
+        ICABINARY = ICABINARY2;
+      end
   elseif strcmp(flags{x},'WeightsOutFile')
      weightsfile = ['binica' tmpint '.wts'];
      weightsfile =  fullfile(pwd,  weightsfile);
