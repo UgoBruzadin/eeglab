@@ -162,7 +162,7 @@ else
     fprintf('binica(): processing one (flag, arg) pair.\n');
  end
  %while arg <= nargin %%%%%%%%%%%% process flags & args %%%%%%%%%%%%%%%%
- while arg <= nargin-1 %%%%%%%%%%%% process flags & args %%%%%%%%%%%%%%%%
+ while arg <= nargin %%%%%%%%%%%% process flags & args %%%%%%%%%%%%%%%%
 
   eval(['OPTIONFLAG = var' int2str(arg) ';']); 
   % NB: Found that here Matlab var 'FLAG' is (64,3) why!?!?
@@ -276,8 +276,6 @@ for x=1:length(flags)
   if strcmp(flags{x},'DataFile')
      datafile = fullfile(pwd, datafile);
      args{x} = datafile;
-  elseif strcmp(flags{x},'pca')
-      ICABINARY = ICABINARY2;
   elseif strcmp(flags{x},'WeightsOutFile')
      weightsfile = ['binica' tmpint '.wts'];
      weightsfile =  fullfile(pwd,  weightsfile);

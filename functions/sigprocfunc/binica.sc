@@ -45,14 +45,14 @@
     lrate        1.0e-4    # Initial ICA learning rate (float << 1)
                            #  {default: heuristic ~5e-4}
     blocksize    0         # ICA block size (integer << datalength) 
-                           #  {default: heuristic fraction of log data length}
+#                          #  {default: heuristic fraction of log data length}
     stop         1.0e-7    # Stop training when weight-change < this value
-                           #  {default: heuristic ~0.0000001}
+#                          #  {default: heuristic ~0.0000001}
     maxsteps     512       # Max. number of ICA training steps {default: 128}
     posact       off       # Make each component activation net-positive 
-                           # (on/off) NB: requires extra space! {default: off}
+#                          # (on/off) NB: requires extra space! {default: off}
     annealstep   0.98      # Annealing factor (range (0,1]) - controls 
-                           #  the speed of convergence.
+#                          #  the speed of convergence.
     annealdeg    60        # Angledelta threshold for annealing {default: 60}
     momentum     0         # Momentum gain (range [0,1])      {default: 0}
     verbose      on        # Give ascii messages (on/off) {default: on}
@@ -67,7 +67,7 @@
 #  ActivationsFile data.act # Activations of each component (ncomps,points)
 #  BiasFile      data.bs   # Bias weights (ncomps,1)
 #  SignFile      data.sgn  # Signs designating (-1) sub- and (1) super-Gaussian 
-                           #  components (ncomps,1) from 'extended' mode training
+#                          #  components (ncomps,1) from 'extended' mode training
 # Unused flags 
 #
 #   epochs       436       # Number of epochs

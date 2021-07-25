@@ -160,11 +160,14 @@ clear retinaDisplay tmpScreenSize tmpComputer tmpvers indp;
 eeglab_p = fileparts(which('eeglab'));
 if ~isdeployed
     ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'ica_linux'); 
+    ICABINARY2 = fullfile(eeglab_p, 'functions', 'supportfiles', 'ica_linux'); 
     tmpComputer = computer;
     if strcmpi(tmpComputer(1:3), 'MAC')
         ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'ica_osx');
+        ICABINARY2 = fullfile(eeglab_p, 'functions', 'supportfiles', 'ica_osx');
     elseif strcmpi(tmpComputer(1:2), 'PC')
         ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'binica.exe');
+        ICABINARY2 = fullfile(eeglab_p, 'functions', 'supportfiles', 'binica2.exe');
     end
     clear tmpComputer
 else
