@@ -7,7 +7,7 @@ function corrmappath = savecorrmappath()
 %--- save current path
 currentfolder = pwd;
 %--- changes to plugin folder
-cd('C/GitHub/eeglab/plugins/UGO0.1'); %NEEDS FIXING
+cd('C:/GitHub/eeglab/plugins/QuickLab'); %NEEDS FIXING
 pluginfolder = pwd;
 %--- creates empty string variable corrmappath
 corrmappath = '';
