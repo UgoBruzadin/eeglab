@@ -1662,8 +1662,8 @@ if study_selected
     % values
     % ------
     fullfilename = fullfile( STUDY.filepath, STUDY.filename);
-    if length(fullfilename) > 64 %changed 26 to 64 #mod
-        set( g.win1, 'String', sprintf('Study filename: ...%s\n', fullfilename(max(1,length(fullfilename)-64):end) )); %changed 26 to 64 #mod
+    if length(fullfilename) > 100 %changed 26 to 64 #mod
+        set( g.win1, 'String', sprintf('Study filename: ...%s\n', fullfilename(max(1,length(fullfilename)-100):end) )); %changed 26 to 64 #mod
     else
         set( g.win1, 'String', sprintf('Study filename: %s\n'   , fullfilename));
     end        	

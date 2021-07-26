@@ -42,7 +42,7 @@
 function [com] = pop_viewprops2( EEG, typecomp, chanorcomp, spec_opt, erp_opt, scroll_event, classifier_name, fig)
 
 COLACC = [0.75 1 0.75];
-PLOTPERFIG = 54;
+PLOTPERFIG = size(EEG.icawinv,2);
 com = '';
 
 if nargin < 1
@@ -131,7 +131,7 @@ end;
 
 % set up the figure
 % -----------------
-column = ceil(sqrt( length(chanorcomp) ))+1;
+column = ceil(sqrt( length(chanorcomp) ))+5;
 rows = ceil(length(chanorcomp)/column);
 if ~exist('fig','var')
     figure('name', [ 'View ' fastif(typecomp,'channels','components') ' properties - pop_viewprops() (dataset: ' EEG.setname ')'], 'tag', currentfigtag, ...
