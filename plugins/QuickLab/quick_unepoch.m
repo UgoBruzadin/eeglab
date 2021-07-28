@@ -1,22 +1,20 @@
 function EEG = quick_unepoch(EEG)
 
+EEG = pop_selectevent( EEG, 'omittype',{'X'},'deleteevents','on','deleteepochs','off','invertepochs','off');
+
 if EEG.trials > 1
 
-EEG.data = reshape(EEG.data , EEG.nbchan, EEG.trials*EEG.pnts);
+EEG.data = EEG.data(:,:);
 EEG.xmax = EEG.trials*EEG.pnts;
-%if events
-%for lenght of events
-%delete all events with X
-%         EventNames = strings(1,size(EEG.event,2));
-%     for i=1:size(EEG.event,2)
-%         EventNames(i) = EEG.event(i).type;
-%     end
-%     UniqueEventNames = unique(EventNames);
-%EEG.event = [];EEG.urevent =[];
-EEG.trials = 1;
+if ~isempty(EEG.icaact)
+    EEG.icaact = EEG.icaact(:,:);
+    %EEG.icaact = reshape(EEG.icaact , EEG.nbchan, EEG.trials*EEG.pnts);
+end
+
 EEG.times = 1:EEG.trials*EEG.pnts;
 EEG.trials = 1;
 else
     fprintf('Nothing done. File is already in continuous shape \r');
 end
+
 end

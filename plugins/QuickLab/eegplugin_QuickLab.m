@@ -110,8 +110,20 @@ uimenu( channelmenu, 'label', 'Quick Interpolate Channels by Components', 'callb
 % --- 4th submenu: Quick epoch edits
 epochsmenu = uimenu (supermenu, 'label', 'Quick epoch edit');
 
-uimenu( epochsmenu, 'label', 'Quick Epoch 0.400 2.448', 'callback', ...
+for s = 1:5
+uimenu( epochsmenu, 'label', strcat('Quick Epoch every_', num2str(s), '_seconds'), 'callback', ...
+    ['EEG =  quick_epoch(EEG,',num2str(s), ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+end
+
+
+uimenu( epochsmenu, 'label', 'Quick UN-Epoch (remove "X" epochs)', 'callback', ...
+    ['EEG =  quick_unepoch(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+
+uimenu( epochsmenu, 'label', 'Quick Epoch 0.400 2.448 (DotLoc)', 'callback', ...
     ['EEG =  quick_epoch(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+
+uimenu( epochsmenu, 'label', 'Quick Epoch -1 3.096 (DotLoc)', 'callback', ...
+    ['EEG =  quick_epoch(EEG,-1,3.096);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 rejmenu = uimenu( epochsmenu, 'label', 'Quick Epoch Rejection by probability');
 
