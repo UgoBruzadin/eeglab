@@ -19,7 +19,7 @@
 # Required input variables:
 # 
     DataFile     XXX       # Input data to decompose (native floats)
-                           #  multiplexed by channel (i.e., c1, c2, ...))
+#                          #  multiplexed by channel (i.e., c1, c2, ...))
     chans        31        # Number of data channels (= data columns) 
     frames       768       # Number of data points (= data rows)
 #
@@ -34,16 +34,16 @@
 # 
     sphering     on        # Flag sphering of data (on/off)   {default: on}
     bias         on        # Perform bias adjustment (on/off) {default: on}
-    extended     0         # Perform "extended-ICA" using tnah() with kurtosis
-                           #  estimation every N training blocks. If N < 0,
-                           #  fix number of sub-Gaussian components to -N 
-                           #  {default|0: off}
+    extended     1         # Perform "extended-ICA" using tnah() with kurtosis
+#                          #  estimation every N training blocks. If N < 0,
+#                          #  fix number of sub-Gaussian components to -N 
+#                          #  {default|0: off}
     pca          0         # Decompose a principal component subspace of
 #                          #  the data. Retain this many PCs. {default|0: all}
 # Optional input variables:
 # 
     lrate        1.0e-4    # Initial ICA learning rate (float << 1)
-                           #  {default: heuristic ~5e-4}
+#                          #  {default: heuristic ~5e-4}
     blocksize    0         # ICA block size (integer << datalength) 
 #                          #  {default: heuristic fraction of log data length}
     stop         1.0e-7    # Stop training when weight-change < this value
@@ -55,7 +55,7 @@
 #                          #  the speed of convergence.
     annealdeg    60        # Angledelta threshold for annealing {default: 60}
     momentum     0         # Momentum gain (range [0,1])      {default: 0}
-    verbose      on        # Give ascii messages (on/off) {default: on}
+    verbose      off       # Give ascii messages (on/off) {default: on}
 #
 # Optional input starting weights:
 #
