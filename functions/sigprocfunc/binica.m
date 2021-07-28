@@ -279,7 +279,7 @@ for x=1:length(flags)
      datafile = fullfile(pwd, datafile);
      args{x} = datafile;
   elseif strcmp(flags{x},'pca')
-      if args{x} ~= '0'
+      if str2double(args{x}) ~= 0
         ICABINARY = ICABINARY2;
       end
   elseif strcmp(flags{x},'WeightsOutFile')
