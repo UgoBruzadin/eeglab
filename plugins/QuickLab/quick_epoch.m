@@ -1,4 +1,4 @@
-function EEG = quick_epoch(EEG,time1,time2)
+function EEG = quick_epoch(EEG,time1,time2,eventname)
 
 if isempty(EEG.data)
     EEG = pop_loadset();
@@ -11,7 +11,10 @@ end
 if nargin < 3
     EEG = eeg_regepochs(EEG,'recurrence',time1);
 else
-    EEG = pop_par_epoch( EEG, { EEG.events(2).type }, [time1 time2], 'newname', 'Neuroscan EEG data epochs', 'epochinfo', 'yes');
+    if nargin < 4
+        eventname = EEG.event(2).type;
+    end
+    EEG = pop_par_epoch( EEG, { eventname }, [time1 time2], 'newname', 'Neuroscan EEG data epochs', 'epochinfo', 'yes');
 end
     
 %EEG = pop_par_epoch( EEG, { UniqueEventNames }, [time1 time2], 'newname', 'Neuroscan EEG data epochs', 'epochinfo', 'yes');

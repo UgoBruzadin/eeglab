@@ -57,7 +57,8 @@ uimenu( pcamenu, 'label', strcat('Quick PCA ',num2str(i)), 'callback', ...
     ['EEG = pop_fastPCA(EEG,' num2str(i) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 end
 
-cudamenu = uimenu (pcamenu, 'label', 'Quick CUDAICA');
+if gpuDeviceCount
+cudamenu = uimenu (supermenu, 'label', 'Quick CUDAICA');
 
 uimenu( cudamenu, 'label', 'Quick ICA', 'callback', ...
     ['EEG = cudafastPCA(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
@@ -69,7 +70,7 @@ for i=6:2:50
 uimenu( cudamenu, 'label', strcat('Quick PCA ',num2str(i)), 'callback', ...
     ['EEG = cudafastPCA(EEG,' num2str(i) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 end
-
+end
 % --- third submenu: Quick channel edits
 channelmenu = uimenu (supermenu, 'label', 'Quick Channel Edit');
 
@@ -108,15 +109,14 @@ uimenu( channelmenu, 'label', 'Quick Interpolate Channels by Components', 'callb
     ['[EEG] = channelIntByComps(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 % --- 4th submenu: Quick epoch edits
-epochsmenu = uimenu (supermenu, 'label', 'Quick epoch edit');
+epochsmenu = uimenu (supermenu, 'label', 'Quick Epoch edits');
 
 for s = 1:5
 uimenu( epochsmenu, 'label', strcat('Quick Epoch every_', num2str(s), '_seconds'), 'callback', ...
     ['EEG =  quick_epoch(EEG,',num2str(s), ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 end
 
-
-uimenu( epochsmenu, 'label', 'Quick UN-Epoch (remove "X" epochs)', 'callback', ...
+uimenu( epochsmenu, 'label', 'Quick UN-Epoch (Back to Continuous', 'callback', ...
     ['EEG =  quick_unepoch(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu( epochsmenu, 'label', 'Quick Epoch 0.400 2.448 (DotLoc)', 'callback', ...
