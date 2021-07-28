@@ -39,7 +39,7 @@
 
 % 01-25-02 reformated help & license -ad
 
-function [com] = pop_viewprops4( EEG, typecomp, chanorcomp, spec_opt, erp_opt, scroll_event, classifier_name, fig)
+function pop_viewprops4( EEG, typecomp, chanorcomp, spec_opt, erp_opt, scroll_event, classifier_name, fig)
 
 COLACC = [0.75 1 0.75];
 

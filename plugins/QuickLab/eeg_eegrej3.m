@@ -170,7 +170,7 @@ else % --- else, runs through every region for every component given, assuming t
             fprintf(strcat('Interpolating components(s) _', num2str(thisChan),' for the period _',num2str(regions(j,1)),' to _',num2str(regions(j,2))), '\r' );
             tempEEG = pop_subcomp(EEG,[thisChan]);
             %for i=1:size(regions,1)
-                EEG.data(:,regions(j,1):regions(j,2)) = tempEEG.data(:,regions(j,1):regions(j,2));
+                EEG.data(thisChan,regions(j,1):regions(j,2)) = tempEEG.data(thisChan,regions(j,1):regions(j,2));
             %end
         end
     end

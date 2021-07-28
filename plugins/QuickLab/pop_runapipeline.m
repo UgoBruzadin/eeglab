@@ -14,15 +14,15 @@ if nargin < 1
     UGO.files = listoffiles;
     UGO.pathIn = pathIn;
     UGO.pathOut = pathOut;
-    UGO.setfiles = [];
+    UGO.files = [];
     
     % --- CHOOSE FILE(S) BUTTON 
-    filesButton = ['global UGO;[files,path] = uigetfile(''*.set'',''Select One or More .set Files'',''MultiSelect'', ''on'');if files==0 return; end;[UGO.setfiles,UGO.fdtfiles,UGO.pathIn] = makefiledir(files,path);'];
+    filesButton = ['global UGO;[files,path] = uigetfile(''*.set'',''Select One or More .set Files'',''MultiSelect'', ''on''); if files==0 return; end;'];
     FilesBracket = {'style' 'pushbutton' 'string' 'Select .set File(s) ' ...
         'callback' filesButton};
     
     % --- CHOOSE FOLDER BUTTON 
-    folderButton = ['global UGO;[path] = uigetdir();if path==0 return; end;[UGO.pathOut] = path;'];
+    folderButton = ['global UGO; [path] = uigetdir(); if path==0 return; end; [UGO.pathOut] = path;'];
     FolderBracket = {'style' 'pushbutton' 'string' 'Select Folder to save ' ...
         'callback' folderButton};
     
@@ -34,6 +34,8 @@ if nargin < 1
         {'style' 'text' 'string' 'Paste Function(s)'            } { 'Style', 'edit', 'string', 'EEG = pop_par_runica(EEG,''icatype'',''binica'',''pca'',30,''extended'',1);EEG = pop_iclabel(EEG)' 'tag' 'functions'}...
         {'style' 'text' 'string' 'Write New Name Acronym(s)'    } { 'Style', 'edit', 'string', 'PCA30' 'tag' 'acronym'}},...
         'addbuttons', 'on');
+    
+    [UGO.setfiles,UGO.fdtfiles,UGO.pathIn] = makefiledir(files,path);
     
     % --- Collects acronym and functions(s)
     % --- if no files are selected, skip this part

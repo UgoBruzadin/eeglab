@@ -81,7 +81,7 @@
 % 2002-03-27 added event latency recalculation for continuous data -ad
 % 2017-01-24 allow select channels/components for rejection -mb
 
-function com = pop_eegplot_w2( EEG, icacomp, superpose, reject, topcommand, varargin)
+function com = pop_eegplot_w3( EEG, icacomp, superpose, reject, topcommand, varargin)
 
 com = '';
 if ~exist('topcommand','var')
@@ -137,10 +137,10 @@ if reject
         'if ~isempty(TMPREJCHN); '];
     if icacomp == 1
         com1 = [ com1 ...
-            '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),channels,1); ' ]; %modified for eegrej2
+            '  [EEGTMP LASTCOM1] = pop_select(EEGTMP, ''nochannel'',TMPREJCHN); ' ];
     else
         com1 = [ com1 ...
-            '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),channels,2); ' ]; %modified for eegrej2
+            '  [EEGTMP LASTCOM1] = pop_subcomp(EEGTMP, TMPREJCHN); ' ];
     end;
     com1 = [ com1 ...
         '  if ~isempty(LASTCOM1),' ...
@@ -148,10 +148,10 @@ if reject
         '  end;' ...
         'else LASTCOM1=''''; ' ...
         'end; ' ];
-    if icacomp == 1
-        com3 = '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),channels,1); ' ; %modified for eegrej2
+    if EEG.trials > 1
+        com3 = '[EEGTMP LASTCOM2] = pop_rejepoch(EEGTMP, tmprej, 0); ' ;
     else
-        com3 = '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),channels,2); ' ; %modified for eegrej2
+        com3 = '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),channels); ' ;
     end;
     
     % Call from Darbeliai pop_nuoseklus_apdorojimas ?
@@ -186,136 +186,136 @@ if reject
         'clear EEGTMP tmpcom TMPREJ TMPREJCHN LASTCOM1 LASTCOM2;' ];
 end;
 
-% if EEG.trials > 1
-%     if icacomp == 1 
-%                     macrorej  = 'EEG.reject.rejmanual';
-%         			macrorejE = 'EEG.reject.rejmanualE';
-%     else			macrorej  = 'EEG.reject.icarejmanual';
-%         			macrorejE = 'EEG.reject.icarejmanualE';
-%     end;
-%     colrej = EEG.reject.rejmanualcol;
-% 	rej  = eval(macrorej);
-% 	rejE = eval(macrorejE);
-% 	
-% 	% ---------- begin of modified eeg_rejmacro ----------
-%     % script macro for generating command and old rejection arrays
-%     
-%     if ~exist('nbpnts','var');
-%         nbpnts = EEG.pnts;
-%     end;
-%     
-%     % mix all type of rejections
-%     if icacomp
-%         nChan = EEG.nbchan;
-%     else
-%         nChan = size(EEG.icaweights,1);
-%     end
-%     if superpose == 2
-%         com2 = ['if ~isempty(TMPREJ), ' ...
-%             '  icaprefix = ' fastif(icacomp, '''''', '''ica''') ';' ...
-%             '  for indextmp = 1:length(EEG.reject.disprej),' ...
-%             '     eval([ ''colortmp = EEG.reject.rej'' EEG.reject.disprej{indextmp} ''col;'' ]);' ...
-%             '     [tmprej tmprejE] = eegplot2trial(TMPREJ,' int2str(nbpnts) ', EEG.trials, colortmp, []);' ...
-%             '     if ~isempty(tmprejE),' ...
-%             '          tmprejE2 = zeros(' int2str(nChan) ', length(tmprej));' ...
-%             '          tmprejE2([' int2str(elecrange) '],:) = tmprejE;' ...
-%             '     else ' ...
-%             '          tmprejE2 = [];' ...
-%             '     end;' ...
-%             '     eval([ ''EEG.reject.'' icaprefix ''rej'' EEG.reject.disprej{indextmp} ''= tmprej;'' ]);' ...
-%             '     eval([ ''EEG.reject.'' icaprefix ''rej'' EEG.reject.disprej{indextmp} ''E = tmprejE2;'' ]);' ...
-%             '  end;' ];
-%     else
-%         com2 = [ 'if ~isempty(TMPREJ),' ...
-%             '  icaprefix = ' fastif(icacomp, '''''', '''ica''') ';' ...
-%             '  [tmprej tmprejE] = eegplot2trial(TMPREJ,' int2str(nbpnts) ', EEG.trials, [' num2str(colrej) '], []);' ...
-%             '  if ~isempty(tmprejE),' ...
-%             '     tmprejE2 = zeros(' int2str(nChan) ', length(tmprej));' ...
-%             '     tmprejE2([' int2str(elecrange) '],:) = tmprejE;' ...
-%             '  else ' ...
-%             '     tmprejE2 = [];' ...
-%             '  end;' ...
-%             macrorej '= tmprej;' macrorejE '= tmprejE2;' ...
-%             ... % below are manual rejections
-%             '  tmpstr = [ ''EEG.reject.'' icaprefix ''rejmanual'' ];' ...
-%             '  if ~isempty(tmprej) eval([ ''if ~isempty('' tmpstr ''),'' tmpstr ''='' tmpstr ''| tmprej; else '' tmpstr ''=tmprej; end;'' ]); end; ' ...
-%             '  if ~isempty(tmprejE2) eval([ ''if ~isempty('' tmpstr ''E),'' tmpstr ''E='' tmpstr ''E| tmprejE2; else '' tmpstr ''E=tmprejE2; end;'' ]); end; ' ];
-%     end;
-%     
-%     if reject
-%         com_ = [ com1 com2 com3 'else LASTCOM2='''' ; end; ' com4 ];
-%     else
-%         com_ = [ com2 ...
-%             ' warndlg2(strvcat(''Epochs (=trials) marked for rejection have been noted.'',' ...
-%             '''To actually reject these epochs, use '', ''Tools > Reject data epochs > Reject marked epochs''), ''Warning'');' ...
-%             '[ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET); eeglab(''redraw''); end;' ];
-%     end;
-%     
-%     % the first part is used to convert the eegplot_w output
-%     command = [  com_ topcommand 'clear indextmp colortmp icaprefix tmpcom tmprej tmprejE tmprejE2 TMPREJ;' ];
-%     
-%     if all(colrej == EEG.reject.rejmanualcol)
-%         oldrej = [];  % for manual rejection, old rejection are
-%         oldrejE = []; % the current rejection
-%     else
-%         oldrej  = eval(macrorej);
-%         oldrejE = eval(macrorejE);
-%     end;
-%     
-%     switch superpose
-%         case 0
-%             rejeegplot = trial2eegplot(  rej, rejE, nbpnts, colrej);
-%         case 1
-%             rejeegplottmp = trial2eegplot(  oldrej, oldrejE, nbpnts, min(colrej+0.15, [1 1 1]));
-%             if ~isempty(rejeegplottmp) 
-%                 rejeegplot = [ rejeegplottmp ];
-%             else
-%                 rejeegplot = [];
-%             end;
-%             rejeegplottmp = trial2eegplot(  rej, rejE, nbpnts, colrej);
-%             if ~isempty(rejeegplottmp)
-%                 rejeegplot = [ rejeegplot; rejeegplottmp ];
-%             end;
-%         case 2
-%             rejeegplot = [];
-%             for index = 1:length(EEG.reject.disprej)
-%                 if ~isempty(EEG.reject.disprej{index})
-%                     eval([ 'colortmp = EEG.reject.rej' EEG.reject.disprej{index} 'col;']);
-%                     if any(colortmp ~= colrej) % test if current rejection (if color different)
-%                         if icacomp == 0 % ica
-%                             currentname = [ 'EEG.reject.icarej' EEG.reject.disprej{index} ];
-%                         else
-%                             currentname = [ 'EEG.reject.rej' EEG.reject.disprej{index} ];
-%                         end;
-%                         currentcolor =  [ 'EEG.reject.rej' EEG.reject.disprej{index} 'col' ];
-%                         eval( [ 'rejeegplottmp = trial2eegplot( ' currentname ',' currentname ...
-%                             'E, nbpnts,' currentcolor ');' ]);
-%                         if ~isempty(rejeegplottmp), rejeegplot = [ rejeegplot; rejeegplottmp ]; end;
-%                     end;
-%                 end;
-%             end;
-%             rejeegplottmp = trial2eegplot(  rej, rejE, nbpnts, colrej);
-%             if ~isempty(rejeegplottmp)
-%                 rejeegplot = [ rejeegplot; rejeegplottmp ];
-%             end;
-%     end;
-%     if ~isempty(rejeegplot)
-%         rejeegplot = rejeegplot(:,[1:5,elecrange+5]);
-%     else
-%         rejeegplot = [];
-%     end;
-%     eegplotoptions = { 'events', EEG.event, 'winlength', 5, 'winrej', ...
-%         rejeegplot, 'xgrid', 'off', 'wincolor', EEG.reject.rejmanualcol, ...
-%         'colmodif', { { EEG.reject.rejmanualcol EEG.reject.rejthreshcol EEG.reject.rejconstcol ...
-%         EEG.reject.rejjpcol     EEG.reject.rejkurtcol   EEG.reject.rejfreqcol } } };
-%     
-%     if ~reject
-%         eegplotoptions = { eegplotoptions{:}  'butlabel', 'UPDATE MARKS' };
-%     end;
-% 
-%     % ---------- end of modified eeg_rejmacro ----------
-%     
-% else % case of a single trial (continuous data)
+if EEG.trials > 1
+    if icacomp == 1 
+                    macrorej  = 'EEG.reject.rejmanual';
+        			macrorejE = 'EEG.reject.rejmanualE';
+    else			macrorej  = 'EEG.reject.icarejmanual';
+        			macrorejE = 'EEG.reject.icarejmanualE';
+    end;
+    colrej = EEG.reject.rejmanualcol;
+	rej  = eval(macrorej);
+	rejE = eval(macrorejE);
+	
+	% ---------- begin of modified eeg_rejmacro ----------
+    % script macro for generating command and old rejection arrays
+    
+    if ~exist('nbpnts','var');
+        nbpnts = EEG.pnts;
+    end;
+    
+    % mix all type of rejections
+    if icacomp
+        nChan = EEG.nbchan;
+    else
+        nChan = size(EEG.icaweights,1);
+    end
+    if superpose == 2
+        com2 = ['if ~isempty(TMPREJ), ' ...
+            '  icaprefix = ' fastif(icacomp, '''''', '''ica''') ';' ...
+            '  for indextmp = 1:length(EEG.reject.disprej),' ...
+            '     eval([ ''colortmp = EEG.reject.rej'' EEG.reject.disprej{indextmp} ''col;'' ]);' ...
+            '     [tmprej tmprejE] = eegplot2trial(TMPREJ,' int2str(nbpnts) ', EEG.trials, colortmp, []);' ...
+            '     if ~isempty(tmprejE),' ...
+            '          tmprejE2 = zeros(' int2str(nChan) ', length(tmprej));' ...
+            '          tmprejE2([' int2str(elecrange) '],:) = tmprejE;' ...
+            '     else ' ...
+            '          tmprejE2 = [];' ...
+            '     end;' ...
+            '     eval([ ''EEG.reject.'' icaprefix ''rej'' EEG.reject.disprej{indextmp} ''= tmprej;'' ]);' ...
+            '     eval([ ''EEG.reject.'' icaprefix ''rej'' EEG.reject.disprej{indextmp} ''E = tmprejE2;'' ]);' ...
+            '  end;' ];
+    else
+        com2 = [ 'if ~isempty(TMPREJ),' ...
+            '  icaprefix = ' fastif(icacomp, '''''', '''ica''') ';' ...
+            '  [tmprej tmprejE] = eegplot2trial(TMPREJ,' int2str(nbpnts) ', EEG.trials, [' num2str(colrej) '], []);' ...
+            '  if ~isempty(tmprejE),' ...
+            '     tmprejE2 = zeros(' int2str(nChan) ', length(tmprej));' ...
+            '     tmprejE2([' int2str(elecrange) '],:) = tmprejE;' ...
+            '  else ' ...
+            '     tmprejE2 = [];' ...
+            '  end;' ...
+            macrorej '= tmprej;' macrorejE '= tmprejE2;' ...
+            ... % below are manual rejections
+            '  tmpstr = [ ''EEG.reject.'' icaprefix ''rejmanual'' ];' ...
+            '  if ~isempty(tmprej) eval([ ''if ~isempty('' tmpstr ''),'' tmpstr ''='' tmpstr ''| tmprej; else '' tmpstr ''=tmprej; end;'' ]); end; ' ...
+            '  if ~isempty(tmprejE2) eval([ ''if ~isempty('' tmpstr ''E),'' tmpstr ''E='' tmpstr ''E| tmprejE2; else '' tmpstr ''E=tmprejE2; end;'' ]); end; ' ];
+    end;
+    
+    if reject
+        com_ = [ com1 com2 com3 'else LASTCOM2='''' ; end; ' com4 ];
+    else
+        com_ = [ com2 ...
+            ' warndlg2(strvcat(''Epochs (=trials) marked for rejection have been noted.'',' ...
+            '''To actually reject these epochs, use '', ''Tools > Reject data epochs > Reject marked epochs''), ''Warning'');' ...
+            '[ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET); eeglab(''redraw''); end;' ];
+    end;
+    
+    % the first part is used to convert the eegplot_w output
+    command = [  com_ topcommand 'clear indextmp colortmp icaprefix tmpcom tmprej tmprejE tmprejE2 TMPREJ;' ];
+    
+    if all(colrej == EEG.reject.rejmanualcol)
+        oldrej = [];  % for manual rejection, old rejection are
+        oldrejE = []; % the current rejection
+    else
+        oldrej  = eval(macrorej);
+        oldrejE = eval(macrorejE);
+    end;
+    
+    switch superpose
+        case 0
+            rejeegplot = trial2eegplot(  rej, rejE, nbpnts, colrej);
+        case 1
+            rejeegplottmp = trial2eegplot(  oldrej, oldrejE, nbpnts, min(colrej+0.15, [1 1 1]));
+            if ~isempty(rejeegplottmp) 
+                rejeegplot = [ rejeegplottmp ];
+            else
+                rejeegplot = [];
+            end;
+            rejeegplottmp = trial2eegplot(  rej, rejE, nbpnts, colrej);
+            if ~isempty(rejeegplottmp)
+                rejeegplot = [ rejeegplot; rejeegplottmp ];
+            end;
+        case 2
+            rejeegplot = [];
+            for index = 1:length(EEG.reject.disprej)
+                if ~isempty(EEG.reject.disprej{index})
+                    eval([ 'colortmp = EEG.reject.rej' EEG.reject.disprej{index} 'col;']);
+                    if any(colortmp ~= colrej) % test if current rejection (if color different)
+                        if icacomp == 0 % ica
+                            currentname = [ 'EEG.reject.icarej' EEG.reject.disprej{index} ];
+                        else
+                            currentname = [ 'EEG.reject.rej' EEG.reject.disprej{index} ];
+                        end;
+                        currentcolor =  [ 'EEG.reject.rej' EEG.reject.disprej{index} 'col' ];
+                        eval( [ 'rejeegplottmp = trial2eegplot( ' currentname ',' currentname ...
+                            'E, nbpnts,' currentcolor ');' ]);
+                        if ~isempty(rejeegplottmp), rejeegplot = [ rejeegplot; rejeegplottmp ]; end;
+                    end;
+                end;
+            end;
+            rejeegplottmp = trial2eegplot(  rej, rejE, nbpnts, colrej);
+            if ~isempty(rejeegplottmp)
+                rejeegplot = [ rejeegplot; rejeegplottmp ];
+            end;
+    end;
+    if ~isempty(rejeegplot)
+        rejeegplot = rejeegplot(:,[1:5,elecrange+5]);
+    else
+        rejeegplot = [];
+    end;
+    eegplotoptions = { 'events', EEG.event, 'winlength', 5, 'winrej', ...
+        rejeegplot, 'xgrid', 'off', 'wincolor', EEG.reject.rejmanualcol, ...
+        'colmodif', { { EEG.reject.rejmanualcol EEG.reject.rejthreshcol EEG.reject.rejconstcol ...
+        EEG.reject.rejjpcol     EEG.reject.rejkurtcol   EEG.reject.rejfreqcol } } };
+    
+    if ~reject
+        eegplotoptions = { eegplotoptions{:}  'butlabel', 'UPDATE MARKS' };
+    end;
+
+    % ---------- end of modified eeg_rejmacro ----------
+    
+else % case of a single trial (continuous data)
     eeglab_options; % changed from eeglaboptions 3/30/02 -sm
     if reject == 0, command = '';
     else
@@ -331,7 +331,7 @@ end;
         end;
     end;
     eegplotoptions = { 'events', EEG.event };
-% end;
+end;
 
 if ~isempty(EEG.chanlocs) && icacomp == 1
     eegplotoptions = { eegplotoptions{:}  'eloc_file', EEG.chanlocs(elecrange) };
@@ -357,11 +357,13 @@ if EEG.nbchan > 100
 end;
 
 if icacomp == 1
-	eegplot_w2( EEG.data(:,:), 'srate', EEG.srate, 'title', [ 'Scroll channel activities -- eegplot_w(): ' EEG.setname], ...
+	
+    eegplot_w3( EEG.data(:,:), 'srate', EEG.srate, 'title', [ 'Scroll channel activities -- eegplot_w(): ' EEG.setname], ...
 			  'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
+
 else
     tmpdata = eeg_getdatact(EEG, 'component', [1:size(EEG.icaweights,1)]);
-	eegplot_w2( tmpdata(:,:), 'srate', EEG.srate, 'title', [ 'Scroll component activities -- eegplot_w(): ' EEG.setname], ...
+	eegplot_w3( tmpdata(:,:), 'srate', EEG.srate, 'title', [ 'Scroll component activities -- eegplot_w(): ' EEG.setname], ...
 			 'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
 end;
 com = [ com sprintf('pop_eegplot_w2( %s, %d, %d, %d);', inputname(1), icacomp, superpose, reject) ];

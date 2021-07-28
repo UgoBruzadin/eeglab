@@ -22,7 +22,7 @@
 %
 % Author: Arnaud Delorme
 
-function [EEG,com] = pop_icflag(EEG, thresh)
+function [EEG,com] = pop_par_icflag(EEG, thresh)
 
 if nargin < 1
     help pop_icflag

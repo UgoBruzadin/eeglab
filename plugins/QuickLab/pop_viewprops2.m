@@ -251,7 +251,7 @@ for ri = chanorcomp
         else
             status = 0;
         end
-        % --- plots checkboxes
+        % --- plots checkboxes # Added by Ugo Nunes Jun/2021
         check = uicontrol(gcf, 'Style', 'checkbox','Units','Normalized', 'Value',EEG.reject.gcompreject(ri),'Position',...
             [X+sizewx*2/3 Y+sizewy sizewx/3 sizewy*0.18].*s+q);  
         end;

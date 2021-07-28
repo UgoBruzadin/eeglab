@@ -51,10 +51,10 @@ if myComps
         % --- remove the one component number
         allComps(myComps(i)) = [];
         % --- make another copy of the EEG data
-        EEGComp = EEGbase;
+        EEGcomp = EEGbase;
         % --- removes the other components from the data-set to minimize file
         % ---- size
-        EEGComp = pop_subcomp(EEGComp, allComps, 0);       % actually removes the flagged components
+        EEGcomp = pop_subcomp(EEGcomp, allComps, 0);       % actually removes the flagged components
         % --- get number and value of the component classification
         [value,col] = max(EEGbase.etc.ic_classification.ICLabel.classifications(myComps(i),:));
         % --- start the name of the component with it's classification
@@ -69,7 +69,7 @@ if myComps
         % --- finalize component name with %, number and ID
         corrName = strcat(corrName,'-',num2str(compNumber),'-',num2str(value));
         % --- save component
-        pop_saveset(EEGComp, 'filename', [strcat(corrName, '.set')],'filepath',pwd);
+        pop_saveset(EEGcomp, 'filename', [strcat(corrName, '.set')],'filepath',pwd);
     end
 end
 end

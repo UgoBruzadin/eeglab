@@ -530,7 +530,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   
 % Channel Rejection button (UGO)
 
-   chaninterp = ['channels = get(findobj(gcf, ''Tag'', ''Channel''),''string'')'];
+chaninterp = ['channels = get(findobj(gcf, ''Tag'', ''Channel''),''string'')'];
 
   u(25) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -548,7 +548,7 @@ u(24)= uicontrol('Parent',figh, ...
 	'Style','text', ...
 	'FontSize',8,...
 	'Tag','thechannel',...
-	'string','Channel(s) to interpolate');
+	'string','Channel(s)/Component(s) to interpolate');
   
 % Five move buttons: << < text > >> 
 
@@ -2495,7 +2495,7 @@ switch evnt.Key
         elseif ismember('alt',modifiers)
             change_scale([],[],fig,2);
         end;
-    case {'F1'} %CHANGED UGO
+    case {'insert'} %CHANGED UGO
         eegplot_w('window');
     case {'tab'}
         eegplot_w('winelec');
