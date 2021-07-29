@@ -457,7 +457,7 @@ switch lower(g.icatype)
             [EEG.icaweights,EEG.icasphere] = binica( tmpdata, 'lrate', 0.001, 'pca', tmprank, g.options{:} );
         end
      case 'binica'
-        %tic
+        tic
         icadefs;
         fprintf(['Warning: If the binary ICA function does not work, check that you have added the\n' ...
                  'binary file location (in the EEGLAB directory) to your Unix /bin directory (.cshrc file)\n']);
@@ -471,9 +471,14 @@ switch lower(g.icatype)
             disp(['Data rank (' int2str(tmprank) ') is smaller than the number of channels (' int2str(size(tmpdata,1)) ').']);
             [EEG.icaweights,EEG.icasphere] = binica(EEG, tmpdata, 'lrate', 0.001, 'pca', tmprank, g.options{:}); % Added EEG by Ugo Nunes 06/21/2020
         end
-        %toc
+%         if isfield(EEG,'dipfit')
+%             if isfield(EEG.dipfit,'model')
+%                 EEG.dipfit.model = [];
+%             end
+%         end
+        toc
     case 'cudaica' % Add by Yunhui on 2018-09-09
-        %tic
+        tic
         icadefs;
         fprintf(['Warning: If the CUDAICA ICA function does not work, check that you have added the\n' ...
                  'binary file location (in the EEGLAB directory) to your Unix /bin directory (.cshrc file)\n']);
@@ -487,8 +492,13 @@ switch lower(g.icatype)
             disp(['Data rank (' int2str(tmprank) ') is smaller than the number of channels (' int2str(size(tmpdata,1)) ').']);
             [EEG.icaweights,EEG.icasphere] = cudaica(tmpdata, 'lrate', 0.001, 'pca', tmprank, g.options{:}); % Added EEG by Ugo Nunes 06/21/2020
         end
+%         if isfield(EEG,'dipfit')
+%             if isfield(EEG.dipfit,'model')
+%                 EEG.dipfit.model = [];
+%             end
+%         end
         %[EEG.icaweights,EEG.icasphere] = cudaica(tmpdata, 'lrate', 0.001, g.options{:} );    % Added EEG by Ugo Nunes 06/21/2020 
-        %toc
+        toc
     case 'amica'
         tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
         fprintf('Now Running AMICA\n');

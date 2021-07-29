@@ -74,18 +74,6 @@ end
 % --- third submenu: Quick channel edits
 channelmenu = uimenu (supermenu, 'label', 'Quick Channel Edit');
 
-filtermenu = uimenu (channelmenu, 'label', 'Quick Filter');
-
-% for a=0.5:0.5:2.5
-% uimenu( filtermenu, 'label', strcat('Quick High Pass ',num2str(a)), 'callback', ...
-%     ['EEG = quick_lowpass(EEG,' num2str(a) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
-% end
-
-for b=14:22
-uimenu( filtermenu, 'label', strcat('Quick Low Pass ',num2str(b)), 'callback', ...
-    ['EEG = quick_lowpass(EEG,' num2str(b) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
-end
-
 uimenu( channelmenu, 'label', 'Quick Re-reference CZ', 'callback', ...
     ['EEG = pop_fastrerefcz(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
@@ -108,6 +96,18 @@ end
 uimenu( channelmenu, 'label', 'Quick Interpolate Channels by Components', 'callback', ...
     ['[EEG] = channelIntByComps(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
+filtermenu = uimenu (channelmenu, 'label', 'Quick Filter');
+
+% for a=0.5:0.5:2.5
+% uimenu( filtermenu, 'label', strcat('Quick High Pass ',num2str(a)), 'callback', ...
+%     ['EEG = quick_lowpass(EEG,' num2str(a) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+% end
+
+for b=14:22
+uimenu( filtermenu, 'label', strcat('Quick Low Pass ',num2str(b)), 'callback', ...
+    ['EEG = quick_lowpass(EEG,' num2str(b) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+end
+
 % --- 4th submenu: Quick epoch edits
 epochsmenu = uimenu (supermenu, 'label', 'Quick Epoch edits');
 
@@ -120,7 +120,7 @@ uimenu( epochsmenu, 'label', 'Quick UN-Epoch (Back to Continuous', 'callback', .
     ['EEG =  quick_unepoch(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu( epochsmenu, 'label', 'Quick Epoch 0.400 2.448 (DotLoc)', 'callback', ...
-    ['EEG =  quick_epoch(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['EEG =  quick_epoch(EEG,0.400,2.448);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu( epochsmenu, 'label', 'Quick Epoch -1 3.096 (DotLoc)', 'callback', ...
     ['EEG =  quick_epoch(EEG,-1,3.096);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
@@ -153,11 +153,11 @@ uimenu( corrmenu, 'label', 'Quick Save Selected CorrMaps', 'callback', ...
 uimenu( corrmenu, 'label', 'Quick Run CorrMap', 'callback', ...
     ['EEG = quickcorrmap(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw']);
 
-
-% --- 6th submenu: Run a pipeline
-
-uimenu( supermenu, 'label', 'Quick Pipeline', 'callback', ...
-    ['[UGO, EEG] = pop_runapipeline();eeglab redraw;']);
+% 
+% % --- 6th submenu: Run a pipeline
+% 
+% uimenu( supermenu, 'label', 'Quick Pipeline', 'callback', ...
+%     ['[UGO, EEG] = pop_runapipeline();eeglab redraw;']);
 
 % --- 7th submenu: Run a pipeline
 
