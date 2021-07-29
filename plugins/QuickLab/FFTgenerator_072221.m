@@ -29,7 +29,7 @@ parfor i=1:length(files)
         EEG.ffts(end+1).spectra = EEG.xOLD;
         EEG.ffts(end+1).freqs = EEG.yOLD;
     end
-    figure; [EEG.ffts(end+1).spectra,EEG.ffts(end+1).freqs] = pop_par_spectopo(EEG, 1, [EEG.xmin*1000  EEG.xmax*1000], 'EEG' , 'freq', [4 6 10 12 15 18 21 25 28 32 36], 'freqrange',[2 55],'winsize',1024,'electrodes','off');
+    pop_par_spectopo(EEG, 1, [EEG.xmin*1000  EEG.xmax*1000], 'EEG' , 'freq', [4 6 10 12 15 18 21 25 28 32 36], 'freqrange',[2 55],'winsize',1024,'electrodes','off');
 
     saveas(gcf,[files(i).name(1:end-4),'FFT.jpg']);
 
