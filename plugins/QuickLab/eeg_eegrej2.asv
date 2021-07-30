@@ -47,7 +47,7 @@
 % ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 % THE POSSIBILITY OF SUCH DAMAGE.
 
-function [EEG, com] = eeg_eegrej2( EEG, regions, channels, chanorcomp);
+function [EEGOUT, com] = eeg_eegrej2( EEGIN, regions, channels, chanorcomp);
 
 com = '';
 if nargin < 2
@@ -56,12 +56,12 @@ if nargin < 2
 end
 if nargin< 3
     probadded = [];
-    [thisChan chanliststr] = pop_chansel( { EEG.chanlocs.labels } );
+    [thisChan chanliststr] = pop_chansel( { EEGIN.chanlocs.labels } );
     %channels = inputdlg('choose which of channels to interpolate');
     %channels = str2num(channels{1});
 end
 if isempty(regions)
-    regions = [1,EEG.pnts]
+    regions = [1,EEGIN.pnts]
 	%return;
 end
 
@@ -106,10 +106,10 @@ end
 % end
 
 
-if isfield(EEG.event, 'latency'),
-   	 tmpevent = EEG.event;
+if isfield(EEGIN.event, 'latency'),
+   	 tmpevent = EEGIN.event;
      
-     tmpdata = EEG.data; % REMOVE THIS, THIS IS FOR DEBUGGING %
+     tmpdata = EEGIN.data; % REMOVE THIS, THIS IS FOR DEBUGGING %
      
      tmpalllatencies = [ tmpevent.latency ];
 
@@ -135,16 +135,17 @@ if isempty(divisors)
     thisChan = str2num(channels);
     % interpolate component or channel for the selected intervals
     if chanorcomp == 1
-        tempEEG = pop_interp(EEG, [thisChan], 'spherical');
+        EEGIN = pop_interp(EEGIN, [thisChan], 'spherical');
         for i=1:size(regions,1)
             fprintf(strcat('Interpolating channels(s) _', num2str(thisChan),' for the period _',num2str(regions(i,1)),' to _',num2str(regions(i,2))), '\r' );
-            EEG.data(thisChan,regions(i,1):regions(i,2)) = tempEEG.data(thisChan,regions(i,1):regions(i,2));
+            EEGIN.data(thisChan,regions(i,1):regions(i,2)) = EEGIN.data(thisChan,regions(i,1):regions(i,2));
         end
     else
-        tempEEG = pop_subcomp(EEG, [thisChan]);
+        EEGIN = pop_subcomp(EEGIN, [thisChan]);
         for i=1:size(regions,1)
             fprintf(strcat('Interpolating components(s) _', num2str(thisChan),' for the period _',num2str(regions(i,1)),' to _',num2str(regions(i,2))), '\r' );
-            EEG.data(thisChan,regions(i,1):regions(i,2)) = tempEEG.data(thisChan,regions(i,1):regions(i,2));
+            EEGIN.data(thisChan,regions(i,1):regions(i,2)) = EEGIN.data(thisChan,regions(i,1):regions(i,2));
+            EEGIN.icaact(thisChan,regions(i,1):regions(i,2)) = EEGIN.icaact(thisChan,regions(i,1):regions(i,2));
         end
     end
     
@@ -166,21 +167,24 @@ else % --- else, runs through every region for every component given, assuming t
         
         if chanorcomp == 1
             fprintf(strcat('Interpolating channels(s) _', num2str(thisChan),' for the period _',num2str(regions(j,1)),' to _',num2str(regions(j,2))), '\r' );
-            tempEEG = pop_interp(EEG, [thisChan], 'spherical');
+            EEGIN = pop_interp(EEGIN, [thisChan], 'spherical');
             %for i=1:size(regions,1)
-                EEG.data(thisChan,regions(j,1):regions(j,2)) = tempEEG.data(thisChan,regions(j,1):regions(j,2));
+                EEGIN.data(thisChan,regions(j,1):regions(j,2)) = EEGIN.data(thisChan,regions(j,1):regions(j,2));
             %end
         else
             fprintf(strcat('Interpolating components(s) _', num2str(thisChan),' for the period _',num2str(regions(j,1)),' to _',num2str(regions(j,2))), '\r' );
-            tempEEG = pop_subcomp(EEG,[thisChan]);
+            EEGIN = pop_subcomp(EEGIN,[thisChan]);
             %for i=1:size(regions,1)
-                EEG.data(:,regions(j,1):regions(j,2)) = tempEEG.data(:,regions(j,1):regions(j,2));
+                EEGIN.data(:,regions(j,1):regions(j,2)) = EEGIN.data(:,regions(j,1):regions(j,2));
+                EEGIN.icaact(thisChan,regions(i,1):regions(i,2)) = EEGIN.icaact(thisChan,regions(i,1):regions(i,2));
             %end
         end
     end
-
 end
-com = sprintf('EEG = eeg_eegrej2( EEG, %s);', vararg2str({ regions })); 
+
+EEGOUT = EEGIN;
+
+com = sprintf('EEGOUT = eeg_eegrej2( EEGIN, %s);', vararg2str({ regions })); 
 
 % remove events within regions
 % ----------------------------
