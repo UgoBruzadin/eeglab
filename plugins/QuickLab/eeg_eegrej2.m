@@ -121,7 +121,7 @@ end
 % MODIFIED BY UGO TO INTERPOLATE SELECTED CHANNELS
 if size(regions,2) > 2, regions = regions(:, 3:4); end
 regions = combineregions(regions);
-
+EEGIN2 = EEGIN;
 % --- colect channels or components into numbers
 
 divisors = strfind(channels,';');
@@ -138,13 +138,13 @@ if isempty(divisors)
         EEGIN = pop_interp(EEGIN, [thisChan], 'spherical');
         for i=1:size(regions,1)
             fprintf(strcat('Interpolating channels(s) _', num2str(thisChan),' for the period _',num2str(regions(i,1)),' to _',num2str(regions(i,2))), '\r' );
-            EEGIN.data(thisChan,regions(i,1):regions(i,2)) = EEGIN.data(thisChan,regions(i,1):regions(i,2));
+            EEGIN2.data(thisChan,regions(i,1):regions(i,2)) = EEGIN.data(thisChan,regions(i,1):regions(i,2));
         end
     else
         EEGIN = pop_subcomp(EEGIN, [thisChan]);
         for i=1:size(regions,1)
             fprintf(strcat('Interpolating components(s) _', num2str(thisChan),' for the period _',num2str(regions(i,1)),' to _',num2str(regions(i,2))), '\r' );
-            EEGIN.data(thisChan,regions(i,1):regions(i,2)) = EEGIN.data(thisChan,regions(i,1):regions(i,2));
+            EEGIN2.data(thisChan,regions(i,1):regions(i,2)) = EEGIN.data(thisChan,regions(i,1):regions(i,2));
             %EEGIN.icaact(thisChan,regions(i,1):regions(i,2)) = EEGIN.icaact(thisChan,regions(i,1):regions(i,2));
         end
     end
