@@ -169,20 +169,20 @@ else % --- else, runs through every region for every component given, assuming t
             fprintf(strcat('Interpolating channels(s) _', num2str(thisChan),' for the period _',num2str(regions(j,1)),' to _',num2str(regions(j,2))), '\r' );
             EEGIN = pop_interp(EEGIN, [thisChan], 'spherical');
             %for i=1:size(regions,1)
-                EEGIN.data(thisChan,regions(j,1):regions(j,2)) = EEGIN.data(thisChan,regions(j,1):regions(j,2));
+                EEGIN2.data(thisChan,regions(j,1):regions(j,2)) = EEGIN.data(thisChan,regions(j,1):regions(j,2));
             %end
         else
             fprintf(strcat('Interpolating components(s) _', num2str(thisChan),' for the period _',num2str(regions(j,1)),' to _',num2str(regions(j,2))), '\r' );
             EEGIN = pop_subcomp(EEGIN,[thisChan]);
             %for i=1:size(regions,1)
-                EEGIN.data(:,regions(j,1):regions(j,2)) = EEGIN.data(:,regions(j,1):regions(j,2));
+                EEGIN2.data(:,regions(j,1):regions(j,2)) = EEGIN.data(:,regions(j,1):regions(j,2));
                 %EEGIN.icaact(thisChan,regions(j,1):regions(j,2)) = EEGIN.icaact(thisChan,regions(i,1):regions(i,2));
             %end
         end
     end
 end
 
-EEGOUT = EEGIN;
+EEGOUT = EEGIN2;
 
 com = sprintf('EEGOUT = eeg_eegrej2( EEGIN, %s);', vararg2str({ regions })); 
 
