@@ -119,12 +119,18 @@ end
 % handle regions from eegplot
 % ---------------------------
 % MODIFIED BY UGO TO INTERPOLATE SELECTED CHANNELS
+
 if size(regions,2) > 2, regions = regions(:, 3:4); end
-regions = combineregions(regions);
+
+if ndims(EEGIN.data) < 3
+    regions = combineregions(regions);
+end
+
 EEGIN2 = EEGIN;
 % --- colect channels or components into numbers
 
 divisors = strfind(channels,';');
+
 if isempty(divisors)
     divisors = strfind(channels,',');
 end
