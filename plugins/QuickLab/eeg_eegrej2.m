@@ -47,7 +47,7 @@
 % ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 % THE POSSIBILITY OF SUCH DAMAGE.
 
-function [EEGOUT, com] = eeg_eegrej2( EEGIN, regions, channels, chanorcomp);
+function [EEGOUT, com] = eeg_eegrej2( EEG, regions, channels, chanorcomp);
 
 com = '';
 if nargin < 2
@@ -56,12 +56,12 @@ if nargin < 2
 end
 if nargin< 3
     probadded = [];
-    [thisChan chanliststr] = pop_chansel( { EEGIN.chanlocs.labels } );
+    [thisChan chanliststr] = pop_chansel( { EEG.chanlocs.labels } );
     %channels = inputdlg('choose which of channels to interpolate');
     %channels = str2num(channels{1});
 end
 if isempty(regions)
-    regions = [1,EEGIN.pnts]
+    regions = [1,EEG.pnts]
 	%return;
 end
 
@@ -106,10 +106,10 @@ end
 % end
 
 
-if isfield(EEGIN.event, 'latency'),
-   	 tmpevent = EEGIN.event;
+if isfield(EEG.event, 'latency'),
+   	 tmpevent = EEG.event;
      
-     tmpdata = EEGIN.data; % REMOVE THIS, THIS IS FOR DEBUGGING %
+     tmpdata = EEG.data; % REMOVE THIS, THIS IS FOR DEBUGGING %
      
      tmpalllatencies = [ tmpevent.latency ];
 
@@ -122,11 +122,12 @@ end
 
 if size(regions,2) > 2, regions = regions(:, 3:4); end
 
-if ndims(EEGIN.data) < 3
+if ndims(EEG.data) < 3
     regions = combineregions(regions);
 end
 
-EEGIN2 = EEGIN;
+EEGIN = EEG ;
+EEGinterp = EEG;
 % --- colect channels or components into numbers
 
 divisors = strfind(channels,';');
@@ -141,16 +142,18 @@ if isempty(divisors)
     thisChan = str2num(channels);
     % interpolate component or channel for the selected intervals
     if chanorcomp == 1
-        EEGIN = pop_interp(EEGIN, [thisChan], 'spherical');
+        EEGinterp = pop_interp(EEG, [thisChan], 'spherical');
         for i=1:size(regions,1)
+            
             fprintf(strcat('Interpolating channels(s) _', num2str(thisChan),' for the period _',num2str(regions(i,1)),' to _',num2str(regions(i,2))), '\r' );
-            EEGIN2.data(thisChan,regions(i,1):regions(i,2)) = EEGIN.data(thisChan,regions(i,1):regions(i,2));
+            EEGIN.data(thisChan,regions(i,1):regions(i,2)) = EEGinterp.data(thisChan,regions(i,1):regions(i,2));
+        
         end
     else
-        EEGIN = pop_subcomp(EEGIN, [thisChan]);
+        EEGinterp = pop_subcomp(EEG, [thisChan]);
         for i=1:size(regions,1)
             fprintf(strcat('Interpolating components(s) _', num2str(thisChan),' for the period _',num2str(regions(i,1)),' to _',num2str(regions(i,2))), '\r' );
-            EEGIN2.data(thisChan,regions(i,1):regions(i,2)) = EEGIN.data(thisChan,regions(i,1):regions(i,2));
+            EEGIN.data(:,regions(i,1):regions(i,2)) = EEGinterp.data(:,regions(i,1):regions(i,2));
             %EEGIN.icaact(thisChan,regions(i,1):regions(i,2)) = EEGIN.icaact(thisChan,regions(i,1):regions(i,2));
         end
     end
@@ -173,23 +176,28 @@ else % --- else, runs through every region for every component given, assuming t
         
         if chanorcomp == 1
             fprintf(strcat('Interpolating channels(s) _', num2str(thisChan),' for the period _',num2str(regions(j,1)),' to _',num2str(regions(j,2))), '\r' );
-            EEGIN = pop_interp(EEGIN, [thisChan], 'spherical');
+            EEGinterp = pop_interp(EEG, [thisChan], 'spherical');
             %for i=1:size(regions,1)
-                EEGIN2.data(thisChan,regions(j,1):regions(j,2)) = EEGIN.data(thisChan,regions(j,1):regions(j,2));
+                EEGIN.data(thisChan,regions(j,1):regions(j,2)) = EEGinterp.data(thisChan,regions(j,1):regions(j,2));
             %end
         else
             fprintf(strcat('Interpolating components(s) _', num2str(thisChan),' for the period _',num2str(regions(j,1)),' to _',num2str(regions(j,2))), '\r' );
-            EEGIN = pop_subcomp(EEGIN,[thisChan]);
+            EEGinterp = pop_subcomp(EEG,[thisChan]);
             %for i=1:size(regions,1)
-                EEGIN2.data(:,regions(j,1):regions(j,2)) = EEGIN.data(:,regions(j,1):regions(j,2));
+                EEGIN.data(:,regions(j,1):regions(j,2)) = EEGinterp.data(:,regions(j,1):regions(j,2));
                 %EEGIN.icaact(thisChan,regions(j,1):regions(j,2)) = EEGIN.icaact(thisChan,regions(i,1):regions(i,2));
             %end
         end
     end
 end
 
-EEGOUT = EEGIN2;
+EEGdiff = EEG.data - EEGIN.data;
 
+eegplot_w( EEGdiff, 'srate', EEG.srate, 'title', [ 'Scroll channel activities -- eegplot_w(): ' EEG.setname], ...
+			  'limits', [EEG.xmin EEG.xmax]*1000 )% , 'command', command, eegplotoptions{:}, varargin{:});
+
+EEGOUT = EEGIN;          
+          
 com = sprintf('EEGOUT = eeg_eegrej2( EEGIN, %s);', vararg2str({ regions })); 
 
 % remove events within regions

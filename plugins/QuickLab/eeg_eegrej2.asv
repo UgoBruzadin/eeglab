@@ -122,13 +122,16 @@ end
 
 if size(regions,2) > 2, regions = regions(:, 3:4); end
 
-if EEGIN.data
-regions = combineregions(regions);
+if ndims(EEGIN.data) < 3
+    regions = combineregions(regions);
+end
 
+EEGIN2 = EEG;
 EEGIN2 = EEGIN;
 % --- colect channels or components into numbers
 
 divisors = strfind(channels,';');
+
 if isempty(divisors)
     divisors = strfind(channels,',');
 end
@@ -141,14 +144,16 @@ if isempty(divisors)
     if chanorcomp == 1
         EEGIN = pop_interp(EEGIN, [thisChan], 'spherical');
         for i=1:size(regions,1)
+            
             fprintf(strcat('Interpolating channels(s) _', num2str(thisChan),' for the period _',num2str(regions(i,1)),' to _',num2str(regions(i,2))), '\r' );
             EEGIN2.data(thisChan,regions(i,1):regions(i,2)) = EEGIN.data(thisChan,regions(i,1):regions(i,2));
+        
         end
     else
         EEGIN = pop_subcomp(EEGIN, [thisChan]);
         for i=1:size(regions,1)
             fprintf(strcat('Interpolating components(s) _', num2str(thisChan),' for the period _',num2str(regions(i,1)),' to _',num2str(regions(i,2))), '\r' );
-            EEGIN2.data(thisChan,regions(i,1):regions(i,2)) = EEGIN.data(thisChan,regions(i,1):regions(i,2));
+            EEGIN2.data(:,regions(i,1):regions(i,2)) = EEGIN.data(:,regions(i,1):regions(i,2));
             %EEGIN.icaact(thisChan,regions(i,1):regions(i,2)) = EEGIN.icaact(thisChan,regions(i,1):regions(i,2));
         end
     end
@@ -187,6 +192,11 @@ else % --- else, runs through every region for every component given, assuming t
 end
 
 EEGOUT = EEGIN2;
+
+EEGdiff = EEGIN.data - EEGIN2.data;
+
+eegplot_w( EEGdiff, 'srate', EEGIN.srate, 'title', [ 'Scroll channel activities -- eegplot_w(): ' EEGIN.setname], ...
+			  'limits', [EEGIN.xmin EEGIN.xmax]*1000 )% , 'command', command, eegplotoptions{:}, varargin{:});
 
 com = sprintf('EEGOUT = eeg_eegrej2( EEGIN, %s);', vararg2str({ regions })); 
 
