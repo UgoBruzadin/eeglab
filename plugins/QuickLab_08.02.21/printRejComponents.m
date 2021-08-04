@@ -1,6 +1,8 @@
-function printRejComponents(EEG)
+function printRejComponents(EEG,myComps)
 
-myComps = find(EEG.reject.gcompreject);   %stores the Id of the components to be rejected
+if nargin  < 2
+    myComps = find(EEG.reject.gcompreject);   %stores the Id of the components to be rejected
+end
 
 if myComps
     allComps = [1:size(EEG.icawinv,2)];
@@ -14,4 +16,5 @@ if myComps
     % --- plots and prints the components
     pop_viewprops4( EEGcomp, 0, [1:size(EEGcomp.icawinv, 2)], {'freqrange', [2 80]}, {}, 2, 'ICLabel' )
 end
+
 end
