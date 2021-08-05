@@ -200,7 +200,7 @@ eegplot_w( EEGdiff, 'srate', EEG.srate, 'title', [ 'DIFFERENCE PRE AND POST CHAN
 
 EEGOUT = EEGmod;          
           
-com = sprintf('EEGOUT = eeg_eegrej2( EEGIN, %s);', vararg2str({ regions, channelsOrComponents, chanorcomp }); 
+com = sprintf('EEGOUT = eeg_eegrej2( EEGIN, %s );', vararg2str({ regions, channelsOrComponents, chanorcomp })); 
 
 % remove events within regions
 % ----------------------------

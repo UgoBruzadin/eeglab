@@ -1304,7 +1304,7 @@ savecommand = ['[EEG] = pop_saveset(EEG, ''filename'', [strcat( EEG.filename(1:e
 % attach acronym
 % save.
 files = dir('');
-loaddircommand = ['filecount = 1; cd(EEG.filepath); files = dir(''*.set''); EEG = pop_loadset( files(1).name, pwd);; eeglab redraw;'];
+loaddircommand = ['filecount = 1; cd(EEG.filepath); files = dir(''*.set'');'];
 % load directory
 
 filecount = [1];
