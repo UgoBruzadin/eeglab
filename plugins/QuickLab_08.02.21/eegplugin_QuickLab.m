@@ -17,17 +17,17 @@ uimenu( plotmenu, 'label', 'Plot (epoched) Channel Scroll for Interpolation', 'c
     ['com = pop_eegplot_w3(EEG, 1, 1, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( plotmenu, 'label', 'Plot (continuous) Channel Scroll for Interpolation', 'callback', ...
-    ['com = pop_eegplot_w2(EEG, 1, 1, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['com = pop_eegplot_w2(EEG, 1, 2, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( plotmenu, 'label', 'Plot (epoched) Component Scroll for Interpolation', 'callback', ...
     ['com = pop_eegplot_w3(EEG, 2, 1, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( plotmenu, 'label', 'Plot (continuous) Component Scroll for Interpolation', 'callback', ...
-    ['plotDifference(ALLEEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['com = pop_eegplot_w3(EEG, 2, 2, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( plotmenu, 'label', 'Plot Data Difference', 'callback', ...
-    ['com = pop_eegplot_w3(EEG, 1, 1, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
-
+    ['plotDifference(ALLEEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    
 uimenu( plotmenu, 'label', 'Quick Plot Channel Spectra', 'callback', ...
     ['EEG = pop_fastspectra(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
@@ -89,6 +89,11 @@ try
         for i=6:2:50
             uimenu( cudamenu, 'label', strcat('Quick PCA ',num2str(i)), 'callback', ...
                 ['EEG = cudafastPCA(EEG,' num2str(i) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+        end
+        secondcudamenu = uimenu (cudamenu, 'label', 'MORE CUDAICA');
+        for t=50:128
+            uimenu( secondcudamenu, 'label', strcat('Quick PCA ',num2str(t)), 'callback', ...
+                ['EEG = cudafastPCA(EEG,' num2str(t) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
         end
     end
     

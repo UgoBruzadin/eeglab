@@ -1296,8 +1296,7 @@ set(H_MAIN(1), 'unit', 'normalized');
 
 %FOR DEBUGGING savecommand = ['fprintf(get(findobj(''tag'',''SAVETEXT''),''string''));'];
 
-savecommand = ['[EEG] = pop_saveset(EEG, ''filename'', [strcat( EEG.filename(1:end-4),get(findobj(''tag'',''SAVETEXT''),''string''),''.set'')],''filepath'',EEG.filepath);'...
-    '[ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET); eeglab redraw']; %save set
+savecommand = ['[EEG] = pop_saveset(EEG, ''filename'', [strcat( EEG.filename(1:end-4),get(findobj(''tag'',''SAVETEXT''),''string'')'',''.set'')],''filepath'',EEG.filepath);']; %save set
 
 % get file directory
 % get file name
@@ -1311,7 +1310,7 @@ filecount = [1];
 loadprecommand = ['if filecount > 1, filecount = filecount - 1, EEG = pop_loadset( files(filecount).name, pwd); eeglab redraw, end;'];
 loadpostcommand = ['if filecount < length(files), filecount = filecount + 1, EEG = pop_loadset( files(filecount).name, pwd); eeglab redraw, end;'];
 
-geometry = { [1] [1] [1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1 1 1 1 1 1] [1] };
+geometry = { [1] [1] [1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [0.8 1 1 1 1 1 1] [1] };
 listui = { { 'style', 'text', 'string', 'Parameters of the current set', 'tag', 'win0' } { } ...
            { 'style', 'text', 'tag', 'win1', 'string', ' ', 'userdata', 'datinfo' } ...
            { 'style', 'text', 'tag', 'win2', 'string', 'Channels per frame', 'userdata', 'datinfo'} ...
