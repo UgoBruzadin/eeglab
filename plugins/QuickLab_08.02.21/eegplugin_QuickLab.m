@@ -23,7 +23,10 @@ uimenu( plotmenu, 'label', 'Plot (epoched) Component Scroll for Interpolation', 
     ['com = pop_eegplot_w3(EEG, 2, 1, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( plotmenu, 'label', 'Plot (continuous) Component Scroll for Interpolation', 'callback', ...
-    ['com = pop_eegplot_w2(EEG, 2, 1, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['plotDifference(ALLEEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+
+uimenu( plotmenu, 'label', 'Plot Data Difference', 'callback', ...
+    ['com = pop_eegplot_w3(EEG, 1, 1, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( plotmenu, 'label', 'Quick Plot Channel Spectra', 'callback', ...
     ['EEG = pop_fastspectra(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
@@ -37,13 +40,13 @@ uimenu( plotmenu, 'label', 'Quick IClabel, DIPFIT & plot', 'callback', ...
 printmenu = uimenu (plotmenu, 'label', 'Quick Print'); 
 
 uimenu( printmenu, 'label', 'Print Components', 'callback', ...
-    ['pop_viewprops4( EEG, 0, [1:size(EEG.icawinv, 2)], { "freqrange", [2 80]}, {}, 2, "ICLabel" );[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['printICA(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( printmenu, 'label', 'Print Marked Components', 'callback', ...
     ['printRejComponents(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
-% uimenu( printmenu, 'label', 'Print FFT', 'callback', ...
-%     ['printFFT(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+uimenu( printmenu, 'label', 'Print FFT', 'callback', ...
+    ['printFFT(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 % plot fft difference!
 

@@ -118,7 +118,9 @@ end
 
 % handle regions from eegplot
 % ---------------------------
-% MODIFIED BY UGO TO INTERPOLATE SELECTED CHANNELS
+% MODIFIED BY UGO TO INTERPOLATE SELECTED CHANNELS OR COMPONENTS
+EEG.ugo.regions = regions;
+EEG.ugo.chancomp = channelsOrComponents;
 
 if size(regions,2) > 2, regions = regions(:, 3:4); end
 
@@ -198,7 +200,7 @@ eegplot_w( EEGdiff, 'srate', EEG.srate, 'title', [ 'DIFFERENCE PRE AND POST CHAN
 
 EEGOUT = EEGmod;          
           
-com = sprintf('EEGOUT = eeg_eegrej2( EEGIN, %s);', vararg2str({ regions })); 
+com = sprintf('EEGOUT = eeg_eegrej2( EEGIN, %s);', vararg2str({ regions, channelsOrComponents, chanorcomp }); 
 
 % remove events within regions
 % ----------------------------
