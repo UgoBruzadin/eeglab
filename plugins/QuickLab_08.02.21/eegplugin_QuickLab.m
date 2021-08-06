@@ -107,7 +107,7 @@ catch
 end
 % --- third submenu: Quick BSS
 uimenu (supermenu, 'label', 'Quick BSS', 'callback', ...
-    ['[EEG,com] = quick_BSS(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,com] = quick_bss(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 % --- third submenu: Quick channel edits
 channelmenu = uimenu (supermenu, 'label', 'Quick Channel Edit');
