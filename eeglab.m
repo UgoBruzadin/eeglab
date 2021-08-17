@@ -1205,7 +1205,7 @@ icadefs;
 COLOR = BACKEEGLABCOLOR;
 WINMINX         = 17;
 WINMAXX         = 460; %changed from 260 to 360 UGO
-WINYDEC			= 13;
+WINYDEC			= 10;
 NBLINES         = 18; %changed from 16 to 18 UGO
 WINY		    = WINYDEC*NBLINES;
 
@@ -1304,7 +1304,7 @@ savecommand = ['[EEG] = pop_saveset(EEG, ''filename'', [strcat( EEG.filename(1:e
 % attach acronym
 % save.
 files = dir('');
-loaddircommand = ['filecount = 1; cd(EEG.filepath); files = dir(''*.set'');'];
+loaddircommand = ['findex = find(strcmp({files.name}, EEG.filename)==1);filecount = findex; cd(EEG.filepath); files = dir(''*.set'');'];
 % load directory
 
 filecount = [1];
