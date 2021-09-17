@@ -14,16 +14,16 @@ supermenu = uimenu(fig, 'label', 'QuickLab');
 plotmenu = uimenu (supermenu, 'label', 'Quick Plots');
 
 uimenu( plotmenu, 'label', 'Plot (epoched) Channel Scroll for Interpolation', 'callback', ...
-    ['com = pop_eegplot_w2epoc(EEG, 1, 1, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['com = pop_eegplot_w2(EEG, 1, 1, 1, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( plotmenu, 'label', 'Plot (continuous) Channel Scroll for Interpolation', 'callback', ...
-    ['com = pop_eegplot_w2cont(EEG, 1, 2, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['com = pop_eegplot_w2(EEG, 1, 2, 1, 2);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( plotmenu, 'label', 'Plot (epoched) Component Scroll for Interpolation', 'callback', ...
-    ['com = pop_eegplot_w2epoc(EEG, 2, 1, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['com = pop_eegplot_w2(EEG, 2, 1, 1, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( plotmenu, 'label', 'Plot (continuous) Component Scroll for Interpolation', 'callback', ...
-    ['com = pop_eegplot_w2cont(EEG, 2, 2, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['com = pop_eegplot_w2(EEG, 2, 2, 1, 2);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( plotmenu, 'label', 'Plot Data Difference', 'callback', ...
     ['plotDifference(ALLEEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);

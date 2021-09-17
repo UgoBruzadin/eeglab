@@ -198,7 +198,7 @@
 %    4 - maxfreq    % empty [] if no gfrequency content
 % 'buttons hold other informations' Eposition for instance hold the current postition
 
-function [outvar1,channels] = eegplot_w(data, varargin); % p1,p2,p3,p4,p5,p6,p7,p8,p9)
+function [outvar1,variables] = eegplot_w(data, varargin); % p1,p2,p3,p4,p5,p6,p7,p8,p9)
 
 % Defaults (can be re-defined):
 
@@ -527,10 +527,12 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   posbut(23,:) = [ 0.92    0.44    0.080    0.03 ]; % Espacing/scale tag
   posbut(24,:) = [ 0.92    0.23    0.080    0.03 ]; % Channel Rejection tag UGO
   posbut(25,:) = [ 0.92    0.20    0.080    0.03 ]; % Channel Rejection UGO
-  
+  posbut(26,:) = [ 0.92    0.30    0.080    0.03 ]; % Channel Rejection UGO
 % Channel Rejection button (UGO)
 
-chaninterp = ['channels = get(findobj(gcf, ''Tag'', ''Channel''),''string'')'];
+variables{2} = 0;
+chaninterp = ['variables{1} = get(findobj(gcf, ''Tag'', ''Channel''),''string'')'];
+plotdiffcom = ['variables{2} = get(findobj(gcf, ''Tag'', ''datadiff''),''Value'')'];
 
   u(25) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -550,6 +552,16 @@ u(24)= uicontrol('Parent',figh, ...
 	'Tag','thechannel',...
 	'string','Channel(s)/Component(s) to interpolate');
   
+u(26)= uicontrol('Parent',figh, ...
+	'Units', 'normalized', ...
+	'BackgroundColor',DEFAULT_FIG_COLOR, ...
+	'Position', posbut(26,:), ...
+	'Style','checkbox', ...
+	'FontSize',8,...
+	'Tag','datadiff',...
+	'string','plot Data Difference',...
+    'Callback', plotdiffcom );
+
 % Five move buttons: << < text > >> 
 
   u(1) = uicontrol('Parent',figh, ...
@@ -1450,6 +1462,7 @@ else
    otherwise
       error(['Error - invalid eegplot_w() parameter: ',data])
   end
+  
 end
 
 % Redraw EEG and change position

@@ -47,8 +47,14 @@
 % ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 % THE POSSIBILITY OF SUCH DAMAGE.
 
-function [EEGOUT, com] = eeg_eegrej2( EEG, regions, channelsOrComponents, chanorcomp);
+function [EEGOUT, com] = eeg_eegrej2( EEG, regions, variables, chanorcomp);
 
+channelsOrComponents = variables{1};
+if size(variables,2) > 1
+    plotdiff = variables{2};
+else
+    plotdiff = 0;
+end
 com = '';
 if nargin < 2
 	help eeg_eegrej;
@@ -195,9 +201,10 @@ end
 
 EEGdiff = EEG.data - EEGmod.data;
 
+if plotdiff == 1
 eegplot_w( EEGdiff, 'srate', EEG.srate, 'title', [ 'DIFFERENCE PRE AND POST CHANNEL/COMPONENT INTERPOLATION -- eegplot_w(): ' EEG.setname], ...
 			  'limits', [EEG.xmin EEG.xmax]*1000 )% , 'command', command, eegplotoptions{:}, varargin{:});
-
+end
 EEGOUT = EEGmod;          
           
 com = sprintf('EEGOUT = eeg_eegrej2( EEGIN, %s );', vararg2str({ regions, channelsOrComponents, chanorcomp })); 

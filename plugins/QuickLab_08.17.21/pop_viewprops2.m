@@ -246,8 +246,16 @@ for ri = chanorcomp
         % -------------
         
         % --- get components status to give value to checkboxes
-        if ~isempty(EEG.reject.gcompreject)
-            status = EEG.reject.gcompreject(chanorcomp);
+        if isfield(EEG,'reject')
+            if isfield(EEG.reject,'gcompreject')
+                if ~isempty(EEG.reject.gcompreject)
+                    status = EEG.reject.gcompreject(chanorcomp);
+                else
+                    status = 0;
+                end
+            else
+                status = 0;
+            end
         else
             status = 0;
         end
@@ -283,25 +291,42 @@ commandSave = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbox
  		'EEG.reject.gcompreject(' num2str(chanorcomp(1)) ' : ' num2str(chanorcomp(end)) ' ) = A;'...
         'saveComponents(EEG)'];
         
-saveComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'Save CorrMaps', 'Units','Normalized','Position',[40 -10 15 6].*s+q, 'callback', commandSave');
+saveComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'Save CorrMaps', 'Units','Normalized','Position',[35 -10 15 6].*s+q, 'callback', commandSave');
 
-% PARTIAL REJECTIONG button
+% Reject and run N-1 PCA button
 % -------------
 
-command3 = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbox''), ''value'');'...
+commandN1PCA = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbox''), ''value'');'...
     'A = fliplr([tmpstatus{:}]);'...
     'EEG.reject.gcompreject(' num2str(chanorcomp(1)) ' : ' num2str(chanorcomp(end)) ' ) = A;'...
     'close(gcf);'...
-    'EEG = pop_fastN1PCA(EEG)'];
+    'EEG = pop_fastN1PCA(EEG)'...
+    'eeglab redraw;'];
     
-rjandpca  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'REJ+N-1PCA', 'Units','Normalized', 'Position', [65 -10 15 6].*s+q, 'callback', command3);
+rjandpca  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'REJ+N-1PCA', 'Units','Normalized', 'Position', [55 -10 15 6].*s+q, 'callback', commandN1PCA);
 
-% Reject button
+% Just Reject & Remove button
 % --------- 
-  	command2 = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbox''), ''value'');'...
+commandReject = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbox''), ''value'');'...
         'A = fliplr([tmpstatus{:}]);'...
  		'EEG.reject.gcompreject(' num2str(chanorcomp(1)) ' : ' num2str(chanorcomp(end)) ' ) = A;'...
-        'close(gcf);'];
+        'mybadcomps = find(EEG.reject.gcompreject);'...
+        'if ~isempty(mybadcomps);'...
+        'EEG = pop_subcomp(EEG, mybadcomps, 0);'...
+        'end;'...
+        'close(gcf);'...
+        'eeglab redraw;'];
+    
+ rej  = uicontrol(gcf, 'Style', 'pushbutton', 'string', 'REMOVE COMPS', 'backgroundcolor', GUIBUTTONCOLOR, 'Units','Normalized', 'Position',[75 -10 15 6].*s+q);
+ set( rej, 'callback', commandReject);
+
+% Just Reject button
+% --------- 
+  	commandSelect = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbox''), ''value'');'...
+        'A = fliplr([tmpstatus{:}]);'...
+ 		'EEG.reject.gcompreject(' num2str(chanorcomp(1)) ' : ' num2str(chanorcomp(end)) ' ) = A;'...
+        'close(gcf);'...
+        'eeglab redraw;'];
 
 %     okcommand = ['tmpstatus = get( findobj(''parent'', gcf, ''tag'', ''rejstatus''), ''value'');'...
 %         'tmpstatus = fliplr(transpose(cat(tmpstatus{:,:})))']
@@ -309,9 +334,9 @@ rjandpca  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCO
 % tmpstatus = [];
 % okcommand = ['tmpstatus = get( findobj(''parent'', gcf, ''tag'', ''rejstatus''), ''value'');']
 %     %'EEG.reject.gcompreject(' num2str(chanorcomp) ') = tmpstatus;' ];
- ok  = uicontrol(gcf, 'Style', 'pushbutton', 'string', 'REJECT', 'backgroundcolor', GUIBUTTONCOLOR, 'Units','Normalized', 'Position',[90 -10 15 6].*s+q);
- set( ok, 'callback', command2);
-
+ ok  = uicontrol(gcf, 'Style', 'pushbutton', 'string', 'ADD COMPS TO REJECTED', 'backgroundcolor', GUIBUTTONCOLOR, 'Units','Normalized', 'Position',[95 -10 15 6].*s+q);
+ set( ok, 'callback', commandSelect);
+ 
 com = sprintf('pop_viewprops( %s, %d, %s, %s, %s, %d, ''%s'' )', ...
     inputname(1), typecomp, hlp_tostring(chanorcomp), hlp_tostring(spec_opt), ...
     hlp_tostring(erp_opt), scroll_event, classifier_name);

@@ -1298,6 +1298,9 @@ set(H_MAIN(1), 'unit', 'normalized');
 
  savecommand = ['[EEG] = pop_saveset(EEG, ''filename'', [strcat( EEG.filename(1:end-4),get(findobj(''tag'',''SAVETEXT''),''string''),''.set'')],''filepath'',EEG.filepath);'...
      '[ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET); eeglab redraw']; %save set ADDED BY UGO
+
+
+
 % 
 % get file directory
 % get file name

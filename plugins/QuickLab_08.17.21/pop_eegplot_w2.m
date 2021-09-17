@@ -81,7 +81,7 @@
 % 2002-03-27 added event latency recalculation for continuous data -ad
 % 2017-01-24 allow select channels/components for rejection -mb
 
-function com = pop_eegplot_w2( EEG, icacomp, superpose, reject, topcommand, epoc, varargin)
+function com = pop_eegplot_w2( EEG, icacomp, superpose, reject, epoc, topcommand, varargin)
 
 com = '';
 if ~exist('topcommand','var')
@@ -137,10 +137,10 @@ if reject
         'if ~isempty(TMPREJCHN); '];
     if icacomp == 1
         com1 = [ com1 ...
-            '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),channels,1); ' ]; %modified for eegrej2
+            '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),variables,1); ' ]; %modified for eegrej2
     else
         com1 = [ com1 ...
-            '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),channels,2); ' ]; %modified for eegrej2
+            '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),variables,2); ' ]; %modified for eegrej2
     end;
     com1 = [ com1 ...
         '  if ~isempty(LASTCOM1),' ...
@@ -149,9 +149,9 @@ if reject
         'else LASTCOM1=''''; ' ...
         'end; ' ];
     if icacomp == 1
-        com3 = '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),channels,1); ' ; %modified for eegrej2
+        com3 = '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),variables,1); ' ; %modified for eegrej2
     else
-        com3 = '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),channels,2); ' ; %modified for eegrej2
+        com3 = '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),variables,2); ' ; %modified for eegrej2
     end;
     
     % Call from Darbeliai pop_nuoseklus_apdorojimas ?
@@ -177,13 +177,13 @@ if reject
         '     EEGTMP = eegh(strrep(LASTCOM2,''EEGTMP'',''EEG''), EEGTMP);' ...
         'end;' ...
         'if or(~isempty(LASTCOM1),~isempty(LASTCOM2))' ... 
-        '  [ALLEEG EEG CURRENTSET tmpcom] = pop_newset(ALLEEG, EEGTMP' newset_param ');' ... %CHANGE TO CHANGE SAVED DATA
-        '  if ~isempty(tmpcom),' ...
-        '     eegh(tmpcom); ' ...
-        '     eeglab(''redraw''); ' ...
-        '  end; ' ...
+        '  EEG = EEGTMP;ALLEEG = ALLEEG;'...%CHANGE TO CHANGE SAVED DATA%'  [ALLEEG EEG CURRENTSET tmpcom] = pop_newset(ALLEEG, EEGTMP' newset_param ');' ... 
+        ''...%'  if ~isempty(tmpcom),' ...
+        ''...%'     eegh(tmpcom); ' ...
+        ''...%'     eeglab(''redraw''); ' ...
+        ''...%'  end; ' ...
         'end; ' ...
-        'clear EEGTMP tmpcom TMPREJ TMPREJCHN LASTCOM1 LASTCOM2;' ];
+        'clear EEGTMP TMPREJ TMPREJCHN LASTCOM1 LASTCOM2;eeglab redraw;' ];
 end;
 
 % if EEG.trials > 1
@@ -365,17 +365,15 @@ if epoc == 1
         eegplot_w2( tmpdata, 'srate', EEG.srate, 'title', [ 'Scroll component activities -- eegplot_w(): ' EEG.setname], ...
             'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
     end;
-else
-
-if icacomp == 1
-	eegplot_w2( EEG.data(:,:), 'srate', EEG.srate, 'title', [ 'Scroll channel activities -- eegplot_w(): ' EEG.setname], ...
-			  'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
-else
-    tmpdata = eeg_getdatact(EEG, 'component', [1:size(EEG.icaweights,1)]);
-	eegplot_w2( tmpdata(:,:), 'srate', EEG.srate, 'title', [ 'Scroll component activities -- eegplot_w(): ' EEG.setname], ...
-			 'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
-end;
-
+elseif epoc == 2
+    if icacomp == 1
+        eegplot_w2( EEG.data(:,:), 'srate', EEG.srate, 'title', [ 'Scroll channel activities -- eegplot_w(): ' EEG.setname], ...
+            'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
+    else
+        tmpdata = eeg_getdatact(EEG, 'component', [1:size(EEG.icaweights,1)]);
+        eegplot_w2( tmpdata(:,:), 'srate', EEG.srate, 'title', [ 'Scroll component activities -- eegplot_w(): ' EEG.setname], ...
+            'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
+    end;
 end
 com = [ com sprintf('pop_eegplot_w2( %s, %d, %d, %d);', inputname(1), icacomp, superpose, reject) ];
 return;
