@@ -137,10 +137,10 @@ if reject
         'if ~isempty(TMPREJCHN); '];
     if icacomp == 1
         com1 = [ com1 ...
-            '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),variables,1); ' ]; %modified for eegrej2
+            '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),1); ' ]; %modified for eegrej2
     else
         com1 = [ com1 ...
-            '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),variables,2); ' ]; %modified for eegrej2
+            '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),2); ' ]; %modified for eegrej2
     end;
     com1 = [ com1 ...
         '  if ~isempty(LASTCOM1),' ...
@@ -149,9 +149,9 @@ if reject
         'else LASTCOM1=''''; ' ...
         'end; ' ];
     if icacomp == 1
-        com3 = '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),variables,1); ' ; %modified for eegrej2
+        com3 = '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),1); ' ; %modified for eegrej2
     else
-        com3 = '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),variables,2); ' ; %modified for eegrej2
+        com3 = '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),2); ' ; %modified for eegrej2
     end;
     
     % Call from Darbeliai pop_nuoseklus_apdorojimas ?

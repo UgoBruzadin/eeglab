@@ -76,12 +76,16 @@ for i=6:2:50
 uimenu( pcamenu, 'label', strcat('Quick PCA ',num2str(i)), 'callback', ...
     ['EEG = pop_fastPCA(EEG,' num2str(i) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 end
-secondpcamenu = uimenu (pcamenu, 'label', 'MORE CUDAICA');
+secondpcamenu = uimenu (pcamenu, 'label', 'MORE PCAs');
         for g=51:128
             uimenu( secondpcamenu, 'label', strcat('Quick PCA ',num2str(g)), 'callback', ...
                 ['EEG = pop_fastPCA(EEG,' num2str(g) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
         end
-
+thirdpcamenu = uimenu (secondpcamenu, 'label', 'MORE PCAs');
+for i=3:2:50
+uimenu( pcamenu, 'label', strcat('Quick PCA ',num2str(i)), 'callback', ...
+    ['EEG = pop_fastPCA(EEG,' num2str(i) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+end
 try
     if gpuDeviceCount
         cudamenu = uimenu (supermenu, 'label', 'Quick CUDAICA');

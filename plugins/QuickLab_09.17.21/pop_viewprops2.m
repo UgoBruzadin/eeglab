@@ -277,7 +277,6 @@ toc
 % -------------
 cancel  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'Cancel', 'Units','Normalized','Position',[-10 -10 15 6].*s+q, 'callback', 'close(gcf);');
 
-
 % CLEAR button
 % -------------
 commandClear = ['EEG.reject.gcompreject = zeros(1,size(EEG.icawinv,2));close gcf;EEG = pop_fastIClabel(EEG);'];
