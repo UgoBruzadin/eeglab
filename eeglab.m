@@ -1299,21 +1299,18 @@ set(H_MAIN(1), 'unit', 'normalized');
  savecommand = ['[EEG] = pop_saveset(EEG, ''filename'', [strcat( EEG.filename(1:end-4),get(findobj(''tag'',''SAVETEXT''),''string''),''.set'')],''filepath'',EEG.filepath);'...
      '[ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET); eeglab redraw']; %save set ADDED BY UGO
 
-
-
 % 
 % get file directory
 % get file name
 % attach acronym
 % save.
-files = dir('');
-loaddircommand = ['findex = find(strcmp({files.name}, EEG.filename)==1);filecount = findex; cd(EEG.filepath); files = dir(''*.set'');'];
+
+loaddircommand = ['fprintf(''loadir'');findex = [1];cd(EEG.filepath);filecount = [1];files = dir(''.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');'];
 % load directory
 
-filecount = [1];
-loadprecommand = ['if filecount > 1, filecount = filecount - 1, EEG = pop_loadset( files(filecount).name, pwd); eeglab redraw, end;'];
-loadpostcommand = ['if filecount < length(files), filecount = filecount + 1, EEG = pop_loadset( files(filecount).name, pwd); eeglab redraw, end;'];
-redrawcommand = ['eeglab redraw;'];
+loadprecommand = ['fprintf(''loadpre'');findex = find(strcmp({files.name}, EEG.filename));if findex > 1, findex = findex - 1, EEG = pop_loadset( files(findex).name, pwd); eeglab redraw, end;'];
+loadpostcommand = ['fprintf(''loadpost'');findex = find(strcmp({files.name}, EEG.filename));if findex < length(files), findex = findex + 1, EEG = pop_loadset( files(findex).name, pwd); eeglab redraw, end;'];
+redrawcommand = ['fprintf(''redraw'');eeglab redraw;'];
 
 geometry = { [1] [1] [1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1 1 1 1 1 1 1] [1] };
 listui = { { 'style', 'text', 'string', 'Parameters of the current set', 'tag', 'win0' } { } ...
