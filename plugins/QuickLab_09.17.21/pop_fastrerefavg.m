@@ -1,8 +1,8 @@
-function EEG = pop_fastrerefavg(EEG)
+function [EEG,com] = pop_fastrerefavg(EEG)
 if isempty(EEG.data)
-    EEG = pop_loadset();
+    [EEG,com] = pop_loadset();
     eeglab redraw
 end
-EEG = pop_reref( EEG, [],'keepref','on');
+[EEG,com] = pop_reref( EEG, [],'keepref','on');
 
 end

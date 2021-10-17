@@ -18,7 +18,7 @@ if nargin < 3
 end
 
 if nargin < 4
-    format2 = '*.set';
+    format2 = format1;
 end
 
 %--- collect directory
@@ -29,15 +29,15 @@ postfiles = dir(format2);
 cd(folder1);
 %---start comparing the files
 if ~isempty(postfiles)
-%postnames = strcat(postfiles{:});
-postnames = cat(2,postfiles.name);
-todofiles = dir('');
-
-for j=1:length(prefiles)
-    if ~contains(postnames,prefiles(j).name(1:16))
-        todofiles = cat(1,todofiles,dir(prefiles(j).name));
+    %postnames = strcat(postfiles{:});
+    postnames = cat(2,postfiles.name);
+    todofiles = dir('');
+    
+    for j=1:length(prefiles)
+        if ~contains(postnames,prefiles(j).name(1:16))
+            todofiles = cat(1,todofiles,dir(prefiles(j).name));
+        end
     end
-end
 else
    todofiles = prefiles;
 end

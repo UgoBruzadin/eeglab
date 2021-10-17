@@ -1,6 +1,6 @@
-function EEG = pop_fastPCA(EEG,IC)
+function [EEG,com] = pop_fastPCA(EEG,IC)
 if isempty(EEG.data)
-    EEG = pop_loadset();
+    [EEG,com] = pop_loadset();
     eeglab redraw
 end
 
@@ -11,17 +11,17 @@ if nargin < 2
         IC = size(EEG.icawinv,2);
         IC = IC - size(mybadcomps,2);            %stores the number to be the next components analysis
         fprintf('Rejecting selected components... \r');
-        EEG = pop_subcomp(EEG, mybadcomps, 0);       % actually removes the flagged components
+        [EEG,com] = pop_subcomp(EEG, mybadcomps, 0);       % actually removes the flagged components
     end
-    EEG = pop_par_runica(EEG,'extended', 1,'icatype','binica', 'verbose','off');
+    [EEG,com] = pop_par_runica(EEG,'extended', 1,'icatype','binica', 'verbose','off');
 else
     if ~isempty(mybadcomps)
         fprintf('Rejecting selected components... \r');
-        EEG = pop_subcomp(EEG, mybadcomps, 0);       % actually removes the flagged components
+        [EEG,com] = pop_subcomp(EEG, mybadcomps, 0);       % actually removes the flagged components
     end
-    EEG = pop_par_runica(EEG,'extended', 1,'icatype','binica','pca',IC, 'verbose','off');
+    [EEG,com] = pop_par_runica(EEG,'extended', 1,'icatype','binica','pca',IC, 'verbose','off');
 end
 
-EEG = pop_fastIClabel(EEG);
+[EEG,com] = pop_fastIClabel(EEG);
 
 end
