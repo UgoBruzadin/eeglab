@@ -9,15 +9,11 @@ if maxWindow > 2048
     maxWindow = 2048;
 end
 
-if nargin < 3 && isfield(EEG,'low')
-    low = EEG.low;
-else
+if nargin < 3 
     low = 2;
 end
 
-if nargin < 2 && isfield(EEG,'high')
-    high = EEG.high;
-else
+if nargin < 2
     high = 55;
 end
 
