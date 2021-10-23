@@ -1,14 +1,7 @@
-function [EEG,com] = quick_FFT(EEG,low,high)
+function quick_FFT(EEG,low,high)
 
 if nargin < 3
-    high = 40;
-end
-
-if nargin < 3
-    low = 2;
-end
-
-com = strcat('quick_FFT(EEG,',char(low),char(high)');
+    
 
 maxWindow = 2^floor(log2(EEG.pnts));
 if maxWindow > 2048

@@ -249,6 +249,13 @@ end
 
 % set file name and path
 % ----------------------
+
+if strlength(EEG.filename)> 12
+    EEG.setname = strcat(EEG.filename(1:12),'...',EEG.filename(end-10:end-4));
+else
+    EEG.setname = EEG.filename(1:end);
+end
+
 if length(EEG) == 1
     tmpfilename = g.filename{1};
     if isempty(g.filepath)

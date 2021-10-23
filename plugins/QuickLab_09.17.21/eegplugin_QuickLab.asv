@@ -120,10 +120,6 @@ end
 uimenu (supermenu, 'label', 'Quick BSS', 'callback', ...
     ['[EEG,com] = quick_bss(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
-uimenu (supermenu, 'label', 'Quick BSS full window', 'callback', ...
-    ['[EEG,com] = quick_bss(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
-
-
 % --- third submenu: Quick channel edits
 channelmenu = uimenu (supermenu, 'label', 'Quick Channel Edit');
 

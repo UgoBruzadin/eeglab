@@ -198,10 +198,10 @@
 %    4 - maxfreq    % empty [] if no gfrequency content
 % 'buttons hold other informations' Eposition for instance hold the current postition
 
-function [outvar1,myVariables] = eegplot_w(data, varargin); % p1,p2,p3,p4,p5,p6,p7,p8,p9)
+function [outvar1,EEG] = eegplot_w(data, varargin); % p1,p2,p3,p4,p5,p6,p7,p8,p9)
 
 % Defaults (can be re-defined):
-myVariables = {};
+EEG.myVariables = {};
 DEFAULT_PLOT_COLOR = { [0 0 1], [0.7 0.7 0.7]};         % EEG line color
 try
     icadefs;
@@ -531,14 +531,12 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   posbut(27,:) = [ 0.92    0.33    0.080    0.03 ]; % Deletion/interpolation tag UGO
   posbut(28,:) = [ 0.92    0.30    0.080    0.03 ]; % Deletion/interpolation UGO
 % Channel Rejection button (UGO)
-if exist(myVariables)
-    clear global myVariables
-end
-myVariables{2} = 0;
-global clear myVariables = {};
-chaninterp = ['myVariables{1} = get(findobj(gcf, ''Tag'', ''Channel''),''string'')'];
-plotdiffcom = ['myVariables{2} = get(findobj(gcf, ''Tag'', ''datadiff''),''Value'')'];
-chaninterp2 = ['myVariables{3} = get(findobj(gcf, ''Tag'', ''Removal''),''string'')'];
+
+EEG.myVariables{2} = 0;
+
+chaninterp = ['EEG.myVariables{1} = get(findobj(gcf, ''Tag'', ''Channel''),''string'')'];
+plotdiffcom = ['EEG.myVariables{2} = get(findobj(gcf, ''Tag'', ''datadiff''),''Value'')'];
+chaninterp2 = ['EEG.myVariables{3} = get(findobj(gcf, ''Tag'', ''Removal''),''string'')'];
 
   u(27) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...

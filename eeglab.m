@@ -1315,8 +1315,9 @@ loadpostcommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex 
 % filelist
 loadfilecommand = ['EEG = pop_loadset( files(get(findobj(''tag'',''LoadFileList''),''value'')).name, pwd);eeglab redraw;'];
 
-geometry = { [1] [1] [1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1 1 1 0.3 0.3 1 2] [1] };
+geometry = { [1] [1] [1] [1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1 1 1 0.3 0.3 3 1] [1] };
 listui = { { 'style', 'text', 'string', 'Parameters of the current set', 'tag', 'win0' } { } ...
+           { 'style', 'text', 'tag', 'PATH', 'string', ' ', 'userdata', 'datinfo' } ...
            { 'style', 'text', 'tag', 'win1', 'string', ' ', 'userdata', 'datinfo' } ...
            { 'style', 'text', 'tag', 'win2', 'string', 'Channels per frame', 'userdata', 'datinfo'} ...
            { 'style', 'text', 'tag', 'val2', 'string', ' ', 'userdata', 'datinfo' } ...
@@ -1832,8 +1833,18 @@ elseif (exist('EEG') == 1) && ~isnumeric(EEG) && ~isempty(EEG(1).data)
         else
             set( g.win0, 'String', [strsetnum '(no dataset name)' ] );
         end
-
-        fullfilename = fullfile(EEG.filepath, EEG.filename);
+        
+        fullpathname = EEG.filepath;
+        if ~isempty(fullpathname)
+            if length(fullpathname) > 100 %changed 26 to 100 CHANGED BY UGO
+                set( g.PATH, 'String', sprintf('Filepath: ...%s\n', fullpathname(max(1,length(fullpathname)-100):end) )); %changed 26 to 100 CHANGED BY UGO
+            else
+                set( g.PATH, 'String', sprintf('Filepath: %s\n', fullpathname));
+            end        	
+        else
+            set( g.PATH, 'String', sprintf('Filepath: none\n'));
+        end
+        fullfilename = fullfile(EEG.filename);
         if ~isempty(fullfilename)
             if length(fullfilename) > 100 %changed 26 to 100 CHANGED BY UGO
                 set( g.win1, 'String', sprintf('Filename: ...%s\n', fullfilename(max(1,length(fullfilename)-100):end) )); %changed 26 to 100 CHANGED BY UGO

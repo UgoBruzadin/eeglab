@@ -1,9 +1,13 @@
-function [newfiles,folderPOST] = quick_Batch(Commands,Save,files,filesFolder,createfolders,acronym) %magic function, runs the code asked!
+function [newfiles,folderPOST] = quick_Batch2(Commands,Save,files,folder,createfolders,acronym,counter) %magic function, runs the code asked!
 
 if ischar(Commands)
     Commands = {Commands};
 end
-if nargin < 6
+
+if nargin < 7
+    counter = 1;
+end
+if nargin < 6 || isempty(acronym)
     acronym = char(Commands(1));
 end
 
@@ -12,11 +16,11 @@ if nargin < 5
 end
 
 if nargin < 4
-    filesFolder = pwd;
+    folder = pwd;
     folderPRE = pwd;
     folderPOST = pwd;
 end
-if nargin < 3
+if nargin < 3 || isempty(files)
     files = dir('*.set');
 end
 if nargin < 2
@@ -31,7 +35,7 @@ if createfolders == 1
     % --- makes a name for the function
     %fname = strcat(mfilename,'.'); %get the name of this function for future use, adds a dot to it
     % --- moves to the last path where files were
-    cd(filesFolder);
+    cd(folder);
     % --- starts a timer; to be added to approximate time to finish
     %tic;
     % --- creates folder name
@@ -42,7 +46,7 @@ if createfolders == 1
     %folderList = dir();
     %if NEWFOLDER
     folderNameDate = strcat(char(Commands(1)),'-',char(t)); %makes folder full name
-    [files, folderPRE, folderPOST] = createfolders(folder,filesFolder,folderNameDate); %creates a folder for the pipeline
+    [files, folderPRE, folderPOST] = createfolders(folder,folder,folderNameDate,counter); %creates a folder for the pipeline
     %else
 end
 %end
@@ -79,7 +83,11 @@ for i=1:length(files)
 end
 save('done.txt');
 %send_ugoslabgmail_alert('One Process Done',folderName)
-newfiles = dir(strcat('*',acronym,'.set'));
+if Save == 1
+    newfiles = dir(strcat('*',acronym,'.set'));
+else
+    newfiles = files;
+end
 
 end
 
