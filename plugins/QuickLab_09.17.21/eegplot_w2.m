@@ -2613,13 +2613,13 @@ else
 end;
 % if valid, gets temporary TIME value within the displayed eeg window 
 if point_is_valid
-    if g.trialstag ~= -1
-        tmpval = mod(tmppos(1)+lowlim-1,g.trialstag)/g.trialstag*(g.limits(2)-g.limits(1)) + g.limits(1);
-        if g.isfreq, tmpval = tmpval/1000 + g.freqs(1); end
-    else
+    %if g.trialstag ~= -1
+    %    tmpval = mod(tmppos(1)+lowlim-1,g.trialstag)/g.trialstag*(g.limits(2)-g.limits(1)) + g.limits(1);
+    %    if g.isfreq, tmpval = tmpval/1000 + g.freqs(1); end
+    %else
         tmpval = (tmppos(1)+lowlim-1);%/g.srate; %COMMENTED THIS OUT
         if g.isfreq, tmpval = tmpval+g.freqs(1); end
-    end;
+    %end;
     %set(hh, 'string', num2str(tmpval)); % put g.time in the box
 else
     %set(hh, 'string', ' ');
