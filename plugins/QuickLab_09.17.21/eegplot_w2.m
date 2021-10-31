@@ -2147,7 +2147,8 @@ if g.trialstag(1) ~= -1
     end
     tagtext = eeg_point2lat(tagpos, floor((tagpos)/g.trialstag)+1, g.srate, tmplimit,tpmorder);
     set(ax1,'XTickLabel', tagtext,'XTick', tagpos-lowlim);
-else
+%if g.trialstag(1) == -1
+    else
     DEFAULT_GRID_SPACING = 10^ceil(log10(g.winlength)-1);
     if g.winlength / DEFAULT_GRID_SPACING < 2
         DEFAULT_GRID_SPACING = DEFAULT_GRID_SPACING / 2;

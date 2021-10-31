@@ -54,7 +54,7 @@ if nargin < 3
 end
 
 if ~isfield(EEG,'myVariables')
-    EEG.myVariables = {0 0 0 0};
+    EEG.myVariables = {0 0 '' 0};
 end
 if size(EEG.myVariables,2) > 1
     plotdiff = EEG.myVariables{2};
@@ -69,7 +69,7 @@ else
     chancompRemov = '';
 end
 if size(EEG.myVariables,2) > 3
-    useText = EEG.myVariables{3};
+    useText = EEG.myVariables{4};
 else
     useText = 0;
 end
@@ -241,7 +241,7 @@ if ~isempty(channelsOrComponents)
 end
 EEGmod2 = EEGmod;
 
-if ~isempty(chancompRemov) && chancompRemov
+if ~isempty(chancompRemov)
     if isstring(chancompRemov)
         chancompRemov = str2num(chancompRemov);
     end
