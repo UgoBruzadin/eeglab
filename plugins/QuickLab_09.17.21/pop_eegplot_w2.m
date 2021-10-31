@@ -137,10 +137,10 @@ if reject
         'if ~isempty(TMPREJCHN); '];
     if icacomp == 1
         com1 = [ com1 ...
-            '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),1); ' ]; %modified for eegrej2
+            '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,TMPREJ,1,TMPREJCHN); ' ]; %modified for eegrej2
     else
         com1 = [ com1 ...
-            '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),2); ' ]; %modified for eegrej2
+            '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,TMPREJ,2,TMPREJCHN); ' ]; %modified for eegrej2
     end;
     com1 = [ com1 ...
         '  if ~isempty(LASTCOM1),' ...
@@ -149,29 +149,29 @@ if reject
         'else LASTCOM1=''''; ' ...
         'end; ' ];
     if icacomp == 1
-        com3 = '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),1); ' ; %modified for eegrej2
+        com3 = '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,TMPREJ,1,0); ' ; %modified for eegrej2
     else
-        com3 = '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,eegplot2event(TMPREJ, -1),2); ' ; %modified for eegrej2
+        com3 = '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,TMPREJ,2,0); ' ; %modified for eegrej2
     end;
     
     % Call from Darbeliai pop_nuoseklus_apdorojimas ?
-    CallFromDarbeliai=0;
-    figDarb=findobj('name', 'pop_nuoseklus_apdorojimas', 'Type','figure','Tag','Darbeliai');
-    if ~isempty(figDarb)
-        DarbObj1=findobj(figDarb,'tag','pushbutton1');
-        DarbObj2=findobj(figDarb,'tag','checkbox_baigti_anksciau');
-        if ~isempty(DarbObj1) && ~isempty(DarbObj2)
-            if and(strcmpi(get(DarbObj1,'Enable'),'off'), strcmpi(get(DarbObj2,'Visible'),'on'))
-                CallFromDarbeliai=1;
-            end;
-        end;
-    end;
-    if CallFromDarbeliai
-        newset_param=', 0, ''setname'', EEGTMP.setname'; % don't ask for saving
-    else
-        newset_param=', CURRENTSET'; % ask for saving
-    end;
-    
+%     CallFromDarbeliai=0;
+%     figDarb=findobj('name', 'pop_nuoseklus_apdorojimas', 'Type','figure','Tag','Darbeliai');
+%     if ~isempty(figDarb)
+%         DarbObj1=findobj(figDarb,'tag','pushbutton1');
+%         DarbObj2=findobj(figDarb,'tag','checkbox_baigti_anksciau');
+%         if ~isempty(DarbObj1) && ~isempty(DarbObj2)
+%             if and(strcmpi(get(DarbObj1,'Enable'),'off'), strcmpi(get(DarbObj2,'Visible'),'on'))
+%                 CallFromDarbeliai=1;
+%             end;
+%         end;
+%     end;
+%     if CallFromDarbeliai
+%         newset_param=', 0, ''setname'', EEGTMP.setname'; % don't ask for saving
+%     else
+%         newset_param=', CURRENTSET'; % ask for saving
+%     end;
+%     
     com4 = [ ...
         'if ~isempty(LASTCOM2),' ...
         '     EEGTMP = eegh(strrep(LASTCOM2,''EEGTMP'',''EEG''), EEGTMP);' ...

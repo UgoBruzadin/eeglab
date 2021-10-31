@@ -1,4 +1,4 @@
-% eegplot_w2() - Scroll (horizontally and/or vertically) through multichannel data.
+% eegplot_w() - Scroll (horizontally and/or vertically) through multichannel data.
 %             Allows vertical scrolling through channels and manual marking 
 %             and unmarking of data stretches or epochs for rejection.
 %    Almost identical to pop_eegplot(), but allow scroll with mouse wheel, 
@@ -6,9 +6,9 @@
 %    looks better in wide-screen monitor and draw EEG data faster.
 %
 % Usage: 
-%           >> eegplot_w2(data, 'key1', value1 ...); % use interface buttons, etc.
+%           >> eegplot_w(data, 'key1', value1 ...); % use interface buttons, etc.
 %      else
-%           >> eegplot_w2('noui', data, 'key1', value1 ...); % no user interface;
+%           >> eegplot_w('noui', data, 'key1', value1 ...); % no user interface;
 %                                                         % use for plotting
 % Menu items:
 %    "Figure > print" - [menu] Print figure in portrait or landscape.
@@ -140,9 +140,9 @@
 %    'events'     - [struct] EEGLAB event structure (EEG.event) to use to show events.
 %    'submean'    - ['on'|'off'] Remove channel means in each window {default: 'on'}
 %    'position'   - [lowleft_x lowleft_y width height] Position of the figure in pixels.
-%    'tag'        - [string] Matlab object tag to identify this eegplot_w2() window (allows 
-%                    keeping track of several simultaneous eegplot_w2() windows). 
-%    'children'   - [integer] Figure handle of a *dependent* eegplot_w2() window. Scrolling
+%    'tag'        - [string] Matlab object tag to identify this eegplot_w() window (allows 
+%                    keeping track of several simultaneous eegplot_w() windows). 
+%    'children'   - [integer] Figure handle of a *dependent* eegplot_w() window. Scrolling
 %                    horizontally in the master window will produce the same scroll in 
 %                    the dependent window. Allows comparison of two concurrent datasets,
 %                    or of channel and component data from the same dataset.
@@ -198,7 +198,7 @@
 %    4 - maxfreq    % empty [] if no gfrequency content
 % 'buttons hold other informations' Eposition for instance hold the current postition
 
-function [outvar1,EEG] = eegplot_w2(data, varargin); % p1,p2,p3,p4,p5,p6,p7,p8,p9)
+function [outvar1,EEG] = eegplot_w(data, varargin); % p1,p2,p3,p4,p5,p6,p7,p8,p9)
 
 % Defaults (can be re-defined):
 EEG.myVariables = {};
@@ -225,7 +225,7 @@ SPACING_EYE = 'on';               % g.spacingI on/off
 ORIGINAL_POSITION = [50 50 800 500];
                                   
 if nargin < 1
-   help eegplot_w2
+   help eegplot_w
    return
 end
 				  
@@ -244,7 +244,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
        else g= [];
        end;
    catch
-       disp('eegplot_w2() error: calling convention {''key'', value, ... } error'); return;
+       disp('eegplot_w() error: calling convention {''key'', value, ... } error'); return;
    end;	
    
    % Selection of data range If spectrum plot  
@@ -266,10 +266,10 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
 
   % push button: create/remove window
   % ---------------------------------
-  defdowncom   = 'eegplot_w2(''defdowncom'',   gcbf);'; % push button: create/remove window
-  defmotioncom = 'eegplot_w2(''defmotioncom'', gcbf);'; % motion button: move windows or display current position
-  defupcom     = 'eegplot_w2(''defupcom'',     gcbf);';
-  defctrldowncom = 'eegplot_w2(''topoplot'',   gcbf);'; % CTRL press and motion -> do nothing by default
+  defdowncom   = 'eegplot_w(''defdowncom'',   gcbf);'; % push button: create/remove window
+  defmotioncom = 'eegplot_w(''defmotioncom'', gcbf);'; % motion button: move windows or display current position
+  defupcom     = 'eegplot_w(''defupcom'',     gcbf);';
+  defctrldowncom = 'eegplot_w(''topoplot'',   gcbf);'; % CTRL press and motion -> do nothing by default
   defctrlmotioncom = ''; % CTRL press and motion -> do nothing by default
   defctrlupcom = ''; % CTRL press and up -> do nothing by default
 		 
@@ -279,12 +279,12 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    try, g.winlength; 		catch, g.winlength	= 10; 	end; % Number of seconds of EEG displayed
    try, g.fullscreen; 	    catch, g.fullscreen = 'on';	end;
    try, g.position; 	    catch, g.position	= ORIGINAL_POSITION; g.fullscreen = 'on';	end;
-   try, g.title; 		    catch, g.title		= ['Scroll activity -- eegplot_w2()']; 	end;
+   try, g.title; 		    catch, g.title		= ['Scroll activity -- eegplot_w()']; 	end;
    try, g.plottitle; 		catch, g.plottitle	= ''; 	end;
    try, g.trialstag; 		catch, g.trialstag	= -1; 	end;
    try, g.winrej; 			catch, g.winrej		= []; 	end;
    try, g.command; 			catch, g.command	= ''; 	end;
-   try, g.tag; 				catch, g.tag		= 'eegplot_w2'; end;
+   try, g.tag; 				catch, g.tag		= 'eegplot_w'; end;
    try, g.xgrid;		    catch, g.xgrid		= 'off'; end;
    try, g.ygrid;		    catch, g.ygrid		= 'off'; end;
    try, g.color;		    catch, g.color		= 'off'; end;
@@ -329,7 +329,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
                'freqs' 'freqlimits' 'submean' 'children' 'limits' 'dispchans' 'wincolor' ...
                'maxeventstring' 'ploteventdur' 'butlabel' 'scale' 'events' 'data2' 'plotdata2' ...
                'mocap' 'selectcommand' 'ctrlselectcommand' 'datastd' 'normed' 'envelope' 'isfreq'}
-      otherwise, error(['eegplot_w2: unrecognized option: ''' gfields{index} '''' ]);
+      otherwise, error(['eegplot_w: unrecognized option: ''' gfields{index} '''' ]);
       end;
    end;
 
@@ -496,7 +496,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
       if isstruct(g.eloc_file) && length(g.eloc_file) > size(data,1)
           g.eloc_file(end) = []; % common reference channel location
       end;
-      eegplot_w2('setelect', g.eloc_file, ax1);
+      eegplot_w('setelect', g.eloc_file, ax1);
   end;
   
   % %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -504,76 +504,39 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   % %%%%%%%%%%%%%%%%%%%%%%%%%
 
 % positions of buttons
-  posbut(22,:) = [ 0.92    0.94    0.080    0.03 ]; % stack channels(same offset)  
+  posbut(1,:) =  [ 0.92    0.49    0.020    0.03 ]; % <<
+  posbut(2,:) =  [ 0.94    0.49    0.020    0.03 ]; % <
+  posbut(3,:) =  [ 0.96    0.49    0.020    0.03 ]; % >
+  posbut(4,:) =  [ 0.98    0.49    0.020    0.03 ]; % >>
+  posbut(5,:) =  [ 0.92    0.52    0.080    0.03 ]; % Eposition
+  posbut(6,:) =  [ 0.92    0.41    0.080    0.03 ]; % Espacing/scale
+  posbut(7,:) =  [ 0.92    0.70    0.080    0.03 ]; % elec
+  posbut(8,:) =  [ 0.92    0.55    0.080    0.03 ]; % g.time
+  posbut(9,:) =  [ 0.92    0.63    0.080    0.03 ]; % value
+  posbut(14,:) = [ 0.92    0.73    0.080    0.03 ]; % elec tag
+  posbut(15,:) = [ 0.92    0.58    0.080    0.03 ]; % g.time tag
+  posbut(16,:) = [ 0.92    0.66    0.080    0.03 ]; % value tag
+  posbut(10,:) = [ 0.96    0.38    0.020    0.03 ]; % +
+  posbut(11,:) = [ 0.94    0.38    0.020    0.03 ]; % -
+  posbut(12,:) = [ 0.92    0.03    0.080    0.05 ]; % accept/close
+  posbut(13,:) = [ 0.92    0.15    0.080    0.03 ]; % cancel/close
+  posbut(17,:) = [ 0.92    0.82    0.080    0.03 ]; % events types
+  posbut(20,:) = [ 0.005   0.02    0.010    0.96 ]; % slider
   posbut(21,:) = [ 0.92    0.90    0.080    0.03 ]; % normalize
-  posbut(17,:) = [ 0.92    0.86    0.080    0.03 ]; % events types
-  
-  posbut(14,:) = [ 0.92    0.82    0.080    0.03 ]; % elec tag
-  posbut(7,:) =  [ 0.92    0.79    0.080    0.03 ]; % elec
-  
-  posbut(16,:) = [ 0.92    0.76    0.080    0.03 ]; % value tag
-  posbut(9,:) =  [ 0.92    0.73    0.080    0.03 ]; % value
-  
-  posbut(15,:) = [ 0.92    0.70    0.080    0.03 ]; % g.time tag
-  posbut(8,:) =  [ 0.92    0.67    0.080    0.03 ]; % g.time   
-  
-  posbut(5,:) =  [ 0.92    0.62    0.080    0.03 ]; % Eposition .52
-  posbut(1,:) =  [ 0.92    0.59    0.020    0.03 ]; % <<  
-  posbut(2,:) =  [ 0.94    0.59    0.020    0.03 ]; % <  
-  posbut(3,:) =  [ 0.96    0.59    0.020    0.03 ]; % >
-  posbut(4,:) =  [ 0.98    0.59    0.020    0.03 ]; % >>  
-  posbut(23,:) = [ 0.92    0.54    0.080    0.03 ]; % Espacing/scale tag
-  posbut(6,:) =  [ 0.92    0.51    0.080    0.03 ]; % Espacing/scale  
-  posbut(10,:) = [ 0.96    0.48    0.020    0.03 ]; % +  
-  posbut(11,:) = [ 0.94    0.48    0.020    0.03 ]; % -  
-  
-  posbut(20,:) = [ 0.005   0.02    0.010    0.96 ]; % slider  
-  
-  posbut(29,:) = [ 0.92    0.43    0.080    0.03 ]; % COUNTING Selections
-  posbut(30,:) = [ 0.92    0.40    0.080    0.03 ]; % COUNTING Tag 
-  
-  posbut(26,:) = [ 0.94    0.29    0.080    0.03 ]; % Plot data difference UGO
-  posbut(31,:) = [ 0.94    0.32    0.080    0.03 ]; % Plot remove using text UGO
-  
-  posbut(27,:) = [ 0.92    0.26    0.080    0.03 ]; % Deletion/interpolation tag UGO
-  posbut(28,:) = [ 0.92    0.23    0.080    0.03 ]; % Deletion/interpolation UGO
-  posbut(24,:) = [ 0.92    0.20    0.080    0.03 ]; % Channel Rejection tag UGO
-  posbut(25,:) = [ 0.92    0.17    0.080    0.03 ]; % Channel Rejection UGO
+  posbut(22,:) = [ 0.92    0.94    0.080    0.03 ]; % stack channels(same offset)
+  posbut(23,:) = [ 0.92    0.44    0.080    0.03 ]; % Espacing/scale tag
+  posbut(24,:) = [ 0.92    0.23    0.080    0.03 ]; % Channel Rejection tag UGO
+  posbut(25,:) = [ 0.92    0.20    0.080    0.03 ]; % Channel Rejection UGO
+  posbut(26,:) = [ 0.92    0.26    0.080    0.03 ]; % Plot data difference UGO
+  posbut(27,:) = [ 0.92    0.33    0.080    0.03 ]; % Deletion/interpolation tag UGO
+  posbut(28,:) = [ 0.92    0.30    0.080    0.03 ]; % Deletion/interpolation UGO
+% Channel Rejection button (UGO)
 
-  posbut(13,:) = [ 0.92    0.09    0.080    0.03 ]; % cancel/close
-  posbut(12,:) = [ 0.92    0.03    0.080    0.05 ]; % accept/close  
-    
-% Channel Rejection buttons (UGO)
-EEG.myVariables{1} = 0;
 EEG.myVariables{2} = 0;
-EEG.myVariables{3} = 0;
-EEG.myVariables{4} = 0;
-% Channel rejection callbacks
-% get channels for partial interpolation
-chaninterp = ['EEG.myVariables{1} = get(findobj(gcf, ''Tag'', ''Channel''),''string'')']; 
-% select plot difference
+
+chaninterp = ['EEG.myVariables{1} = get(findobj(gcf, ''Tag'', ''Channel''),''string'')'];
 plotdiffcom = ['EEG.myVariables{2} = get(findobj(gcf, ''Tag'', ''datadiff''),''Value'')'];
-% get channels for complete interpolation
 chaninterp2 = ['EEG.myVariables{3} = get(findobj(gcf, ''Tag'', ''Removal''),''string'')'];
-% select text or mouse clicks
-gettextcom = ['EEG.myVariables{4} = get(findobj(gcf, ''Tag'', ''UseText''),''Value'')'];
-
-  u(29) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_FIG_COLOR, ...
-	'Position', posbut(29,:), ...
-	'Style','text', ...
-    'FontSize',8,...
-	'Tag','CountTag',...
-	'string','Number of Marked Areas');
-
-  u(30) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_FIG_COLOR, ...
-	'Position', posbut(30,:), ...
-	'Style','text', ...
-	'Tag','Count',...
-	'string','');
 
   u(27) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -591,7 +554,7 @@ u(28)= uicontrol('Parent',figh, ...
 	'Style','text', ...
 	'FontSize',8,...
 	'Tag','thechannel',...
-	'string','COMPLETE interp, use ; or ,');
+	'string','COMPLETE chans/comp(s) to interp/remove');
 
   u(25) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -609,7 +572,7 @@ u(24)= uicontrol('Parent',figh, ...
 	'Style','text', ...
 	'FontSize',8,...
 	'Tag','thechannel',...
-	'string','PARTIAL interp, use with ; or ,');
+	'string','PARTIAL chans/comp(s) to interpolate');
   
 u(26)= uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -620,16 +583,6 @@ u(26)= uicontrol('Parent',figh, ...
 	'Tag','datadiff',...
 	'string','plot Data Difference',...
     'Callback', plotdiffcom );
-
-u(31)= uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_FIG_COLOR, ...
-	'Position', posbut(31,:), ...
-	'Style','checkbox', ...
-	'FontSize',8,...
-	'Tag','UseText',...
-	'string','Use Text not Click',...
-    'Callback', gettextcom );
 
 % Five move buttons: << < text > >> 
 
@@ -788,7 +741,7 @@ cb_envelope = ['g = get(gcbf,''userdata'');'...
     'set(gcbf,''userdata'',g);'...
     'set(gcbo,''string'',fastif(g.envelope,''Spread'',''Stack''));' ...
     'set(hmenu, ''Label'', fastif(g.envelope,''Spread channels'',''Stack channels''));' ...
-    'eegplot_w2(''drawp'',0);clear g;'];
+    'eegplot_w(''drawp'',0);clear g;'];
 
 % Button to plot envelope of data
 u(22) = uicontrol('Parent',figh, ...
@@ -800,8 +753,8 @@ u(22) = uicontrol('Parent',figh, ...
   if isempty(g.command) tmpcom = 'fprintf(''Rejections saved in variable TMPREJ\n'');';   
   else tmpcom = g.command;
   end;
-  acceptcommand = [ 'g = get(gcbf, ''userdata'');' ...               
-                    'TMPREJ = g.winrej;' ...
+  acceptcommand = [ 'g = get(gcbf, ''userdata'');' ... 
+				    'TMPREJ = g.winrej;' ...
                     'if isfield(g, ''eloc_file'') && isfield(g.eloc_file, ''badchan''); '...
                          'TMPREJCHN = find([g.eloc_file.badchan]); '...
                     'else TMPREJCHN = [];'...
@@ -829,7 +782,7 @@ u(22) = uicontrol('Parent',figh, ...
       u(17) = uicontrol('Parent',figh, ...
                         'Units', 'normalized', ...
                         'Position',posbut(17,:), ...
-                        'string', 'Events', 'callback', 'eegplot_w2(''drawlegend'', gcbf)');
+                        'string', 'Events', 'callback', 'eegplot_w(''drawlegend'', gcbf)');
   end;
 
   for i = 1: length(u) % Matlab 2014b compatibility
@@ -846,7 +799,7 @@ u(22) = uicontrol('Parent',figh, ...
 
   m(7) = uimenu('Parent',figh,'Label','Figure');
   m(8) = uimenu('Parent',m(7),'Label','Print');
-  uimenu('Parent',m(7),'Label','Edit figure', 'Callback', 'eegplot_w2(''noui'');');
+  uimenu('Parent',m(7),'Label','Edit figure', 'Callback', 'eegplot_w(''noui'');');
   uimenu('Parent',m(7),'Label','Accept and close', 'Callback', acceptcommand );
   uimenu('Parent',m(7),'Label','Cancel and close', 'Callback','delete(gcbf)')
   
@@ -904,7 +857,7 @@ u(22) = uicontrol('Parent',figh, ...
             'end;' ...
             'g.winstatus = ~g.winstatus;' ...
             'set(gcbf, ''userdata'', g);' ...
-            'eegplot_w2(''drawb''); clear g;'] )
+            'eegplot_w(''drawb''); clear g;'] )
 
 	% color %%%%%%%%%%%%%%%%%%%%%%%%%%
     if isunix % for some reasons, does not work under Windows
@@ -931,7 +884,7 @@ u(22) = uicontrol('Parent',figh, ...
               'end;' ...
               'g.ploteventdur = ~g.ploteventdur;' ...
               'set(gcbf, ''userdata'', g);' ...
-              'eegplot_w2(''drawb''); clear g;'] )
+              'eegplot_w(''drawb''); clear g;'] )
   end;
 
   % X grid %%%%%%%%%%%%
@@ -996,18 +949,18 @@ u(22) = uicontrol('Parent',figh, ...
               '  g.submean =''on'';' ...
               'end;' ...
               'set(gcbf, ''userdata'', g);' ...
-              'eegplot_w2(''drawp'', 0); clear g;'];
+              'eegplot_w(''drawp'', 0); clear g;'];
   uimenu('Parent',m(1),'Label',fastif(strcmp(g.submean, 'on'), ...
          'Do not remove DC offset','Remove DC offset'), 'Callback',cb)
 
   % Scale Eye %%%%%%%%%
   timestring = ['[OBJ1,FIG1] = gcbo;',...
-	        'eegplot_w2(''scaleeye'',OBJ1,FIG1);',...
+	        'eegplot_w(''scaleeye'',OBJ1,FIG1);',...
 		'clear OBJ1 FIG1;'];
   m(7) = uimenu('Parent',m(1),'Label','Show scale','Callback',timestring);
   
   % Title %%%%%%%%%%%%
-  uimenu('Parent',m(1),'Label','Title','Callback','eegplot_w2(''title'')')
+  uimenu('Parent',m(1),'Label','Title','Callback','eegplot_w(''title'')')
   
   % Stack/Spread %%%%%%%%%%%%%%%
   cb =       ['g = get(gcbf, ''userdata'');' ...
@@ -1022,7 +975,7 @@ u(22) = uicontrol('Parent',figh, ...
               '  set(hbutton, ''String'', ''Stack'');' ...
               'end;' ...
               'set(gcbf, ''userdata'', g);' ...
-              'eegplot_w2(''drawp'', 0); clear g;'];
+              'eegplot_w(''drawp'', 0); clear g;'];
   uimenu('Parent',m(1),'Label',fastif(g.envelope == 0, ...
          'Stack channels','Spread channels'), 'Callback',cb, 'Tag', 'Envelope_menu')
      
@@ -1037,11 +990,11 @@ u(22) = uicontrol('Parent',figh, ...
   
   % Window %%%%%%%%%%%%
   uimenu('Parent',m(2),'Label','Time range to display',...
-      'Callback','eegplot_w2(''window'')')
+      'Callback','eegplot_w(''window'')')
   
   % Electrode window %%%%%%%%
   uimenu('Parent',m(2),'Label','Number of channels to display',...
-      'Callback','eegplot_w2(''winelec'')')
+      'Callback','eegplot_w(''winelec'')')
   
   % Electrodes %%%%%%%%
   m(6) = uimenu('Parent',m(2),'Label','Channel labels');
@@ -1054,7 +1007,7 @@ u(22) = uicontrol('Parent',figh, ...
 		'clear FIGH AXESH YTICK;'];
   uimenu('Parent',m(6),'Label','Show number','Callback',timestring)
   uimenu('Parent',m(6),'Label','Load .loc(s) file',...
-      'Callback','eegplot_w2(''loadelect'');')
+      'Callback','eegplot_w(''loadelect'');')
   
   % Zooms %%%%%%%%
  % if ismatlab && verLessThan('matlab','8.4.0')
@@ -1073,14 +1026,14 @@ u(22) = uicontrol('Parent',figh, ...
  %      uimenu('Parent',m(2),'Label','Zoom off/on', 'callback', 'warning(''FIXME: Zoom not work in MATLAB >= 8.4.0'')');
  % end
       
-  uimenu('Parent',figh,'Label', 'Help', 'callback', 'pophelp(''eegplot_w2'');');
+  uimenu('Parent',figh,'Label', 'Help', 'callback', 'pophelp(''eegplot_w'');');
 
   % Events %%%%%%%%
   ev = uimenu('Parent',m(2),'Label','Events');
   comeventmaxstring   = [ 'tmpg = get(gcbf, ''userdata'');' ...
                 'tmpg.plotevent = ''on'';' ...
-                'set(gcbf, ''userdata'', tmpg); clear tmpg; eegplot_w2(''emaxstring'');']; % JavierLC      
-  comeventleg  = [ 'eegplot_w2(''drawlegend'', gcbf);'];
+                'set(gcbf, ''userdata'', tmpg); clear tmpg; eegplot_w(''emaxstring'');']; % JavierLC      
+  comeventleg  = [ 'eegplot_w(''drawlegend'', gcbf);'];
     
   uimenu('Parent',ev,'Label','Events on'    , 'callback', {@draw_data,figh,0,[],[],ax1,'g.plotevent = ''on'';'},  'enable', fastif(isempty(g.events), 'off', 'on'));
   uimenu('Parent',ev,'Label','Events off'   , 'callback', {@draw_data,figh,0,[],[],ax1,'g.plotevent = ''off'';'}, 'enable', fastif(isempty(g.events), 'off', 'on'));
@@ -1185,16 +1138,16 @@ u(22) = uicontrol('Parent',figh, ...
   else
       set(m(7),'checked','off');
   end 
-  eegplot_w2('scaleeye', [], gcf);
+  eegplot_w('scaleeye', [], gcf);
   if strcmp(lower(g.scale), 'off')
-	  eegplot_w2('scaleeye', 'off', gcf);
+	  eegplot_w('scaleeye', 'off', gcf);
   end;
   
-  eegplot_w2('drawp', 0);
+  eegplot_w('drawp', 0);
   if g.dispchans ~= g.chans
-  	   eegplot_w2('zoom', gcf);
+  	   eegplot_w('zoom', gcf);
   end;  
-  eegplot_w2('scaleeye', [], gcf);
+  eegplot_w('scaleeye', [], gcf);
   
   h = findobj(gcf, 'style', 'pushbutton');
   set(h, 'backgroundcolor', BUTTON_COLOR);
@@ -1234,7 +1187,7 @@ else
 
 	g.winlength = eval(result{1}); 
 	set(gcf, 'UserData', g);
-	eegplot_w2('drawp',0);	
+	eegplot_w('drawp',0);	
 	return;
     
   case 'winelec'  % change channel window size
@@ -1251,9 +1204,9 @@ else
        g.dispchans =g.chans;
    end;
    set(gcf, 'UserData', g);
-   eegplot_w2('updateslider', fig);
-   eegplot_w2('drawp',0);	
-   eegplot_w2('scaleeye', [], fig);
+   eegplot_w('updateslider', fig);
+   eegplot_w('drawp',0);	
+   eegplot_w('scaleeye', [], fig);
    return;
    
    case 'emaxstring'  % change events' string length  ;  JavierLC
@@ -1264,7 +1217,7 @@ else
       if size(result,1) == 0 return; end;                  
       g.maxeventstring = eval(result{1});
       set(gcf, 'UserData', g);
-      eegplot_w2('drawb');
+      eegplot_w('drawb');
       return;
       
   case 'loadelect' % load channels
@@ -1275,7 +1228,7 @@ else
 	end;
 
 	AXH0 = findobj('tag','eegaxis','parent',gcf);
-	eegplot_w2('setelect',[ inputpath inputname ],AXH0);
+	eegplot_w('setelect',[ inputpath inputname ],AXH0);
 	return;
   
   case 'setelect'
@@ -1363,9 +1316,9 @@ else
     
   case 'noui'
       if ~isempty(varargin)
-          eegplot_w2( varargin{:} ); fig = gcf;
+          eegplot_w( varargin{:} ); fig = gcf;
       else 
-          fig = findobj('tag', 'eegplot_w2');
+          fig = findobj('tag', 'eegplot_w');
       end;
       set(fig, 'menubar', 'figure');
       
@@ -1415,9 +1368,9 @@ else
       g.dispchans  = round(1000*(tmpylim(2)-tmpylim(1))/g.spacing)/1000;      
       
       set(fig,'UserData', g);
-      eegplot_w2('updateslider', fig);
-      eegplot_w2('drawp', 0);
-      eegplot_w2('scaleeye', [], fig);
+      eegplot_w('updateslider', fig);
+      eegplot_w('drawp', 0);
+      eegplot_w('scaleeye', [], fig);
 
       % reactivate zoom if 3 arguments
       % ------------------------------
@@ -1453,7 +1406,7 @@ else
          g.elecoffset = g.chans-g.dispchans;
       end;
       set(fig,'UserData', g);
-	  eegplot_w2('scaleeye', [], fig);
+	  eegplot_w('scaleeye', [], fig);
    
    case 'drawlegend'
       fig = varargin{1};
@@ -1529,7 +1482,7 @@ else
   case 'defdowncom'
       mouse_down([],[],varargin{1}); % Just for compatibility with original eegplot()
    otherwise
-      error(['Error - invalid eegplot_w2() parameter: ',data])
+      error(['Error - invalid eegplot_w() parameter: ',data])
   end
   
 end
@@ -1671,74 +1624,12 @@ function draw_data(varargin)
     else
         chans_list_bad=g.chans-find([g.eloc_file.badchan])+1;
         chans_list_good=setdiff(1:g.chans,chans_list_bad);
-        chans_list_good2=1:g.chans;
     end;
     
     % plot channels whose "badchan" field is set to 1.
     % Bad channels are plotted first so that they appear behind the good
-    % channels in the eegplot_w2 figure window.
-    
-    %THIS IS THE PLOT FUNCTION FOR CHANGING THE COLOR OF THE CHANNEL UGO
-    % attempting to print the selected areas UGO LEFT HERE
-    if ~isempty(g.winrej)
-        
-        %PLOT THE WHOLE DATA IN BLUE
-        tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,chans_list_good2,lowlim,highlim);
-        plot(ax1,tmp_plot_data_y', 'color', g.color{1}, 'clipping','on');
-        %MAKE NEW LIMITS
-        highlim2 = highlim;
-        lowlim2 = lowlim;
-        %LOOPS FOR ALL SELECTED REGIONS IN WINREJ IN REVERSE ORDER
-        for j=size(g.winrej,1):-1:1
-            %IF REGION IS WITHIN WINDOW
-            if g.winrej(j,1) >= lowlim && g.winrej(j,1) <= highlim
-                %CAPTURES THE NEW LOW LIMIT
-                lowlim2 = g.winrej(j,1);
-                %GETS A NEW LIST OF BAD ELECTRODES WITHIN THE REJ REGION
-                list_bad_chans = find(g.winrej(j,6:end)==1);
-                if g.winrej(j,2) < highlim
-                    highlim2 = g.winrej(j,2);
-                    tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,list_bad_chans,lowlim,highlim2);
-                    plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');
-                else
-                    highlim2 = highlim;
-                    tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,list_bad_chans,lowlim,highlim2);
-                    plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');
-                end
-            tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,list_bad_chans,lowlim,lowlim2);
-            plot(ax1,tmp_plot_data_y', 'color', g.color{1}, 'clipping','on');
-            else
-                tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,chans_list_good2,lowlim,highlim);
-                plot(ax1,tmp_plot_data_y', 'color', g.color{1}, 'clipping','on');
-            end
-        end
-        tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,chans_list_bad,lowlim,highlim);
-        plot(ax1,tmp_plot_data_y', 'color', [1 0 0], 'clipping','on');
-        
-        % plot the blue parts
-        tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,chans_list_bad,lowlim,highlim2);
-        %plot(ax1,tmp_plot_data_y', 'color', [ .85 .85 .85 ], 'clipping','on');
-        %plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');
-%         for i = chans_list_bad
-%             line_params = ...
-%                 {1,mean(i*g.spacing + (g.dispchans+1)*(oldspacing-g.spacing)/2 +g.elecoffset*(oldspacing-g.spacing),2),...
-%                 'Marker','<','MarkerEdgeColor','r','MarkerFaceColor','r','MarkerSize',6,...
-%                 'clipping','off','userdata',g.chans-i+1,'ButtonDownFcn',{@MarkChannel,figh,g.chans-i+1}};
-%             if verLessThan_matlab_9
-%                 line(line_params{:})
-%             else
-%                 line(ax1,line_params{:});
-%             end;
-%         end
-    else
-        tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,chans_list_bad,lowlim,highlim);
-        plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');  
-    end
-    
-    %NORMAL PLOT RED LINE 
-    
+    % channels in the eegplot_w figure window.
     if ~isempty(chans_list_bad)
-        %tmp_plot_data_x=1:length(lowlim:highlim);
         tmp_plot_data_x=1:length(lowlim:highlim);
         tmp_plot_data_y=nan(length(chans_list_bad),length(lowlim:highlim));
         for ii = 1:length(chans_list_bad)
@@ -1749,22 +1640,18 @@ function draw_data(varargin)
                 + (g.dispchans+1)*(oldspacing-g.spacing)/2 ...
                 + g.elecoffset*(oldspacing-g.spacing);
         end
-        %THIS IS THE PLOT FUNCTION FOR CHANGING THE COLOR OF THE CHANNEL UGO
-        %plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');
-        %%REMOVED
-        
-        %plot(ax1,tmp_plot_data_y', 'color', [ .85 .85 .85 ], 'clipping','on');
-%         for i = chans_list_bad
-%             line_params = ...
-%                 {1,mean(i*g.spacing + (g.dispchans+1)*(oldspacing-g.spacing)/2 +g.elecoffset*(oldspacing-g.spacing),2),...
-%                 'Marker','<','MarkerEdgeColor','r','MarkerFaceColor','r','MarkerSize',6,...
-%                 'clipping','off','userdata',g.chans-i+1,'ButtonDownFcn',{@MarkChannel,figh,g.chans-i+1}};
-%             if verLessThan_matlab_9
-%                 line(line_params{:})
-%             else
-%                 line(ax1,line_params{:});
-%             end;
-%         end
+        plot(ax1,tmp_plot_data_y', 'color', [ .85 .85 .85 ], 'clipping','on');
+        for i = chans_list_bad
+            line_params = ...
+                {1,mean(i*g.spacing + (g.dispchans+1)*(oldspacing-g.spacing)/2 +g.elecoffset*(oldspacing-g.spacing),2),...
+                'Marker','<','MarkerEdgeColor','r','MarkerFaceColor','r','MarkerSize',6,...
+                'clipping','off','userdata',g.chans-i+1,'ButtonDownFcn',{@MarkChannel,figh,g.chans-i+1}};
+            if verLessThan_matlab_9
+                line(line_params{:})
+            else
+                line(ax1,line_params{:});
+            end;
+        end
     end;
     
     % plot good channels on top of bad channels (if g.eloc_file(i).badchan = 0... or there is no bad channel information)
@@ -2277,7 +2164,7 @@ function change_scale(varargin)
 function mouse_down(varargin)
 fig = varargin{3};
 if strcmp(get(fig, 'SelectionType'),'alt')
-    eegplot_w2('topoplot', fig);
+    eegplot_w('topoplot', fig);
     return;
 end;
 %show_mocap_timer = timerfind('tag','mocapDisplayTimer'); if ~isempty(show_mocap_timer),  end; % nima
@@ -2308,7 +2195,7 @@ if ismember(SelectionType, {'normal', 'extend'})
             end;
             if strcmp(SelectionType,'extend')
                 if ~isempty(tmpelec)
-                    MarkChannel([],[],fig,tmpelec,tmppos);
+                    MarkChannel([],[],fig,tmpelec);
                 end;
             else
                 if any(Allwin) % remove the mark or select electrode if necessary
@@ -2334,7 +2221,7 @@ if ismember(SelectionType, {'normal', 'extend'})
                             g.winrej(:,6:(5+g.chans)) = zeros(size(g.winrej,1),g.chans);
                         end;
                         tmppos_x=mouse_near_boundary_correction(tmppos(1)+lowlim,g);
-                             g.winrej = [g.winrej' [tmppos_x tmppos_x g.wincolor zeros(1,g.chans)]']';
+                        g.winrej = [g.winrej' [tmppos_x tmppos_x g.wincolor zeros(1,g.chans)]']';
                     end;
                 end;
                 set(fig,'UserData', g);
@@ -2383,7 +2270,6 @@ if ~isempty(g.winrej)'
 end;
 set(fig,'UserData', g);
 draw_background([],[],fig,g);
-
 if strcmp(g.mocap,'on')
     show_mocap_for_eegplot(g.winrej); 
     g.winrej = g.winrej(end,:); 
@@ -2396,7 +2282,6 @@ fig = varargin{3};
 ax0 = varargin{4};
 tmppos = get(ax0, 'currentpoint');
 g = get(fig,'UserData');
-set(findobj(gcf, 'Tag', 'Count'),'string',size(g.winrej,1));%ADDED UGO
     if g.trialstag ~= -1
         lowlim = round(g.time*g.trialstag+1);
     else
@@ -2451,11 +2336,10 @@ set(findobj(gcf, 'Tag', 'Count'),'string',size(g.winrej,1));%ADDED UGO
             set(hv, 'string', ' ');
             set(he, 'string', ' ');
         end
-        
       end;
     end;
-    
-    
+ 
+
 % Attract position to boundaries
 function [tmppos_x]=mouse_near_boundary_correction(tmppos_x,g)
 boundaries_lat=[0 g.frames] + 0.5;
@@ -2544,6 +2428,7 @@ if nargin > 3
     mouse_motion([],[],fig,varargin{:});
 end;
 
+
 function normalize_chan(~,~,fig)
 g = get(fig,'userdata');
 if g.normed
@@ -2587,92 +2472,8 @@ set(ax1,'UserData',data);
 draw_data([],[],fig,0,[],g,ax1);
 disp('Done.');
 
-%THIRD MOUSE BUTTON
-function MarkChannel(~,~,fig,channel_index,tmppos)
-if nargin < 4
-    tmppos = 0;
-end
 
-g=get(fig,'UserData');
-
-% COPIED THIS PORTION FROM MOUSEMOVEMENT FUNCTION -- UGO MODS
-if g.trialstag ~= -1 % time in second or in trials
-    multiplier = g.trialstag;
-else
-    multiplier = g.srate;
-end;
-
-% gets low and high limits of the page
-lowlim = round(g.time*multiplier+1);
-highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
-% makes sure click is in valid position
-if g.trialstag ~= -1
-    point_is_valid=tmppos(1) >= 0 && tmppos(1) < g.winlength*g.trialstag;
-else
-    point_is_valid=tmppos(1) >= 0 && tmppos(1) <= highlim;
-end;
-% if valid, gets temporary TIME value within the displayed eeg window 
-if point_is_valid
-    if g.trialstag ~= -1
-        tmpval = mod(tmppos(1)+lowlim-1,g.trialstag)/g.trialstag*(g.limits(2)-g.limits(1)) + g.limits(1);
-        if g.isfreq, tmpval = tmpval/1000 + g.freqs(1); end
-    else
-        tmpval = (tmppos(1)+lowlim-1);%/g.srate; %COMMENTED THIS OUT
-        if g.isfreq, tmpval = tmpval+g.freqs(1); end
-    end;
-    %set(hh, 'string', num2str(tmpval)); % put g.time in the box
-else
-    %set(hh, 'string', ' ');
-    tmpval = 0;
-end;
-
-%HOW TO GET THE WINREJ TO GET THE CHANNELS IN IT, IN AND OUT
-
-if isempty(g.command)
-    clear global in_callback; return;
-end;
-
-if isfield(g, 'eloc_file')
-    %make sure to recreate the badchannel option in the channel struct
-    if ~isfield(g.eloc_file, 'badchan')
-        for ii=1:length(g.eloc_file)
-            g.eloc_file(ii).badchan = 0;
-        end;
-    end;
-    
-    % UGO MODS
-    % badchan is a dummy variable which makes sure only channels selected
-    % for complete rejection and added to g.eloc_file.badchan 
-    badchan = 0;
-    % if winrej for this channel is empty
-    if ~isempty(g.winrej)
-        % LOOPS FOR EVERY STRETCH OF REJECTION
-        for k=1:size(g.winrej,1)
-            % CHECKS FOR MOUSE POSITION WITHIN A REJECTION STRETCH
-            if tmpval >= g.winrej(k,1) && tmpval <= g.winrej(k,2)
-                % MAKE SURE CHANNEL ISNT ALREADY REJECTED
-                if ~g.eloc_file(channel_index).badchan
-                    % ADDS THE CHANNEL TO THE REJECTION WINDOW
-                    g.winrej(k,5+channel_index) = 1-g.winrej(k,5+channel_index);
-                end
-                % REDUCED BADCHAN TO MAKE SURE CHANNEL WONT BE MARKED FOR COMPLETE REJECTION 
-                badchan = badchan + 1;
-            else
-                %badchan = badchan - 1;
-            end
-        end
-    else
-        badchan = 0;
-    end
-    if ~badchan
-        % only marks or unmark channels if and only if click was outside marked stretches
-        g.eloc_file(channel_index).badchan = 1-g.eloc_file(channel_index).badchan;
-    end
-    set(fig,'UserData',g);
-    draw_data([],[],fig,0,[],g);
-end;
-
-function MarkChannel2(~,~,fig,channel_index) %MarkChannel original for BACKUP!
+function MarkChannel(~,~,fig,channel_index)
 g=get(fig,'UserData');
 %channel_index=get(channel_obj,'userdata')
 if isempty(g.command)
@@ -2730,9 +2531,9 @@ switch evnt.Key
             change_scale([],[],fig,2);
         end;
     case {'insert'} %CHANGED UGO
-        eegplot_w2('window');
+        eegplot_w('window');
     case {'tab'}
-        eegplot_w2('winelec');
+        eegplot_w('winelec');
     case {'v'}
         draw_data([],[],fig,0,[],[],[],...
             'if strcmp(g.plotevent,''on''); g.plotevent = ''off''; else g.plotevent = ''on''; end;');
@@ -2740,25 +2541,4 @@ end
 if nargin > 3
     mouse_motion([],[],varargin{:})
 end;
-
-% Created this function to facilitate drawing and plotting channels, Ugo 2021
-
-function [tmp_y] = plotChannel(oldspacing,meandata,data,g,chans_list_bad,lowlim,highlim)
-
-tmp_x=1:length(lowlim:highlim);
-tmp_y=nan(length(chans_list_bad),length(lowlim:highlim));
-warning('off');
-for ii = 1:length(chans_list_bad)
-    i=chans_list_bad(ii);
-    tmp_y(ii,tmp_x)=data(g.chans-i+1,lowlim:highlim) ...
-        - meandata(g.chans-i+1) ...;
-        + i*g.spacing ...;
-        + (g.dispchans+1)*(oldspacing-g.spacing)/2 ...
-        + g.elecoffset*(oldspacing-g.spacing);
-    
-end
-        
-
-
-
 

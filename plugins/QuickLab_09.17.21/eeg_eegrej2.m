@@ -2,7 +2,7 @@
 %                dataset
 %
 % Usage:
-%   >> EEGOUT = eeg_eegrej2( EEGIN, regions );
+%   >> EEGOUT = eeg_eegrej2( EEGIN, regions, chanorcomp );
 %
 % Inputs:
 %   INEEG      - input dataset
@@ -47,19 +47,39 @@
 % ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 % THE POSSIBILITY OF SUCH DAMAGE.
 
-function [EEGOUT, com] = eeg_eegrej2( EEG, regions, chanorcomp);
+function [EEGOUT, com] = eeg_eegrej2( EEG, regions, chanorcomp,tmprej);
 
-channelsOrComponents = EEG.myVariables{1};
+if nargin < 3
+    tmprej = 0;
+end
+
+if ~isfield(EEG,'myVariables')
+    EEG.myVariables = {0 0 0 0};
+end
 if size(EEG.myVariables,2) > 1
     plotdiff = EEG.myVariables{2};
 else
     plotdiff = 0;
 end
-if size(EEG.myVariables,2) > 2
+if tmprej
+    chancompRemov = tmprej;
+elseif size(EEG.myVariables,2) > 2
     chancompRemov = EEG.myVariables{3};
 else
     chancompRemov = '';
 end
+if size(EEG.myVariables,2) > 3
+    useText = EEG.myVariables{3};
+else
+    useText = 0;
+end
+
+if ~useText
+    channelsOrComponents = '';
+else
+    channelsOrComponents = EEG.myVariables{1};
+end
+
 EEG.myVariables = {};
 
 com = '';
@@ -133,36 +153,34 @@ end
 % ---------------------------
 % MODIFIED BY UGO TO INTERPOLATE SELECTED CHANNELS OR COMPONENTS
 EEG.ugo.regions = regions;
-EEG.ugo.chancomp = channelsOrComponents;
-
-if size(regions,2) > 2, regions = regions(:, 3:4); end
+if useText
+    EEG.ugo.chancomp = channelsOrComponents;
+    % --- colect channels or components into numbers
+else
+    for rej=1:size(regions,1)
+        channels = find(regions(rej,6:end));
+        if ~isempty(channelsOrComponents)
+            channelsOrComponents = strcat(channelsOrComponents,';');
+        end
+        channelsOrComponents = strcat(channelsOrComponents,num2str(channels));
+    end
+end
+regions2 = regions;
+if size(regions,2) > 2, regions = regions2(:, 1:2); end
 
 if ndims(EEG.data) < 3
-    regions = combineregions(regions);
+    regions2 = combineregions(regions2);
 end
 
-% --- colect channels or components into numbers
-
 divisors = strfind(channelsOrComponents,';');
-
 if isempty(divisors)
     divisors = strfind(channelsOrComponents,',');
 end
 
 % --- fully interpolate channels or remove components selected (Ugo)
 EEGOG = EEG;
-if ~isempty(chancompRemov)
-    chancompRemov = str2num(chancompRemov);
-    if chanorcomp == 1
-        fprintf(strcat('Interpolating channels(s) _', num2str(chancompRemov),'\r' ));
-        EEG = pop_interp(EEG, [chancompRemov], 'spherical');
-    else
-        fprintf(strcat('Removing components(s) _', num2str(chancompRemov),'\r' ));
-        EEG = pop_subcomp(EEG, [chancompRemov]);
-    end
-end
-
 EEGmod = EEG;
+
 EEGinterp = EEG;
 if ~isempty(channelsOrComponents)
     % --- if only one channel or component was given %MODIFIED BY UGO NUNES JUL/2021
@@ -172,17 +190,17 @@ if ~isempty(channelsOrComponents)
         % interpolate component or channel for the selected intervals
         if chanorcomp == 1
             EEGinterp = pop_interp(EEG, [compOrChan], 'spherical');
-            for i=1:size(regions,1)
+            for i=1:size(regions2,1)
                 
-                fprintf(strcat('Interpolating channels(s) _', num2str(compOrChan),' for the period _',num2str(regions(i,1)),' to _',num2str(regions(i,2))), '\r' );
-                EEGmod.data(compOrChan,regions(i,1):regions(i,2)) = EEGinterp.data(compOrChan,regions(i,1):regions(i,2));
+                fprintf(strcat('Interpolating channels(s) _', num2str(compOrChan),' for the period _',num2str(regions2(i,1)),' to _',num2str(regions2(i,2))), '\r' );
+                EEGmod.data(compOrChan,regions2(i,1):regions2(i,2)) = EEGinterp.data(compOrChan,regions2(i,1):regions2(i,2));
                 
             end
         else
             EEGinterp = pop_subcomp(EEG, [compOrChan]);
-            for i=1:size(regions,1)
-                fprintf(strcat('Interpolating components(s) _', num2str(compOrChan),' for the period _',num2str(regions(i,1)),' to _',num2str(regions(i,2))), '\r' );
-                EEGmod.data(:,regions(i,1):regions(i,2)) = EEGinterp.data(:,regions(i,1):regions(i,2));
+            for i=1:size(regions2,1)
+                fprintf(strcat('Interpolating components(s) _', num2str(compOrChan),' for the period _',num2str(regions2(i,1)),' to _',num2str(regions2(i,2))), '\r' );
+                EEGmod.data(:,regions2(i,1):regions2(i,2)) = EEGinterp.data(:,regions2(i,1):regions2(i,2));
                 %EEGIN.icaact(thisChan,regions(i,1):regions(i,2)) = EEGIN.icaact(thisChan,regions(i,1):regions(i,2));
             end
         end
@@ -198,35 +216,51 @@ if ~isempty(channelsOrComponents)
             % be interpolated for each selected period of time
             % if it is the final number, does the same for the last numbers
             if j ~= numOfInts
-                compOrChan = str2double(channelsOrComponents(divisors(j)+1:divisors(j+1)-1));
+                compOrChan = str2num(channelsOrComponents(divisors(j)+1:divisors(j+1)-1));
             else
-                compOrChan = str2double(channelsOrComponents(divisors(j)+1:end));
+                compOrChan = str2num(channelsOrComponents(divisors(j)+1:end));
             end
             
             if chanorcomp == 1
-                fprintf(strcat('Interpolating channels(s) _', num2str(compOrChan),' for the period _',num2str(regions(j,1)),' to _',num2str(regions(j,2))), '\r' );
+                fprintf(strcat('Interpolating channels(s) _', num2str(compOrChan),' for the period _',num2str(regions2(j,1)),' to _',num2str(regions2(j,2))), '\r' );
                 EEGinterp = pop_interp(EEG, [compOrChan], 'spherical');
                 %for i=1:size(regions,1)
-                EEGmod.data(compOrChan,regions(j,1):regions(j,2)) = EEGinterp.data(compOrChan,regions(j,1):regions(j,2));
+                EEGmod.data(compOrChan,regions2(j,1):regions2(j,2)) = EEGinterp.data(compOrChan,regions2(j,1):regions2(j,2));
                 %end
             else
-                fprintf(strcat('Interpolating components(s) _', num2str(compOrChan),' for the period _',num2str(regions(j,1)),' to _',num2str(regions(j,2))), '\r' );
+                fprintf(strcat('Interpolating components(s) _', num2str(compOrChan),' for the period _',num2str(regions2(j,1)),' to _',num2str(regions2(j,2))), '\r' );
                 EEGinterp = pop_subcomp(EEG,[compOrChan]);
                 %for i=1:size(regions,1)
-                EEGmod.data(:,regions(j,1):regions(j,2)) = EEGinterp.data(:,regions(j,1):regions(j,2));
+                EEGmod.data(:,regions2(j,1):regions2(j,2)) = EEGinterp.data(:,regions2(j,1):regions2(j,2));
                 %EEGIN.icaact(thisChan,regions(j,1):regions(j,2)) = EEGIN.icaact(thisChan,regions(i,1):regions(i,2));
                 %end
             end
         end
     end
+    % not using text,only clicks, useText    
 end
-EEGdiff = EEGOG.data - EEGmod.data;
+EEGmod2 = EEGmod;
+
+if ~isempty(chancompRemov) && chancompRemov
+    if isstring(chancompRemov)
+        chancompRemov = str2num(chancompRemov);
+    end
+    if chanorcomp == 1
+        fprintf(strcat('Interpolating channels(s) _', num2str(chancompRemov),'\r' ));
+        EEGmod2 = pop_interp(EEGmod, [chancompRemov], 'spherical');
+    else
+        fprintf(strcat('Removing components(s) _', num2str(chancompRemov),'\r' ));
+        EEGmod2 = pop_subcomp(EEGmod, [chancompRemov]);
+    end
+end
+
+EEGdiff = EEGOG.data - EEGmod2.data;
 
 if plotdiff == 1
     eegplot_w( EEGdiff, 'srate', EEG.srate, 'title', [ 'DIFFERENCE PRE AND POST CHANNEL/COMPONENT INTERPOLATION -- eegplot_w(): ' EEG.setname], ...
         'limits', [EEG.xmin EEG.xmax]*1000 )% , 'command', command, eegplotoptions{:}, varargin{:});
 end
-EEGOUT = EEGmod;
+EEGOUT = EEGmod2;
 
 com = sprintf('EEGOUT = eeg_eegrej2( EEGIN, %s );', vararg2str({ regions, channelsOrComponents, chanorcomp }));
 

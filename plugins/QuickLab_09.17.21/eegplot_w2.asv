@@ -555,7 +555,7 @@ chaninterp = ['EEG.myVariables{1} = get(findobj(gcf, ''Tag'', ''Channel''),''str
 plotdiffcom = ['EEG.myVariables{2} = get(findobj(gcf, ''Tag'', ''datadiff''),''Value'')'];
 % get channels for complete interpolation
 chaninterp2 = ['EEG.myVariables{3} = get(findobj(gcf, ''Tag'', ''Removal''),''string'')'];
-% select text or mouse clicks
+% select plot difference
 gettextcom = ['EEG.myVariables{4} = get(findobj(gcf, ''Tag'', ''UseText''),''Value'')'];
 
   u(29) = uicontrol('Parent',figh, ...
@@ -2617,7 +2617,7 @@ if point_is_valid
         tmpval = mod(tmppos(1)+lowlim-1,g.trialstag)/g.trialstag*(g.limits(2)-g.limits(1)) + g.limits(1);
         if g.isfreq, tmpval = tmpval/1000 + g.freqs(1); end
     else
-        tmpval = (tmppos(1)+lowlim-1);%/g.srate; %COMMENTED THIS OUT
+        tmpval = (tmppos(1)+lowlim-1)%/g.srate; %COMMENTED THIS OUT
         if g.isfreq, tmpval = tmpval+g.freqs(1); end
     end;
     %set(hh, 'string', num2str(tmpval)); % put g.time in the box
@@ -2741,13 +2741,12 @@ if nargin > 3
     mouse_motion([],[],varargin{:})
 end;
 
-% Created this function to facilitate drawing and plotting channels, Ugo 2021
-
+% Created this function to facilitate drawing and plotting channels, Ugo 20
+% 
 function [tmp_y] = plotChannel(oldspacing,meandata,data,g,chans_list_bad,lowlim,highlim)
 
 tmp_x=1:length(lowlim:highlim);
 tmp_y=nan(length(chans_list_bad),length(lowlim:highlim));
-warning('off');
 for ii = 1:length(chans_list_bad)
     i=chans_list_bad(ii);
     tmp_y(ii,tmp_x)=data(g.chans-i+1,lowlim:highlim) ...
@@ -2755,7 +2754,6 @@ for ii = 1:length(chans_list_bad)
         + i*g.spacing ...;
         + (g.dispchans+1)*(oldspacing-g.spacing)/2 ...
         + g.elecoffset*(oldspacing-g.spacing);
-    
 end
         
 
