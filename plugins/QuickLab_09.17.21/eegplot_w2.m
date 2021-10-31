@@ -1668,6 +1668,7 @@ function draw_data(varargin)
     chans_list_bad=[];
     if ~isfield(g, 'eloc_file') || ~isfield(g.eloc_file, 'badchan')
         chans_list_good=1:g.chans;
+        chans_list_good2=1:g.chans;
     else
         chans_list_bad=g.chans-find([g.eloc_file.badchan])+1;
         chans_list_good=setdiff(1:g.chans,chans_list_bad);
