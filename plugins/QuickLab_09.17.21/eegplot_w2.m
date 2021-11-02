@@ -529,16 +529,18 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   
   posbut(20,:) = [ 0.005   0.02    0.010    0.96 ]; % slider  
   
-  posbut(29,:) = [ 0.92    0.43    0.080    0.03 ]; % COUNTING Selections
-  posbut(30,:) = [ 0.92    0.40    0.080    0.03 ]; % COUNTING Tag 
+  posbut(29,:) = [ 0.92    0.44    0.080    0.02 ]; % COUNTING Selections
+  posbut(30,:) = [ 0.92    0.42    0.080    0.02 ]; % COUNTING Tag 
   
-  posbut(26,:) = [ 0.94    0.29    0.080    0.03 ]; % Plot data difference UGO
-  posbut(31,:) = [ 0.94    0.32    0.080    0.03 ]; % Plot remove using text UGO
+  posbut(32,:) = [ 0.92    0.38    0.080    0.10 ]; % Topoplot
   
-  posbut(27,:) = [ 0.92    0.26    0.080    0.03 ]; % Deletion/interpolation tag UGO
-  posbut(28,:) = [ 0.92    0.23    0.080    0.03 ]; % Deletion/interpolation UGO
-  posbut(24,:) = [ 0.92    0.20    0.080    0.03 ]; % Channel Rejection tag UGO
-  posbut(25,:) = [ 0.92    0.17    0.080    0.03 ]; % Channel Rejection UGO
+  posbut(31,:) = [ 0.93    0.275    0.080    0.02 ]; % Plot remove using text UGO
+  posbut(26,:) = [ 0.93    0.25    0.080    0.02 ]; % Plot data difference UGO
+  
+  posbut(27,:) = [ 0.92    0.21    0.080    0.02 ]; % Deletion/interpolation tag UGO
+  posbut(28,:) = [ 0.92    0.19    0.080    0.02 ]; % Deletion/interpolation UGO
+  posbut(24,:) = [ 0.92    0.15    0.080    0.02 ]; % Channel Rejection tag UGO
+  posbut(25,:) = [ 0.92    0.13    0.080    0.02 ]; % Channel Rejection UGO
 
   posbut(13,:) = [ 0.92    0.09    0.080    0.03 ]; % cancel/close
   posbut(12,:) = [ 0.92    0.03    0.080    0.05 ]; % accept/close  
@@ -558,6 +560,20 @@ chaninterp2 = ['EEG.myVariables{3} = get(findobj(gcf, ''Tag'', ''Removal''),''st
 % select text or mouse clicks
 gettextcom = ['EEG.myVariables{4} = get(findobj(gcf, ''Tag'', ''UseText''),''Value'')'];
 
+%   u(32) = uicontrol('Parent',figh, ...
+% 	'Units', 'normalized', ...
+% 	'BackgroundColor',[1 1 1], ...
+% 	'Position', posbut(32,:), ...
+% 	'Tag','Topoplot');
+
+% axtopo = axes('Position',DEFAULT_AXES_POSITION,...
+%       'userdata', data, ...% store the data here
+%       'tag','Topoplot','parent',figh,...%(when in g, slow down display)
+%       'Position',[ 0.92    0.30    0.080    0.13 ],...
+%       'Box','on',...
+%       'Color',[1 1 1],...
+%       'FontSize',8);
+
   u(29) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
 	'BackgroundColor',DEFAULT_FIG_COLOR, ...
@@ -571,7 +587,8 @@ gettextcom = ['EEG.myVariables{4} = get(findobj(gcf, ''Tag'', ''UseText''),''Val
 	'Units', 'normalized', ...
 	'BackgroundColor',DEFAULT_FIG_COLOR, ...
 	'Position', posbut(30,:), ...
-	'Style','text', ...
+    'FontSize',8,...	
+    'Style','text', ...
 	'Tag','Count',...
 	'string','');
 
@@ -1490,34 +1507,38 @@ else
   % ------------
   case 'topoplot'
     fig = varargin{1};
-    g = get(fig,'UserData');
-    if ~isstruct(g.eloc_file) || ~isfield(g.eloc_file, 'theta') || isempty( [ g.eloc_file.theta ])
-        return;
-    end;
-    ax1 = findobj('tag','backeeg','parent',fig); 
-    tmppos = get(ax1, 'currentpoint');
-    ax1 = findobj('tag','eegaxis','parent',fig); % axes handle
-    % plot vertical line
-    yl = ylim(ax1);
-    plot(ax1, [ tmppos tmppos ], yl, 'color', [0.8 0.8 0.8]);
+    plot_topoplot(fig);
+%     g = get(fig,'UserData');
+%     if ~isstruct(g.eloc_file) || ~isfield(g.eloc_file, 'theta') || isempty( [ g.eloc_file.theta ])
+%         return;
+%     end;
+%     ax1 = findobj('tag','backeeg','parent',fig); 
+%     tmppos = get(ax1, 'currentpoint');
+%     ax1 = findobj('tag','eegaxis','parent',fig); % axes handle
+%     % plot vertical line
+%     %yl = ylim(ax1);
+%     %plot(ax1, [ tmppos tmppos ], yl, 'color', [0.8 0.8 0.8]);
+%     
+%     if g.trialstag ~= -1
+%           lowlim = round(g.time*g.trialstag+1);
+%     else, lowlim = round(g.time*g.srate+1);
+%     end;
+%     data = get(ax1,'UserData');
+%     datapos = max(1, round(tmppos(1)+lowlim));
+%     datapos = min(datapos, g.frames);
     
-    if g.trialstag ~= -1
-          lowlim = round(g.time*g.trialstag+1);
-    else, lowlim = round(g.time*g.srate+1);
-    end;
-    data = get(ax1,'UserData');
-    datapos = max(1, round(tmppos(1)+lowlim));
-    datapos = min(datapos, g.frames);
-
-    figure; topoplot(data(:,datapos), g.eloc_file);
-    if g.trialstag == -1
-         latsec = (datapos-1)/g.srate;
-         title(sprintf('Latency of %d seconds and %d milliseconds', floor(latsec), round(1000*(latsec-floor(latsec)))));
-    else
-        trial = ceil((datapos-1)/g.trialstag);
-        latintrial = eeg_point2lat(datapos, trial, g.srate, g.limits, 0.001);
-        title(sprintf('Latency of %d ms in trial %d', round(latintrial), trial));
-    end;
+    %STOPPED HERE
+    
+    %axes = get(findobj('tag','Topoplot'));
+    %figure; topoplot(data(:,datapos), g.eloc_file);
+%     if g.trialstag == -1
+%          latsec = (datapos-1)/g.srate;
+%          title(sprintf('Latency of %d seconds and %d milliseconds', floor(latsec), round(1000*(latsec-floor(latsec)))));
+%     else
+%         trial = ceil((datapos-1)/g.trialstag);
+%         latintrial = eeg_point2lat(datapos, trial, g.srate, g.limits, 0.001);
+%         title(sprintf('Latency of %d ms in trial %d', round(latintrial), trial));
+%     end;
     
   % release button: check window consistency, add to trial boundaries
   % -------------------------------------------------------------------
@@ -2395,6 +2416,7 @@ end; % nima
 % Function to show the value and electrode at mouse position
 function mouse_motion(varargin)
 fig = varargin{3};
+%eegplot_w2('topoplot', fig);
 ax0 = varargin{4};
 tmppos = get(ax0, 'currentpoint');
 g = get(fig,'UserData');
@@ -2760,6 +2782,41 @@ for ii = 1:length(chans_list_bad)
     
 end
         
+function plot_topoplot(fig)
+    %fig = varargin{1};
+    g = get(fig,'UserData');
+    if ~isstruct(g.eloc_file) || ~isfield(g.eloc_file, 'theta') || isempty( [ g.eloc_file.theta ])
+        return;
+    end;
+    ax1 = findobj('tag','backeeg','parent',fig); 
+    tmppos = get(ax1, 'currentpoint');
+    ax1 = findobj('tag','eegaxis','parent',fig); % axes handle
+    % plot vertical line
+    %yl = ylim(ax1);
+    %plot(ax1, [ tmppos tmppos ], yl, 'color', [0.8 0.8 0.8]);
+    
+    if g.trialstag ~= -1
+          lowlim = round(g.time*g.trialstag+1);
+    else, lowlim = round(g.time*g.srate+1);
+    end;
+    data = get(ax1,'UserData');
+    datapos = max(1, round(tmppos(1)+lowlim));
+    datapos = min(datapos, g.frames);
+    
+    %STOPPED HERE
+    
+    %top = get(findobj('tag','Topoplot','parent',fig));
+    %figure = axtopo;
+    axes('Parent', fig, 'position',[ 0.92    0.31    0.080    0.10 ],'units','normalized');
+    topoplot(data(:,datapos), g.eloc_file);
+%     if g.trialstag == -1
+%          latsec = (datapos-1)/g.srate;
+%          title(sprintf('Latency of %d seconds and %d milliseconds', floor(latsec), round(1000*(latsec-floor(latsec)))));
+%     else
+%         trial = ceil((datapos-1)/g.trialstag);
+%         latintrial = eeg_point2lat(datapos, trial, g.srate, g.limits, 0.001);
+%         title(sprintf('Latency of %d ms in trial %d', round(latintrial), trial));
+%     end
 
 
 

@@ -262,7 +262,6 @@ if plotdiff == 1
 end
 EEGOUT = EEGmod2;
 
-com = '';
 com = sprintf('EEGOUT = eeg_eegrej2( EEGOUT, %s );', vararg2str({ regions, channelsOrComponents, chanorcomp, tmprej }));
 
 % remove events within regions
