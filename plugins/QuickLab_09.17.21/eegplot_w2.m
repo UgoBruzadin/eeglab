@@ -1259,6 +1259,7 @@ else
                   % -------------------------------------
    fig = gcf;
    g = get(gcf,'UserData');
+   
    result = inputdlg2( ...
 { 'Number of channels to display:' } , 'Change number of channels to display', 1,  { num2str(g.dispchans) });
    if size(result,1) == 0 return; end;
@@ -1268,9 +1269,15 @@ else
        g.dispchans =g.chans;
    end;
    set(gcf, 'UserData', g);
+   
    eegplot_w2('updateslider', fig);
    eegplot_w2('drawp',0);	
    eegplot_w2('scaleeye', [], fig);
+   %MarkChannel([],[],fig,0,0);
+   %Fixing UGO
+   %set(gcf,'UserData',g);
+   %draw_data([],[],fig,0,[],g);
+   
    return;
    
    case 'emaxstring'  % change events' string length  ;  JavierLC
@@ -1687,6 +1694,7 @@ function draw_data(varargin)
     hold(ax1,'on')
     
     chans_list_bad=[];
+    list_bad_chans=[];
     if ~isfield(g, 'eloc_file') || ~isfield(g.eloc_file, 'badchan')
         chans_list_good=1:g.chans;
         chans_list_good2=1:g.chans;
@@ -1713,11 +1721,14 @@ function draw_data(varargin)
         %LOOPS FOR ALL SELECTED REGIONS IN WINREJ IN REVERSE ORDER
         for j=size(g.winrej,1):-1:1
             %IF REGION IS WITHIN WINDOW
-            if g.winrej(j,1) >= lowlim && g.winrej(j,1) <= highlim
+            %if g.winrej(j,1) >= lowlim && g.winrej(j,1) <= highlim
+            if (g.winrej(j,1) >= lowlim && g.winrej(j,1) <= highlim) || ...
+               (g.winrej(j,2) >= lowlim && g.winrej(j,2) <= highlim)
                 %CAPTURES THE NEW LOW LIMIT
                 lowlim2 = g.winrej(j,1);
                 %GETS A NEW LIST OF BAD ELECTRODES WITHIN THE REJ REGION
                 list_bad_chans = find(g.winrej(j,6:end)==1);
+                
                 if g.winrej(j,2) < highlim
                     highlim2 = g.winrej(j,2);
                     tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,list_bad_chans,lowlim,highlim2);
@@ -1729,6 +1740,12 @@ function draw_data(varargin)
                 end
             tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,list_bad_chans,lowlim,lowlim2);
             plot(ax1,tmp_plot_data_y', 'color', g.color{1}, 'clipping','on');
+            elseif g.winrej(j,1) <= lowlim && g.winrej(j,2) >= highlim
+                list_bad_chans = find(g.winrej(j,6:end)==1);
+                chans_list_bad = [chans_list_bad,list_bad_chans];
+                %chans_list_good = setdiff(1:g.chans,chans_list_bad);
+                tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,list_bad_chans,lowlim,highlim);
+                plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');
             else
                 tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,chans_list_good2,lowlim,highlim);
                 plot(ax1,tmp_plot_data_y', 'color', g.color{1}, 'clipping','on');
@@ -1736,7 +1753,7 @@ function draw_data(varargin)
         end
         tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,chans_list_bad,lowlim,highlim);
         plot(ax1,tmp_plot_data_y', 'color', [1 0 0], 'clipping','on');
-        
+        chans_list_bad = [chans_list_bad,list_bad_chans];
         % plot the blue parts
         tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,chans_list_bad,lowlim,highlim2);
         %plot(ax1,tmp_plot_data_y', 'color', [ .85 .85 .85 ], 'clipping','on');
@@ -1789,7 +1806,7 @@ function draw_data(varargin)
 %         end
     end;
     
-    % plot good channels on top of bad channels (if g.eloc_file(i).badchan = 0... or there is no bad channel information)
+    % REPLOT channels adjusting for channel errors 
     if ~isempty(chans_list_good)
         chans_list_good_N=length(chans_list_good);
         tmp_plot_data_x_N=length(lowlim:highlim);
@@ -1844,7 +1861,8 @@ function draw_data(varargin)
     if ~isempty(g.winrej) && size(g.winrej,2) > 2
     	for tpmi = 1:size(g.winrej,1) % scan rows
             if (g.winrej(tpmi,1) >= lowlim && g.winrej(tpmi,1) <= highlim) || ...
-               (g.winrej(tpmi,2) >= lowlim && g.winrej(tpmi,2) <= highlim)
+               (g.winrej(tpmi,2) >= lowlim && g.winrej(tpmi,2) <= highlim) || ...
+               (g.winrej(tpmi,1) <= lowlim && g.winrej(tpmi,2) >= highlim)
                 abscmin = max(1,round(g.winrej(tpmi,1)-lowlim));
                 abscmax = round(g.winrej(tpmi,2)-lowlim);
                 maxXlim = get(gca, 'xlim');
@@ -2665,6 +2683,8 @@ if isfield(g, 'eloc_file')
     end;
     
     % UGO MODS
+    
+    if channel_index ~= 0
     % badchan is a dummy variable which makes sure only channels selected
     % for complete rejection and added to g.eloc_file.badchan 
     badchan = 0;
@@ -2691,6 +2711,7 @@ if isfield(g, 'eloc_file')
     if ~badchan
         % only marks or unmark channels if and only if click was outside marked stretches
         g.eloc_file(channel_index).badchan = 1-g.eloc_file(channel_index).badchan;
+    end
     end
     set(fig,'UserData',g);
     draw_data([],[],fig,0,[],g);

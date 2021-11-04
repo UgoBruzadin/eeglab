@@ -166,10 +166,13 @@ else
     end
 end
 regions2 = regions;
-if size(regions,2) > 2, regions = regions2(:, 1:2); end
+if size(regions,2) > 2, regions2 = regions2(:, 1:2); end
 
 if ndims(EEG.data) < 3
     regions2 = combineregions(regions2);
+    if (regions2(1) == 0) && (regions2(2) == 0)
+        regions2 = regions;
+    end
 end
 
 divisors = strfind(channelsOrComponents,';');
