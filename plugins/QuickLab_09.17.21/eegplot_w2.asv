@@ -2300,7 +2300,11 @@ function change_scale(varargin)
 function mouse_down(varargin)
 fig = varargin{3};
 if strcmp(get(fig, 'SelectionType'),'alt')
-    eegplot_w2('topoplot', fig);
+    if isempty(g,'plot')
+        g.plot = 0;
+    end
+    g.plot = 1 - g.plot;
+    
     return;
 end;
 %show_mocap_timer = timerfind('tag','mocapDisplayTimer'); if ~isempty(show_mocap_timer),  end; % nima
@@ -2416,10 +2420,17 @@ end; % nima
 % Function to show the value and electrode at mouse position
 function mouse_motion(varargin)
 fig = varargin{3};
+
 %eegplot_w2('topoplot', fig);
 ax0 = varargin{4};
 tmppos = get(ax0, 'currentpoint');
 g = get(fig,'UserData');
+if isempty(g,'plot')
+    g.plot = 0;
+end
+if g.plot
+    eegplot_w2('topoplot', fig);
+end
 set(findobj(gcf, 'Tag', 'Count'),'string',size(g.winrej,1));%ADDED UGO
     if g.trialstag ~= -1
         lowlim = round(g.time*g.trialstag+1);
