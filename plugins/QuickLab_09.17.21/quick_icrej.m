@@ -15,7 +15,7 @@ EEG = pop_par_iclabel(EEG, 'default');
 %end
 IC = size(EEG.icaweights,1);
 
-EEG = pop_par_icflag(EEG, [NaN NaN;percent 1;percent 1;percent 1;percent 1;percent 1;NaN NaN]);
+EEG = pop_par_icflag(EEG, [NaN NaN;percent 1;percent 1;percent 1;NaN NaN;NaN NaN;NaN NaN]);
 
 %                          'Brain''Muscle''Eye''Heart''Line Noise''Channel Noise''Other' };
 %EEG = pop_par_icflag(EEG, [NaN NaN;flag 1;flag 1;flag 1;flag 1;flag 1;NaN NaN]);

@@ -356,24 +356,31 @@ if EEG.nbchan > 100
     eegplotoptions = { eegplotoptions{:} 'submean' 'off' };
 end;
 
-if epoc == 1
-    if icacomp == 1
-        eegplot_w2( EEG.data, 'srate', EEG.srate, 'title', [ 'Scroll channel activities -- eegplot_w(): ' EEG.setname], ...
-            'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
-    else
-        tmpdata = eeg_getdatact(EEG, 'component', [1:size(EEG.icaweights,1)]);
-        eegplot_w2( tmpdata, 'srate', EEG.srate, 'title', [ 'Scroll component activities -- eegplot_w(): ' EEG.setname], ...
-            'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
-    end;
-elseif epoc == 2
-    if icacomp == 1
-        eegplot_w2( EEG.data(:,:), 'srate', EEG.srate, 'title', [ 'Scroll channel activities -- eegplot_w(): ' EEG.setname], ...
-            'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
-    else
-        tmpdata = eeg_getdatact(EEG, 'component', [1:size(EEG.icaweights,1)]);
-        eegplot_w2( tmpdata(:,:), 'srate', EEG.srate, 'title', [ 'Scroll component activities -- eegplot_w(): ' EEG.setname], ...
-            'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
-    end;
-end
+EEG.plotEp = epoc;
+EEG.plotIc = icacomp;
+
+eegplot_w2( EEG, 'srate', EEG.srate, 'title', [ 'Channel or Component Interpolation! -- eegplot_w2(): ' EEG.setname], ...
+             'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
+
+% if epoc == 1
+%     if icacomp == 1
+%         eegplot_w2( EEG, 'srate', EEG.srate, 'title', [ 'Scroll channel activities -- eegplot_w(): ' EEG.setname], ...
+%             'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
+%     else
+%         tmpdata = eeg_getdatact(EEG, 'component', [1:size(EEG.icaweights,1)]);
+%         eegplot_w2( tmpdata, 'srate', EEG.srate, 'title', [ 'Scroll component activities -- eegplot_w(): ' EEG.setname], ...
+%             'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
+%     end;
+% elseif epoc == 2
+%     if icacomp == 1
+%         ;
+%         eegplot_w2( EEG, 'srate', EEG.srate, 'title', [ 'Scroll channel activities -- eegplot_w(): ' EEG.setname], ...
+%             'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
+%     else
+%         tmpdata = eeg_getdatact(EEG, 'component', [1:size(EEG.icaweights,1)]);
+%         eegplot_w2( tmpdata(:,:), 'srate', EEG.srate, 'title', [ 'Scroll component activities -- eegplot_w(): ' EEG.setname], ...
+%             'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
+%     end;
+% end
 com = [ com sprintf('pop_eegplot_w2( %s, %d, %d, %d);', inputname(1), icacomp, superpose, reject) ];
 return;
