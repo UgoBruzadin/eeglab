@@ -137,10 +137,10 @@ if reject
         'if ~isempty(TMPREJCHN); '];
     if icacomp == 1
         com1 = [ com1 ...
-            '[EEGTMP LASTCOM1] = eeg_eegrej2(EEGTMP,TMPREJ,1,TMPREJCHN); ' ]; %modified for eegrej2
+            '[EEGTMP LASTCOM1] = eeg_eegrej2(EEGTMP,TMPREJ,TMPREJ2,1,TMPREJCHN); ' ]; %modified for eegrej2
     else
         com1 = [ com1 ...
-            '[EEGTMP LASTCOM1] = eeg_eegrej2(EEGTMP,TMPREJ,2,TMPREJCHN); ' ]; %modified for eegrej2
+            '[EEGTMP LASTCOM1] = eeg_eegrej2(EEGTMP,TMPREJ,TMPREJ2,2,TMPREJCHN); ' ]; %modified for eegrej2
     end;
     com1 = [ com1 ...
          '  if ~isempty(LASTCOM1),' ...
@@ -153,6 +153,7 @@ if reject
     else
         com3 = '[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,TMPREJ,2,0); ' ; %modified for eegrej2
     end;
+    
     
     % Call from Darbeliai pop_nuoseklus_apdorojimas ?
 %     CallFromDarbeliai=0;

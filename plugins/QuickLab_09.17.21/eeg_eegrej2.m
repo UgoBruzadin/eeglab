@@ -165,7 +165,16 @@ else
         channelsOrComponents = strcat(channelsOrComponents,num2str(channels));
     end
 end
+
 regions2 = regions;
+regions3 = [];
+for rej=1:size(regions,1)
+    if regions(rej,3) ~= [0.7]
+        regions3(rej,:) = regions(rej,:);
+        regions2(rej,:) = [];
+    end
+end
+
 if size(regions,2) > 2, regions2 = regions2(:, 1:2); end
 
 if ndims(EEG.data) < 3
@@ -263,9 +272,14 @@ if plotdiff == 1
     eegplot_w( EEGdiff, 'srate', EEG.srate, 'title', [ 'DIFFERENCE PRE AND POST CHANNEL/COMPONENT INTERPOLATION -- eegplot_w(): ' EEG.setname], ...
         'limits', [EEG.xmin EEG.xmax]*1000 )% , 'command', command, eegplotoptions{:}, varargin{:});
 end
+
 EEGOUT = EEGmod2;
 
 com = sprintf('EEGOUT = eeg_eegrej2( EEGOUT, %s );', vararg2str({ regions, channelsOrComponents, chanorcomp, tmprej }));
+
+if ~isempty(regions3)
+    [EEGOUT2,com] = eeg_eegrej( EEGOUT, regions3);
+end
 
 % remove events within regions
 % ----------------------------
