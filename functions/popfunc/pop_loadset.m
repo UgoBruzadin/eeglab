@@ -251,7 +251,7 @@ end
 % ----------------------
 
 if strlength(EEG.filename)> 12
-    EEG.setname = strcat(EEG.filename(1:12),'...',EEG.filename(end-10:end-4));
+    EEG.setname = strcat(EEG.filename(1:14),'...',EEG.filename(end-10:end-4)); % modified by UGO
 else
     EEG.setname = EEG.filename(1:end);
 end

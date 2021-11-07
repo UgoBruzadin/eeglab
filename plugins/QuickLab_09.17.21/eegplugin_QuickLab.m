@@ -13,20 +13,20 @@ supermenu = uimenu(fig, 'label', 'QuickLab');
 % --- first submenu: Quick plots
 plotmenu = uimenu (supermenu, 'label', 'Quick Plots');
 
-uimenu( plotmenu, 'label', 'Plot (epoched) Channel Scroll for Interpolation', 'callback', ...
-    ['com = pop_eegplot_w2(EEG, 1, 1, 1, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
-
 uimenu( plotmenu, 'label', 'Plot (continuous) Channel Scroll for Interpolation', 'callback', ...
     ['com = pop_eegplot_w2(EEG, 1, 2, 1, 2);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
-
-uimenu( plotmenu, 'label', 'Plot (epoched) Component Scroll for Interpolation', 'callback', ...
-    ['com = pop_eegplot_w2(EEG, 2, 1, 1, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( plotmenu, 'label', 'Plot (continuous) Component Scroll for Interpolation', 'callback', ...
     ['com = pop_eegplot_w2(EEG, 2, 2, 1, 2);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( plotmenu, 'label', 'Quick Plot Channel Spectra 2 to 40hz', 'callback', ...
     ['EEG = pop_fastspectra(EEG,40,2);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+
+uimenu( plotmenu, 'label', 'Quick Plot Channel Spectra 2 to 22hz', 'callback', ...
+    ['EEG = pop_fastspectra(EEG,22,2);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+
+uimenu( plotmenu, 'label', 'Quick Plot Channel Spectra 18 to 55hz', 'callback', ...
+    ['EEG = pop_fastspectra(EEG,55,18);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( plotmenu, 'label', 'Quick IClabel & plot', 'callback', ...
     ['EEG = pop_fastIClabel(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);

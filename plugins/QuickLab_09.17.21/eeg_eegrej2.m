@@ -62,11 +62,11 @@ else
     plotdiff = 0;
 end
 if tmprej
-    chancompRemov = tmprej;
+    chansorcomps4removal = tmprej;
 elseif size(EEG.myVariables,2) > 2
-    chancompRemov = EEG.myVariables{3};
+    chansorcomps4removal = EEG.myVariables{3};
 else
-    chancompRemov = '';
+    chansorcomps4removal = '';
 end
 if size(EEG.myVariables,2) > 3
     useText = EEG.myVariables{4};
@@ -75,9 +75,9 @@ else
 end
 
 if ~useText
-    channelsOrComponents = '';
+    list_of_chans_or_comps = '';
 else
-    channelsOrComponents = EEG.myVariables{1};
+    list_of_chans_or_comps = EEG.myVariables{1};
 end
 
 EEG.myVariables = {};
@@ -154,39 +154,48 @@ end
 % MODIFIED BY UGO TO INTERPOLATE SELECTED CHANNELS OR COMPONENTS
 EEG.ugo.regions = regions;
 if useText
-    EEG.ugo.chancomp = channelsOrComponents;
+    EEG.ugo.chancomp = list_of_chans_or_comps;
     % --- colect channels or components into numbers
 else
-    for rej=1:size(regions,1)
-        channels = find(regions(rej,6:end));
-        if ~isempty(channelsOrComponents)
-            channelsOrComponents = strcat(channelsOrComponents,';');
+    for i=1:size(regions,1)
+        channels = find(regions(i,6:end));
+        if ~isempty(list_of_chans_or_comps)
+            list_of_chans_or_comps = strcat(list_of_chans_or_comps,';');
         end
-        channelsOrComponents = strcat(channelsOrComponents,num2str(channels));
+        list_of_chans_or_comps = strcat(list_of_chans_or_comps,num2str(channels));
     end
 end
 
-regions2 = regions;
-regions3 = [];
-for rej=1:size(regions,1)
-    if regions(rej,3) ~= [0.7]
-        regions3(rej,:) = regions(rej,:);
-        regions2(rej,:) = [];
+%distribute regions for rejetion and regions for interpolation between
+%regions 2 and regions 3 variables
+
+regions_for_interp = regions;
+regions_for_rej = [];
+counter = 0;
+
+for i=1:size(regions,1)
+    if regions(i,3) ~= [0.7]
+        regions_for_interp(i-counter,:) = [];
+        counter = counter + 1;
+        regions_for_rej(counter,:) = regions(i,:);
     end
 end
 
-if size(regions,2) > 2, regions2 = regions2(:, 1:2); end
+if size(regions_for_interp,2) > 2, regions_for_interp = regions_for_interp(:, 1:2); end
 
 if ndims(EEG.data) < 3
-    regions2 = combineregions(regions2);
-    if (regions2(1) == 0) && (regions2(2) == 0)
-        regions2 = regions;
+    regions_for_interp = combineregions(regions_for_interp);
+    if (regions_for_interp(1) == 0) && (regions_for_interp(2) == 0)
+        regions_for_interp = regions;
     end
 end
 
-divisors = strfind(channelsOrComponents,';');
+%Get the split divisions. This was originally made so that one could type
+%the channels on a box, which was deprecated, but still installed in case
+%needs to be used later.
+divisors = strfind(list_of_chans_or_comps,';');
 if isempty(divisors)
-    divisors = strfind(channelsOrComponents,',');
+    divisors = strfind(list_of_chans_or_comps,',');
 end
 
 % --- fully interpolate channels or remove components selected (Ugo)
@@ -194,25 +203,25 @@ EEGOG = EEG;
 EEGmod = EEG;
 
 EEGinterp = EEG;
-if ~isempty(channelsOrComponents)
+if ~isempty(list_of_chans_or_comps)
     % --- if only one channel or component was given %MODIFIED BY UGO NUNES JUL/2021
     if isempty(divisors)
         % get channel or component
-        compOrChan = str2num(channelsOrComponents);
+        compOrChan = str2num(list_of_chans_or_comps);
         % interpolate component or channel for the selected intervals
         if chanorcomp == 1
             EEGinterp = pop_interp(EEG, [compOrChan], 'spherical');
-            for i=1:size(regions2,1)
+            for i=1:size(regions_for_interp,1)
                 
-                fprintf(strcat('Interpolating channels(s) _', num2str(compOrChan),' for the period _',num2str(regions2(i,1)),' to _',num2str(regions2(i,2))), '\r' );
-                EEGmod.data(compOrChan,regions2(i,1):regions2(i,2)) = EEGinterp.data(compOrChan,regions2(i,1):regions2(i,2));
+                fprintf(strcat('Interpolating channels(s) _', num2str(compOrChan),' for the period _',num2str(regions_for_interp(i,1)),' to _',num2str(regions_for_interp(i,2))), '\r' );
+                EEGmod.data(compOrChan,regions_for_interp(i,1):regions_for_interp(i,2)) = EEGinterp.data(compOrChan,regions_for_interp(i,1):regions_for_interp(i,2));
                 
             end
         else
             EEGinterp = pop_subcomp(EEG, [compOrChan]);
-            for i=1:size(regions2,1)
-                fprintf(strcat('Interpolating components(s) _', num2str(compOrChan),' for the period _',num2str(regions2(i,1)),' to _',num2str(regions2(i,2))), '\r' );
-                EEGmod.data(:,regions2(i,1):regions2(i,2)) = EEGinterp.data(:,regions2(i,1):regions2(i,2));
+            for i=1:size(regions_for_interp,1)
+                fprintf(strcat('Interpolating components(s) _', num2str(compOrChan),' for the period _',num2str(regions_for_interp(i,1)),' to _',num2str(regions_for_interp(i,2))), '\r' );
+                EEGmod.data(:,regions_for_interp(i,1):regions_for_interp(i,2)) = EEGinterp.data(:,regions_for_interp(i,1):regions_for_interp(i,2));
                 %EEGIN.icaact(thisChan,regions(i,1):regions(i,2)) = EEGIN.icaact(thisChan,regions(i,1):regions(i,2));
             end
         end
@@ -228,22 +237,22 @@ if ~isempty(channelsOrComponents)
             % be interpolated for each selected period of time
             % if it is the final number, does the same for the last numbers
             if j ~= numOfInts
-                compOrChan = str2num(channelsOrComponents(divisors(j)+1:divisors(j+1)-1));
+                compOrChan = str2num(list_of_chans_or_comps(divisors(j)+1:divisors(j+1)-1));
             else
-                compOrChan = str2num(channelsOrComponents(divisors(j)+1:end));
+                compOrChan = str2num(list_of_chans_or_comps(divisors(j)+1:end));
             end
             
             if chanorcomp == 1
-                fprintf(strcat('Interpolating channels(s) _', num2str(compOrChan),' for the period _',num2str(regions2(j,1)),' to _',num2str(regions2(j,2))), '\r' );
+                fprintf(strcat('Interpolating channels(s) _', num2str(compOrChan),' for the period _',num2str(regions_for_interp(j,1)),' to _',num2str(regions_for_interp(j,2))), '\r' );
                 EEGinterp = pop_interp(EEG, [compOrChan], 'spherical');
                 %for i=1:size(regions,1)
-                EEGmod.data(compOrChan,regions2(j,1):regions2(j,2)) = EEGinterp.data(compOrChan,regions2(j,1):regions2(j,2));
+                EEGmod.data(compOrChan,regions_for_interp(j,1):regions_for_interp(j,2)) = EEGinterp.data(compOrChan,regions_for_interp(j,1):regions_for_interp(j,2));
                 %end
             else
-                fprintf(strcat('Interpolating components(s) _', num2str(compOrChan),' for the period _',num2str(regions2(j,1)),' to _',num2str(regions2(j,2))), '\r' );
+                fprintf(strcat('Interpolating components(s) _', num2str(compOrChan),' for the period _',num2str(regions_for_interp(j,1)),' to _',num2str(regions_for_interp(j,2))), '\r' );
                 EEGinterp = pop_subcomp(EEG,[compOrChan]);
                 %for i=1:size(regions,1)
-                EEGmod.data(:,regions2(j,1):regions2(j,2)) = EEGinterp.data(:,regions2(j,1):regions2(j,2));
+                EEGmod.data(:,regions_for_interp(j,1):regions_for_interp(j,2)) = EEGinterp.data(:,regions_for_interp(j,1):regions_for_interp(j,2));
                 %EEGIN.icaact(thisChan,regions(j,1):regions(j,2)) = EEGIN.icaact(thisChan,regions(i,1):regions(i,2));
                 %end
             end
@@ -253,161 +262,37 @@ if ~isempty(channelsOrComponents)
 end
 EEGmod2 = EEGmod;
 
-if ~isempty(chancompRemov)
-    if isstring(chancompRemov)
-        chancompRemov = str2num(chancompRemov);
+if ~isempty(chansorcomps4removal)
+    if isstring(chansorcomps4removal)
+        chansorcomps4removal = str2num(chansorcomps4removal);
     end
     if chanorcomp == 1
-        fprintf(strcat('Interpolating channels(s) _', num2str(chancompRemov),'\r' ));
-        EEGmod2 = pop_interp(EEGmod, [chancompRemov], 'spherical');
+        fprintf(strcat('Interpolating channels(s) _', num2str(chansorcomps4removal),'\r' ));
+        EEGmod2 = pop_interp(EEGmod, [chansorcomps4removal], 'spherical');
     else
-        fprintf(strcat('Removing components(s) _', num2str(chancompRemov),'\r' ));
-        EEGmod2 = pop_subcomp(EEGmod, [chancompRemov]);
+        fprintf(strcat('Removing components(s) _', num2str(chansorcomps4removal),'\r' ));
+        EEGmod2 = pop_subcomp(EEGmod, [chansorcomps4removal]);
     end
 end
 
-EEGdiff = EEGOG.data - EEGmod2.data;
+% for plotting the data difference
 
 if plotdiff == 1
-    eegplot_w( EEGdiff, 'srate', EEG.srate, 'title', [ 'DIFFERENCE PRE AND POST CHANNEL/COMPONENT INTERPOLATION -- eegplot_w(): ' EEG.setname], ...
+    EEGdiff = EEGOG.data - EEGmod2.data;
+    eegplot_w2( EEGdiff, 'srate', EEG.srate, 'title', [ 'DIFFERENCE PRE AND POST CHANNEL/COMPONENT INTERPOLATION -- eegplot_w(): ' EEG.setname], ...
         'limits', [EEG.xmin EEG.xmax]*1000 )% , 'command', command, eegplotoptions{:}, varargin{:});
 end
 
+%final EEG!
 EEGOUT = EEGmod2;
 
-com = sprintf('EEGOUT = eeg_eegrej2( EEGOUT, %s );', vararg2str({ regions, channelsOrComponents, chanorcomp, tmprej }));
+com = sprintf('EEGOUT = eeg_eegrej2( EEGOUT, %s );', vararg2str({ regions, list_of_chans_or_comps, chanorcomp, tmprej }));
 
-if ~isempty(regions3)
-    [EEGOUT2,com] = eeg_eegrej( EEGOUT, regions3);
+% Run data rejection in case of rejection selected.
+if ~isempty(regions_for_rej)
+    [EEGOUT2,com] = eeg_eegrej( EEGOUT, regions_for_rej);
 end
 
-% remove events within regions
-% ----------------------------
-% if ~isempty(EEG.event)
-%     allEventLatencies = [ EEG.event.latency];
-%     allEventFlag      = zeros(1,length(allEventLatencies));
-%     for iRegion = 1:size(regions,1)
-%         allEventFlag = allEventFlag | ( allEventLatencies >= regions(iRegion,1) & allEventLatencies <= regions(iRegion,2));
-%     end
-%     EEG.event(allEventFlag) = [];
-% end
-%
-% % reject data
-% % -----------
-% [EEG.data, EEG.xmax, event2, boundevents] = eegrej( EEG.data, regions, EEG.xmax-EEG.xmin, EEG.event);
-% oldEEGpnts = EEG.pnts;
-% oldEEGevents = EEG.event;
-% EEG.pnts   = size(EEG.data,2);
-% EEG.xmax   = EEG.xmax+EEG.xmin;
-% if length(event2) > 1 && event2(1).latency == 0, event2(1) = []; end
-% if length(event2) > 1 && event2(end).latency == EEG.pnts, event2(end) = []; end
-% if length(event2) > 2 && event2(end).latency == event2(end-1).latency, event2(end) = []; end
-%
-%
-% % add boundary events
-% % -------------------
-% [ EEG.event ] = eeg_insertbound(EEG.event, oldEEGpnts, regions);
-% EEG = eeg_checkset(EEG, 'eventconsistency');
-% if ~isempty(EEG.event) && EEG.trials == 1 && EEG.event(end).latency > EEG.pnts
-%     EEG.event(end) = []; % remove last event if necessary
-% end
-
-% double check event latencies
-% the function that insert boundary events and recompute latency is
-% delicate so we do it twice using different methods and check
-% the results. It is longer, but accuracy is paramount.
-% if isfield(EEG.event, 'latency') && length(EEG.event) < 3000
-%     % assess difference between old and new event latencies
-%     [ eventtmp ] = eeg_insertboundold(oldEEGevents, oldEEGpnts, regions);
-%     if ~isempty(eventtmp)
-%         [~,indEvent] = sort([ eventtmp.latency ]);
-%         eventtmp = eventtmp(indEvent);
-%     end
-%     if ~isempty(eventtmp) && length(eventtmp) > length(EEG.event) && isfield(eventtmp, 'type') && isequal(eventtmp(1).type, 'boundary')
-%         eventtmp(1) = [];
-%     end
-%     if isfield(eventtmp, 'duration')
-%         for iEvent=1:length(eventtmp)
-%             if isempty(eventtmp(iEvent).duration)
-%                 eventtmp(iEvent).duration = 0;
-%             end
-%         end
-%     end
-%     if ~isempty(eventtmp) && eventtmp(end).latency > EEG.pnts
-%         eventtmp(end) = [];
-%     end
-%     % add initial event to eventtmp when missing
-%     if ~isempty(eventtmp) && ~isempty(EEG.event) && ...
-%             strcmpi(EEG.event(1).type, 'boundary') && EEG.event(1).latency == 0.5 && eventtmp(1).latency ~= 0.5
-%         if size(eventtmp,2) > 1
-%             eventtmp = [ eventtmp(1) eventtmp(1:end) ];
-%         else
-%             eventtmp = [ eventtmp(1) eventtmp(1:end)' ];
-%         end
-%         eventtmp(1).type = 'boundary';
-%         eventtmp(1).latency = 0.5;
-%         eventtmp(1).duration = EEG.event(1).duration;
-%     end
-%
-%     differs = 0;
-%     for iEvent=1:min(length(EEG.event), length(eventtmp)-1)
-%         if ~issameevent(EEG.event(iEvent), eventtmp(iEvent)) && ~issameevent(EEG.event(iEvent), eventtmp(iEvent+1))
-%             differs = differs+1;
-%         end
-%     end
-%     if 100*differs/length(EEG.event) > 50
-%         fprintf(['BUG 1971 WARNING: IF YOU ARE USING A SCRIPT WITTEN FOR A PREVIOUS VERSION OF EEGLAB (<2017)\n' ...
-%                 'TO CALL THIS FUNCTION, BECAUSE YOU ARE REJECTING THE ONSET OF THE DATA, EVENTS MIGHT HAVE\n' ...
-%                 'BEEN CORRUPTED. EVENT LATENCIES ARE NOW CORRECT (SEE https://sccn.ucsd.edu/wiki/EEGLAB_bug1971);\n' ]);
-%     end
-%
-%     alllats = [ EEG.event.latency ];
-%     if ~isempty(event2)
-%         otherlatencies = [event2.latency];
-%         if ~isequal(alllats, otherlatencies)
-%             warning([ 'Discrepency when recomputing event latency.' 10 'Try to reproduce the problem and send us your dataset' ]);
-%         end
-%     end
-% end
-
-% double check boundary event latencies
-% if ~isempty(EEG.event) && length(EEG.event) < 3000 && ischar(EEG.event(1).type) && isfield(EEG.event, 'duration') && isfield(event2, 'duration')
-%     try
-%         indBound1 = find(cellfun(@(x)strcmpi(num2str(x), 'boundary'), { EEG.event(:).type }));
-%         indBound2 = find(cellfun(@(x)strcmpi(num2str(x), 'boundary'), { event2(:).type }));
-%         duration1 = [EEG.event(indBound1).duration]; duration1(isnan(duration1)) = [];
-%         duration2 = [event2(indBound2).duration]; duration2(isnan(duration2)) = [];
-%         if ~isequal(duration1, duration2)
-%             duration1(duration1 == 0) = [];
-%             if ~isequal(duration1, duration2)
-%                 warning(['Inconsistency in boundary event duration.' 10 'Try to reproduce the problem and send us your dataset' ]);
-%             end
-%         end
-%     catch, warning('Unknown error when checking event latency - please send us your dataset');
-%     end
-% end
-
-% debuging code below
-% regions, n1 = 1525; n2 = 1545; n = n2-n1+1;
-% a = zeros(1,n); a(:) = 1; a(strmatch('boundary', { event2(n1:n2).type })') = 8;
-% [[n1:n2]' alllats(n1:n2)' [event2(n1:n2).latency]' alllats(n1:n2)'-[event2(n1:n2).latency]' otherorilatencies(n1:n2)' a']
-% figure; ev = 17; range = [-1000:1000]; plot(EEG.data(1,EEG.event(ev).latency+range)); hold on; plot(tmpdata(1,tmpevent(EEG.event(ev).urevent).latency+range+696), 'r'); grid on;
-
-%com = sprintf('EEG = eeg_eegrej( EEG, %s);', vararg2str({ regions }));
-
-% combine regions if necessary
-% it should not be necessary but a
-% bug in eegplot makes that it sometimes is
-% ----------------------------
-% function newregions = combineregions(regions)
-% newregions = regions;
-% for index = size(regions,1):-1:2
-%     if regions(index-1,2) >= regions(index,1)
-%         disp('Warning: overlapping regions detected and fixed in eeg_eegrej');
-%         newregions(index-1,:) = [regions(index-1,1) regions(index,2) ];
-%         newregions(index,:)   = [];
-%     end
-% end
 
 function res = issameevent(evt1, evt2)
 

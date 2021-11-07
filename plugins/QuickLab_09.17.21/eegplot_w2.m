@@ -1261,36 +1261,43 @@ else
   switch data
   case 'rejection'
     g = get(gcf,'UserData');
+    dis = findobj('tag', 'Rejection');
     if g.wincolor == [0.7 1 0.9]
         g.wincolor = [1 0.8 0.8];
-        dis = findobj('tag', 'Rejection');
         set(dis,'BackgroundColor',[1 0.5 0.5]);
         set(dis,'string','Toggle Rejection');
     else
         g.wincolor = [0.7 1 0.9];
-        dis = findobj('tag', 'Rejection');
-        set(dis,'BackgroundColor',[0.5 0.5 1]);
+        set(dis,'BackgroundColor',[0.5 1 0.5]);
         set(dis,'string','Toggle Interpolation');
     end
     
-    draw_data([],[],gcf,1,[],g);
-      
+    draw_data([],[],gcf,0,[],g);
       
    case 'redraw'
     g = get(gcf,'UserData');
+    EEG = g.EEG;
+    epoch = abs(EEG.xmin - EEG.xmax);
+    dis = findobj('tag', 'Display');
+    
+    
     if g.trialstag == -1
-        g.trialstag = g.srate;
-        dis = findobj('tag', 'Display');
-        set(dis,'BackgroundColor',[1 0.5 0.5]);
+        g.trialstag = g.srate * epoch;
+        g.winlength =  g.winlength / epoch;
+        
+        set(dis,'BackgroundColor',[.7 0.7 1]); %make display blue
         set(dis,'string','Toggle Continuous');
+        
+        draw_data([],[],gcf,0,[],g);
     else
         g.trialstag = -1;
-        dis = findobj('tag', 'Display');
-        set(dis,'BackgroundColor',[0.5 0.5 1]);
+        g.winlength = g.winlength * epoch;
+        
+        set(dis,'BackgroundColor',[0.5 1 0.5]); %make display green
         set(dis,'string','Toggle Epoched');
+        
+        draw_data([],[],gcf,0,[],g);
     end
-    
-    draw_data([],[],gcf,1,[],g);
       
   case 'drawp'
     % Redraw EEG and change position
