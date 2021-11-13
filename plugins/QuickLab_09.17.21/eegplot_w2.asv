@@ -328,6 +328,17 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    
    if isstruct(EEG)
        g.EEG = EEG;
+       if isempty(g.winrej)
+            if EEG.plotIc == 1
+               if isfield(EEG,'chanrej')
+                   g.winrej = EEG.chanrej;
+               end
+           else
+               if isfield(EEG,'comprej')
+                   g.winrej = EEG.comprej;
+               end
+           end
+       end
    end
    
    if strcmpi(g.ploteventdur, 'on')
@@ -847,6 +858,11 @@ u(22) = uicontrol('Parent',figh, ...
     'Tag','Envelope',...
     'string','Stack', 'callback', cb_envelope);
 
+% Save button
+
+% Clear Button
+
+
   if isempty(g.command) tmpcom = 'fprintf(''Rejections saved in variable TMPREJ\n'');';   
   else tmpcom = g.command;
   end;
@@ -865,6 +881,7 @@ u(22) = uicontrol('Parent',figh, ...
 						'Units', 'normalized', ...
 						'Position',posbut(12,:), ...
 						'Tag','Accept',...
+                        'Color',[0],...
 						'string',g.butlabel, 'callback', acceptcommand);
   end;
   u(13) = uicontrol('Parent',figh, ...
@@ -1265,11 +1282,11 @@ else
     if g.wincolor == [0.7 1 0.9]
         g.wincolor = [1 0.8 0.8];
         set(dis,'BackgroundColor',[1 0.5 0.5]);
-        set(dis,'string','Interpolating Data');
+        set(dis,'string','Rejecting Data');
     else
         g.wincolor = [0.7 1 0.9];
         set(dis,'BackgroundColor',[0.5 1 0.5]);
-        set(dis,'string','Rejecting Data');
+        set(dis,'string','Interpolating Data');
     end
     
     draw_data([],[],gcf,0,[],g);
@@ -1287,7 +1304,7 @@ else
         g.time = g.time * epoch;
         
         set(dis,'BackgroundColor',[.7 0.7 1]); %make display blue
-        set(dis,'string','Continuous Data');
+        set(dis,'string','Epoched Data');
         
         draw_data([],[],gcf,5,[],g);
     else
@@ -1296,7 +1313,7 @@ else
         
         g.time = g.time * epoch;
         set(dis,'BackgroundColor',[0.5 1 0.5]); %make display green
-        set(dis,'string','Epoched Data');
+        set(dis,'string','Continuous Data');
         
         draw_data([],[],gcf,5,[],g);
     end
@@ -2401,7 +2418,7 @@ function change_scale(varargin)
 % ---------------------------------
 function mouse_down(varargin)
 fig = varargin{3};
-if strcmp(get(fig, 'SelectionType'),'shift')
+if strcmp(get(fig, 'SelectionType'),'extend')
     eegplot_w2('topoplot', fig);
     return;
 end;

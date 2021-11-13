@@ -328,6 +328,17 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    
    if isstruct(EEG)
        g.EEG = EEG;
+       if isempty(g.winrej)
+            if EEG.plotIc == 1
+               if isfield(EEG,'chanrej')
+                   g.winrej = EEG.chanrej;
+               end
+           else
+               if isfield(EEG,'comprej')
+                   g.winrej = EEG.comprej;
+               end
+           end
+       end
    end
    
    if strcmpi(g.ploteventdur, 'on')

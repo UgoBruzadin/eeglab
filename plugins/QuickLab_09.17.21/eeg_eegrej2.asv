@@ -179,30 +179,30 @@ for i=1:size(regions,1)
     end
 end
 
+if size(regions_for_interp,2) > 2, regions_for_interp = regions_for_interp(:, 1:2); end
+
+if ndims(EEG.data) < 3
+    regions_for_interp = combineregions(regions_for_interp);
+    if (regions_for_interp(1) == 0) && (regions_for_interp(2) == 0)
+        regions_for_interp = regions;
+    end
+end
+
 chancounter = 0;
 
-for i=1:size(regions_for_interp,1)
-    channels = find(regions_for_interp(i,6:end));
+for i=1:size(regions,1)
+    channels = find(regions(i,6:end));
     if channels ~= 0
         if ~isempty(list_of_chans_or_comps)
             list_of_chans_or_comps = strcat(list_of_chans_or_comps,';');
         end
         list_of_chans_or_comps = strcat(list_of_chans_or_comps,num2str(channels));
     else
-         regions_for_interp(i-chancounter,:) = [];
-         chancounter = chancounter + 1;
+%         regions(i-chancounter,:) = [];
+%         chancounter = chancounter + 1;
     end 
 end
 
-
-if size(regions_for_interp,2) > 2, regions_for_interp = regions_for_interp(:, 1:2); end
-
-% if ndims(EEG.data) < 3
-%     regions_for_interp = combineregions(regions_for_interp);
-%     if (regions_for_interp(1) == 0) && (regions_for_interp(2) == 0)
-%         regions_for_interp = regions;
-%     end
-% end
 
 %Get the split divisions. This was originally made so that one could type
 %the channels on a box, which was deprecated, but still installed in case
