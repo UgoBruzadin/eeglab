@@ -1,8 +1,8 @@
 % pop_par_multifit2() - fit multiple component dipoles using DIPFIT 
 %
 % Usage:
-%         >> EEG = pop_multifit(EEG); % pop-up graphical interface
-%         >> EEG = pop_multifit(EEG, comps, 'key', 'val', ...);
+%         >> EEG = pop_par_multifit2(EEG); % pop-up graphical interface
+%         >> EEG = pop_par_multifit2(EEG, comps, 'key', 'val', ...);
 %
 % Inputs:
 %  EEG      - input EEGLAB dataset.
@@ -24,12 +24,15 @@
 %
 % Note: residual variance is set to NaN if DIPFIT does not converge
 %  
-% Author: Arnaud Delorme, SCCN/INC/UCSD, La Jolla, Oct. 2003
 
-% Modified by Ugo Bruzadin Nunes, June 28th 2021
+% Original Author: Arnaud Delorme, SCCN/INC/UCSD, La Jolla, Oct. 2003
+
+% Code Modified by Ugo Bruzadin Nunes, June 28th 2021
 % for parallel use and speedier processing.
 
+
 % Copyright (C) 9/2003 Arnaud Delorme, SCCN/INC/UCSD, arno@salk.edu
+% Copyright (C) 2021 Ugo Bruzadin Nunes
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -278,13 +281,13 @@ function [EEG, com] = pop_par_multifit2(EEG, comps, varargin)
     end
     
     % LINE CHANGES BY UGO BRUZADIN NUNES
-    % ADDED ATLAS for DIP ID, REMOVED COM FOR PARALLEL PROCESSING
+    % ADDED ATLAS for DIP ID, REMOVE COM FOR PARALLEL PIEPELINES
     try 
         EEG = eeg_compatlas2(EEG);
     catch
         fprintf('Could not run eeg_compatlas2 \r') ;
     end
-    %com = sprintf('EEG = pop_multifit(EEG, %s);', vararg2str({ comps options{:}}));
+    com = sprintf('EEG = pop_multifit(EEG, %s);', vararg2str({ comps options{:}}));
     return;
     
 % get electrode positions from eeglag
