@@ -7,13 +7,13 @@ function corrmappath = savecorrmappath()
 %--- save current path
 currentfolder = pwd;
 %--- changes to plugin folder
-folder = geteeglabpath()
+folder = geteeglabpath();
 if isempty(folder)
     return;
 end
-cd(folder);
-cd('plugins')
-dir('QuickLab*');
+cd(strcat(folder,'/plugins'));
+quicklab = dir('QuickLab*');
+cd(quicklab.name)
 %cd('C:/GitHub/eeglab/plugins/QuickLab'); %NEEDS FIXING
 pluginfolder = pwd;
 %--- creates empty string variable corrmappath
@@ -24,12 +24,11 @@ if isfile('corrmappath.txt')
     if iscell(corrmappath)
         corrmappath = corrmappath{:};
     end
+else
+    corrmappath = uigetdir(corrmappath);
+    writematrix(corrmappath,'corrmappath.txt');
 end
 
-corrmappath = uigetdir(corrmappath);
-
 cd(pluginfolder);
-
-writematrix(corrmappath,'corrmappath.txt');
 
 end

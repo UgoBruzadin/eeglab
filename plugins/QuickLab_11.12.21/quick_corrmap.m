@@ -131,5 +131,5 @@ totalICS = num2str(size(EEG.icaweights,1));
 %EEG = pop_saveset(EEG, 'filename', [allsets(i).name(1:end-4), strcat('Pc',totalICS,'CORR.set')], 'filepath',  PATHOUT ); %save set - all artifacts corrected
 %EEG = pop_delset(EEG,1);
 %end
-
+cd(currentFolder);
 end
