@@ -471,11 +471,11 @@ switch lower(g.icatype)
             disp(['Data rank (' int2str(tmprank) ') is smaller than the number of channels (' int2str(size(tmpdata,1)) ').']);
             [EEG.icaweights,EEG.icasphere] = binica(EEG, tmpdata, 'lrate', 0.001, 'pca', tmprank, g.options{:}); % Added EEG by Ugo Nunes 06/21/2020
         end
-%         if isfield(EEG,'dipfit')
-%             if isfield(EEG.dipfit,'model')
-%                 EEG.dipfit.model = [];
-%             end
-%         end
+        if isfield(EEG,'dipfit')
+            if isfield(EEG.dipfit,'model')
+                EEG.dipfit.model = [];
+            end
+        end
         toc
     case 'cudaica' % Add by Yunhui on 2018-09-09
         tic
@@ -492,11 +492,11 @@ switch lower(g.icatype)
             disp(['Data rank (' int2str(tmprank) ') is smaller than the number of channels (' int2str(size(tmpdata,1)) ').']);
             [EEG.icaweights,EEG.icasphere] = cudaica(tmpdata, 'lrate', 0.001, 'pca', tmprank, g.options{:}); % Added EEG by Ugo Nunes 06/21/2020
         end
-%         if isfield(EEG,'dipfit')
-%             if isfield(EEG.dipfit,'model')
-%                 EEG.dipfit.model = [];
-%             end
-%         end
+        if isfield(EEG,'dipfit')
+            if isfield(EEG.dipfit,'model')
+                EEG.dipfit.model = [];
+            end
+        end
         %[EEG.icaweights,EEG.icasphere] = cudaica(tmpdata, 'lrate', 0.001, g.options{:} );    % Added EEG by Ugo Nunes 06/21/2020 
         toc
     case 'amica'

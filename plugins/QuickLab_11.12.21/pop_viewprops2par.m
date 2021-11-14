@@ -171,16 +171,24 @@ count = [1:length(chanorcomp)];
 parEEG(1:length(chanorcomp)) = deal(EEG);
 tic
 %ERROR: NOT ENOUGH INPUT ARGUMENTS
-for ri = chanorcomp
+
+%if ~strcmp(get(gcf, 'tag'), currentfigtag)
+    A = figure(findobj('tag', currentfigtag));
+%end
+H = gobjects(length(chanorcomp),1);
+%set(A,'CurrentAxes',H)
+%set(handles.figure,'CurrentAxes',H)
+
+parfor ri = chanorcomp
     tempEEG = parEEG(ri);
-    if exist('fig','var')
-        button = findobj('parent', fig, 'tag', ['comp' num2str(ri)]);
-        if isempty(button)
-            error( 'pop_viewprops(): figure does not contain the component button');
-        end
-    else
+    %if exist('fig','var')
+%         button = findobj('parent', fig, 'tag', ['comp' num2str(ri)]);
+%         if isempty(button)
+%             error( 'pop_viewprops(): figure does not contain the component button');
+%         end
+    %else
         button = [];
-    end
+    %end
     
     if isempty( button )
         % compute coordinates
@@ -190,21 +198,25 @@ for ri = chanorcomp
         
         % plot the head
         % -------------
-        if ~strcmp(get(gcf, 'tag'), currentfigtag)
-            figure(findobj('tag', currentfigtag));
-        end
-        %ha = axes('Units','Normalized', 'Position',[X Y sizewx sizewy].*s+q);
+        
+
+% if ~strcmp(get(gcf, 'tag'), currentfigtag)
+     %figure(findobj('tag', currentfigtag));
+% end
+        
+           %figure(A)
+        H(ri) = axes('Units','Normalized', 'Position',[X Y sizewx sizewy].*s+q);
         if typecomp
-            topoplot( ri, tempEEG.chanlocs, 'chaninfo', tempEEG.chaninfo, ...
-                'electrodes','off', 'style', 'blank', 'emarkersize1chan', 12);
+             topoplot( ri, tempEEG.chanlocs, 'chaninfo', tempEEG.chaninfo, ...
+                 'electrodes','off', 'style', 'blank', 'emarkersize1chan', 12);
         else
-            if plotelec
-                topoplot( tempEEG.icawinv(:,ri), tempEEG.chanlocs, 'verbose', ...
-                    'off', 'style' , 'fill', 'chaninfo', tempEEG.chaninfo, 'numcontour', 8);
-            else
-                topoplot( tempEEG.icawinv(:,ri), tempEEG.chanlocs, 'verbose', ...
-                    'off', 'style' , 'fill','electrodes','off', 'chaninfo', tempEEG.chaninfo, 'numcontour', 8);
-            end
+             if plotelec
+                 topoplot( tempEEG.icawinv(:,ri), tempEEG.chanlocs, 'verbose', ...
+                     'off', 'style' , 'fill', 'chaninfo', tempEEG.chaninfo, 'numcontour', 8);
+             else
+                 topoplot( tempEEG.icawinv(:,ri), tempEEG.chanlocs, 'verbose', ...
+                     'off', 'style' , 'fill','electrodes','off', 'chaninfo', tempEEG.chaninfo, 'numcontour', 8);
+             end
             % labels
             if ~typecomp && isfield(tempEEG.etc, 'ic_classification')
                 classifiers = fieldnames(tempEEG.etc.ic_classification);
@@ -222,11 +234,11 @@ for ri = chanorcomp
                     %                             ~= size(tempEEG.etc.ic_classification.(classifier_name2).classifications, 1)
                     %                         warning(['The number of ICs do not match the number of IC classifications. This will result in incorrectly plotted labels. Please rerun ' classifier_name])
                     %                     end
-                    [prob, classind] = max(tempEEG.etc.ic_classification.(classifier_name2).classifications(ri, :));
-                    t = title(sprintf('%s : %.1f%%', ...
-                        tempEEG.etc.ic_classification.(classifier_name2).classes{classind}, ...
-                        prob*100));
-                    set(t, 'Position', get(t, 'Position') .* [1 -1.2 1])
+                    %[prob, classind] = max(tempEEG.etc.ic_classification.(classifier_name2).classifications(ri, :));
+%                     t = title(sprintf('%s : %.1f%%', ...
+%                         tempEEG.etc.ic_classification.(classifier_name2).classes{classind}, ...
+%                         prob*100));
+%                     set(t, 'Position', get(t, 'Position') .* [1 -1.2 1])
                 end
             end
         end
@@ -234,9 +246,9 @@ for ri = chanorcomp
         
         % plot the button
         % ---------------
-        if ~strcmp(get(gcf, 'tag'), currentfigtag)
-            figure(findobj('tag', currentfigtag));
-        end
+%         if ~strcmp(get(gcf, 'tag'), currentfigtag)
+%             figure(findobj('tag', currentfigtag));
+%         end
         %alterations by Ugo 2021, original commented
         %button = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized', 'Position',...
         %    [X Y+sizewy sizewx/3 sizewy*0.18].*s+q, 'tag', ['comp' num2str(ri)]);
@@ -252,7 +264,7 @@ for ri = chanorcomp
         
         % --- get components status to give value to checkboxes
         if ~isempty(tempEEG.reject.gcompreject)
-            status = tempEEG.reject.gcompreject(chanorcomp);
+            status = tempEEG.reject.gcompreject(ri);
         else
             status(ri) = 0;
         end
@@ -273,6 +285,8 @@ end
 for s = count(end)
     EEG(s).reject.gcompreject(s) = parEEG(s).reject.gcompreject(s);
 end
+
+%set(gcf,axes,H)
 
 drawnow;
 toc;

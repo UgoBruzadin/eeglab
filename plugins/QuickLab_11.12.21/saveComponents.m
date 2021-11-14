@@ -10,6 +10,8 @@ if isempty(EEG.icaact)
     return
 end
 
+currentfolder = pwd;
+
 if isfile('corrmappath.txt')
     corrmappath = readtext('corrmappath.txt');
     if iscell(corrmappath)
@@ -64,7 +66,7 @@ if myComps
         if isempty(corrmapFiles)
             compNumber = 1;
         else
-            compNumber = size(corrmapFiles,2) + i;
+            compNumber = size(corrmapFiles,1) + i;
         end
         % --- finalize component name with %, number and ID
         corrName = strcat(corrName,'-',num2str(compNumber),'-',num2str(value));
@@ -72,4 +74,6 @@ if myComps
         pop_saveset(EEGcomp, 'filename', [strcat(corrName, '.set')],'filepath',pwd);
     end
 end
+
+cd(currentfolder);
 end
