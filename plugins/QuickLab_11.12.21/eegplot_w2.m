@@ -158,6 +158,7 @@
 %                    this variable. (See eegplot2trial() and eegplot2event()). 
 %
 % Author: Arnaud Delorme & Colin Humphries, CNL/Salk Institute, SCCN/INC/UCSD, 1998-2001
+% Modified by: Ugo Bruzadin Nunes 2021
 %
 % See also: eeg_multieegplot(), eegplot2event(), eegplot2trial(), eeglab()
 
@@ -166,6 +167,7 @@
 %                   is current color only.
 
 % Copyright (C) 2001 Arnaud Delorme & Colin Humphries, Salk Institute, arno@salk.edu
+% Copyright (C) 2021 Ugo Bruzadin Nunes
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

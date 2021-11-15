@@ -173,9 +173,9 @@ tic
 %ERROR: NOT ENOUGH INPUT ARGUMENTS
 
 %if ~strcmp(get(gcf, 'tag'), currentfigtag)
-    A = figure(findobj('tag', currentfigtag));
+A = figure(findobj('tag', currentfigtag));
 %end
-H = gobjects(length(chanorcomp),1);
+HA = gobjects(length(chanorcomp),1);
 %set(A,'CurrentAxes',H)
 %set(handles.figure,'CurrentAxes',H)
 
@@ -195,17 +195,11 @@ parfor ri = chanorcomp
         % -------------------
         X = mod(count(ri)-1, column)/column * incx-10;
         Y = (rows-floor((count(ri)-1)/column))/rows * incy - sizewy*1.3;
+        HA(ri) = axes('Units','Normalized', 'Position',[X Y sizewx sizewy].*s+q);
         
         % plot the head
         % -------------
         
-
-% if ~strcmp(get(gcf, 'tag'), currentfigtag)
-     %figure(findobj('tag', currentfigtag));
-% end
-        
-           %figure(A)
-        H(ri) = axes('Units','Normalized', 'Position',[X Y sizewx sizewy].*s+q);
         if typecomp
              topoplot( ri, tempEEG.chanlocs, 'chaninfo', tempEEG.chaninfo, ...
                  'electrodes','off', 'style', 'blank', 'emarkersize1chan', 12);
@@ -214,8 +208,9 @@ parfor ri = chanorcomp
                  topoplot( tempEEG.icawinv(:,ri), tempEEG.chanlocs, 'verbose', ...
                      'off', 'style' , 'fill', 'chaninfo', tempEEG.chaninfo, 'numcontour', 8);
              else
-                 topoplot( tempEEG.icawinv(:,ri), tempEEG.chanlocs, 'verbose', ...
+                 figure; topoplot( tempEEG.icawinv(:,ri), tempEEG.chanlocs, 'verbose', ...
                      'off', 'style' , 'fill','electrodes','off', 'chaninfo', tempEEG.chaninfo, 'numcontour', 8);
+                 
              end
             % labels
             if ~typecomp && isfield(tempEEG.etc, 'ic_classification')
@@ -250,24 +245,28 @@ parfor ri = chanorcomp
 %             figure(findobj('tag', currentfigtag));
 %         end
         %alterations by Ugo 2021, original commented
-        %button = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized', 'Position',...
-        %    [X Y+sizewy sizewx/3 sizewy*0.18].*s+q, 'tag', ['comp' num2str(ri)]);
+        button = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized', 'Position',...
+            [X Y+sizewy sizewx/3 sizewy*0.18].*s+q, 'tag', ['comp' num2str(ri)]);
         
         % plots smaller buttons
         button = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized', 'Position',...
             [X Y+sizewy sizewx/3 sizewy*0.18].*s+q, 'tag', ['comp' num2str(ri)]);
         set( button, 'callback', {@pop_prop_extended2, tempEEG, typecomp, ri, NaN, spec_opt, erp_opt, scroll_event, classifier_name} );
         
-        %         hr = uicontrol(gfc, 'Style', 'pushbutton', 'backgroundcolor', eval(fastif(status,COLREJ,COLACC)), ...
-        % 				'string', fastif(status, 'REJECT', 'ACCEPT'), 'Units','Normalized', 'Position', [40 -10 15 6].*s+q, 'userdata', status, 'tag', 'rejstatus');
+                   hr = uicontrol(gcf, 'Style', 'pushbutton', ...
+           				'string', fastif(status, 'REJECT', 'ACCEPT'), 'Units','Normalized', 'Position', [40 -10 15 6].*s+q, 'userdata', status, 'tag', 'rejstatus');
+        
+        
+%                   hr = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', eval(fastif(status,COLREJ,COLACC)), ...
+%           				'string', fastif(status, 'REJECT', 'ACCEPT'), 'Units','Normalized', 'Position', [40 -10 15 6].*s+q, 'userdata', status, 'tag', 'rejstatus');
         % -------------
         
         % --- get components status to give value to checkboxes
-        if ~isempty(tempEEG.reject.gcompreject)
-            status = tempEEG.reject.gcompreject(ri);
-        else
-            status(ri) = 0;
-        end
+%         if ~isempty(tempEEG.reject.gcompreject)
+%             status = tempEEG.reject.gcompreject(ri);
+%         else
+%             status(ri) = 0;
+%         end
         % --- plots checkboxes
         check = uicontrol(gcf, 'Style', 'checkbox','Units','Normalized', 'Value',tempEEG.reject.gcompreject(ri),'Position',...
             [X+sizewx*2/3 Y+sizewy sizewx/3 sizewy*0.18].*s+q);
@@ -278,12 +277,12 @@ parfor ri = chanorcomp
         set( button, 'backgroundcolor', COLACC, 'string', int2str(ri));
     end
     %parEEG(count(ri)).reject.gcompreject(count(ri)) = tempEEG(count(ri)).reject.gcompreject(count(ri));
-    %drawnow;
+    drawnow;
     %count = count +1;
 end
 
-for s = count(end)
-    EEG(s).reject.gcompreject(s) = parEEG(s).reject.gcompreject(s);
+for d = count(end)
+    EEG(d).reject.gcompreject(d) = parEEG(d).reject.gcompreject(d);
 end
 
 %set(gcf,axes,H)
