@@ -34,7 +34,7 @@ end
 if isempty(EEG.icaact)
     EEG.icaact = (EEG.icaweights*EEG.icasphere)*EEG.data(EEG.icachansind,:);
 end
-[EEG,com] = pop_iclabel(EEG);
+[EEG,com] = pop_iclabel(EEG,'default');
 pop_viewprops2(EEG,0,1:size(EEG.icawinv,2),{'freqrange',[minfreq maxfreq]});
 
  fprintf('You are welcome!  /r')
