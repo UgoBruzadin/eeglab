@@ -56,11 +56,13 @@
 %
 % Original author: Arnaud Delorme, CNL / Salk Institute, 2001-2002
 % Modified by: Mindaugas Baranauskas, 2017
-%
+% Modified by: Ugo Bruzadin Nunes, 2021
+% 
 % See also: eeglab(), eegplot_w(), eegplot(), pop_eegplot(), pop_rejepoch()
 
 % Copyright (C) 2001-2002 Arnaud Delorme, Salk Institute, arno@salk.edu
 % Copyright (C) 2017 Mindaugas Baranauskas
+% Copyright (C) 2021 Ugo Bruzadin Nunes
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -80,6 +82,7 @@
 % 2002-03-07 added srate argument to eegplot_w call -ad
 % 2002-03-27 added event latency recalculation for continuous data -ad
 % 2017-01-24 allow select channels/components for rejection -mb
+% 2021-11-14 altered for channel/component interpolation -ubn
 
 function com = pop_eegplot_w2( EEG, icacomp, superpose, reject, epoc, topcommand, varargin)
 
@@ -100,7 +103,7 @@ end;
 if nargin < 4
 	reject = 1;
 end;
-if icacomp == 0
+if icacomp ~= 1
 	if isempty( EEG.icasphere )
 		disp('Error: you must run ICA first'); return;
 	end;

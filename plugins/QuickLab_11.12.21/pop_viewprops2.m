@@ -20,8 +20,11 @@
 %   See also: pop_prop_extended2()
 %
 %   Adapted from pop_selectcomps Luca Pion-Tonachini (2017)
-
+%   Modified by: Ugo Bruzadin Nunes
+%
 % Copyright (C) 2001 Arnaud Delorme, Salk Institute, arno@salk.edu
+% Copyright (C) 2021 Ugo Bruzadin Nunes
+
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
