@@ -610,16 +610,15 @@ displaycomp = ['EEG.plotEp = 1 - EEG.plotEp; eegplot_w2(EEG,varargin)'];
 	'Units', 'normalized', ...
 	'Position', posbut(27,:), ...
 	'Tag','Rejection',...
-    'BackgroundColor',[.5 1 0.5],...
-	'string','Interpolating Mode',...
+    'backgroundcolor',[0.7 ],...
+	'string','Interpolating Data',...
 	'Callback', togglerej );
 
  u(28) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
 	'Position', posbut(28,:), ...
 	'Tag','Display',...
-    'BackgroundColor',[0.5 1 0.5],...
-	'string','Continuous Mode',...
+	'string','Toggle Epoched',...
 	'Callback', displayep );
 
   u(29) = uicontrol('Parent',figh, ...
@@ -1263,10 +1262,6 @@ u(22) = uicontrol('Parent',figh, ...
   
   h = findobj(gcf, 'style', 'pushbutton');
   set(h, 'backgroundcolor', BUTTON_COLOR);
-  h = findobj(gcf, 'tag', 'Rejection');
-  set(h, 'backgroundcolor', [0.7 1 0.7]);
-  h = findobj(gcf, 'tag', 'Display');
-  set(h, 'backgroundcolor', [0.7 1 0.7]);
   h = findobj(gcf, 'tag', 'eegslider');
   set(h, 'backgroundcolor', BUTTON_COLOR);
   set(figh, 'visible', 'on');
@@ -1284,11 +1279,11 @@ else
     if g.wincolor == [0.7 1 0.9]
         g.wincolor = [1 0.8 0.8];
         set(dis,'BackgroundColor',[1 0.5 0.5]);
-        set(dis,'string','Rejecting Mode');
+        set(dis,'string','Rejecting Data');
     else
         g.wincolor = [0.7 1 0.9];
         set(dis,'BackgroundColor',[0.5 1 0.5]);
-        set(dis,'string','Interpolating Mode');
+        set(dis,'string','Interpolating Data');
     end
     
     draw_data([],[],gcf,0,[],g);
@@ -1305,8 +1300,8 @@ else
         g.winlength =  g.winlength / epoch;
         g.time = g.time * epoch;
         
-        set(dis,'BackgroundColor',[1 0.5 0.5]); %make display blue
-        set(dis,'string','Epoched Mode');
+        set(dis,'BackgroundColor',[.7 0.7 1]); %make display blue
+        set(dis,'string','Epoched Data');
         
         draw_data([],[],gcf,5,[],g);
     else
@@ -1315,7 +1310,7 @@ else
         
         g.time = g.time * epoch;
         set(dis,'BackgroundColor',[0.5 1 0.5]); %make display green
-        set(dis,'string','Continuous Mode');
+        set(dis,'string','Continuous Data');
         
         draw_data([],[],gcf,5,[],g);
     end
