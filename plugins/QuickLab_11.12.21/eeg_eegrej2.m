@@ -315,7 +315,7 @@ end
 
 % Run data rejection in case of rejection selected.
 if ~isempty(regions_for_rej)
-    [EEGOUT,com] = eeg_eegrej( EEGOUT, regions_for_rej);
+    [EEGOUT,com] = pop_rejepoch( EEGOUT, regions_for_rej,0);
 end
 
 
