@@ -110,15 +110,25 @@ try
     if gpuDeviceCount
         cudamenu = uimenu (supermenu, 'label', 'Quick CUDAICA');
         
-        uimenu( cudamenu, 'label', 'Quick ICA', 'callback', ...
+        uimenu( cudamenu, 'label', 'ICA', 'callback', ...
             ['EEG = cudafastPCA(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
         
-        uimenu( cudamenu, 'label', 'Quick N-1 PCA', 'callback', ...
+        uimenu( cudamenu, 'label', 'N-1 PCA', 'callback', ...
             ['EEG = cudafastN1PCA(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
         
-        for i=4:50
-            uimenu( cudamenu, 'label', strcat('Quick PCA ',num2str(i)), 'callback', ...
+        for i=4:29
+            uimenu( cudamenu, 'label', strcat('PCA ',num2str(i)), 'callback', ...
                 ['EEG = cudafastPCA(EEG,' num2str(i) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+        end
+        for i=30:2:50
+            uimenu( cudamenu, 'label', strcat('PCA ',num2str(i)), 'callback', ...
+                ['EEG = cudafastPCA(EEG,' num2str(i) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+        end
+        
+        secondcudamenu = uimenu (cudamenu, 'label', 'MORE PCAs');
+        for g=51:75
+            uimenu( secondcudamenu, 'label', strcat('PCA ',num2str(g)), 'callback', ...
+                ['EEG = cudafastPCA(EEG,' num2str(g) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
         end
     end
 catch
@@ -189,7 +199,7 @@ rejmenu = uimenu( epochsmenu, 'label', 'Quick Epoch Rejection by probability');
 
 for k=2:7
 uimenu( rejmenu, 'label', strcat('By ',num2str(k),' SDV'), 'callback', ...
-    ['EEG = quick_trialrejprob(EEG,' num2str(j) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['EEG = quick_trialrejprob(EEG,' num2str(k) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 end
 
 % --- 4th submenu: Quick PCA edits
