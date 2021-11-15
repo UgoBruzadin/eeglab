@@ -581,10 +581,10 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   posbut(12,:) = [ 0.92    0.03    0.080    0.05 ]; % accept/close  
     
 % Channel Rejection buttons (UGO)
-EEG.myVariables{1} = 0;
-EEG.myVariables{2} = 0;
-EEG.myVariables{3} = 0;
-EEG.myVariables{4} = 0;
+% EEG.myVariables{1} = 0;
+% EEG.myVariables{2} = 0;
+% EEG.myVariables{3} = 0;
+% EEG.myVariables{4} = 0;
 % Channel rejection callbacks
 % get channels for partial interpolation
 chaninterp = ['EEG.myVariables{1} = get(findobj(gcf, ''Tag'', ''Channel''),''string'')']; 
@@ -784,7 +784,7 @@ u(26)= uicontrol('Parent',figh, ...
 	'Style','text', ...
 	'FontSize',8,...
 	'Tag','Eelecname',...
-	'string','Channel');
+	'string','Channel/Component');
 
   u(23)= uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -2903,6 +2903,9 @@ end
 function plot_topoplot(fig)
     %fig = varargin{1};
     g = get(fig,'UserData');
+    EEG = g.EEG;
+    
+    if EEG.plotIc == 1
     if ~isstruct(g.eloc_file) || ~isfield(g.eloc_file, 'theta') || isempty( [ g.eloc_file.theta ])
         return;
     end;
@@ -2932,6 +2935,38 @@ function plot_topoplot(fig)
         datapos = min(datapos, g.frames);
         axes('Parent', fig, 'position',[ 0.92    0.31    0.080    0.10 ],'units','normalized');
         topoplot(data(:,datapos), g.eloc_file);
+    end
+    else
+%     ax1 = findobj('tag','backeeg','parent',fig); 
+%     tmppos = get(ax1, 'currentpoint');
+    ax1 = findobj('tag','eegaxis','parent',fig); % axes handle
+    tmppos = get(ax1, 'currentpoint');
+    % plot vertical line
+    %yl = ylim(ax1);
+    %plot(ax1, [ tmppos tmppos ], yl, 'color', [0.8 0.8 0.8]);
+    if g.trialstag ~= -1 % time in second or in trials
+        multiplier = g.trialstag;
+    else
+        multiplier = g.srate;
+    end;
+    lowlim = round(g.time*multiplier+1);
+    highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
+    % makes sure click is in valid position
+    
+    if g.trialstag ~= -1
+        point_is_valid=tmppos(1) >= 0 && tmppos(1) < g.winlength*g.trialstag;
+    else
+        point_is_valid=tmppos(1) >= 0 && tmppos(1) <= highlim;
+    end;
+    if point_is_valid
+        tmpelec = g.chans + 1 - round(tmppos(1,2) / g.spacing);
+        tmpelec = min(max(tmpelec, 1), g.chans);
+        
+        %labls = get(ax1, 'YtickLabel');
+        %component = str2num(labls(tmpelec+1,:));
+        
+        pop_prop_extended2(EEG, 0, tmpelec, NaN)
+    end
     end
 %     if g.trialstag == -1
 %          latsec = (datapos-1)/g.srate;

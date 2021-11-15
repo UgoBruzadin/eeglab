@@ -1302,7 +1302,6 @@ set(H_MAIN(1), 'unit', 'normalized');
 % attach acronym
 % save.
 
-
 % load directory
 loaddircommand = ['findex = [1];cd(EEG.filepath);filecount = [1];files = dir(''.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''LoadFileList''),''string'',{files(1:end).name});'];
 % save command
