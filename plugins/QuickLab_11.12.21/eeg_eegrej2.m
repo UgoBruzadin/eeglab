@@ -2,7 +2,7 @@
 %                dataset
 %
 % Usage:
-%   >> EEGOUT = eeg_eegrej2( EEGIN, regions, chanorcomp );
+%   >> EEGOUT = eeg_eegrej2( EEGIN, regions, chanorcomp, tmprej);
 %
 % Inputs:
 %   INEEG      - input dataset
@@ -16,11 +16,11 @@
 %                additional boundary events.
 %
 % Author: Arnaud Delorme, CNL / Salk Institute, 8 August 2002
-
 % Modified by Ugo Bruzadin Nunes
 % See also: eeglab(), eegplot(), pop_rejepoch()
 
 % Copyright (C) 2002 Arnaud Delorme, Salk Institute, arno@salk.edu
+% Copyright (C) 2021 Ugo Bruzadin Nunes
 %
 % This file is part of EEGLAB, see http://www.eeglab.org
 % for the documentation and details.
