@@ -603,10 +603,6 @@ end;
 
 drawnow;
 
-catch
-   [fh, EEG, com] = pop_prop_extended(EEG, typecomp, chanorcomp, winhandle, spec_opt, erp_opt, scroll_event, classifier_name, varargin);
-end
-
 
 function era_limits=get_era_limits(era)
 %function era_limits=get_era_limits(era)
