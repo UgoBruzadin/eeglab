@@ -479,7 +479,8 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
       'numbertitle', 'off', 'visible', 'off', 'Units', 'Normalized',...
       'interruptible', 'off', 'busyaction', 'cancel');
   if strcmp(g.fullscreen,'on')
-      set(figh,'OuterPosition',[0 0 1 1]);
+      figh.WindowState = 'maximized';
+      %set(figh,'OuterPosition',[0 0 1 1]);
   end;
   pos = get(figh,'position'); % plot relative to current axes
   q = [pos(1) pos(2) 0 0];
