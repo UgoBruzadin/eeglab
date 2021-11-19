@@ -2249,7 +2249,7 @@ if g.trialstag(1) ~= -1
     
     tagpos  = [];
     if ~isempty(alltag)
-        alltag = [alltag(1)-g.trialstag alltag alltag(end)+g.trialstag]; % add border trial limits
+        alltag = [alltag(1)-g.trialstag-1 alltag alltag(end)+g.trialstag]; % add border trial limits % NEEDED to add -1 to g.trialstag to correct for display problems
     else
         alltag = [ floor(lowlim/g.trialstag)*g.trialstag ceil(highlim/g.trialstag)*g.trialstag ]+1;
     end;
