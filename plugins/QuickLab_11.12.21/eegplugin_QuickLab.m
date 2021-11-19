@@ -36,11 +36,11 @@ uimenu( plotmenu, 'label', 'Channel Scroll for Interpolation', 'callback', ...
 uimenu( plotmenu, 'label', 'Component Scroll for Interpolation', 'callback', ...
     ['com = pop_eegplot_w2(EEG, 2, 2, 1, 2);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
-uimenu( plotmenu, 'label', 'Quick Plot Channel Spectra 2 to 40hz', 'callback', ...
-    ['EEG = pop_fastspectra(EEG,40,2);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
-
 uimenu( plotmenu, 'label', 'Quick IClabel & plot', 'callback', ...
     ['EEG = pop_fastIClabel(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+
+uimenu( plotmenu, 'label', 'Quick Plot Channel Spectra 2 to 40hz', 'callback', ...
+    ['EEG = pop_fastspectra(EEG,40,2);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 othermenu = uimenu (plotmenu, 'label', 'Other'); 
 
@@ -137,9 +137,9 @@ end
 uimenu (supermenu, 'label', 'Quick BSS', 'callback', ...
     ['[EEG,com] = quick_bss(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
-uimenu (supermenu, 'label', 'Quick BSS full window', 'callback', ...
-    ['[EEG,com] = quick_bss(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
-
+% uimenu (supermenu, 'label', 'Quick BSS full window', 'callback', ...
+%     ['[EEG,com] = quick_bss(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+% 
 
 % --- third submenu: Quick channel edits
 channelmenu = uimenu (supermenu, 'label', 'Quick Channel Edit');
