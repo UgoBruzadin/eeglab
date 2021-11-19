@@ -1305,7 +1305,7 @@ else
     
     if g.trialstag == -1
         
-        g.trialstag = g.srate * epoch;
+        g.trialstag = (g.srate * epoch);
         g.winlength =  g.winlength / epoch;
         g.time = g.time * epoch;
         
@@ -2234,7 +2234,7 @@ if g.trialstag(1) ~= -1
     % plot trial limits
     % -----------------
     tmptag = [lowlim:highlim];
-    tmpind = find(mod(tmptag-1, g.trialstag) == 0);
+    tmpind = find(mod(tmptag-1, g.trialstag+1) == 0);
     for index = tmpind
         plot(ax0, [tmptag(index)-lowlim-1 tmptag(index)-lowlim-1], [0 1], 'b--');
     end;
@@ -2440,7 +2440,7 @@ if ismember(SelectionType, {'normal', 'alt'})
             highlim = round(g.winlength*g.trialstag);
         else
             lowlim  = round(g.time*g.srate+1);
-            highlim = round(g.winlength*g.srate);
+            highlim = round(g.winlength*g.srate+1);
         end;
         if (tmppos(1) >= 0) && (tmppos(1) <= highlim)
             if isempty(g.winrej)
@@ -2468,7 +2468,7 @@ if ismember(SelectionType, {'normal', 'alt'})
                     end;
                 else
                     if g.trialstag ~= -1 % find nearest trials boundaries if epoched data
-                        alltrialtag = [0:g.trialstag:g.frames];
+                        alltrialtag = [0:g.trialstag+1:g.frames]; % NEEDED FIXING, ADDED + 1 to count for trialstag variance
                         I1 = find(alltrialtag < (tmppos(1)+lowlim) );
                         if ~isempty(I1) && I1(end) ~= length(alltrialtag)
                             g.winrej = [g.winrej' [alltrialtag(I1(end)) alltrialtag(I1(end)+1) g.wincolor zeros(1,g.chans)]']';
