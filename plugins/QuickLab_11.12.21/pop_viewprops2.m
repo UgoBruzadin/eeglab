@@ -278,13 +278,19 @@ drawnow;
 toc
 % CANCEL button
 % -------------
-cancel  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'Cancel', 'Units','Normalized','Position',[-10 -10 15 6].*s+q, 'callback', 'close(gcf);');
+cancel  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.9 0.7 0.7], 'string', 'Cancel', 'Units','Normalized','Position',[-10 -10 10 6].*s+q, 'callback', 'close(gcf);');
 
 % CLEAR button
 % -------------
 commandClear = ['EEG.reject.gcompreject = zeros(1,size(EEG.icawinv,2));close gcf;EEG = pop_fastIClabel(EEG);'];
         
-clearComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'Clear Values', 'Units','Normalized','Position',[15 -10 15 6].*s+q, 'callback', commandClear');
+clearComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.9 0.7 0.7], 'string', 'Clear Values', 'Units','Normalized','Position',[0 -10 10 6].*s+q, 'callback', commandClear');
+
+% Plot ScrollPlot button
+% -------------
+commandPlot = ['pop_eegplot_w2(EEG, 2, 2, 1, 2);'];
+        
+plotComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.7 0.9 0.7], 'string', 'Plot Component Scroll', 'Units','Normalized','Position',[30 -10 15 6].*s+q, 'callback', commandPlot');
 
 % SAVE CORRMAP button
 % -------------
@@ -293,7 +299,7 @@ commandSave = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbox
  		'EEG.reject.gcompreject(' num2str(chanorcomp(1)) ' : ' num2str(chanorcomp(end)) ' ) = A;'...
         'saveComponents(EEG)'];
         
-saveComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'Save CorrMaps', 'Units','Normalized','Position',[35 -10 15 6].*s+q, 'callback', commandSave');
+saveComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.7 0.9 0.7], 'string', 'Save CorrMaps', 'Units','Normalized','Position',[45 -10 15 6].*s+q, 'callback', commandSave');
 
 % Reject and run N-1 PCA button
 % -------------
@@ -304,7 +310,7 @@ commandN1PCA = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbo
     'close(gcf);'...
     '[EEG,com] = pop_fastN1PCA(EEG)'];
     
-rjandpca  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'REJ+N-1PCA', 'Units','Normalized', 'Position', [55 -10 15 6].*s+q, 'callback', commandN1PCA);
+rjandpca  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'Reject & N-1 PCA', 'Units','Normalized', 'Position', [65 -10 15 6].*s+q, 'callback', commandN1PCA);
 
 % Just Reject & Remove button
 % --------- 
@@ -318,7 +324,7 @@ commandReject = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkb
         'close(gcf);'...
         'eeglab redraw;'];
     
- rej  = uicontrol(gcf, 'Style', 'pushbutton', 'string', 'REMOVE COMPS', 'backgroundcolor', GUIBUTTONCOLOR, 'Units','Normalized', 'Position',[75 -10 15 6].*s+q);
+ rej  = uicontrol(gcf, 'Style', 'pushbutton', 'string', 'Remove Components', 'backgroundcolor', GUIBUTTONCOLOR, 'Units','Normalized', 'Position',[80 -10 15 6].*s+q);
  set( rej, 'callback', commandReject);
 
 % Just Reject button
@@ -335,7 +341,7 @@ commandReject = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkb
 % tmpstatus = [];
 % okcommand = ['tmpstatus = get( findobj(''parent'', gcf, ''tag'', ''rejstatus''), ''value'');']
 %     %'EEG.reject.gcompreject(' num2str(chanorcomp) ') = tmpstatus;' ];
- ok  = uicontrol(gcf, 'Style', 'pushbutton', 'string', 'ADD COMPS TO REJECTED', 'backgroundcolor', GUIBUTTONCOLOR, 'Units','Normalized', 'Position',[95 -10 15 6].*s+q);
+ ok  = uicontrol(gcf, 'Style', 'pushbutton', 'string', 'Add Comps to Rej list', 'backgroundcolor', GUIBUTTONCOLOR, 'Units','Normalized', 'Position',[95 -10 15 6].*s+q);
  set( ok, 'callback', commandSelect);
  
 com = sprintf('pop_viewprops( %s, %d, %s, %s, %s, %d, ''%s'' )', ...
