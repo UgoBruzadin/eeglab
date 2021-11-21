@@ -182,7 +182,7 @@ end
 chancounter = 0;
 
 for i=1:size(regions_for_interp,1)
-    channels = find(regions_for_interp(i,6:end));
+    channels = find(regions_for_interp(i-chancounter,6:end));
     if channels ~= 0
         if ~isempty(list_of_chans_or_comps)
             list_of_chans_or_comps = strcat(list_of_chans_or_comps,';');
