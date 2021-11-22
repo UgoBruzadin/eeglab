@@ -204,10 +204,10 @@ scrollax = uicontrol('Parent', fh, 'Style', 'Slider', ...
 if ~scroll_event
     EEG.event = []; end
 if typecomp
-    scrollplot(EEG.times, single(EEG.data(chanorcomp, :, :)), 5, EEG.event, fh, datax, scrollax);
+    scrollplot2(EEG.times, single(EEG.data(chanorcomp, :, :)), 5, EEG.event, fh, datax, scrollax);
     tstitle_h = title('Channel Time Series', 'fontsize', 14, 'FontWeight', 'Normal');
 else
-    scrollplot(EEG.times, single(icaacttmp), 5, EEG.event, fh, datax, scrollax);
+    scrollplot2(EEG.times, single(icaacttmp), 5, EEG.event, fh, datax, scrollax);
     tstitle_h = title(['Scrolling IC' int2str(chanorcomp) ' Activity'], 'fontsize', 14, 'FontWeight', 'Normal');
 end
 set(tstitle_h,'FontSize',14, 'Position', get(tstitle_h, 'Position'), 'units', 'normalized');
