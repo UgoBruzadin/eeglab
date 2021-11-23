@@ -350,13 +350,8 @@ if hasica && isempty(EEG.icaact)
     EEG = eeg_checkset(EEG,'ica');
 end
 
-EEG.k = 0;
-EEG.Sorig = Sorig;
-EEG.Sclean = Sclean;
-
-parEEG = deal(EEG);
-
-parfor ch=g.chanlist
+k=0;
+for ch=g.chanlist
     
     if g.verb,
         fprintf('Cleaning %s %d...\n',fastif(strcmpi(g.sigtype,'Components'),'IC','Chan'),ch);
@@ -364,9 +359,11 @@ parfor ch=g.chanlist
     
     % extract data as [chans x frames*trials]
     if strcmpi(g.sigtype,'components')
-        data = squeeze(parEEG(ch)(ch).icaact(ch,:));
+        data = squeeze(EEG.icaact(ch,:));
+        data = gpuArray(data);
     else
-        data = squeeze(parEEG(ch).data(ch,:));
+        data = squeeze(EEG.data(ch,:));
+        data = gpuArray(data);
     end
     
     
@@ -424,15 +421,13 @@ parfor ch=g.chanlist
         axcopy(gca);
     end
     
-    %parEEG(ch).k = 0;
-    %parEEG(ch).Sorig = [];
-    %parEEG(ch).Sclean = [];
+    
     if g.computepower
-        parEEG(ch).k = parEEG(ch).k + 1;
+        k = k+1;
         if g.verb, fprintf('Computing spectral power...\n'); end
         
-        [parEEG(ch).Sorig(parEEG(ch).k,:)  f] = mtspectrumsegc(data,movingwin(1),params);
-        [parEEG(ch).Sclean(parEEG(ch).k,:) f] = mtspectrumsegc(datac,movingwin(1),params);
+        [Sorig(k,:)  f] = mtspectrumsegc(data,movingwin(1),params);
+        [Sclean(k,:) f] = mtspectrumsegc(datac,movingwin(1),params);
      
         if g.verb && ~isempty(g.linefreqs)
             fprintf('Average noise reduction: ');
@@ -446,29 +441,20 @@ parfor ch=g.chanlist
         if ch==g.chanlist(1)
             % First run, so allocate memory for remaining spectra in 
             % Nchans x Nfreqs spectral matrix
-            parEEG(ch).Sorig = cat(1,Sorig,zeros(length(g.chanlist)-1,length(f)));
-            parEEG(ch).Sclean = cat(1,Sclean,zeros(length(g.chanlist)-1,length(f)));
+            Sorig = cat(1,Sorig,zeros(length(g.chanlist)-1,length(f)));
+            Sclean = cat(1,Sclean,zeros(length(g.chanlist)-1,length(f)));
         end
     end
     
     
     
     if strcmpi(g.sigtype,'components')
-        parEEG(ch).icaact(ch,:) = datac';
+        EEG.icaact(ch,:) = datac';
     else
-        parEEG(ch).data(ch,:) = datac';
+        EEG.data(ch,:) = datac';
     end
     
 end
-
-% --- redistribute parEEG back to EEG
-    for ch = g.chanlist
-        if strcmpi(g.sigtype,'components')
-            EEG(ch,:).icadata = parEEG(ch).data(ch,:);
-        else
-            EEG(ch,:).data = parEEG(ch).data(ch,:);
-        end
-    end
 
 if g.computepower
     
@@ -492,7 +478,6 @@ if g.computepower
     end
     
 end
-
 
 if strcmpi(g.sigtype,'components')
     if g.verb, fprintf('Backprojecting cleaned components to channels...\n'); end

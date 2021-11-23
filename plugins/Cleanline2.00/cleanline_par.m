@@ -368,10 +368,12 @@ parfor ch = g.chanlist
     % extract data as [chans x frames*trials]
     if strcmpi(g.sigtype,'components')
         data = squeeze(parEEG(ch).icaact(ch,:));
+        data = gpuArray(data);
     else
         data = squeeze(parEEG(ch).data(ch,:));
+        data = gpuArray(data);
     end
-    
+
     if g.plotfigures
         % estimate the sinusoidal lines
         [Fval sig f] = ftestmovingwinc(data,movingwin,params,g.p);
