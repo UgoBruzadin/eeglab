@@ -317,7 +317,7 @@ end
 if ~isempty(regions_for_rej)
     rejected_epochs = [];
     for i=1:size(regions_for_rej,1)
-        rejected_epochs = [rejected_epochs, floor(regions_for_rej(i,1)/EEG.pnts)+1];
+        rejected_epochs = [rejected_epochs, regions_for_rej(i,1)/EEG.pnts];
     end
     [EEGOUT,com] = pop_rejepoch( EEGOUT, rejected_epochs,0);
 end

@@ -2242,7 +2242,7 @@ if g.trialstag(1) ~= -1
     
     % compute Xticks
     % --------------
-    tagnum = floor((alltag-1)/g.trialstag); % modified, added FLOOR to make sure epoched # displayed was correct. UGO
+    tagnum = floor((alltag-1)/g.trialstag)+1; % modified, added FLOOR to make sure epoched # displayed was correct. UGO
     set(ax0,'XTickLabel', tagnum,'YTickLabel', [],...
         'Xlim',[0 g.winlength*multiplier],...
         'XTick',alltag-lowlim+g.trialstag/2, 'YTick',[], 'tag','backeeg');
