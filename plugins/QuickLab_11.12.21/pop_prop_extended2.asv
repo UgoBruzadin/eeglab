@@ -161,7 +161,7 @@ set(fh,'Position', [pos(1)-1200+pos(3) pos(2)-700+pos(4) 1200 700]);
 if ~typecomp
     if ~isempty(EEG.icaact)
         if ndims(EEG.icaact) ~= ndims(EEG.data)
-           EEG.icaact = reshape(EEG.icaact,size(EEG.icaact,1),EEG.pnts,[]);
+           EEG.icaact =  
         end
         icaacttmp = EEG.icaact(chanorcomp, :, :);
     else
