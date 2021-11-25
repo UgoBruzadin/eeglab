@@ -1,4 +1,4 @@
-function [spectra,frequencies] = printFFT(EEG)
+function [spectra,frequencies] = print_FFT(EEG)
 
 maxWindow = 2^floor(log2(EEG.pnts));
 if maxWindow > 2048

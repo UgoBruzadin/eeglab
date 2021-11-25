@@ -2,7 +2,7 @@
 %--- in June 23th 2021
 %--- 
 
-function corrmappath = savecorrmappath()
+function corrmappath = save_corrmappath()
 
 %--- save current path
 currentfolder = pwd;

@@ -1,27 +1,31 @@
-function EEG = quick_PCA(EEG,IC)
+function [EEG,com] = quick_PCA(EEG,IC,type)
 if isempty(EEG.data)
     EEG = pop_loadset();
     eeglab redraw
 end
 
+if nargin < 3
+    type = 'binica';
+end
+
 mybadcomps = find(EEG.reject.gcompreject);   %stores the Id of the components to be rejected
 
-if nargin < 2
+if nargin < 2 || isempty(IC)
     if ~isempty(mybadcomps)
         IC = size(EEG.icawinv,2);
         IC = IC - size(mybadcomps,2);            %stores the number to be the next components analysis
         fprintf('Rejecting selected components... \r');
-        EEG = pop_subcomp(EEG, mybadcomps, 0);       % actually removes the flagged components
+        [EEG,com] = pop_subcomp(EEG, mybadcomps, 0);       % actually removes the flagged components
     end
-    EEG = pop_par_runica(EEG,'extended', 1,'icatype','binica', 'verbose','off');
+    [EEG,com] = pop_par_runica(EEG,'extended', 1,'icatype',type, 'verbose','off');
 else
     if ~isempty(mybadcomps)
         fprintf('Rejecting selected components... \r');
-        EEG = pop_subcomp(EEG, mybadcomps, 0);       % actually removes the flagged components
+        [EEG,com] = pop_subcomp(EEG, mybadcomps, 0);       % actually removes the flagged components
     end
-    EEG = pop_par_runica(EEG,'extended', 1,'icatype','binica','pca',IC, 'verbose','off');
+    [EEG,com] = pop_par_runica(EEG,'extended', 1,'icatype',type,'pca',IC, 'verbose','off');
 end
 
-EEG = quick_fastIClabel(EEG);
+[EEG,com] = quick_IClabel(EEG);
 
 end

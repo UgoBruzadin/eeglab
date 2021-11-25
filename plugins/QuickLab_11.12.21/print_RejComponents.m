@@ -1,4 +1,4 @@
-function printRejComponents(EEG,myComps)
+function print_RejComponents(EEG,myComps)
 
 if nargin  < 2
     myComps = find(EEG.reject.gcompreject);   %stores the Id of the components to be rejected

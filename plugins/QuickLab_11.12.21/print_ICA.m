@@ -1,4 +1,4 @@
-function printICA(EEG,components)
+function print_ICA(EEG,components)
 
 if nargin < 2
     components  = 1:size(EEG.icawinv, 2);

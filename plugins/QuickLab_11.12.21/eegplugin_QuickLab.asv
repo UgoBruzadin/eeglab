@@ -217,7 +217,7 @@ uimenu( pcasmenu, 'label', 'Interpolate Channels by Marked Components if 1 Chann
 corrmenu = uimenu (supermenu, 'label', 'Quick CorrMap');
 
 uimenu( corrmenu, 'label', 'Create/Change QuickCorrMaps folder', 'callback', ...
-    ['save_corrmappath;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['savecorrmappath;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( corrmenu, 'label', 'Quick Save Selected CorrMaps', 'callback', ...
     ['save_corrmaps(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);

@@ -1,7 +1,7 @@
-function EEG = pop_fastspectra(EEG,high,low)
+function [EEG,com] = quick_spectra(EEG,high,low)
 if isempty(EEG.data)
-    EEG = pop_loadset();
-    [EEG] = eeg_store(EEG);
+    [EEG,com] = pop_loadset();
+    [EEG,com] = eeg_store(EEG);
 end
 
 maxWindow = 2^floor(log2(EEG.pnts));
