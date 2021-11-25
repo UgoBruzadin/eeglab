@@ -28,7 +28,7 @@ end
 try 
     path = corrmappath;
     cd(path)
-catch corrmappath = savecorrmappath()
+catch corrmappath = save_corrmappath()
     path = corrmappath;
 end
 

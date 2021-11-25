@@ -1,4 +1,4 @@
-function [EEG,com] = quick_IClabel(EEG,minfreq,maxfreq,type)
+function [EEG,com] = quick_IClabel(EEG,minfreq,maxfreq,type,df)
 % [EEG,com] = quick_IClabel(EEG,minfreq,maxfreq,type) 
 %
 % Author: Ugo Bruzadin Nunes
@@ -16,8 +16,12 @@ function [EEG,com] = quick_IClabel(EEG,minfreq,maxfreq,type)
 %
 % You should have received a copy of the GNU General Public License
 % along with this program; if not, write to the Free Software
+if nargin < 5
+    df = 0;
+end
+
 if nargin < 4
-    type = 'default'
+    type = 'default';
 end
 if nargin < 3
     maxfreq = 55;
@@ -30,7 +34,7 @@ if isempty(EEG.data)
     [EEG,com] = pop_loadset;
 end
 if isempty(EEG.icawinv)
-    fprintf'('Error: must first run an ICA or PCA \r');
+    fprintf('Error: must first run an ICA or PCA \r');
 end
 if isempty(EEG.icaact)
     EEG.icaact = (EEG.icaweights*EEG.icasphere)*EEG.data(EEG.icachansind,:);
@@ -38,6 +42,9 @@ end
 
 [EEG,com] = pop_iclabel(EEG,type);
 
-pop_viewprops2(EEG,0,1:size(EEG.icawinv,2),{'freqrange',[minfreq maxfreq]});
+if df
+    [EEG,com] = quick_dipfit(EEG);
+end
+[com] = pop_viewprops2(EEG,0,1:size(EEG.icawinv,2),{'freqrange',[minfreq maxfreq]});
 
 end

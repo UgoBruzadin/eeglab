@@ -58,43 +58,52 @@ if nargin < 2
 end;
 
 if nargin < 3
-    promptstr    = { fastif(typecomp,'Channel indices to plot:','Component indices to plot:') ...
-        'Spectral options (see spectopo() help):','Erpimage options (see erpimage() help):' ...
-        [' Draw events over scrolling ' fastif(typecomp,'channel','component') ' activity']};
     if typecomp
-        inistr       = { ['1:' int2str(length(EEG.chanlocs))] ['''freqrange'', [2 ' num2str(min(55, EEG.srate/2)) ']'] '' 1};
+        chanorcomp = [1:size(EEG.icawinv,2)];
     else
-        inistr       = { ['1:' int2str(size(EEG.icawinv, 2))] ['''freqrange'', [2 ' num2str(min(55, EEG.srate/2)) ']'] '' 1};
+        chanorcomp = [1:EEG.nbchan];
     end
-    stylestr     = {'edit', 'edit', 'edit', 'checkbox'};
+    spec_opt = [2:55];
+    erp_opt = {};
     
-    % labels when available
-    if ~typecomp && isfield(EEG.etc, 'ic_classification')
-        classifiers = fieldnames(EEG.etc.ic_classification);
-        if ~isempty(classifiers)
-            iclabel_ind = find(strcmpi(classifiers, 'ICLabel'));
-            promptstr = [promptstr {classifiers}];
-            inistr = [inistr {fastif(isempty(iclabel_ind), 1, iclabel_ind)}];
-            stylestr = [stylestr {'popupmenu'}];
-        end
-    end
-    
-    try
-        result       = inputdlg3( 'prompt', promptstr,'style', stylestr, ...
-            'default',  inistr, 'title', 'View many chan or comp. properties -- pop_viewprops');
-    catch
-        result = [];
-    end
-    if size( result, 1 ) == 0
-        return; end
-    
-    chanorcomp   = eval( [ '[' result{1} ']' ] );
-    spec_opt     = eval( [ '{' result{2} '}' ] );
-    erp_opt     = eval( [ '{' result{3} '}' ] );
-    scroll_event     = result{4};
+%     
+%     promptstr    = { fastif(typecomp,'Channel indices to plot:','Component indices to plot:') ...
+%         'Spectral options (see spectopo() help):','Erpimage options (see erpimage() help):' ...
+%         [' Draw events over scrolling ' fastif(typecomp,'channel','component') ' activity']};
+%     if typecomp
+%         inistr       = { ['1:' int2str(length(EEG.chanlocs))] ['''freqrange'', [2 ' num2str(min(55, EEG.srate/2)) ']'] '' 1};
+%     else
+%         inistr       = { ['1:' int2str(size(EEG.icawinv, 2))] ['''freqrange'', [2 ' num2str(min(55, EEG.srate/2)) ']'] '' 1};
+%     end
+%     stylestr     = {'edit', 'edit', 'edit', 'checkbox'};
+%     
+%     % labels when available
+     if ~typecomp && isfield(EEG.etc, 'ic_classification')
+         classifiers = fieldnames(EEG.etc.ic_classification);
+         if ~isempty(classifiers)
+             iclabel_ind = find(strcmpi(classifiers, 'ICLabel'));
+             %promptstr = [promptstr {classifiers}];
+             %inistr = [inistr {fastif(isempty(iclabel_ind), 1, iclabel_ind)}];
+             %stylestr = [stylestr {'popupmenu'}];
+         end
+     end
+%     
+%     try
+%         result       = inputdlg3( 'prompt', promptstr,'style', stylestr, ...
+%             'default',  inistr, 'title', 'View many chan or comp. properties -- pop_viewprops2');
+%     catch
+%         result = [];
+%     end
+%     if size( result, 1 ) == 0
+%         return; end
+%     
+%     chanorcomp   = eval( [ '[' result{1} ']' ] );
+%     spec_opt     = eval( [ '{' result{2} '}' ] );
+%     erp_opt     = eval( [ '{' result{3} '}' ] );
+%     scroll_event     = result{4};
     if ~typecomp && isfield(EEG.etc, 'ic_classification') && ~isempty(classifiers)
         classifiers = fieldnames(EEG.etc.ic_classification);
-        classifier_name = classifiers{result{5}};
+        classifier_name = 'ICLabel';
     end
     
     %     if length(chanorcomp) > PLOTPERFIG
@@ -137,7 +146,7 @@ end;
 column = ceil(sqrt( length(chanorcomp) ))+5;
 rows = ceil(length(chanorcomp)/column);
 if ~exist('fig','var')
-    figure('name', [ 'View ' fastif(typecomp,'channels','components') ' properties - pop_viewprops() (dataset: ' EEG.setname ')'], 'tag', currentfigtag, ...
+    figure('name', [ 'View ' fastif(typecomp,'channels','components') ' properties - pop_viewprops2() (dataset: ' EEG.setname ')'], 'tag', currentfigtag, ...
         'numbertitle', 'off', 'color', BACKCOLOR);
     set(gcf,'MenuBar', 'none');
     pos = get(gcf,'Position');
@@ -174,7 +183,7 @@ for ri = chanorcomp
     if exist('fig','var')
         button = findobj('parent', fig, 'tag', ['comp' num2str(ri)]);
         if isempty(button)
-            error( 'pop_viewprops(): figure does not contain the component button');
+            error( 'pop_viewprops2(): figure does not contain the component button');
         end;
     else
         button = [];
@@ -282,7 +291,7 @@ cancel  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.9 0.7 0.7]
 
 % CLEAR button
 % -------------
-commandClear = ['EEG.reject.gcompreject = zeros(1,size(EEG.icawinv,2));close gcf;EEG = pop_fastIClabel(EEG);'];
+commandClear = ['EEG.reject.gcompreject = zeros(1,size(EEG.icawinv,2));close gcf;EEG = quick_IClabel(EEG);'];
         
 clearComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.9 0.7 0.7], 'string', 'Clear Values', 'Units','Normalized','Position',[0 -10 10 6].*s+q, 'callback', commandClear');
 
@@ -297,7 +306,7 @@ plotComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.7 0.9 0.7
 commandSave = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbox''), ''value'');'...
         'A = fliplr([tmpstatus{:}]);'...
  		'EEG.reject.gcompreject(' num2str(chanorcomp(1)) ' : ' num2str(chanorcomp(end)) ' ) = A;'...
-        'saveComponents(EEG)'];
+        'save_corrmaps(EEG)'];
         
 saveComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.7 0.9 0.7], 'string', 'Save CorrMaps', 'Units','Normalized','Position',[45 -10 15 6].*s+q, 'callback', commandSave');
 
@@ -308,7 +317,7 @@ commandN1PCA = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbo
     'A = fliplr([tmpstatus{:}]);'...
     'EEG.reject.gcompreject(' num2str(chanorcomp(1)) ' : ' num2str(chanorcomp(end)) ' ) = A;'...
     'close(gcf);'...
-    '[EEG,com] = pop_fastN1PCA(EEG)'];
+    '[EEG,com] = quick_PCA(EEG,''a'')'];
     
 rjandpca  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'Reject & N-1 PCA', 'Units','Normalized', 'Position', [65 -10 15 6].*s+q, 'callback', commandN1PCA);
 
@@ -344,7 +353,7 @@ commandReject = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkb
  ok  = uicontrol(gcf, 'Style', 'pushbutton', 'string', 'Add Comps to Rej list', 'backgroundcolor', GUIBUTTONCOLOR, 'Units','Normalized', 'Position',[95 -10 15 6].*s+q);
  set( ok, 'callback', commandSelect);
  
-com = sprintf('pop_viewprops( %s, %d, %s, %s, %s, %d, ''%s'' )', ...
+com = sprintf('pop_viewprops2( %s, %d, %s, %s, %s, %d, ''%s'' )', ...
     inputname(1), typecomp, hlp_tostring(chanorcomp), hlp_tostring(spec_opt), ...
     hlp_tostring(erp_opt), scroll_event, classifier_name);
 end
