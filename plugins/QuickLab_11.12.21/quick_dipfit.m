@@ -1,4 +1,3 @@
-
 function EEG = quick_dipfit(EEG,comps,dipoles)
 
 if nargin < 3
