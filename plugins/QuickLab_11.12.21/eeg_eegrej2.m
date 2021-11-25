@@ -315,11 +315,15 @@ end
 
 % Run data rejection in case of rejection selected.
 if ~isempty(regions_for_rej)
+    %if EPOCHED
     rejected_epochs = [];
     for i=1:size(regions_for_rej,1)
         rejected_epochs = [rejected_epochs, floor(regions_for_rej(i,1)/EEG.pnts)+1];
     end
     [EEGOUT,com] = pop_rejepoch( EEGOUT, rejected_epochs,0);
+    %else
+        %REJECT REGIONS
+    %end
 end
 
 
