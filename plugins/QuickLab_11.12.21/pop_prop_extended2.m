@@ -37,7 +37,7 @@ function [fh, EEG, com] = pop_prop_extended2(EEG, typecomp, chanorcomp, winhandl
 %   updated by Ramon Martinez-Cancino and Luca Pion-Tonachini (2015)
 %   updated again by Luca Pion-Tonachini (2017)
 
-try
+%try
 % setup
 if nargin < 1
 	help pop_prop_extended;
@@ -399,7 +399,7 @@ dipfits = dir(fullfile(pathtmp, 'plugins', 'dipfit*'));
 [~, dipfit_order] = sort(cellfun(@(c) str2double(c(7:end)), {dipfits.name}), 'descend');
 
 %EEG = quick_dipfit(EEG,chanorcomp);
-
+try
 for it_dipfit_version = dipfit_order
     dipfit_folder = fullfile(pathtmp, 'plugins', dipfits(it_dipfit_version).name);
     meshdatapath = fullfile(dipfit_folder, 'standard_BEM', 'standard_vol.mat');
@@ -494,7 +494,8 @@ for it_dipfit_version = dipfit_order
         end
     end
 end
-
+catch
+end
 % final figure adjustments
 rotate3d(fh, 'off');
 set(fh, 'color', BACKCOLOR, 'visible', 'on')
@@ -606,9 +607,9 @@ end;
 
 drawnow;
 
-catch
-   [fh, EEG, com] = pop_prop_extended(EEG, typecomp, chanorcomp, winhandle, spec_opt, erp_opt, scroll_event, classifier_name, varargin);
-end
+%catch
+ %  [fh, EEG, com] = pop_prop_extended(EEG, typecomp, chanorcomp, winhandle, spec_opt, erp_opt, scroll_event, classifier_name, varargin);
+%end
 
 
 function era_limits=get_era_limits(era)
