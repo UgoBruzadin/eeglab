@@ -2,7 +2,7 @@
 function EEG = quick_dipfit(EEG,comps,dipoles)
 
 if nargin < 3
-    dipoles = 2; 
+    dipoles = 1; 
 end
 
 if nargin < 2
