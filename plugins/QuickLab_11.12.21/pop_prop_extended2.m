@@ -201,6 +201,7 @@ end
     
 % plot time series
 % datax = axes('Parent', fh, 'position',,'units','normalized');
+try
 datax = axes('Parent', fh, 'Position',scroll_position,'units','normalized');
 scrollax = uicontrol('Parent', fh, 'Style', 'Slider', ...
     'Units', 'Normalized', 'Position', [scroll_position(1) 0.6389 scroll_position(3) 0.025]);
@@ -217,7 +218,8 @@ set(tstitle_h,'FontSize',14, 'Position', get(tstitle_h, 'Position'), 'units', 'n
 set(datax,'FontSize',12);
 xlabel(datax,'Time (ms)','fontsize', 14);
 ylabel(datax,'uV');
-
+catch
+end
 % plot scalp map
 axes('Parent', fh, 'position',[0.0143 0.6331 0.3121 0.3267],'units','normalized');
 if typecomp
@@ -267,6 +269,7 @@ end
 
 
 % plot erpimage
+try
 herp = axes('Parent', fh, 'position',[0.0643 0.1102 0.2421 0.3850],'units','normalized');
 eeglab_options;
 if EEG.trials > 1 % epoched data
@@ -335,7 +338,8 @@ else % continuoous data
         text(0.1, 0.3, [ 'No erpimage plotted' 10 'for small continuous data']);
     end
 end
-
+catch
+end
 if exist('axhndls', 'var')
     try
         % 2014+
