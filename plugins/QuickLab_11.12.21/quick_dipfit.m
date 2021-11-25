@@ -1,4 +1,12 @@
+<<<<<<< Updated upstream
 function EEG = quick_dipfit(EEG,comps)
+=======
+function EEG = quick_dipfit(EEG,comps,dipoles)
+
+if nargin < 3
+    dipoles = 2; 
+end
+>>>>>>> Stashed changes
 
 if nargin < 2
     comps = []; 

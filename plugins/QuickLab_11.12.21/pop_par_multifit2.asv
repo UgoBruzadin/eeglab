@@ -212,7 +212,7 @@ function [EEG, com] = pop_par_multifit2(EEG, comps, varargin)
                 if g.dipoles == 2
                     tempEEG = dipfit_nonlinear2(tempEEG, 'component', i, 'symmetry', defaultconstraint);
                 else
-                    tempEEG = dipfit_nonlinear2(tempEEG, 'component', i, 'symmetry', []);
+                    tempEEG = dipfit_nonlinear(tempEEG, 'component', i, 'symmetry', []);
                 end
             catch, tempEEG.dipfit.model(i).rv = NaN; disp('Maximum number of iterations reached. Fitting failed');
             end
@@ -283,9 +283,9 @@ function [EEG, com] = pop_par_multifit2(EEG, comps, varargin)
     % LINE CHANGES BY UGO BRUZADIN NUNES
     % ADDED ATLAS for DIP ID, REMOVE COM FOR PARALLEL PIEPELINES
     try 
-        EEG = eeg_compatlas3(EEG);
+        EEG = eeg_compatlas2(EEG);
     catch
-        fprintf('Could not run eeg_compatlas3 \r') ;
+        fprintf('Could not run eeg_compatlas2 \r') ;
     end
     com = sprintf('EEG = pop_multifit(EEG, %s);', vararg2str({ comps options{:}}));
     return;
