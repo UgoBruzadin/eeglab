@@ -1,10 +1,10 @@
 function [EEGOUT,com] = quick_bss(EEGIN,window,windowshift)
 
 if nargin < 2
-    window = (EEGIN.trials*EEGIN.pnts/EEGIN.srate)*2;
+    window = (EEGIN.pnts/EEGIN.srate)*2;
 end
 if nargin < 3
-    windowshift = window;
+    windowshift = window; % new change suggested by Gunn, window shift should be max of 2 epochs
     %windowshift = EEGIN.pnts;
 end
 
