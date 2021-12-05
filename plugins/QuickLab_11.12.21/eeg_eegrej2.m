@@ -94,7 +94,7 @@ if nargin< 3
     %channels = str2num(channels{1});
 end
 if isempty(regions)
-    regions = [1,EEG.pnts]
+    %regions = [1,EEG.pnts*EEG.trials,0];
     %return;
 end
 
@@ -107,47 +107,6 @@ else
     regions = sortrows(regions,1);
 end
 
-% try
-%     % For AMICA probabilities...Temporarily add model probabilities as channels
-%     %-----------------------------------------------------
-%     if isfield(EEG.etc, 'amica') && ~isempty(EEG.etc.amica) && isfield(EEG.etc.amica, 'v_smooth') && ~isempty(EEG.etc.amica.v_smooth) && ~isfield(EEG.etc.amica,'prob_added')
-%         if isfield(EEG.etc.amica, 'num_models') && ~isempty(EEG.etc.amica.num_models)
-%             if size(EEG.data,2) == size(EEG.etc.amica.v_smooth,2) && size(EEG.data,3) == size(EEG.etc.amica.v_smooth,3) && size(EEG.etc.amica.v_smooth,1) == EEG.etc.amica.num_models
-%
-%                 EEG = eeg_formatamica(EEG);
-%                 %-------------------------------------------
-%
-%                 [EEG com] = eeg_eegrej(EEG,regions);
-%
-%                 %-------------------------------------------
-%
-%                 EEG = eeg_reformatamica(EEG);
-%                 EEG = eeg_checkamica(EEG);
-%                 return;
-%             else
-%                 disp('AMICA probabilities not compatible with size of data, probabilities cannot be epoched')
-%                 disp('Load AMICA components before extracting epochs')
-%                 disp('Resuming rejection...')
-%             end
-%         end
-%
-%     end
-%     % ------------------------------------------------------
-% catch
-%     warnmsg = strcat('your dataset contains amica information, but the amica plugin is not installed.  Continuing and ignoring amica information.');
-%     warning(warnmsg)
-% end
-
-
-if isfield(EEG.event, 'latency'),
-    tmpevent = EEG.event;
-    
-    tmpdata = EEG.data; % REMOVE THIS, THIS IS FOR DEBUGGING %
-    
-    tmpalllatencies = [ tmpevent.latency ];
-    
-else tmpalllatencies = [];
-end
 
 % handle regions from eegplot
 % ---------------------------
@@ -171,6 +130,7 @@ rejcounter = 0;
 
 % --- remove the rejection data from regions_for interp with not-green color and add it to
 % ---- the variable regions_for_rej
+if ~isempty(regions)
 for i=1:size(regions,1)
     if regions(i,3) ~= [0.7]  %check for green color of interpolation %needs to be better!!!
         regions_for_interp(i-rejcounter,:) = [];
@@ -178,9 +138,9 @@ for i=1:size(regions,1)
         regions_for_rej(rejcounter,:) = regions(i,:);
     end
 end
-
+end
 chancounter = 0;
-
+if ~isempty(regions_for_interp)
 for i=1:size(regions_for_interp,1)
     channels = find(regions_for_interp(i-chancounter,6:end));
     if channels ~= 0
@@ -194,9 +154,9 @@ for i=1:size(regions_for_interp,1)
     end 
 end
 
-
 if size(regions_for_interp,2) > 2, regions_for_interp = regions_for_interp(:, 1:2); end
 
+end
 % if ndims(EEG.data) < 3
 %     regions_for_interp = combineregions(regions_for_interp);
 %     if (regions_for_interp(1) == 0) && (regions_for_interp(2) == 0)
@@ -226,7 +186,7 @@ if ~isempty(list_of_chans_or_comps)
         if chanorcomp == 1
             EEGinterp = pop_interp(EEG, [compOrChan], 'spherical');
             for i=1:size(regions_for_interp,1)
-                
+
                 fprintf(strcat('Interpolating channels(s) _', num2str(compOrChan),' for the period _',num2str(regions_for_interp(i,1)),' to _',num2str(regions_for_interp(i,2))), '\r' );
                 EEGmod.data(compOrChan,regions_for_interp(i,1):regions_for_interp(i,2)) = EEGinterp.data(compOrChan,regions_for_interp(i,1):regions_for_interp(i,2));
                 
