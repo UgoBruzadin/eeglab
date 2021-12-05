@@ -1,0 +1,66 @@
+%QuickLabDefs() Calling this function will alter the defaults of QuickLab
+%               QuickLab is a compilation of modified EEGLAB functions
+%               for experienced users that wish to speed up manual
+%               process, made by Ugo Bruzadin Nunes in
+%               colaboration with the INL lab in Carbondale, IL.
+%
+% Author: Ugo Bruzadin Nunes
+%
+% Copyright (C) 2021 Ugo Bruzadin Nunes
+% This program is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation; either version 2 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program; if not, write to the Free Software
+
+BUTTONCOLOR = [0.9 0.9 0.9];
+BACKGROUNDCOLOR = [.66 .76 1];
+
+% Highest Frequency, Lowest Frequency, Maxwindow
+SPECTRADEFS = [40,2,2048];
+% Specific Expected Frequencies for Topoplot Display 
+SPECTRADEFS2 = [4 6 10 12 15 18 21 25 28 32 36];
+
+% Location of Headmodel(s)
+HEADMODELLOCATION = [''];
+
+% CORRMAP defaults
+% CORRMAP folder locations
+CORRMAPDEFS = [''];
+
+% Defaults for PCA/ICA & ICLABEL
+PCADEFS = ['icatype','cudaica','extended',1,'verbose','off'];
+% ICLABEL type, Highest Frequency, Lowest Frquency
+ICLABELDEFS = ['default',55,2];
+
+% Number of dipoles to plot in DIPFIT (1 or 2)
+DIPFITDEFS = [1];
+OTHERDIPFITDEFS = [];
+
+% Defaults for running BSS
+BSSDEFS = [];
+
+% defaults for lowpass and highpass filter for quick filter
+% smallest frequency, highest frequency, in between steps
+LOWPASSDEFS = [14,40,1];
+HIGHPASSDEFS = [0.5,0.5,22];
+
+% default for epoching the data
+% Epoch name(s), if any
+EPOCHNAMES = ['DIN '];
+% Epoch time pre and post (1)
+EPOCH1DEFS = [0.400,2.448];
+% Epoch time pre and post (2)
+EPOCh2DEFS = [-1,3.096];
+
+% Binary defaults: Should ICLABEL be plotted after every iclabel run?
+PLOTICLABELS = [1];
+% Should every data modification try to plot the data difference?
+PLOTDATADIFF = [1];

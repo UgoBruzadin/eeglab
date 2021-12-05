@@ -27,6 +27,10 @@ vers = 0.1;
 % --- QuickLab sumermenu placeholder
 supermenu = uimenu(fig, 'label', 'QuickLab');
 
+% --- Call QuickLab DEFS
+
+QuickLabDefs;
+
 % --- first submenu: Quick plots
 plotmenu = uimenu (supermenu, 'label', 'Quick Plots');
 
@@ -245,23 +249,52 @@ uimenu( parmenu, 'label', 'Parallel DipFit 1 Dipole', 'callback', ...
 uimenu( parmenu, 'label', 'Parallel DipFit 2 Dipoles', 'callback', ...
     ['[EEG] = quick_dipfit(EEG,[],2); eeg_store(ALLEEG, EEG, CURRENTSET); eeglab redraw;']);
 
-%supermenu;
+%%%% START MENU HACKING + ADDONS
 
-%   supergui( 'geomhoriz', { [1 1] 1 1 }, 'uilist', { ...
-%          { 'style', 'text', 'string', 'Enter some text' }, ...
-%          { 'style', 'edit', 'string', 'Hello!' }, { }, ...
-%          { 'style', 'pushbutton' , 'string', 'OK' 'callback' 'close(gcbf);' } } );
+%%% Create Commands for buttons
+
+%%% Add a button to change ICA numbers, Filename, and add folder, and
+%%% dataset names!
+
+% loaddircommand = ['try, findex = [1];cd(EEG.filepath);filecount = [1];files = dir(''.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''LoadFileList2''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename))); catch; end;'];
+% 
+% savecommand = ['[EEG] = pop_saveset(EEG, ''filename'', [strcat( EEG.filename(1:end-4),get(findobj(''Tag'',''SAVETEXT2''),''String''),''.set'')],''filepath'',EEG.filepath);'...
+%      '[ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);' loaddircommand 'eeglab redraw;']; %save set ADDED BY UGO
+% %%% move up
+% loadprecommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex > 1, findex = findex - 1, EEG = pop_loadset( files(findex).name, pwd); eeglab redraw, end;'];
+% %%% move down
+% loadpostcommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex < length(files), findex = findex + 1, EEG = pop_loadset( files(findex).name, pwd); eeglab redraw, end;'];
+% %%% loadfile
+% loadfilecommand = ['EEG = pop_loadset( files(cell2mat(get(findobj(''Tag'',''LoadFileList2''),''Value''))).name, pwd);eeglab redraw;'];
+% 
+% %%% Create Buttons and Menu addons
+% savetitle = uicontrol(gcf,'Style', 'text', 'Units','Normalized','Tag', 'SAVETITLE2', 'String', 'Add to filename',...
+%     'Position', [0.05 0.05 0.08 0.05]);
+% 
+% savetext = uicontrol(gcf, 'Style', 'edit', 'Units','Normalized','Tag', 'SAVETEXT2', 'String', 'New',...
+%     'Position', [0.13 0.05 0.07 0.05]);
+% 
+% savebutton = uicontrol(gcf, 'Style', 'pushbutton','Units','Normalized','Tag', 'SAVEASBUTTON2', 'String', 'Save(+)', 'callback', savecommand ,...
+%     'Position', [0.23 0.05 0.07 0.05]);
+% 
+% loaddir = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized','Tag', 'LoadDir2', 'String', 'Load Folder', 'callback', loaddircommand ,...
+%     'Position', [0.31 0.05 0.08 0.05]);
+% 
+% loadup = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized','Tag', 'LoadUp', 'String', 'Up', 'callback', loadprecommand ,...
+%     'Position', [0.40 0.05 0.03 0.05]);
+% 
+% loaddown = uicontrol(gcf, 'Style', 'pushbutton','Units','Normalized','Tag', 'LoadDown', 'String', 'Down', 'callback', loadpostcommand ,...
+%     'Position', [0.43 0.05 0.045 0.05]);
+% 
+% loadfile = uicontrol(gcf, 'Style', 'popupmenu','Units','Normalized','Tag', 'LoadFileList2', 'String', '', 'callback', loadfilecommand,...
+%     'Position', [0.48 0.05 0.45 0.05]);
+% 
+% %%% Change buttons and text color backgrounds
+% 
+% h = findobj(gcf, 'style', 'pushbutton');
+% set(h, 'backgroundcolor', [0.9 0.9 0.9]);
+% 
+% h = findobj(gcf, 'tag', 'SAVETITLE2');
+% set(h, 'backgroundcolor', [.66 .76 1]);
 
 
-% function eegplugin_ugo(fig, try_strings, catch_strings)
-%   uimenu( fig, 'label', 'QuickLab', 'callback', ...
-%   ['EEG = pop_fastIClabel(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
-%   uimenu( submenu, 'label', 'Quick', 'callback', ...
-%   [ try_strings.anyfield '[EEG LASTCOM] = pop_ugo(EEG);' ...
-%   catch_strings.anyfield ]);
-% %   supergui( 'geomhoriz', { [1 1] 1 1 }, 'uilist', { ...
-% %          { 'style', 'text', 'string', 'Enter some text' }, ...
-% %          { 'style', 'edit', 'string', 'Hello!' }, { }, ...
-% %          { 'style', 'pushbutton' , 'string', 'OK' 'callback' 'close(gcbf);' } } );
-%
-% end
