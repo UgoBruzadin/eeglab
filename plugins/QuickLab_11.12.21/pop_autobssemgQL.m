@@ -307,8 +307,14 @@ if showpopup
     % reading params
     % -------------------
     bss_alg = selectalg{result{1}};
-    wl = eval(['[' result{2} ']']);
-    ws = eval(['[' result{3} ']']);    
+%     wl = eval(['[' result{2} ']']);
+%     ws = eval(['[' result{3} ']']);    
+    wl = wl + (((abs(EEG.xmin)+abs(EEG.xmax)))/EEG.pnts)*5;
+    ws = ws + (((abs(EEG.xmin)+abs(EEG.xmax)))/EEG.pnts)*5;
+    if size(EEG.data,3) > 1
+        wl = eval(['[' result{2} ']']);
+        ws = eval(['[' result{3} ']']);
+    end
 
     % read BSS parameters
     % -------------------
@@ -398,7 +404,7 @@ if ~isempty(crit_opt_str),
 end
 
 EEGdiff = EEGIN.data - EEG.data;
-    eegplot_w2( EEGdiff, 'srate', EEGIN.srate, 'title', [ 'DIFFERENCE PRE AND POST CHANNEL/COMPONENT INTERPOLATION -- eegplot_w(): ' EEGIN.setname], ...
+    eegplot_w( EEGdiff, 'srate', EEGIN.srate, 'title', [ 'DIFFERENCE PRE AND POST CHANNEL/COMPONENT INTERPOLATION -- eegplot_w(): ' EEGIN.setname], ...
         'limits', [EEGIN.xmin EEGIN.xmax]*1000 )% , 'command', command, eegplotoptions{:}, varargin{:});
 
 EEGOUT = EEGIN;
