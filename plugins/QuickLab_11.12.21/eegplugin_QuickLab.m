@@ -248,15 +248,27 @@ uimenu( parmenu, 'label', 'Parallel DipFit 1 Dipole', 'callback', ...
 
 uimenu( parmenu, 'label', 'Parallel DipFit 2 Dipoles', 'callback', ...
     ['[EEG] = quick_dipfit(EEG,[],2); eeg_store(ALLEEG, EEG, CURRENTSET); eeglab redraw;']);
-
-%%%% START MENU HACKING + ADDONS
+% try
+%     if isstruct(EEG)
+%          h = findobj(gcf, 'tag', 'win1');
+%          set(h, 'String', 'Test');
+%     end
+% catch
+% end
+%%%% START MENU ADD-ONS
 
 %%% Create Commands for buttons
 
-%%% Add a button to change ICA numbers, Filename, and add folder, and
+%%% Modify ICA numbers, Filename, and add a folder line, and
 %%% dataset names!
 
-% loaddircommand = ['try, findex = [1];cd(EEG.filepath);filecount = [1];files = dir(''.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''LoadFileList2''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename))); catch; end;'];
+% changename = ['h = findobj(gcf, ''tag'', ''win1''); set(h, ''string'', strcat(''FILENAME:'',EEG.filename));'];
+% 
+% changeICA = ['h = findobj(gcf, ''tag'', ''val11''); if ~isempty(EEG.icaact), set(h, ''string'', num2str(size(EEG.icaact,1))), end;'];
+% 
+% %%changeICA = ['h = findobj(gcf, ''tag'', ''val11''); if ~isempty(EEG.icaact), set(h, ''string'', ''TEST''), end;'];
+% 
+% loaddircommand = [changename, changeICA, 'try, findex = [1];cd(EEG.filepath);filecount = [1];files = dir(''.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''LoadFileList2''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename))); catch; end;'];
 % 
 % savecommand = ['[EEG] = pop_saveset(EEG, ''filename'', [strcat( EEG.filename(1:end-4),get(findobj(''Tag'',''SAVETEXT2''),''String''),''.set'')],''filepath'',EEG.filepath);'...
 %      '[ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);' loaddircommand 'eeglab redraw;']; %save set ADDED BY UGO
@@ -296,5 +308,5 @@ uimenu( parmenu, 'label', 'Parallel DipFit 2 Dipoles', 'callback', ...
 % 
 % h = findobj(gcf, 'tag', 'SAVETITLE2');
 % set(h, 'backgroundcolor', [.66 .76 1]);
-
+% 
 
