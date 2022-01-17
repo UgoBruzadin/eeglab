@@ -53,6 +53,7 @@ if nargin < 3
     tmprej = 0;
 end
 
+% ---- this code has been depricated, but kept in for compatibility sake
 if ~isfield(EEG,'myVariables')
     EEG.myVariables = {0 0 '' 0};
 end
@@ -81,6 +82,7 @@ else
 end
 
 EEG.myVariables = {};
+% --- end of compatibility region
 
 com = '';
 if nargin < 2
@@ -101,12 +103,13 @@ end
 % regions = sortrows(regions,3); % Arno and Ramon on 5/13/2014 for bug 1605
 
 % Ramon on 5/29/2014 for bug 1619
+if ~isempty(regions)
 if size(regions,2) > 2
     regions = sortrows(regions,3);
 else
     regions = sortrows(regions,1);
 end
-
+end
 
 % handle regions from eegplot
 % ---------------------------
@@ -132,7 +135,7 @@ rejcounter = 0;
 % ---- the variable regions_for_rej
 if ~isempty(regions)
 for i=1:size(regions,1)
-    if regions(i,3) ~= [0.7]  %check for green color of interpolation %needs to be better!!!
+    if regions(i,3) == [1]  %check for red color of interpolation %needs to be better!!!
         regions_for_interp(i-rejcounter,:) = [];
         rejcounter = rejcounter + 1;
         regions_for_rej(rejcounter,:) = regions(i,:);
@@ -275,15 +278,15 @@ end
 
 % Run data rejection in case of rejection selected.
 if ~isempty(regions_for_rej)
-    %if EPOCHED
-    rejected_epochs = [];
-    for i=1:size(regions_for_rej,1)
-        rejected_epochs = [rejected_epochs, floor(regions_for_rej(i,1)/EEG.pnts)+1];
+    if size(EEG.data) > 2
+        rejected_epochs = [];
+        for i=1:size(regions_for_rej,1)
+            rejected_epochs = [rejected_epochs, floor(regions_for_rej(i,1)/EEG.pnts)+1];
+        end
+        [EEGOUT,com] = pop_rejepoch( EEGOUT, rejected_epochs,0);
+    else
+        [EEGOUT,com] = eeg_eegrej( EEGOUT, regions_for_rej );
     end
-    [EEGOUT,com] = pop_rejepoch( EEGOUT, rejected_epochs,0);
-    %else
-        %REJECT REGIONS
-    %end
 end
 
 
