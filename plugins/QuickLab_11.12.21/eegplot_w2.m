@@ -312,7 +312,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    try, g.freqlimits;	    catch, g.freqlimits	= []; end;
    try, g.dispchans; 		catch, g.dispchans  = size(data,1); end;
    try, g.wincolor; 		catch, g.wincolor   = [ 0.7 1 0.9]; end;
-   try, g.butlabel; 		catch, g.butlabel   = 'INTERP'; end;
+   try, g.butlabel; 		catch, g.butlabel   = 'Finalize'; end;
    try, g.colmodif; 		catch, g.colmodif   = { g.wincolor }; end;
    try, g.scale; 		    catch, g.scale      = 'on'; end;
    try, g.events; 		    catch, g.events      = []; end;
