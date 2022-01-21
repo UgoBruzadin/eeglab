@@ -203,6 +203,12 @@
 function [outvar1,EEG] = eegplot_w2(EEG, varargin); % p1,p2,p3,p4,p5,p6,p7,p8,p9)
 
 if isstruct(EEG)
+    if ~isfield(EEG,'plotIc')
+        EEG.plotIc = 1;
+    end
+    if ~isfield(EEG,'plotEp')
+        EEG.plotEp = 1;
+    end
     if EEG.plotIc == 1
         data = EEG.data;
     else
@@ -1819,45 +1825,49 @@ function draw_data(varargin)
     % attempting to print the selected areas UGO LEFT HERE
     if ~isempty(g.winrej)
         
-        %PLOT THE WHOLE DATA IN BLUE
+        % --- PLOT THE WHOLE DATA IN BLUE
         tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,chans_list_good2,lowlim,highlim);
         plot(ax1,tmp_plot_data_y', 'color', g.color{1}, 'clipping','on');
-        %MAKE NEW LIMITS
+        % --- MAKE NEW LIMITS
         highlim2 = highlim;
         lowlim2 = lowlim;
-        %LOOPS FOR ALL SELECTED REGIONS IN WINREJ IN REVERSE ORDER
-        for j=size(g.winrej,1):-1:1
-            %IF REGION IS WITHIN WINDOW
-            %if g.winrej(j,1) >= lowlim && g.winrej(j,1) <= highlim
-            if (g.winrej(j,1) >= lowlim && g.winrej(j,1) <= highlim) || ...
-               (g.winrej(j,2) >= lowlim && g.winrej(j,2) <= highlim)
-                %CAPTURES THE NEW LOW LIMIT
-                lowlim2 = g.winrej(j,1);
-                %GETS A NEW LIST OF BAD ELECTRODES WITHIN THE REJ REGION
-                list_bad_chans = find(g.winrej(j,6:end)==1);
-                
-                if g.winrej(j,2) < highlim
-                    highlim2 = g.winrej(j,2);
-                    tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,list_bad_chans,lowlim,highlim2);
-                    plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');
-                else
-                    highlim2 = highlim;
-                    tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,list_bad_chans,lowlim,highlim2);
-                    plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');
-                end
-            tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,list_bad_chans,lowlim,lowlim2);
-            plot(ax1,tmp_plot_data_y', 'color', g.color{1}, 'clipping','on');
-            elseif g.winrej(j,1) <= lowlim && g.winrej(j,2) >= highlim
-                list_bad_chans = find(g.winrej(j,6:end)==1);
-                chans_list_bad = [chans_list_bad,list_bad_chans];
-                %chans_list_good = setdiff(1:g.chans,chans_list_bad);
-                tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,list_bad_chans,lowlim,highlim);
-                plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');
-            else
-                tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,chans_list_good2,lowlim,highlim);
-                plot(ax1,tmp_plot_data_y', 'color', g.color{1}, 'clipping','on');
-            end
-        end
+        % --- LOOPS FOR ALL SELECTED REGIONS IN WINREJ IN REVERSE ORDER
+        %tic
+        
+%         for j=size(g.winrej,1):-1:1
+%             % --- IF REGION IS WITHIN NEW WINDOWS
+%             if (g.winrej(j,1) >= lowlim && g.winrej(j,1) <= highlim) || ...
+%                (g.winrej(j,2) >= lowlim && g.winrej(j,2) <= highlim)
+%                 % --- CAPTURES THE NEW LOW LIMIT
+%                 lowlim2 = g.winrej(j,1);
+%                 % --- GETS A NEW LIST OF BAD ELECTRODES WITHIN THE REJ REGION
+%                 list_bad_chans = find(g.winrej(j,6:end)==1);
+%                 
+%                 if g.winrej(j,2) < highlim
+%                     highlim2 = g.winrej(j,2);
+%                     tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,list_bad_chans,lowlim,highlim2);
+%                     plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');
+%                 else
+%                     highlim2 = highlim;
+%                     tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,list_bad_chans,lowlim,highlim2);
+%                     plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');
+%                 end
+%                 
+%                 %tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,list_bad_chans,lowlim,lowlim2);
+%                 %plot(ax1,tmp_plot_data_y', 'color', g.color{1}, 'clipping','on');
+%             elseif g.winrej(j,1) < lowlim && g.winrej(j,2) > highlim
+%                 list_bad_chans = find(g.winrej(j,6:end)==1);
+%                 chans_list_bad = [chans_list_bad,list_bad_chans];
+%                 %chans_list_good = setdiff(1:g.chans,chans_list_bad);
+%                 tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,list_bad_chans,lowlim,highlim);
+%                 plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');
+%             else
+%                 %tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,chans_list_good2,lowlim,highlim);
+%                 %plot(ax1,tmp_plot_data_y', 'color', g.color{1}, 'clipping','on');
+%             end
+%         end
+        %toc
+        
         tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,chans_list_bad,lowlim,highlim);
         plot(ax1,tmp_plot_data_y', 'color', [1 0 0], 'clipping','on');
         chans_list_bad = [chans_list_bad,list_bad_chans];
@@ -1877,8 +1887,10 @@ function draw_data(varargin)
 %             end;
 %         end
     else
+        tic
         tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,chans_list_bad,lowlim,highlim);
         plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');  
+        toc
     end
     
     %NORMAL PLOT RED LINE 
@@ -1914,6 +1926,7 @@ function draw_data(varargin)
     end;
     
     % REPLOT channels adjusting for channel errors 
+    % SOMETHING IS OFF ABOUT THIS CODE?! INVESTIGATE IMMEDIATLY
     if ~isempty(chans_list_good)
         chans_list_good_N=length(chans_list_good);
         tmp_plot_data_x_N=length(lowlim:highlim);
