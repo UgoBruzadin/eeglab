@@ -142,6 +142,8 @@ for i=1:size(regions,1)
     end
 end
 end
+
+% Does soemthing with channels!
 chancounter = 0;
 if ~isempty(regions_for_interp)
 for i=1:size(regions_for_interp,1)

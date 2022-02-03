@@ -594,11 +594,11 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
 % EEG.myVariables{4} = 0;
 % Channel rejection callbacks
 % get channels for partial interpolation
-chaninterp = ['EEG.myVariables{1} = get(findobj(gcf, ''Tag'', ''Channel''),''string'')']; 
+chaninterp = ['EEG.myVariables{1} = get(findobj(gcf, ''Tag'', ''Channel''),''string'');']; 
 % select plot difference
-plotdiffcom = ['EEG.myVariables{2} = get(findobj(gcf, ''Tag'', ''datadiff''),''Value'')'];
+plotdiffcom = ['EEG.myVariables{2} = get(findobj(gcf, ''Tag'', ''datadiff''),''Value'');'];
 % get channels for complete interpolation
-chaninterp2 = ['EEG.myVariables{3} = get(findobj(gcf, ''Tag'', ''Removal''),''string'')'];
+chaninterp2 = ['EEG.myVariables{3} = get(findobj(gcf, ''Tag'', ''Removal''),''string'');'];
 % select text or mouse clicks
 %gettextcom = ['EEG.myVariables{4} = get(findobj(gcf, ''Tag'', ''UseText''),''Value'')'];
 
@@ -1311,7 +1311,7 @@ else
     
     if g.trialstag == -1
         
-        g.trialstag = (g.srate * epoch);
+        g.trialstag = (g.srate * epoch)+1;
         g.winlength =  g.winlength / epoch;
         g.time = g.time * epoch;
         
@@ -1774,7 +1774,6 @@ function draw_data(varargin)
         set(EPosition,'string',num2str(g.time)); 
     else 
         set(EPosition,'string',num2str(g.time+1)); 
-        
     end; 
     set(figh, 'userdata', g);
 
@@ -2247,7 +2246,7 @@ if g.trialstag(1) ~= -1
     % plot trial limits
     % -----------------
     tmptag = [lowlim:highlim];
-    tmpind = find(mod(tmptag-1, g.trialstag+1) == 0);
+    tmpind = find(mod(tmptag-1, g.trialstag) == 0);
     for index = tmpind
         plot(ax0, [tmptag(index)-lowlim-1 tmptag(index)-lowlim-1], [0 1], 'b--');
     end;
@@ -2255,14 +2254,14 @@ if g.trialstag(1) ~= -1
     
     % compute Xticks
     % --------------
-    tagnum = floor((alltag-1)/g.trialstag)+1; % modified, added FLOOR to make sure epoched # displayed was correct. UGO
+    tagnum = (alltag-1)/g.trialstag+1; % modified, added FLOOR to make sure epoched # displayed was correct. UGO
     set(ax0,'XTickLabel', tagnum,'YTickLabel', [],...
         'Xlim',[0 g.winlength*multiplier],...
         'XTick',alltag-lowlim+g.trialstag/2, 'YTick',[], 'tag','backeeg');
     
     tagpos  = [];
     if ~isempty(alltag)
-        alltag = [alltag(1)-g.trialstag-1 alltag alltag(end)+g.trialstag]; % add border trial limits % NEEDED to add -1 to g.trialstag to correct for display problems  UGO
+        alltag = [alltag(1)-g.trialstag alltag alltag(end)+g.trialstag]; % add border trial limits % NEEDED to add -1 to g.trialstag to correct for display problems  UGO
     else
         alltag = [ floor(lowlim/g.trialstag)*g.trialstag ceil(highlim/g.trialstag)*g.trialstag ]+1;
     end;
@@ -2453,7 +2452,7 @@ if ismember(SelectionType, {'normal', 'alt'})
             highlim = round(g.winlength*g.trialstag);
         else
             lowlim  = round(g.time*g.srate+1);
-            highlim = round(g.winlength*g.srate+1);
+            highlim = round(g.winlength*g.srate);
         end;
         if (tmppos(1) >= 0) && (tmppos(1) <= highlim)
             if isempty(g.winrej)
@@ -2481,7 +2480,7 @@ if ismember(SelectionType, {'normal', 'alt'})
                     end;
                 else
                     if g.trialstag ~= -1 % find nearest trials boundaries if epoched data
-                        alltrialtag = [0:g.trialstag+1:g.frames]; % NEEDED FIXING, ADDED + 1 to count for trialstag variance
+                        alltrialtag = [0:g.trialstag:g.frames]; % NEEDED FIXING, ADDED + 1 to count for trialstag variance
                         I1 = find(alltrialtag < (tmppos(1)+lowlim) );
                         if ~isempty(I1) && I1(end) ~= length(alltrialtag)
                             g.winrej = [g.winrej' [alltrialtag(I1(end)) alltrialtag(I1(end)+1) g.wincolor zeros(1,g.chans)]']';
