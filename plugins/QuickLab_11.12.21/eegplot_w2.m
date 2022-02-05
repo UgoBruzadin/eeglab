@@ -2988,7 +2988,7 @@ function plot_topoplot(fig)
         %labls = get(ax1, 'YtickLabel');
         %component = str2num(labls(tmpelec+1,:));
         
-        pop_prop_extended2(EEG, 0, tmpelec, NaN)
+        pop_prop_extended2(EEG, 0, tmpelec,'NaN',{'freqrange', [2 55]});
     end
     end
 %     if g.trialstag == -1
