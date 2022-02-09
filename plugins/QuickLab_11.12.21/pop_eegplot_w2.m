@@ -363,9 +363,13 @@ end;
 EEG.plotEp = epoc;
 EEG.plotIc = icacomp;
 
-eegplot_w2( EEG, 'srate', EEG.srate, 'title', [ 'Channel or Component Interpolation! -- eegplot_w2(): ' EEG.setname], ...
+if epoc ~= 3
+    eegplot_w2( EEG, 'srate', EEG.srate, 'title', [ 'Channel or Component Interpolation! -- eegplot_w2(): ' EEG.setname], ...
              'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
-
+else
+    eegplot_w2freq( EEG, 'srate', EEG.srate, 'title', [ 'Frequency Interpolation! -- eegplot_w2(): ' EEG.setname], ...
+             'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
+end
 % if epoc == 1
 %     if icacomp == 1
 %         eegplot_w2( EEG, 'srate', EEG.srate, 'title', [ 'Scroll channel activities -- eegplot_w(): ' EEG.setname], ...
