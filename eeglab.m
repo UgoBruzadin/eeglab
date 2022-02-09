@@ -1270,7 +1270,7 @@ W_MAIN = figure('Units','points', ...
 	'name', txtVersion, ... 
 	'numbertitle', 'off', ...
 	'Position',[200 100 (WINMINX+WINMAXX+2*BORDERINT+2*BORDEREXT) (WINY+2*BORDERINT+2*BORDEREXT) ], ...
-	'color', COLOR, ...
+	'color', 'none', ...
 	'Tag','EEGLAB', ...
     'visible', 'off', ...   
 	'Userdata', {[] []});
@@ -1292,6 +1292,7 @@ H_MAIN(1) = uicontrol('Parent',W_MAIN, ...
     'Position',[BORDEREXT   BORDEREXT  (WINMINX+WINMAXX+2*BORDERINT)  (WINY)], ...
     'Style','frame', ...
    'Tag','Frame1');
+
 set(H_MAIN(1), 'unit', 'normalized');
 
 %FOR DEBUGGING savecommand = ['fprintf(get(findobj(''tag'',''SAVETEXT''),''string''));'];
@@ -1302,20 +1303,20 @@ set(H_MAIN(1), 'unit', 'normalized');
 % attach acronym
 % save.
 
-
 % load directory
-loaddircommand = ['findex = [1];cd(EEG.filepath);filecount = [1];files = dir(''.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''LoadFileList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
+loaddircommand = ['findex = [1];cd(EEG.filepath);filecount = [1];files = dir(''.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''LoadFileList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));rec = plotfft(EEG,files,findex);'];
 % save command
 savecommand = ['[EEG] = pop_saveset(EEG, ''filename'', [strcat( EEG.filename(1:end-4),get(findobj(''tag'',''SAVETEXT''),''string''),''.set'')],''filepath'',EEG.filepath);'...
      '[ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);' loaddircommand 'eeglab redraw;']; %save set ADDED BY UGO
 % moveleft
-loadprecommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex > 1, findex = findex - 1, EEG = pop_loadset( files(findex).name, pwd); eeglab redraw, end;'];
+loadprecommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex > 1, findex = findex - 1;, EEG = pop_loadset( files(findex).name, pwd); eeglab redraw, end; rec = plotfft(EEG,files,findex);'];
 % move right
-loadpostcommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex < length(files), findex = findex + 1, EEG = pop_loadset( files(findex).name, pwd); eeglab redraw, end;'];
+loadpostcommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex < length(files), findex = findex + 1;, EEG = pop_loadset( files(findex).name, pwd); eeglab redraw, end; rec = plotfft(EEG,files,findex);'];
 % filelist
 loadfilecommand = ['EEG = pop_loadset( files(get(findobj(''tag'',''LoadFileList''),''value'')).name, pwd);eeglab redraw;'];
 
-geometry = { [1] [1] [1] [1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1] [1 1 1 1 0.3 0.3 3 1] [1] };
+
+geometry = { [1] [1] [1] [1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [1 1 1 1 0.3 0.3 3 1] [1] };
 listui = { { 'style', 'text', 'string', 'Parameters of the current set', 'tag', 'win0' } { } ...
            { 'style', 'text', 'tag', 'PATH', 'string', ' ', 'userdata', 'datinfo' } ...
            { 'style', 'text', 'tag', 'win1', 'string', ' ', 'userdata', 'datinfo' } ...
@@ -1373,7 +1374,6 @@ supergui(gcf, geometry, [firstElemHeight 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1], listui{
 
 %SaveButton = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'SAVE', 'Units','Normalized','Position',[15 -10 15 6])%.*s+q)%, 'callback', commandClear');
 
-
 titleh   = findobj('parent', gcf, 'tag', 'win0');
 alltexth = findobj('parent', gcf, 'style', 'text');
 alltexth = setdiff_bc(alltexth, titleh);
@@ -1384,7 +1384,6 @@ set(alltexth, 'fontname', FONTNAME, 'fontsize', FONTSIZE);
 
 set(W_MAIN, 'visible', 'on');
 
-    
 return;
 
 % eeglab(''redraw'')() - Update EEGLAB menus based on values of global variables.
