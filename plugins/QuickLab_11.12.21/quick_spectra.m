@@ -26,7 +26,7 @@ for i=1:numberOfHeadmaps
     topo(i) = floor(low + i*calc);
 end
 tic
-figure; pop_spectopo(EEG, 1, [EEG.xmin*1000  EEG.xmax*1000], 'EEG' , 'freq', [topo], 'freqrange',[low high],'winsize',maxWindow,'electrodes','off');
+figure; [EEG.x,EEG.y] = pop_spectopo(EEG, 1, [EEG.xmin*1000  EEG.xmax*1000], 'EEG' , 'freq', [topo], 'freqrange',[low high],'winsize',maxWindow,'electrodes','off');
 toc
 
 end
