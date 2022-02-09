@@ -117,7 +117,10 @@ switch fieldbox
         data.label = getchanlabels(tmpchanlocs, 1:EEG.nbchan);
         if EEG.trials > 1
             res = std_maketrialinfo([], EEG);
+            try
             data.trialinfo = struct2table(res.datasetinfo.trialinfo);
+            catch
+            end
         else
             res = struct('subject', EEG.subject, 'condition', EEG.condition, 'group', EEG.group, 'session', EEG.session);
             data.trialinfo = struct2table(res);
