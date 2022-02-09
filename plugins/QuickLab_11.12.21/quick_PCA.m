@@ -17,6 +17,7 @@ function [EEG,com] = quick_PCA(EEG,IC,type)
 % You should have received a copy of the GNU General Public License
 % along with this program; if not, write to the Free Software
 
+com = [];
 if isempty(EEG.data)
     EEG = pop_loadset();
     eeglab redraw

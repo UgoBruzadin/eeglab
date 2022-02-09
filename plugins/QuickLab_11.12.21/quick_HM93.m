@@ -1,4 +1,5 @@
 function [EEG,com] = quick_HM93(EEG)
+com = [];
 if isempty(EEG.data)
     [EEG,com] = pop_loadset();
     eeglab redraw
