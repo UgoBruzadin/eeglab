@@ -28,17 +28,19 @@ function rec = plotfft(EEG,files,findex)
 %     findex = find(strcmp({files.name}, strcat(EEG.filename)));
 % end
 
+
+
 if exist('EEG','var')
     if isstruct(EEG)
         if ~isempty(EEG)
             if ~isempty(findobj('Tag','rec'))
                 clear rec
             end
-            rec = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized','Tag', 'rec', 'Position', [.5 .15 .35 .67]);
-            
+            rec = [];
             jpgfiles = dir('*FFT*jpg');
             findex = find(strcmp({jpgfiles.name}, strcat(EEG.filename(1:end-4),'FFT.jpg')));
             if ~isempty(findex)
+                rec = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized','Tag', 'rec', 'Position', [.5 .15 .35 .67]);
                 pic = jpgfiles(findex).name;
                 [picrgb,map] = imread(pic);
                 set(rec,'Units','pixels')
@@ -47,6 +49,7 @@ if exist('EEG','var')
                 set(rec,'Units','normalized');
                 set(rec,'cdata',picrgb2);
             end
+            
         end
     end
 end
