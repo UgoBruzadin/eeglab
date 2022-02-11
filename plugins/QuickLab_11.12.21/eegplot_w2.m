@@ -543,33 +543,43 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   % %%%%%%%%%%%%%%%%%%%%%%%%%
 
 % positions of buttons
-  posbut(22,:) = [ 0.92    0.94    0.080    0.03 ]; % stack channels(same offset)  
-  posbut(21,:) = [ 0.92    0.90    0.080    0.03 ]; % normalize
-  posbut(17,:) = [ 0.92    0.86    0.080    0.03 ]; % events types
+  posbut(22,:) = [ 0.92    0.98    0.080    0.02 ]; % stack channels(same offset)  
+  posbut(21,:) = [ 0.92    0.96    0.080    0.02 ]; % normalize
+  posbut(17,:) = [ 0.92    0.94    0.080    0.02 ]; % events types
   
-  posbut(14,:) = [ 0.92    0.82    0.080    0.03 ]; % elec tag
-  posbut(7,:) =  [ 0.92    0.79    0.080    0.03 ]; % elec
+  posbut(14,:) = [ 0.92    0.92    0.080    0.02 ]; % elec tag
+  posbut(7,:) =  [ 0.92    0.90    0.080    0.02 ]; % elec
   
-  posbut(16,:) = [ 0.92    0.76    0.080    0.03 ]; % value tag
-  posbut(9,:) =  [ 0.92    0.73    0.080    0.03 ]; % value
+  posbut(16,:) = [ 0.92    0.88    0.080    0.02 ]; % value tag
+  posbut(9,:) =  [ 0.92    0.86    0.080    0.02 ]; % value
   
-  posbut(15,:) = [ 0.92    0.70    0.080    0.03 ]; % g.time tag
-  posbut(8,:) =  [ 0.92    0.67    0.080    0.03 ]; % g.time   
+  posbut(15,:) = [ 0.92    0.84    0.080    0.02 ]; % g.time tag
+  posbut(8,:) =  [ 0.92    0.82    0.080    0.02 ]; % g.time   
   
-  posbut(5,:) =  [ 0.92    0.62    0.080    0.03 ]; % Eposition .52
-  posbut(1,:) =  [ 0.92    0.59    0.020    0.03 ]; % <<  
-  posbut(2,:) =  [ 0.94    0.59    0.020    0.03 ]; % <  
-  posbut(3,:) =  [ 0.96    0.59    0.020    0.03 ]; % >
-  posbut(4,:) =  [ 0.98    0.59    0.020    0.03 ]; % >>  
-  posbut(23,:) = [ 0.92    0.54    0.080    0.03 ]; % Espacing/scale tag
-  posbut(6,:) =  [ 0.92    0.51    0.080    0.03 ]; % Espacing/scale  
-  posbut(10,:) = [ 0.96    0.48    0.020    0.03 ]; % +  
-  posbut(11,:) = [ 0.94    0.48    0.020    0.03 ]; % -  
+  posbut(29,:) = [ 0.92    0.78    0.080    0.02 ]; % COUNTING Tag #Ugo
+  posbut(30,:) = [ 0.92    0.80    0.080    0.02 ]; % COUNTING Selected areas #Ugo
   
+  posbut(5,:) =  [ 0.92    0.76    0.080    0.02 ]; % Eposition .52
+  posbut(1,:) =  [ 0.92    0.74    0.020    0.02 ]; % <<  
+  posbut(2,:) =  [ 0.94    0.74    0.020    0.02 ]; % <  
+  posbut(3,:) =  [ 0.96    0.74    0.020    0.02 ]; % >
+  posbut(4,:) =  [ 0.98    0.74    0.020    0.02 ]; % >>  
+  posbut(23,:) = [ 0.92    0.72    0.080    0.02 ]; % Espacing/scale tag
+  posbut(6,:) =  [ 0.92    0.70    0.080    0.02 ]; % Espacing/scale  
+  posbut(10,:) = [ 0.96    0.68    0.020    0.02 ]; % +  
+  posbut(11,:) = [ 0.94    0.68    0.020    0.02 ]; % -  
+  
+%   posbut(33,:) = [ 0.92    0.58    0.080    0.02 ]; % envelope tag
+%   posbut(34,:) =  [ 0.92    0.56    0.080    0.02 ]; % envelope  
+%   posbut(35,:) = [ 0.96    0.54    0.020    0.02 ]; % +  
+%   posbut(36,:) = [ 0.94    0.54    0.020    0.02 ]; % - 
+    
   posbut(20,:) = [ 0.005   0.02    0.010    0.96 ]; % slider  
   
-  posbut(29,:) = [ 0.92    0.44    0.080    0.02 ]; % COUNTING Selections
-  posbut(30,:) = [ 0.92    0.42    0.080    0.02 ]; % COUNTING Tag 
+  % posbut(33,:)List of Channel/Epoch Methods, drop box, select from list
+  % posbut(34,:)TextBox with options
+  % posbut(35,:)Run button % run code from box 1 and 2, add data to winrej, redraw
+  % posbut(36,:)Clear button % clear all winrej?
   
   posbut(32,:) = [ 0.92    0.38    0.080    0.10 ]; % Topoplot
   
@@ -585,13 +595,9 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   posbut(25,:) = [ 0.92    0.13    0.080    0.02 ]; % Channel Rejection UGO
 
   posbut(13,:) = [ 0.92    0.09    0.080    0.03 ]; % cancel/close
-  posbut(12,:) = [ 0.92    0.03    0.080    0.05 ]; % accept/close  
+  posbut(12,:) = [ 0.92    0.03    0.080    0.05 ]; % accept/close 
     
-% Channel Rejection buttons (UGO)
-% EEG.myVariables{1} = 0;
-% EEG.myVariables{2} = 0;
-% EEG.myVariables{3} = 0;
-% EEG.myVariables{4} = 0;
+
 % Channel rejection callbacks
 % get channels for partial interpolation
 chaninterp = ['EEG.myVariables{1} = get(findobj(gcf, ''Tag'', ''Channel''),''string'');']; 
@@ -606,12 +612,25 @@ displayep = ['eegplot_w2(''redraw'')'];
 togglerej = ['eegplot_w2(''rejection'')'];
 displaycomp = ['EEG.plotEp = 1 - EEG.plotEp; eegplot_w2(EEG,varargin)'];
 
-%   u(27) = uicontrol('Parent',figh, ...
+% 
+% rejectioncommand = [];
+% 
+%  u(33) = uicontrol('Parent',figh, ...
 % 	'Units', 'normalized', ...
 % 	'Position', posbut(27,:), ...
-% 	'Tag','DisplayChan',...
-% 	'string','Chan',...
-% 	'Callback', displaycomp );
+% 	'Tag','Rejection',...
+%     'BackgroundColor',[.5 1 0.5],...
+% 	'string','Interpolating Mode',...
+% 	'Callback', togglerej );
+
+%   u(25) = uicontrol('Parent',figh, ...
+% 	'Units', 'normalized', ...
+% 	'BackgroundColor',[1 1 1], ...
+% 	'Position', posbut(25,:), ...
+% 	'Style','edit', ...
+% 	'Tag','Channel',...
+% 	'string','',...
+% 	'Callback', chaninterp );
 
  u(27) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -1886,10 +1905,10 @@ function draw_data(varargin)
 %             end;
 %         end
     else
-        tic
+        %tic
         tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,chans_list_bad,lowlim,highlim);
         plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');  
-        toc
+        %toc
     end
     
     %NORMAL PLOT RED LINE 
