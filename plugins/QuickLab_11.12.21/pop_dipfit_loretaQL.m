@@ -41,6 +41,8 @@ end
 
 if ~plugin_askinstall('Fieldtrip-lite', 'ft_dipolefitting'), return; end;
 
+EEG = pop_par_dipfit_settings( EEG, 'hdmfile','C:\\GitHub\\eeglab\\plugins\\dipfit3.7\\standard_BEM\\standard_vol.mat','coordformat','MNI','mrifile','C:\\GitHub\\eeglab\\plugins\\dipfit3.7\\standard_BEM\\standard_mri.mat','chanfile','C:\\GitHub\\eeglab\\plugins\\dipfit3.7\\standard_BEM\\elec\\standard_1005.elc','coord_transform',[0.05476 -17.3653 -8.1318 0.075502 0.0031836 -1.5696 11.7138 12.7933 12.213] ,'chansel',[1:EEG.nbchan] );
+
 EEGOUT = EEG;
 com = '';
 
@@ -57,8 +59,7 @@ if ~isfield(EEG, 'dipfit')
 end
 
 if ~isfield(EEG.dipfit, 'vol') && ~isfield(EEG.dipfit, 'hdmfile')
-    error('Dipolefit volume conductor model not specified');
-end
+    end
 if ~isfield(EEG.dipfit, 'coordformat') || ~strcmpi(EEG.dipfit.coordformat, 'MNI')
     error('For this function, you must use the template BEM model MNI in dipole fit settings');
 end
@@ -112,7 +113,7 @@ dataPre = eeglab2fieldtrip(EEG, 'preprocessing', 'none');
 cfg = [];
 cfg.method    = 'mtmfft';
 cfg.output    = 'powandcsd';
-cfg.tapsmofrq = 2;
+cfg.tapsmofrq = 10;
 cfg.foilim    = range;
 freqPre = ft_freqanalysis(cfg, dataPre);
 %freqPre = rmfield(freqPre,'labelcmb');
@@ -146,7 +147,7 @@ else
 end
 
 %% load MRI and plot
-if ~isfield(EEG.lor,'grid')
+if ~isfield(EEG.lor,'mri')
     mri = load('-mat', EEG.dipfit.mrifile);
     mri = ft_volumereslice([], mri.mri);
     EEG.lor.mri = mri;
