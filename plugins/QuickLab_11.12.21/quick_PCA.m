@@ -1,4 +1,4 @@
-function [EEG,com] = quick_PCA(EEG,IC,type)
+function [EEG,com] = quick_PCA(EEG,IC,type,disp)
 % [EEG,com] = quick_PCA(EEG,IC,type) 
 %
 % Author: Ugo Bruzadin Nunes
@@ -27,6 +27,10 @@ if nargin < 3
     type = 'binica';
 end
 
+if nargin < 4
+    disp = 1;
+end
+
 mybadcomps = find(EEG.reject.gcompreject);   %stores the Id of the components to be rejected
 
 if nargin < 2 || isempty(IC)
@@ -48,7 +52,7 @@ else
     end
     [EEG,com] = pop_par_runica(EEG,'extended', 1,'icatype',type,'pca',IC, 'verbose','off');
 end
-
-[EEG,com] = quick_IClabel(EEG);
-
+if disp
+    [EEG,com] = quick_IClabel(EEG);
+end
 end
