@@ -152,15 +152,15 @@ if reject
         'else LASTCOM1=''''; ' ...
         'end; ' ];
     if icacomp == 1
-        com3 = 'EEGTMP=EEG;EEG.chanrej = TMPREJ;[EEGTMP LASTCOM1] = eeg_eegrej2(EEGTMP,TMPREJ,1,TMPREJCHN); ' ; %modified for eegrej2
+        com3 = 'EEGTMP=EEG;EEG.chanrej = TMPREJ;[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,TMPREJ,1,0); ' ; %modified for eegrej2
     else
-        com3 = 'EEGTMP=EEG;EEG.comprej = TMPREJ;[EEGTMP LASTCOM1] = eeg_eegrej2(EEGTMP,TMPREJ,2,TMPREJCHN); ' ; %modified for eegrej2
+        com3 = 'EEGTMP=EEG;EEG.comprej = TMPREJ;[EEGTMP LASTCOM2] = eeg_eegrej2(EEGTMP,TMPREJ,2,0); ' ; %modified for eegrej2
     end;
     % Created for Save & Close Command
     if icacomp == 1
-        com5 = 'LASTCOM1='''';EEGTMP=EEG;EEG.chanrej = TMPREJ;' ; %modified for eegrej2 #Ugo 
+        com5 = 'EEGTMP=EEG;EEG.chanrej = TMPREJ;' ; %modified for eegrej2 #Ugo 
     else
-        com5 = 'LASTCOM1='''';EEGTMP=EEG;EEG.comprej = TMPREJ;' ; %modified for eegrej2#Ugo 
+        com5 = 'EEGTMP=EEG;EEG.comprej = TMPREJ;' ; %modified for eegrej2#Ugo 
     end;
     
     
@@ -183,17 +183,17 @@ if reject
 %     end;
 %      
     com4 = [ ...
-        'if ~isempty(LASTCOM1),' ...
-        '     EEGTMP = eegh(strrep(LASTCOM1,''EEGTMP'',''EEG''), EEGTMP);' ...
+        'if ~isempty(LASTCOM2),' ...
+        '     EEGTMP = eegh(strrep(LASTCOM2,''EEGTMP'',''EEG''), EEGTMP);' ...
         'end;' ...
-        'if ~isempty(LASTCOM1)' ... 'if or(~isempty(LASTCOM1),~isempty(LASTCOM1))' ... 
+        'if ~isempty(LASTCOM2)' ... 'if or(~isempty(LASTCOM1),~isempty(LASTCOM2))' ... 
         '  EEG = EEGTMP;ALLEEG = ALLEEG;'...%CHANGE TO CHANGE SAVED DATA%'  [ALLEEG EEG CURRENTSET tmpcom] = pop_newset(ALLEEG, EEGTMP' newset_param ');' ... 
         ''...%'  if ~isempty(tmpcom),' ...
         ''...%'     eegh(tmpcom); ' ...
         ''...%'     eeglab(''redraw''); ' ...
         ''...%'  end; ' ...
         'end; ' ...
-        'clear EEGTMP TMPREJ TMPREJCHN LASTCOM1;eeglab redraw;' ];
+        'clear EEGTMP TMPREJ TMPREJCHN LASTCOM1 LASTCOM2;eeglab redraw;' ];
 end;
 
 % if EEG.trials > 1
@@ -253,7 +253,7 @@ end;
 %     end;
 %     
 %     if reject
-%         com_ = [ com1 com2 com3 'else LASTCOM1='''' ; end; ' com4 ];
+%         com_ = [ com1 com2 com3 'else LASTCOM2='''' ; end; ' com4 ];
 %     else
 %         com_ = [ com2 ...
 %             ' warndlg2(strvcat(''Epochs (=trials) marked for rejection have been noted.'',' ...
@@ -330,7 +330,7 @@ end;
     if reject == 0, command = '';
     else
         command = [com3 com4 ];
-        savecommand = [com5 com4];
+        savecommand = [com
         if nargin < 4
             res = questdlg2( strvcat('Mark stretches of continuous data for rejection', ...
                                      'by dragging the left mouse button. Click on marked', ...
@@ -371,10 +371,10 @@ EEG.plotIc = icacomp;
 
 if epoc ~= 3
     eegplot_w2( EEG, 'srate', EEG.srate, 'title', [ 'Channel or Component Interpolation! -- eegplot_w2(): ' EEG.setname], ...
-             'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command,'savecommand',savecommand, eegplotoptions{:}, varargin{:});
+             'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command,'savecom',savecom, eegplotoptions{:}, varargin{:});
 else
     eegplot_w2freq( EEG, 'srate', EEG.srate, 'title', [ 'Frequency Interpolation! -- eegplot_w2(): ' EEG.setname], ...
-             'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command,'savecommand',savecommand, eegplotoptions{:}, varargin{:});
+             'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command,'savecom',savecom, eegplotoptions{:}, varargin{:});
 end
 % if epoc == 1
 %     if icacomp == 1

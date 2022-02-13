@@ -1429,9 +1429,6 @@ else
   case 'ClearMarks'
       g = get(gcf,'UserData');
       g.winrej = [];
-      for ii=1:length(g.eloc_file)
-          g.eloc_file(ii).badchan = 0;
-      end
       draw_data([],[],gcf,0,[],g);
       
   case 'rejection'
@@ -3229,15 +3226,11 @@ bTrial_num  = trials_ind(bTrial_ind);	% trial list
 nbadtrial   = length(bTrial_num);       % count bad trials
 
 % Find channels that have been marked as bad in more than X% of trials:
-channel_index       = sum(winrej,2)/EEG.trials >= str2double(pctbadtrial(1).String)/100;   % boolean list
-% if sum(channel_index)
-%     bChan_lab           = EEG.chanlocs(channel_index).labels;     % Channel label list
-%     nbadchan            = length(bChan_lab);                    % count bad channels
-%     %winrej(channel_index,:)   = 1;                                    % mark for plotting
-% else
-%     bChan_lab = [];
-%     nbadchan = 0;
-% end
+channel_index       = sum(winrej,1) >= str2double(pctbadtrial(1).String);   % boolean list
+bChan_lab           = EEG.chanlocs(channel_index).labels;     % Channel label list
+nbadchan            = length(bChan_lab);                    % count bad channels
+%winrej(channel_index,:)   = 1;                                    % mark for plotting
+
 if ~isfield(g.eloc_file, 'badchan')
     for ii=1:length(g.eloc_file)
         g.eloc_file(ii).badchan = 0;
@@ -3246,10 +3239,7 @@ end;
 
 % BUG
 if sum(channel_index)
-    badchannels = find(channel_index);
-    for ind = badchannels'
-        g.eloc_file(ind).badchan = 1; % marks channels as bad
-    end
+    g.eloc_file(find(channel_index)).badchan = 1; % marks channels as bad
 end
 
 if ~isempty(winrej)
