@@ -3259,7 +3259,7 @@ if ~isempty(winrej)
     mark(:,2)               = mark(:,1)+EEG.pnts;               % end   sample
     mark(bTrial_ind,3)      = 1;                                % R for bad trials
     mark(bTrial_ind,4)      = 0.8;                              % G for bad trials
-    mark(bTrial_ind,5)      = 0.8;                              % B for bad trials
+    mark(bTrial_ind,5)      = 0.9;                              % B for bad trials
     
     mark(~bTrial_ind,3)      = 0.7;                              % R for bad chans
     mark(~bTrial_ind,4)      = 1;                                % G for bad chans
