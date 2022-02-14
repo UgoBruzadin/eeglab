@@ -1405,10 +1405,12 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
   
   h = findobj(gcf, 'style', 'pushbutton');
   set(h, 'backgroundcolor', BUTTON_COLOR);
+  
+  % set button colors #Ugo
   h = findobj(gcf, 'tag', 'Rejection');
   set(h, 'backgroundcolor', [0.5 1 0.5]);
   h = findobj(gcf, 'tag', 'Display');
-  set(h, 'backgroundcolor', [1 0.5 0.5]);
+  set(h, 'backgroundcolor', modecolor);
   h = findobj(gcf, 'tag', 'eegslider');
   set(h, 'backgroundcolor', BUTTON_COLOR);
   set(figh, 'visible', 'on');
@@ -2144,16 +2146,29 @@ function draw_data(varargin)
                 abscmin = max(1,round(g.winrej(tpmi,1)-lowlim));
                 abscmax = round(g.winrej(tpmi,2)-lowlim);
                 maxXlim = get(gca, 'xlim');
-                if maxXlim(2) >= highlim 
+                % found a quick solution.... abscmax didn't le tme draw the
+                % red lines at first, so I sorta removed it. Now I have to
+                % keep it, so i left it as a try error.
+                try
+                    if maxXlim(2) >= 2 %SUPER BUG can't fix it?!
+                        abscmax = min(abscmax, round(maxXlim(2)-1));
+                    end
+                    for i = 1:g.chans
+                        if g.winrej(tpmi,g.chans-i+1+5)
+                            plot(ax1,abscmin+1:abscmax+1,data(g.chans-i+1,abscmin+lowlim:abscmax+lowlim) ...
+                                -meandata(g.chans-i+1)+i*g.spacing + (g.dispchans+1)*(oldspacing-g.spacing)/2 +g.elecoffset*(oldspacing-g.spacing), 'color','r','clipping','on')
+                        end
+                    end
+                catch
                     abscmax = min(abscmax, round(maxXlim(2)-1));
+                    for i = 1:g.chans
+                        if g.winrej(tpmi,g.chans-i+1+5)
+                            plot(ax1,abscmin+1:abscmax+1,data(g.chans-i+1,abscmin+lowlim:abscmax+lowlim) ...
+                                -meandata(g.chans-i+1)+i*g.spacing + (g.dispchans+1)*(oldspacing-g.spacing)/2 +g.elecoffset*(oldspacing-g.spacing), 'color','r','clipping','on')
+                        end
+                    end
                 end
-                for i = 1:g.chans
-                    if g.winrej(tpmi,g.chans-i+1+5)
-                        plot(ax1,abscmin+1:abscmax+1,data(g.chans-i+1,abscmin+lowlim:abscmax+lowlim) ...
-                            -meandata(g.chans-i+1)+i*g.spacing + (g.dispchans+1)*(oldspacing-g.spacing)/2 +g.elecoffset*(oldspacing-g.spacing), 'color','r','clipping','on')
-                    end;
-                end
-            end;
+            end
     	end;
     end;
     g.spacing = oldspacing;
