@@ -272,9 +272,15 @@ if chanorcomp == 1
     if isfield(EEGOUT,'chanrej')
         EEGOUT.chanrej = [];
     end
+    if isfield(EEGOUT,'mybadchan')
+        EEGOUT.mybadchan = [];
+    end
 else
     if isfield(EEGOUT,'comprej')
         EEGOUT.comprej = [];
+    end
+    if isfield(EEGOUT,'mybadcomp')
+        EEGOUT.mybadcomp = [];
     end
 end
 
