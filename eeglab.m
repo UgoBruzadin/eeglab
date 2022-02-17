@@ -1313,7 +1313,7 @@ loadprecommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex >
 % move right
 loadpostcommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex < length(files), findex = findex + 1;, EEG = pop_loadset( files(findex).name, pwd); eeglab redraw, end; rec = plotfft(EEG,files,findex);'];
 % filelist
-loadfilecommand = ['EEG = pop_loadset( files(get(findobj(''tag'',''LoadFileList''),''value'')).name, pwd);eeglab redraw;'];
+loadfilecommand = ['cd(EEG.filepath);EEG = pop_loadset( files(get(findobj(''tag'',''LoadFileList''),''value'')).name, pwd);eeglab redraw;'];
 
 
 geometry = { [1] [1] [1] [1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [1 1 1 1 0.3 0.3 3 1] [1] };
