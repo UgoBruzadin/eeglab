@@ -115,6 +115,7 @@ cfg.method    = 'mtmfft';
 cfg.output    = 'powandcsd';
 cfg.tapsmofrq = 10;
 cfg.foilim    = range;
+cfg.pad = 'nextpow2';
 freqPre = ft_freqanalysis(cfg, dataPre);
 %freqPre = rmfield(freqPre,'labelcmb');
 if ~isfield(EEG,'lor')
@@ -193,16 +194,20 @@ for freq = frequencies
     sourcePost_nocon.momdimord = 'pos';
     sourcePostInt_nocon  = ft_sourceinterpolate(cfg2, sourcePost_nocon , mri);
     
+    EEG.lor.source_int(counter) = sourcePostInt_nocon;
+    open
     cfg2              = struct(g.ft_sourceplot_params{:});
     cfg2.funparameter = 'pow';
-    %cfg2.atlas = ft_read_atlas('ROI_MNI_V4.nii') % not working
+    
+%    cfg2.atlas = ft_read_atlas('ROI_MNI_V7.nii'); % not working
+    
     ft_sourceplot(cfg2,sourcePostInt_nocon);
     textsc(sprintf('eLoreta source localization of %d frequency power',freq), 'title');
 
 %     cfg = [];
 %     cfg.nonlinear = 'no';
 %     sourceDiffIntNorm = ft_volumenormalise(cfg, sourcePostInt_nocon);
-    
+% %     
 %     cfg3 = [];
 %     cfg3.method        = 'ortho';
 %     cfg3.funparameter  = 'pow';
@@ -210,7 +215,7 @@ for freq = frequencies
 %     cfg3.funcolorlim   = [0.0 1.2];
 %     cfg3.opacitylim    = [0.0 1.2];
 %     cfg3.opacitymap    = 'rampup';
-%     cfg3.atlas = ft_read_atlas('ROI_MNI_V4.nii');
+%     cfg3.atlas = ft_read_atlas('ROI_MNI_V7.nii');
 %     ft_sourceplot(cfg3, sourcePostInt_nocon);
 %     
 end
@@ -219,4 +224,4 @@ end
 
 %% history
 disp('Done');
-com = sprintf('pop_dipfit_loreta(EEG, %s);', vararg2str( { select }));
+com = sprintf('pop_dipfit_loretaQL(EEG, %s);', vararg2str( { select, range, frequencies, varargin}));
