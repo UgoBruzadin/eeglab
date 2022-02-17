@@ -63,9 +63,9 @@ parfor i=1:length(files)
     action = str2func(strcat('quick_',char(Commands(1)))); %this call a function inside this function with the name asked for!
     if length(Commands) > 1
         %Commands2 = Commands{:};
-        [EEG,com] = action(EEG, Commands{2:end}); %this is where the function runs the asked code!
+        [EEG] = action(EEG, Commands{2:end}); %this is where the function runs the asked code!
     else
-        [EEG,com] = action(EEG); %this is where the function runs the asked code!
+        [EEG] = action(EEG); %this is where the function runs the asked code!
     end
    
     % --- saves file with new name on script's folder
