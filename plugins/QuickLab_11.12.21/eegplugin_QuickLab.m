@@ -217,21 +217,23 @@ uimenu( epochsmenu, 'label', 'Quick Epoch 0.700 2.748 (DotLoc)', 'callback', ...
 uimenu( epochsmenu, 'label', 'Quick Epoch -1 3.096 (DotLoc)', 'callback', ...
     ['[EEG,com] =  quick_epoch(EEG,-1,3.096);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
-rejmenu = uimenu( epochsmenu, 'label', 'Epoch Rejection by probability');
+% Deprecated!
+% rejmenu = uimenu( epochsmenu, 'label', 'Epoch Rejection by probability');
+% 
+% for k=2:7
+% uimenu( rejmenu, 'label', strcat('By ',num2str(k),' SDV'), 'callback', ...
+%     ['EEG = quick_trialrejprob(EEG,' num2str(k) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+% end
 
-for k=2:7
-uimenu( rejmenu, 'label', strcat('By ',num2str(k),' SDV'), 'callback', ...
-    ['EEG = quick_trialrejprob(EEG,' num2str(k) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
-end
-
-% --- 4th submenu: Quick PCA edits
-pcasmenu = uimenu (supermenu, 'label', 'Quick PCA cleaning');
-
-uimenu( pcasmenu, 'label', 'Interpolate Marked Components for Epochs > 3 sdvs', 'callback', ...
-    ['EEG =  pop_epochintbycompsbyvar(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
-
-uimenu( pcasmenu, 'label', 'Interpolate Channels by Marked Components if 1 Channel only is above 2 sdv', 'callback', ...
-    ['[EEG] = pop_epochandchannelintbycompsbyvar(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+% Deprecated with the addition of TBT
+% % --- 4th submenu: Quick PCA edits
+% pcasmenu = uimenu (supermenu, 'label', 'Quick PCA cleaning');
+% 
+% uimenu( pcasmenu, 'label', 'Interpolate Marked Components for Epochs > 3 sdvs', 'callback', ...
+%     ['EEG =  pop_epochintbycompsbyvar(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+% 
+% uimenu( pcasmenu, 'label', 'Interpolate Channels by Marked Components if 1 Channel only is above 2 sdv', 'callback', ...
+%     ['[EEG] = pop_epochandchannelintbycompsbyvar(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 % --- 5th submenu: QuickCorrmap
 corrmenu = uimenu (supermenu, 'label', 'Quick CorrMap');
