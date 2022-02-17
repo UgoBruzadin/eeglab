@@ -320,7 +320,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    try, g.freqlimits;	    catch, g.freqlimits	= []; end;
    try, g.dispchans; 		catch, g.dispchans  = size(data,1); end;
    try, g.wincolor; 		catch, g.wincolor   = [ 0.7 1 0.9]; end;
-   try, g.butlabel; 		catch, g.butlabel   = 'Finalize'; end;
+   try, g.butlabel; 		catch, g.butlabel   = 'Interpolate & Reject'; end;
    try, g.colmodif; 		catch, g.colmodif   = { g.wincolor }; end;
    try, g.scale; 		    catch, g.scale      = 'on'; end;
    try, g.events; 		    catch, g.events      = []; end;
@@ -540,6 +540,34 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
       eegplot_w2('setelect', g.eloc_file, ax1);
   end;
   
+  % Retrieving bad chans and comps! #Ugo #Savecommand #mybadcomp #mybadchan
+  if isstruct(EEG)
+      if ~isfield(g.eloc_file, 'badchan')
+          for ii=1:length(g.eloc_file)
+              g.eloc_file(ii).badchan = 0;
+          end
+      end
+      if EEG.plotIc == 1
+          if isfield(EEG, 'mybadchan')
+              for ch = EEG.mybadchan
+                  g.eloc_file(ch).badchan = 1;
+              end
+          end
+      else
+          if isfield(EEG, 'mybadcomp')
+              for cp = EEG.mybadchan
+                  g.eloc_file(cp).badchan = 1;
+              end
+          end
+          % --- still needs work; needs to make sure comps are the same size :/
+%           if isfield(EEG.reject, 'gcompreject')
+%               cp = find(EEG.reject.gcompreject)';
+%               for cp = find(EEG.reject.gcompreject)'
+%                   g.eloc_file(cp).badchan = 1;
+%               end
+%           end
+      end
+  end
   % %%%%%%%%%%%%%%%%%%%%%%%%%
   % Set up uicontrols
   % %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -598,9 +626,12 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
 %   posbut(24,:) = [ 0.92    0.15    0.080    defaultsizes(1) ]; % Channel Rejection tag #Ugo
 %   posbut(25,:) = [ 0.92    0.13    0.080    defaultsizes(1) ]; % Channel Rejection #Ugo
 
-  posbut(42,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % save/close #Ugo
+  posbut(42,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % store marks #Ugo
+  % Coming so
+  posbut(43,:) = [ 0.92    0.13    0.080    defaultsizes(2) ]; % save file text #Ugo
+  posbut(44,:) = [ 0.92    0.11    0.080    defaultsizes(2) ]; % save file button #Ugo
   
-  posbut(13,:) = [ 0.92    0.09    0.080    defaultsizes(2) ]; % cancel/close
+  posbut(13,:) = [ 0.92    0.08    0.080    defaultsizes(1) ]; % cancel/close
   posbut(12,:) = [ 0.92    0.03    0.080    defaultsizes(4) ]; % accept/close
   
       
@@ -627,6 +658,10 @@ displaycomp = ['EEG.plotEp = 1 - EEG.plotEp; eegplot_w2(EEG,varargin)'];
 %     end
 
 % --- start trial by trial options
+% 
+% savecommand = ['[EEG] = pop_saveset(EEG, ''filename'', [strcat( EEG.filename(1:end-4),get(findobj(''tag'',''SAVETEXT''),''string''),''.set'')],''filepath'',EEG.filepath);'...
+%      '[ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);' loaddircommand 'eeglab redraw;']; %save set ADDED BY UGO
+% 
 
 %bug fix
 if isstruct(EEG)
@@ -638,7 +673,7 @@ if isstruct(EEG)
         'Max-Min Threshold'];
     
     g.tbtoptions = {...
-        ['-10 , 10 ,' num2str(EEG.xmin) ' , ' num2str(EEG.xmax)],...
+        ['-50 , 50 ,' num2str(EEG.xmin) ' , ' num2str(EEG.xmax)],...
         'lowthresh, upthresh, starttime, endtime',...
         'pop_eegthresh';...
         ...
@@ -654,8 +689,8 @@ if isstruct(EEG)
         'locthresh, globthresh',...
         'pop_rejkurt';...
         ...
-        ['''method'' , ''FFT'' , ''threshold'' , [-30 , 30] ,''freqlimits'' , [15 , 30]'],...
-        ' ',...
+        ['''method'' , ''FFT'' , ''threshold'' , [-30 , 30] ,''freqlimits'' , [20 , 55]'],...
+        'threshold in Db, freqlimits in Hz, must be >34',...
         'pop_rejspec';...
         ...
         ['[1:' num2str(EEG.nbchan) '],[' num2str([EEG.xmin EEG.xmax]*1000) '],100,' num2str([EEG.xmax - EEG.xmin]*1000) ',1,0'],...
@@ -1016,17 +1051,15 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
                          'TMPREJCHN = find([g.eloc_file.badchan]); '...
                     'else TMPREJCHN = [];'...
                     'end; ' ...
-                    'if g.children, delete(g.children); end;' ...
-                    'delete(gcbf);' ...
-		  				  tmpsavecom ...
-                    '; clear g;']; % quitting expression
+		  				  tmpsavecom]; % quitting expression
+                      
   if ~isempty(g.savecommand)
     u(42) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
 	'Position', posbut(42,:), ...
 	'Tag','SaveButton',...
     'BackgroundColor',[.5 1 0.5],...
-	'string','Save Marks and Close',...
+	'string','Store Marks',...
 	'Callback', savecommand );
   end;
 
@@ -1405,10 +1438,12 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
   
   h = findobj(gcf, 'style', 'pushbutton');
   set(h, 'backgroundcolor', BUTTON_COLOR);
+  
+  % set button colors #Ugo
   h = findobj(gcf, 'tag', 'Rejection');
   set(h, 'backgroundcolor', [0.5 1 0.5]);
   h = findobj(gcf, 'tag', 'Display');
-  set(h, 'backgroundcolor', [1 0.5 0.5]);
+  set(h, 'backgroundcolor', modecolor);
   h = findobj(gcf, 'tag', 'eegslider');
   set(h, 'backgroundcolor', BUTTON_COLOR);
   set(figh, 'visible', 'on');
@@ -1429,6 +1464,9 @@ else
   case 'ClearMarks'
       g = get(gcf,'UserData');
       g.winrej = [];
+      for ii=1:length(g.eloc_file)
+          g.eloc_file(ii).badchan = 0;
+      end
       draw_data([],[],gcf,0,[],g);
       
   case 'rejection'
@@ -2141,16 +2179,29 @@ function draw_data(varargin)
                 abscmin = max(1,round(g.winrej(tpmi,1)-lowlim));
                 abscmax = round(g.winrej(tpmi,2)-lowlim);
                 maxXlim = get(gca, 'xlim');
-                if maxXlim(2) >= highlim 
+                % found a quick solution.... abscmax didn't le tme draw the
+                % red lines at first, so I sorta removed it. Now I have to
+                % keep it, so i left it as a try error.
+                try
+                    if maxXlim(2) >= 2 %SUPER BUG can't fix it?!
+                        abscmax = min(abscmax, round(maxXlim(2)-1));
+                    end
+                    for i = 1:g.chans
+                        if g.winrej(tpmi,g.chans-i+1+5)
+                            plot(ax1,abscmin+1:abscmax+1,data(g.chans-i+1,abscmin+lowlim:abscmax+lowlim) ...
+                                -meandata(g.chans-i+1)+i*g.spacing + (g.dispchans+1)*(oldspacing-g.spacing)/2 +g.elecoffset*(oldspacing-g.spacing), 'color','r','clipping','on')
+                        end
+                    end
+                catch
                     abscmax = min(abscmax, round(maxXlim(2)-1));
+                    for i = 1:g.chans
+                        if g.winrej(tpmi,g.chans-i+1+5)
+                            plot(ax1,abscmin+1:abscmax+1,data(g.chans-i+1,abscmin+lowlim:abscmax+lowlim) ...
+                                -meandata(g.chans-i+1)+i*g.spacing + (g.dispchans+1)*(oldspacing-g.spacing)/2 +g.elecoffset*(oldspacing-g.spacing), 'color','r','clipping','on')
+                        end
+                    end
                 end
-                for i = 1:g.chans
-                    if g.winrej(tpmi,g.chans-i+1+5)
-                        plot(ax1,abscmin+1:abscmax+1,data(g.chans-i+1,abscmin+lowlim:abscmax+lowlim) ...
-                            -meandata(g.chans-i+1)+i*g.spacing + (g.dispchans+1)*(oldspacing-g.spacing)/2 +g.elecoffset*(oldspacing-g.spacing), 'color','r','clipping','on')
-                    end;
-                end
-            end;
+            end
     	end;
     end;
     g.spacing = oldspacing;
@@ -3226,11 +3277,15 @@ bTrial_num  = trials_ind(bTrial_ind);	% trial list
 nbadtrial   = length(bTrial_num);       % count bad trials
 
 % Find channels that have been marked as bad in more than X% of trials:
-channel_index       = sum(winrej,1) >= str2double(pctbadtrial(1).String);   % boolean list
-bChan_lab           = EEG.chanlocs(channel_index).labels;     % Channel label list
-nbadchan            = length(bChan_lab);                    % count bad channels
-%winrej(channel_index,:)   = 1;                                    % mark for plotting
-
+channel_index       = sum(winrej,2)/EEG.trials >= str2double(pctbadtrial(1).String)/100;   % boolean list
+% if sum(channel_index)
+%     bChan_lab           = EEG.chanlocs(channel_index).labels;     % Channel label list
+%     nbadchan            = length(bChan_lab);                    % count bad channels
+%     %winrej(channel_index,:)   = 1;                                    % mark for plotting
+% else
+%     bChan_lab = [];
+%     nbadchan = 0;
+% end
 if ~isfield(g.eloc_file, 'badchan')
     for ii=1:length(g.eloc_file)
         g.eloc_file(ii).badchan = 0;
@@ -3239,7 +3294,10 @@ end;
 
 % BUG
 if sum(channel_index)
-    g.eloc_file(find(channel_index)).badchan = 1; % marks channels as bad
+    badchannels = find(channel_index);
+    for ind = badchannels'
+        g.eloc_file(ind).badchan = 1; % marks channels as bad
+    end
 end
 
 if ~isempty(winrej)
@@ -3249,7 +3307,7 @@ if ~isempty(winrej)
     mark(:,2)               = mark(:,1)+EEG.pnts;               % end   sample
     mark(bTrial_ind,3)      = 1;                                % R for bad trials
     mark(bTrial_ind,4)      = 0.8;                              % G for bad trials
-    mark(bTrial_ind,5)      = 0.8;                              % B for bad trials
+    mark(bTrial_ind,5)      = 0.9;                              % B for bad trials
     
     mark(~bTrial_ind,3)      = 0.7;                              % R for bad chans
     mark(~bTrial_ind,4)      = 1;                                % G for bad chans
