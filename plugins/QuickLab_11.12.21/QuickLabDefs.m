@@ -26,7 +26,7 @@ BACKGROUNDCOLOR = [.66 .76 1];
 % Highest Frequency, Lowest Frequency, Maxwindow
 SPECTRADEFS = [40,2,2048];
 % Specific Expected Frequencies for Topoplot Display 
-SPECTRADEFS2 = [4 6 10 12 15 18 21 25 28 32 36];
+SPECTRATOPO = [4 5 6 7 8 9 10 11 12 15 20 25 30 36];
 
 % Location of Headmodel(s)
 HEADMODELLOCATION = [''];
@@ -58,7 +58,7 @@ EPOCHNAMES = ['DIN '];
 % Epoch time pre and post (1)
 EPOCH1DEFS = [0.400,2.448];
 % Epoch time pre and post (2)
-EPOCh2DEFS = [-1,3.096];
+EPOCH2DEFS = [-1,3.096];
 
 % Binary defaults: Should ICLABEL be plotted after every iclabel run?
 PLOTICLABELS = [1];
