@@ -4,7 +4,7 @@ if isempty(EEG.data)
     [EEG,com] = eeg_store(EEG);
 end
 
-[EEG,com] = pop_fastrerefavg(EEG)
+[EEG,com] = pop_fastrerefavg(EEG);
 
 maxWindow = 2^floor(log2(EEG.pnts));
 if maxWindow > 2048
@@ -27,6 +27,9 @@ topo = zeros(1,numberOfHeadmaps);
 for i=1:numberOfHeadmaps
     topo(i) = floor(low + i*calc);
 end
+
+topo = [4 5 6 7 8 9 10 11 12 15 20 25 30 36];
+
 tic
 figure; pop_spectopo(EEG, 1, [EEG.xmin*1000  EEG.xmax*1000], 'EEG' , 'freq', [topo], 'freqrange',[low high],'winsize',maxWindow,'electrodes','off');
 toc
