@@ -158,9 +158,9 @@ if reject
     end;
     % Created for Save & Close Command
     if icacomp == 1
-        com5 = 'LASTCOM1='''';EEGTMP=EEG;EEG.chanrej = TMPREJ;' ; %modified for eegrej2 #Ugo 
+        com5 = 'LASTCOM1='''';EEG.chanrej = TMPREJ;EEG.mybadchan = TMPREJCHN;EEGTMP=EEG;' ; %modified for eegrej2 #Ugo 
     else
-        com5 = 'LASTCOM1='''';EEGTMP=EEG;EEG.comprej = TMPREJ;' ; %modified for eegrej2#Ugo 
+        com5 = 'LASTCOM1='''';EEG.comprej = TMPREJ;EEG.mybadcomp = TMPREJCHN;EEGTMP=EEG;' ; %modified for eegrej2#Ugo 
     end;
     
     
