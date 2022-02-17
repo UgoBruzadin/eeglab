@@ -15,7 +15,7 @@ if maxWindow > 2048
     maxWindow = 2048;
 end
 
-figure; pop_spectopo(EEG, 1, [EEG.xmin*1000  EEG.xmax*1000], 'EEG' , 'freq', [4 6 10 12 15 18 21 25 28 32 36], 'freqrange',[low high],'winsize',maxWindow,'electrodes','off');
+figure; pop_spectopo(EEG, 1, [EEG.xmin*1000  EEG.xmax*1000], 'EEG' , 'freq', [4 5 6 7 8 9 10 11 12 15 18 21 25 28 32 36 40], 'freqrange',[low high],'winsize',maxWindow,'electrodes','off');
 
 saveas(gcf,[EEG.filename(1:end-4),'FFT.jpg']);
 
