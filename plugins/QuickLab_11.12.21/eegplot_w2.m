@@ -320,7 +320,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    try, g.freqlimits;	    catch, g.freqlimits	= []; end;
    try, g.dispchans; 		catch, g.dispchans  = size(data,1); end;
    try, g.wincolor; 		catch, g.wincolor   = [ 0.7 1 0.9]; end;
-   try, g.butlabel; 		catch, g.butlabel   = 'Finalize'; end;
+   try, g.butlabel; 		catch, g.butlabel   = 'Interpolate & Reject'; end;
    try, g.colmodif; 		catch, g.colmodif   = { g.wincolor }; end;
    try, g.scale; 		    catch, g.scale      = 'on'; end;
    try, g.events; 		    catch, g.events      = []; end;
@@ -540,6 +540,34 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
       eegplot_w2('setelect', g.eloc_file, ax1);
   end;
   
+  % Retrieving bad chans and comps! #Ugo #Savecommand #mybadcomp #mybadchan
+  if isstruct(EEG)
+      if ~isfield(g.eloc_file, 'badchan')
+          for ii=1:length(g.eloc_file)
+              g.eloc_file(ii).badchan = 0;
+          end
+      end
+      if EEG.plotIc == 1
+          if isfield(EEG, 'mybadchan')
+              for ch = EEG.mybadchan
+                  g.eloc_file(ch).badchan = 1;
+              end
+          end
+      else
+          if isfield(EEG, 'mybadcomp')
+              for cp = EEG.mybadchan
+                  g.eloc_file(cp).badchan = 1;
+              end
+          end
+          % --- still needs work; needs to make sure comps are the same size :/
+%           if isfield(EEG.reject, 'gcompreject')
+%               cp = find(EEG.reject.gcompreject)';
+%               for cp = find(EEG.reject.gcompreject)'
+%                   g.eloc_file(cp).badchan = 1;
+%               end
+%           end
+      end
+  end
   % %%%%%%%%%%%%%%%%%%%%%%%%%
   % Set up uicontrols
   % %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -598,9 +626,14 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
 %   posbut(24,:) = [ 0.92    0.15    0.080    defaultsizes(1) ]; % Channel Rejection tag #Ugo
 %   posbut(25,:) = [ 0.92    0.13    0.080    defaultsizes(1) ]; % Channel Rejection #Ugo
 
-  posbut(42,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % save/close #Ugo
+  posbut(42,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % store marks #Ugo
   
-  posbut(13,:) = [ 0.92    0.09    0.080    defaultsizes(2) ]; % cancel/close
+  % Coming soon: Save file with text!
+  
+  posbut(43,:) = [ 0.92    0.13    0.080    defaultsizes(2) ]; % save file text #Ugo
+  posbut(44,:) = [ 0.92    0.11    0.080    defaultsizes(2) ]; % save file button #Ugo
+  
+  posbut(13,:) = [ 0.92    0.08    0.080    defaultsizes(1) ]; % cancel/close
   posbut(12,:) = [ 0.92    0.03    0.080    defaultsizes(4) ]; % accept/close
   
       
@@ -627,6 +660,10 @@ displaycomp = ['EEG.plotEp = 1 - EEG.plotEp; eegplot_w2(EEG,varargin)'];
 %     end
 
 % --- start trial by trial options
+% 
+% savecommand = ['[EEG] = pop_saveset(EEG, ''filename'', [strcat( EEG.filename(1:end-4),get(findobj(''tag'',''SAVETEXT''),''string''),''.set'')],''filepath'',EEG.filepath);'...
+%      '[ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);' loaddircommand 'eeglab redraw;']; %save set ADDED BY UGO
+% 
 
 %bug fix
 if isstruct(EEG)
@@ -638,7 +675,7 @@ if isstruct(EEG)
         'Max-Min Threshold'];
     
     g.tbtoptions = {...
-        ['-10 , 10 ,' num2str(EEG.xmin) ' , ' num2str(EEG.xmax)],...
+        ['-50 , 50 ,' num2str(EEG.xmin) ' , ' num2str(EEG.xmax)],...
         'lowthresh, upthresh, starttime, endtime',...
         'pop_eegthresh';...
         ...
@@ -654,8 +691,8 @@ if isstruct(EEG)
         'locthresh, globthresh',...
         'pop_rejkurt';...
         ...
-        ['''method'' , ''FFT'' , ''threshold'' , [-30 , 30] ,''freqlimits'' , [15 , 30]'],...
-        ' ',...
+        ['''method'' , ''FFT'' , ''threshold'' , [-30 , 30] ,''freqlimits'' , [20 , 55]'],...
+        'threshold in Db, freqlimits in Hz, must be >34',...
         'pop_rejspec';...
         ...
         ['[1:' num2str(EEG.nbchan) '],[' num2str([EEG.xmin EEG.xmax]*1000) '],100,' num2str([EEG.xmax - EEG.xmin]*1000) ',1,0'],...
@@ -1016,17 +1053,15 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
                          'TMPREJCHN = find([g.eloc_file.badchan]); '...
                     'else TMPREJCHN = [];'...
                     'end; ' ...
-                    'if g.children, delete(g.children); end;' ...
-                    'delete(gcbf);' ...
-		  				  tmpsavecom ...
-                    '; clear g;']; % quitting expression
+		  				  tmpsavecom]; % quitting expression
+                      
   if ~isempty(g.savecommand)
     u(42) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
 	'Position', posbut(42,:), ...
 	'Tag','SaveButton',...
     'BackgroundColor',[.5 1 0.5],...
-	'string','Save Marks and Close',...
+	'string','Store Marks',...
 	'Callback', savecommand );
   end;
 
