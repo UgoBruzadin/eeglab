@@ -665,7 +665,7 @@ displaycomp = ['EEG.plotEp = 1 - EEG.plotEp; eegplot_w2(EEG,varargin)'];
 %      '[ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);' loaddircommand 'eeglab redraw;']; %save set ADDED BY UGO
 % 
 
-%bug fix
+% TBT part modified from pop_TBT() scripts
 if isstruct(EEG)
     g.tbtmethods = ['Abnormal values|'...
         'Abnormal trends|'...
@@ -691,7 +691,7 @@ if isstruct(EEG)
         'locthresh, globthresh',...
         'pop_rejkurt';...
         ...
-        ['''method'' , ''FFT'' , ''threshold'' , [-30 , 30] ,''freqlimits'' , [20 , 55]'],...
+        ['''method'' , ''FFT'' , ''threshold'' , [-70 , 15] ,''freqlimits'' , [20 , 55]'],...
         'threshold in Db, freqlimits in Hz, must be >34',...
         'pop_rejspec';...
         ...
@@ -824,7 +824,7 @@ end
 	'BackgroundColor',DEFAULT_FIG_COLOR, ...
 	'Position', posbut(29,:), ...
     'Style','text', ...
-	'Tag','Count',...
+	'Tag','Count_Trials',...
 	'string','');
 
   u(30) = uicontrol('Parent',figh, ...
@@ -832,9 +832,8 @@ end
 	'BackgroundColor',DEFAULT_FIG_COLOR, ...
 	'Position', posbut(30,:), ...
 	'Style','text', ...
-    'FontSize',8,...
-	'Tag','CountTag',...
-	'string','Number of Marked Areas');
+	'Tag','Count_Channels',...
+	'string','');
 
 % plot data difference checkbox
 
@@ -1449,6 +1448,8 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
   h = findobj(gcf, 'tag', 'eegslider');
   set(h, 'backgroundcolor', BUTTON_COLOR);
   set(figh, 'visible', 'on');
+  
+  update_trial_rejections(g)
   
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % End Main Function
@@ -2752,6 +2753,9 @@ if ~isempty(g.winrej)'
         end;
     end;
 end;
+
+update_trial_rejections(g)
+
 set(fig,'UserData', g);
 draw_background([],[],fig,g);
 
@@ -2769,7 +2773,7 @@ fig = varargin{3};
 ax0 = varargin{4};
 tmppos = get(ax0, 'currentpoint');
 g = get(fig,'UserData');
-set(findobj(gcf, 'Tag', 'Count'),'string',size(g.winrej,1));%ADDED UGO
+
     if g.trialstag ~= -1
         lowlim = round(g.time*g.trialstag+1);
     else
@@ -3272,12 +3276,6 @@ function plot_topoplot(fig)
 
 %% Find bad trials and Channels
 
-% Find trial with more than X bad channels:
-trials_ind  = 1:EEG.trials;
-bTrial_ind  = sum(winrej,1) >= str2double(nbadchans(1).String);     % boolean list
-bTrial_num  = trials_ind(bTrial_ind);	% trial list
-nbadtrial   = length(bTrial_num);       % count bad trials
-
 % Find channels that have been marked as bad in more than X% of trials:
 channel_index       = sum(winrej,2)/EEG.trials >= str2double(pctbadtrial(1).String)/100;   % boolean list
 % if sum(channel_index)
@@ -3294,14 +3292,23 @@ if ~isfield(g.eloc_file, 'badchan')
     end;
 end;
 
-% BUG
+% Collects rejected trials BUG
 if sum(channel_index)
     badchannels = find(channel_index);
     for ind = badchannels'
         g.eloc_file(ind).badchan = 1; % marks channels as bad
+        % removes these channels from trial rejections!
+        winrej(ind,:) = 0;
     end
 end
 
+% Find trial with more than X bad channels:
+trials_ind  = 1:EEG.trials;
+bTrial_ind  = sum(winrej,1) >= str2double(nbadchans(1).String);     % boolean list
+bTrial_num  = trials_ind(bTrial_ind);	% trial list
+nbadtrial   = length(bTrial_num);       % count bad trials
+
+% Paints rejections redish and interpolations greenish
 if ~isempty(winrej)
     mark                    = ones([0,5] + size(winrej'));
     mark(:,6:end)           = double(winrej');
@@ -3315,6 +3322,7 @@ if ~isempty(winrej)
     mark(~bTrial_ind,4)      = 1;                                % G for bad chans
     mark(~bTrial_ind,5)      = 0.8;                              % B for bad chans
     
+    % clean non-rejected trials from winrej.
     for i=size(mark,1):-1:1
         if ~sum(mark(i,6:end))
             mark(i,:) = [];
@@ -3322,6 +3330,8 @@ if ~isempty(winrej)
     end
     
     g.winrej = [g.winrej;mark];
+    
+    update_trial_rejections(g);
 end
 % alltrialtag = [0:g.trialstag:g.frames]; % NEEDED FIXING, ADDED + 1 to count for trialstag variance
 % I1 = find(alltrialtag < (tmppos(1)+lowlim) );
@@ -3333,6 +3343,33 @@ end
 
      
 %draw_data([],[],fig,0,[],g);
+
+function update_trial_rejections(g)
+%% this function updates the tags for trial rejection and partial interpolations
+%g = get(gcf,'UserData');
+
+% calculate total numbers of rejections and interpolations
+reds = num2str(0);
+greens = num2str(0);
+bad_chans = num2str(0);
+partial_interps = num2str(0);
+
+if ~isempty(g.winrej)
+    % calculate reds and greens using RGB 'R' (3) and 'G' (4)
+    reds = num2str(sum(g.winrej(:,3) == 1));
+    greens = num2str(sum(g.winrej(:,4) == 1));
+
+% gets total sum of bad channels and partial interpolations
+    bad_chans = num2str(sum([g.eloc_file.badchan]));
+    partial_interps = num2str(sum(sum(g.winrej(find(g.winrej(:,4) == 1),6:end),2))); %finds greends, get columns sum, get total sum
+end
+% creates strings for printing
+total_chanmarks = strcat('Chan: ',{' '},bad_chans,' +',{' '}, partial_interps, ' p','art');
+total_marks = strcat('Trial: ',{' '},reds,' red + ',{' '}, greens, ' g','reen');
+
+% prints on menu using these tags
+set(findobj(gcf, 'Tag', 'Count_Channels'),'string',total_chanmarks);%
+set(findobj(gcf, 'Tag', 'Count_Trials'),'string',total_marks);%
 
 
 
