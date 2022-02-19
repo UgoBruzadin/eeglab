@@ -31,6 +31,12 @@ SPECTRATOPO = [4 5 6 7 8 9 10 11 12 15 20 25 30 36];
 % Location of Headmodel(s)
 HEADMODELLOCATION = [''];
 
+% References
+OG_REF = 'Cz';
+CZ_REF = 'Cz';
+LE_REFS = ['*E57','*E100'];
+REFLOC = struct('labels',{'Cz'},'Y',{0},'X',{0},'Z',{8.7919},'sph_theta',{0},'sph_phi',{0},'sph_radius',{0},'theta',{0},'radius',{0},'type',{''},'ref',{'Cz'},'urchan',{[]},'datachan',{0});
+
 % CORRMAP defaults
 % CORRMAP folder locations
 CORRMAPDEFS = [''];
@@ -38,7 +44,7 @@ CORRMAPDEFS = [''];
 % Defaults for PCA/ICA & ICLABEL
 PCADEFS = ['icatype','cudaica','extended',1,'verbose','off'];
 % ICLABEL type, Highest Frequency, Lowest Frquency
-ICLABELDEFS = ['default',55,2];
+ICLABELDEFS = ['default',40,2];
 
 % Number of dipoles to plot in DIPFIT (1 or 2)
 DIPFITDEFS = [1];

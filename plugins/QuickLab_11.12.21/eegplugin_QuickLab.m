@@ -156,12 +156,16 @@ uimenu (bssmenu, 'label', 'BSS+', 'callback', ...
 
 % --- third submenu: Quick channel edits
 channelmenu = uimenu (supermenu, 'label', 'Quick Channel Edit');
-% - not working yet
-% uimenu( channelmenu, 'label', 'Quick Re-reference CZ', 'callback', ...
-%     ['[EEG,com] = pop_fastrerefcz(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu( channelmenu, 'label', 'Quick Re-reference AVG', 'callback', ...
-    ['[EEG,com] = pop_fastrerefavg(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,com] = quick_reref(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+
+% uimenu( channelmenu, 'label', 'Quick Re-reference Linked Mastoids', 'callback', ...
+%     ['[EEG,com] = quick_reref(EEG,' LE_REFS  ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+% 
+% uimenu( channelmenu, 'label', 'Quick Re-reference Cz', 'callback', ...
+%     ['[EEG,com] = quick_reref(EEG,' CZ_REF  ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+
 % - not working yet
 % uimenu( channelmenu, 'label', 'Quick Re-reference Linked-Mastoids (129)', 'callback', ...
 %     ['[EEG,com] = pop_fastrerefavg(EEG,[55,100]);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
