@@ -338,7 +338,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    try, g.ctrlselectcommand; catch, g.ctrlselectcommand = { '' '' '' }; end; % { defctrldowncom defctrlmotioncom defctrlupcom }
    try, g.datastd;          catch, g.datastd = []; end; %ozgur
    try, g.normed;            catch, g.normed = 0; end; %ozgur
-   try, g.envelope;          catch, g.envelope = 1; end;%ozgur
+   try, g.envelope;          catch, g.envelope = 0; end;%ozgur
    try, g.maxeventstring;    catch, g.maxeventstring = 10; end; % JavierLC
    try, g.isfreq;            catch, g.isfreq = 1;    end; % Ramon
    try, g.rndcolors;            catch, g.rndcolors = {rand(size(data,1),3)};    end; % Ramon
@@ -482,7 +482,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   g.frames = g.frames*tmpnb;
   g.nbdat = 1; % deprecated
   g.time  = 0;
-  g.elecoffset = 50;
+  g.elecoffset = 0;
   
   % %%%%%%%%%%%%%%%%%%%%%%%%
   % Prepare figure and axes
@@ -1912,10 +1912,10 @@ function draw_data(varargin)
 %             end;
 %         end
     else
-        tic
+        %tic
         tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,chans_list_bad,lowlim,highlim);
-        plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');  
-        toc
+        plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on','LineStyle','--');  
+        %toc
     end
     
     %NORMAL PLOT RED LINE 
@@ -1981,7 +1981,10 @@ function draw_data(varargin)
             switch plot_at_once
                 case 0
                     tmpcolor = g.color{mod(g.chans-i,length(g.color))+1};
-                    plot(ax1, tmp_plot_data_y_i, 'color', tmpcolor, 'clipping','on','LineWidth',3)
+                    h = plot(ax1, tmp_plot_data_y_i, 'color', tmpcolor, 'clipping','on','LineWidth',3);
+                    iptPointerManager(gcf);
+                    enterFcn = @(hFigure,currentPoint)set(hFigure,'Pointer','fleur');
+                    iptSetPointerBehavior(h,enterFcn);
                     %hold on
                 case 1
                     tmp_plot_data_y(ii,tmp_plot_data_x)=tmp_plot_data_y_i;
@@ -2590,7 +2593,7 @@ fig = varargin{3};
 ax0 = varargin{4};
 tmppos = get(ax0, 'currentpoint');
 g = get(fig,'UserData');
-set(findobj(gcf, 'Tag', 'Count'),'string',size(g.winrej,1));%ADDED UGO
+%set(findobj(gcf, 'Tag', 'Count'),'string',size(g.winrej,1));%ADDED UGO
     if g.trialstag ~= -1
         lowlim = round(g.time*g.trialstag+1);
     else
