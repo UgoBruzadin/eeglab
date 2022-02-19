@@ -1,4 +1,4 @@
-function [newfiles,folderPOST] = quick_Batch_par(Commands,Save,files,filesFolder,createfolders,acronym) %magic function, runs the code asked!
+function [newfiles,folderPOST] = quick_Batch_par(Commands,Save,createfolders,files,filesFolder,acronym) %magic function, runs the code asked!
 
 if ischar(Commands)
     Commands = {Commands};
@@ -42,7 +42,7 @@ if createfolders == 1
     %folderList = dir();
     %if NEWFOLDER
     folderNameDate = strcat(char(Commands(1)),'-',char(t)); %makes folder full name
-    [files, folderPRE, folderPOST] = createfolders(folder,filesFolder,folderNameDate); %creates a folder for the pipeline
+    [files, folderPRE, folderPOST] = createfolders(filesFolder,filesFolder,folderNameDate); %creates a folder for the pipeline
     %else
 end
 %end
@@ -83,7 +83,7 @@ newfiles = dir(strcat('*',acronym,'.set'));
 
 end
 
-function [files, filesPRE, filesPOST] = createfolders(batchFolder,previousFolderPath,folderName,scriptCounter,batchCounter)
+function [files, filesPRE, filesPOST] = createfolders(batchFolder,previousFolderPath,folderName)
 %------ create the folders where the pipeline will run
 %------ filePRE = strcat(basefolder,'\', type, '\pre'); %copies files
 %------ one can I turn it off)
