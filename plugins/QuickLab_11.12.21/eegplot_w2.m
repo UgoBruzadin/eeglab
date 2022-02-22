@@ -555,17 +555,19 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
           end
       else
           if isfield(EEG, 'mybadcomp')
-              for cp = EEG.mybadchan
+              for cp = EEG.mybadcomp
                   g.eloc_file(cp).badchan = 1;
               end
           end
           % --- still needs work; needs to make sure comps are the same size :/
-%           if isfield(EEG.reject, 'gcompreject')
-%               cp = find(EEG.reject.gcompreject)';
-%               for cp = find(EEG.reject.gcompreject)'
-%                   g.eloc_file(cp).badchan = 1;
-%               end
-%           end
+          if isfield(EEG.reject, 'gcompreject')
+              if sum(EEG.reject.gcompreject) 
+                  mybadcomp2 = find(EEG.reject.gcompreject);
+                  for ind = mybadcomp2'
+                      g.eloc_file(ind).badchan = 1; % marks component as bad
+                  end
+              end
+          end
       end
   end
   % %%%%%%%%%%%%%%%%%%%%%%%%%
