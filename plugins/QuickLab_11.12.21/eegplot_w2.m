@@ -204,6 +204,7 @@
 
 function [outvar1,EEG] = eegplot_w2(EEG, varargin); % p1,p2,p3,p4,p5,p6,p7,p8,p9)
 
+%% Collects component or channel plot, continuous or epoched plot
 if isstruct(EEG)
     if ~isfield(EEG,'plotIc')
         EEG.plotIc = 1;
@@ -223,7 +224,7 @@ else
     data = EEG;
 end
 
-% Defaults (can be re-defined):
+%% Defaults (can be re-defined):
 %EEG.myVariables = {};
 DEFAULT_PLOT_COLOR = { [0 0 1], [0.7 0.7 0.7]};         % EEG line color
 try
@@ -253,7 +254,7 @@ if nargin < 1
 end
 				  
 % %%%%%%%%%%%%%%%%%%%%%%%%
-% Setup inputs
+%% Setup inputs
 % %%%%%%%%%%%%%%%%%%%%%%%%
 
 if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
@@ -269,10 +270,14 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    catch
        disp('eegplot_w2() error: calling convention {''key'', value, ... } error'); return;
    end;	
+   
+   %% Getting EEG structure from g
+   
    if isstruct(EEG)
        g.EEG = EEG;
    end
-   % Selection of data range If spectrum plot  
+   
+   %% Selection of data range If spectrum plot  
    if isfield(g,'freqlimits') || isfield(g,'freqs')
 %        % Check  consistency of freqlimits       
 %        % Check  consistency of freqs
@@ -289,7 +294,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
        g.isfreq    = 1;
    end
 
-  % push button: create/remove window
+  %% push button: create/remove window
   % ---------------------------------
   defdowncom   = 'eegplot_w2(''defdowncom'',   gcbf);'; % push button: create/remove window
   defmotioncom = 'eegplot_w2(''defmotioncom'', gcbf);'; % motion button: move windows or display current position
@@ -297,7 +302,8 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   defctrldowncom = 'eegplot_w2(''topoplot'',   gcbf);'; % CTRL press and motion -> do nothing by default
   defctrlmotioncom = ''; % CTRL press and motion -> do nothing by default
   defctrlupcom = ''; % CTRL press and up -> do nothing by default
-		 
+
+  %% Try Defaults
    try, g.srate; 		    catch, g.srate		= 256; 	end;
    try, g.spacing; 			catch, g.spacing	= 0; 	end;
    try, g.eloc_file; 		catch, g.eloc_file	= 0; 	end; % 0 mean numbered
@@ -336,6 +342,8 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    try, g.maxeventstring;    catch, g.maxeventstring = 10; end; % JavierLC
    try, g.isfreq;            catch, g.isfreq = 0;    end; % Ramon
    try, g.savecommand;            catch, g.savecommand = '';    end; % Ugo
+   
+   %% Gets previously stored marks from winrej
    if isstruct(EEG)
        g.EEG = EEG;
        if isempty(g.winrej)
@@ -351,6 +359,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
        end
    end
    
+   %% continue defaults
    if strcmpi(g.ploteventdur, 'on')
        g.ploteventdur = 1; 
    else
@@ -540,7 +549,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
       eegplot_w2('setelect', g.eloc_file, ax1);
   end;
   
-  % Retrieving bad chans and comps! #Ugo #Savecommand #mybadcomp #mybadchan
+  %% Retrieving bad chans and comps! #Ugo #Savecommand #mybadcomp #mybadchan
   if isstruct(EEG)
       if ~isfield(g.eloc_file, 'badchan')
           for ii=1:length(g.eloc_file)
@@ -571,7 +580,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
       end
   end
   % %%%%%%%%%%%%%%%%%%%%%%%%%
-  % Set up uicontrols
+  %% Set up uicontrols
   % %%%%%%%%%%%%%%%%%%%%%%%%%
 
   defaultsizes = [0.02,0.03,0.04,0.05];
@@ -638,9 +647,8 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   posbut(13,:) = [ 0.92    0.08    0.080    defaultsizes(1) ]; % cancel/close
   posbut(12,:) = [ 0.92    0.03    0.080    defaultsizes(4) ]; % accept/close
   
-      
 
-% Channel rejection callbacks
+%% Channel rejection callbacks
 % get channels for partial interpolation
 chaninterp = ['EEG.myVariables{1} = get(findobj(gcf, ''Tag'', ''Channel''),''string'');']; 
 % select plot difference
@@ -667,7 +675,7 @@ displaycomp = ['EEG.plotEp = 1 - EEG.plotEp; eegplot_w2(EEG,varargin)'];
 %      '[ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);' loaddircommand 'eeglab redraw;']; %save set ADDED BY UGO
 % 
 
-% TBT part modified from pop_TBT() scripts
+%% TBT part modified from pop_TBT() scripts
 if isstruct(EEG)
     g.tbtmethods = ['Abnormal values|'...
         'Abnormal trends|'...
@@ -793,7 +801,7 @@ end
 	'string','Clear All Marks',...
 	'Callback', ['eegplot_w2(''ClearMarks'')'] );
 
-% channel or epoch, rejection or interpolation buttons #Ugo
+%% channel or epoch, rejection or interpolation buttons #Ugo
 
  u(27) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -819,7 +827,7 @@ end
 	'string',mode,...
 	'Callback', displayep );
 
-% number of marked areas for control #Ugo
+%% number of marked areas for control #Ugo
 
   u(29) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -837,7 +845,7 @@ end
 	'Tag','Count_Channels',...
 	'string','');
 
-% plot data difference checkbox
+%% plot data difference checkbox
 
 u(26)= uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -849,7 +857,7 @@ u(26)= uicontrol('Parent',figh, ...
 	'string','plot Data Difference',...
     'Callback', plotdiffcom );
 
-% Five move buttons: << < text > >> 
+%% Five move buttons: << < text > >> 
 
   u(1) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -886,7 +894,7 @@ u(26)= uicontrol('Parent',figh, ...
     'FontSize',8,...
 	'Callback',{@draw_data,figh,4,[],[],ax1});
 
-% Text edit fields: ESpacing
+%% Text edit fields: ESpacing
 
   u(6) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -897,7 +905,7 @@ u(26)= uicontrol('Parent',figh, ...
 	'string',num2str(g.spacing),...
 	'Callback', {@change_scale,figh,0,ax1} );
 
-% Slider for vertical motion
+%% Slider for vertical motion
   u(20) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
 	'Position', posbut(20,:), ...
@@ -908,7 +916,7 @@ u(26)= uicontrol('Parent',figh, ...
    'callback',{@draw_data,figh,0,[],[],ax1,'g.elecoffset = get(gcbo, ''value'')*(g.chans-g.dispchans);'}, ...
    'value', 0);
 
-% Channels, position, value and tag
+%% Channels, position, value and tag
 
   u(9) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -950,7 +958,7 @@ u(26)= uicontrol('Parent',figh, ...
 	'Tag','thescale',...
 	'string','Scale');
 
-% Values of time/value and freq/power in GUI
+%% Values of time/value and freq/power in GUI
   if g.isfreq
       u15_string =  'Freq';
       u16_string  = 'Power';
@@ -977,7 +985,7 @@ u(26)= uicontrol('Parent',figh, ...
 	'Tag','Evaluename',...
 	'string',u16_string);
 
-% ESpacing buttons: + -
+%% ESpacing buttons: + -
   u(7) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
 	'Position',posbut(10,:), ...
@@ -993,7 +1001,7 @@ u(26)= uicontrol('Parent',figh, ...
 	'FontSize',10,...
 	'Callback',{@change_scale,figh,2,ax1});
 
-% Button for Normalizing data
+%% Button for Normalizing data
 u(21) = uicontrol('Parent',figh, ...
     'Units', 'normalized', ...
     'Position',posbut(21,:), ...
@@ -1008,7 +1016,7 @@ cb_envelope = ['g = get(gcbf,''userdata'');'...
     'set(hmenu, ''Label'', fastif(g.envelope,''Spread channels'',''Stack channels''));' ...
     'eegplot_w2(''drawp'',0);clear g;'];
 
-% Button to plot envelope of data
+%% Button to plot envelope of data
 u(22) = uicontrol('Parent',figh, ...
     'Units', 'normalized', ...
     'Position',posbut(22,:), ...
