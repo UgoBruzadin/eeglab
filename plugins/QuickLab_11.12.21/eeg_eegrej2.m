@@ -120,13 +120,17 @@ end
     % --- colect channels or components into numbers
 %else
 
-% --- start organizing channels and regions
+%% --- start organizing channels and regions
 
 %end
 
 %distribute regions for rejetion and regions for interpolation between
 %regions 2 and regions 3 variables
 
+% make sure regions are unique!
+regions = unique(regions,'rows');
+
+% 
 regions_for_interp = regions;
 regions_for_rej = [];
 rejcounter = 0;
@@ -134,32 +138,32 @@ rejcounter = 0;
 % --- remove the rejection data from regions_for interp with not-green color and add it to
 % ---- the variable regions_for_rej
 if ~isempty(regions)
-for i=1:size(regions,1)
-    if regions(i,3) == [1]  %check for red color of interpolation %needs to be better!!!
-        regions_for_interp(i-rejcounter,:) = [];
-        rejcounter = rejcounter + 1;
-        regions_for_rej(rejcounter,:) = regions(i,:);
+    for i=1:size(regions,1)
+        if regions(i,3) == [1]  %check for red color of interpolation %needs to be better!!!
+            regions_for_interp(i-rejcounter,:) = [];
+            rejcounter = rejcounter + 1;
+            regions_for_rej(rejcounter,:) = regions(i,:);
+        end
     end
 end
-end
 
-% Does soemthing with channels!
+% Does something with channels!
 chancounter = 0;
 if ~isempty(regions_for_interp)
-for i=1:size(regions_for_interp,1)
-    channels = find(regions_for_interp(i-chancounter,6:end));
-    if channels ~= 0
-        if ~isempty(list_of_chans_or_comps)
-            list_of_chans_or_comps = strcat(list_of_chans_or_comps,';');
+    for i=1:size(regions_for_interp,1)
+        channels = find(regions_for_interp(i-chancounter,6:end));
+        if channels ~= 0
+            if ~isempty(list_of_chans_or_comps)
+                list_of_chans_or_comps = strcat(list_of_chans_or_comps,';');
+            end
+            list_of_chans_or_comps = strcat(list_of_chans_or_comps,num2str(channels));
+        else
+            regions_for_interp(i-chancounter,:) = [];
+            chancounter = chancounter + 1;
         end
-        list_of_chans_or_comps = strcat(list_of_chans_or_comps,num2str(channels));
-    else
-         regions_for_interp(i-chancounter,:) = [];
-         chancounter = chancounter + 1;
-    end 
-end
-
-if size(regions_for_interp,2) > 2, regions_for_interp = regions_for_interp(:, 1:2); end
+    end
+    
+    if size(regions_for_interp,2) > 2, regions_for_interp = regions_for_interp(:, 1:2); end
 
 end
 % if ndims(EEG.data) < 3
