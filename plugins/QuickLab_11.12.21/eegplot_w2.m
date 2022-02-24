@@ -1477,6 +1477,7 @@ else
   case 'ClearMarks'
       g = get(gcf,'UserData');
       g.winrej = [];
+      update_trial_rejections(g);
       for ii=1:length(g.eloc_file)
           g.eloc_file(ii).badchan = 0;
       end
@@ -3182,7 +3183,15 @@ function plot_topoplot(fig)
         datapos = max(1, round(tmppos(1)+lowlim));
         datapos = min(datapos, g.frames);
         axes('Parent', fig, 'position',[ 0.92    0.31    0.080    0.10 ],'units','normalized');
+        
+        % get color
+        BackColor = get(fig,'Color');
+        
+        % plot topo % it changes the background color of the figure to EEGLAB's default
         topoplot(data(:,datapos), g.eloc_file);
+        
+        % set background color back to whatever it was before.
+        set(fig,'Color',BackColor);
     end
     else
 %     ax1 = findobj('tag','backeeg','parent',fig); 
@@ -3239,6 +3248,7 @@ function plot_topoplot(fig)
     
     
     function g = TBT(g)
+        % This function was adapted from TBT plugin by 
         g = get(gcf,'UserData');
         EEG = g.EEG;
         
@@ -3269,13 +3279,13 @@ function plot_topoplot(fig)
         case 4
             comrej  = ['[EEG, ~,~,~,comrej] = pop_rejkurt(EEG, ' icacomp ', ' chancomps ',' opt(1).String ', 1, 0, 0);'];
             bads    = 'rejkurtE';
-        case 5
-            comrej  = ['[EEG, ~, comrej]    = pop_rejspec(EEG, ' icacomp ',' opt(1).String , ',''elecrange'',' chancomps ');'];
-            bads    = 'rejfreqE';
-        case 6
-            comrej  = ['[EEG, comrej]    = pop_eegmaxmin(EEG,' opt(1).String ');'];
-            bads    = 'rejmaxminE';
-            ica = ''; %rejmaxminE doesn't have options for ICA
+            case 5
+                comrej  = ['[EEG, ~, comrej]    = pop_rejspec(EEG, ' icacomp ',' opt(1).String , ',''elecrange'',' chancomps ');'];
+                bads    = 'rejfreqE';
+            case 6
+                comrej  = ['[EEG, comrej]    = pop_eegmaxmin(EEG,' opt(1).String ');'];
+                bads    = 'rejmaxminE';
+                ica = ''; %rejmaxminE doesn't have options for ICA
         end
         
         fprintf(strcat('Running function:',comrej)); % Prints function being run
@@ -3283,76 +3293,71 @@ function plot_topoplot(fig)
         eval(comrej);
         
         winrej = EEG.reject.(strcat(ica,bads)); % Gets rejected data into winrej
-
-%% Find bad trials and Channels
-
-% Find channels that have been marked as bad in more than X% of trials:
-channel_index       = sum(winrej,2)/EEG.trials >= str2double(pctbadtrial(1).String)/100;   % boolean list
-% if sum(channel_index)
-%     bChan_lab           = EEG.chanlocs(channel_index).labels;     % Channel label list
-%     nbadchan            = length(bChan_lab);                    % count bad channels
-%     %winrej(channel_index,:)   = 1;                                    % mark for plotting
-% else
-%     bChan_lab = [];
-%     nbadchan = 0;
-% end
-if ~isfield(g.eloc_file, 'badchan')
-    for ii=1:length(g.eloc_file)
-        g.eloc_file(ii).badchan = 0;
-    end;
-end;
-
-% Collects rejected trials BUG
-if sum(channel_index)
-    badchannels = find(channel_index);
-    for ind = badchannels'
-        g.eloc_file(ind).badchan = 1; % marks channels as bad
-        % removes these channels from trial rejections!
-        winrej(ind,:) = 0;
-    end
-end
-
-% Find trial with more than X bad channels:
-trials_ind  = 1:EEG.trials;
-bTrial_ind  = sum(winrej,1) >= str2double(nbadchans(1).String);     % boolean list
-bTrial_num  = trials_ind(bTrial_ind);	% trial list
-nbadtrial   = length(bTrial_num);       % count bad trials
-
-% Paints rejections redish and interpolations greenish
-if ~isempty(winrej)
-    mark                    = ones([0,5] + size(winrej'));
-    mark(:,6:end)           = double(winrej');
-    mark(:,1)               = 1:EEG.pnts:EEG.pnts*EEG.trials;   % start sample
-    mark(:,2)               = mark(:,1)+EEG.pnts;               % end   sample
-    mark(bTrial_ind,3)      = 1;                                % R for bad trials
-    mark(bTrial_ind,4)      = 0.8;                              % G for bad trials
-    mark(bTrial_ind,5)      = 0.9;                              % B for bad trials
-    
-    mark(~bTrial_ind,3)      = 0.7;                              % R for bad chans
-    mark(~bTrial_ind,4)      = 1;                                % G for bad chans
-    mark(~bTrial_ind,5)      = 0.8;                              % B for bad chans
-    
-    % clean non-rejected trials from winrej.
-    for i=size(mark,1):-1:1
-        if ~sum(mark(i,6:end))
-            mark(i,:) = [];
+        
+        %% Find bad trials and Channels
+        
+        % Find channels that have been marked as bad in more than X% of trials:
+        channel_index       = sum(winrej,2)/EEG.trials >= str2double(pctbadtrial(1).String)/100;   % boolean list
+        % if sum(channel_index)
+        %     bChan_lab           = EEG.chanlocs(channel_index).labels;     % Channel label list
+        %     nbadchan            = length(bChan_lab);                    % count bad channels
+        %     %winrej(channel_index,:)   = 1;                                    % mark for plotting
+        % else
+        %     bChan_lab = [];
+        %     nbadchan = 0;
+        % end
+        if ~isfield(g.eloc_file, 'badchan')
+            for ii=1:length(g.eloc_file)
+                g.eloc_file(ii).badchan = 0;
+            end;
+        end;
+        
+        % Collects rejected trials BUG
+        if sum(channel_index)
+            badchannels = find(channel_index);
+            for ind = badchannels'
+                g.eloc_file(ind).badchan = 1; % marks channels as bad
+                % removes these channels from trial rejections!
+                winrej(ind,:) = 0;
+            end
         end
-    end
-    
-    g.winrej = [g.winrej;mark];
-    
-    update_trial_rejections(g);
-end
-% alltrialtag = [0:g.trialstag:g.frames]; % NEEDED FIXING, ADDED + 1 to count for trialstag variance
-% I1 = find(alltrialtag < (tmppos(1)+lowlim) );
-% if ~isempty(I1) && I1(end) ~= length(alltrialtag)
-%     g.winrej = [g.winrej' [alltrialtag(I1(end)) alltrialtag(I1(end)+1) g.wincolor zeros(1,g.chans)]']';
-% end;
+        
+        % Find trial with more than X bad channels:
+        trials_ind  = 1:EEG.trials;
+        bTrial_ind  = sum(winrej,1) >= str2double(nbadchans(1).String);     % boolean list
+        bTrial_num  = trials_ind(bTrial_ind);	% trial list
+        nbadtrial   = length(bTrial_num);       % count bad trials
+        
+        % Paints rejections red-ish and interpolations green-ish
+        if ~isempty(winrej)
+            mark                    = ones([0,5] + size(winrej'));
+            mark(:,6:end)           = double(winrej');
+            mark(:,1)               = 1:EEG.pnts:EEG.pnts*EEG.trials;   % start sample
+            mark(:,2)               = mark(:,1)+EEG.pnts;               % end   sample
+            mark(bTrial_ind,3)      = 1;                                % R for bad trials
+            mark(bTrial_ind,4)      = 0.8;                              % G for bad trials
+            mark(bTrial_ind,5)      = 0.9;                              % B for bad trials
+            
+            mark(~bTrial_ind,3)      = 0.7;                              % R for bad chans
+            mark(~bTrial_ind,4)      = 1;                                % G for bad chans
+            mark(~bTrial_ind,5)      = 0.8;                              % B for bad chans
+            
+            % clean non-rejected trials from winrej.
+            for i=size(mark,1):-1:1
+                if ~sum(mark(i,6:end))
+                    mark(i,:) = [];
+                end
+            end
+            
+            % collects all marks and adds to g.winrej
+            g.winrej = [g.winrej;mark];
+            
+            % removes all repetitive marks
+            g.winrej = unique(g.winrej,'rows');
+            
+            update_trial_rejections(g);
+        end
 
-%bads = cat(g.winrej,mark);
-
-     
-%draw_data([],[],fig,0,[],g);
 
 function update_trial_rejections(g)
 %% this function updates the tags for trial rejection and partial interpolations
@@ -3363,6 +3368,9 @@ reds = num2str(0);
 greens = num2str(0);
 bad_chans = num2str(0);
 partial_interps = num2str(0);
+
+% removes all repetitive marks
+g.winrej = unique(g.winrej,'rows');
 
 if ~isempty(g.winrej)
     % calculate reds and greens using RGB 'R' (3) and 'G' (4)
@@ -3380,6 +3388,9 @@ total_marks = strcat('Trial: ',{' '},reds,' red + ',{' '}, greens, ' g','reen');
 % prints on menu using these tags
 set(findobj(gcf, 'Tag', 'Count_Channels'),'string',total_chanmarks);%
 set(findobj(gcf, 'Tag', 'Count_Trials'),'string',total_marks);%
+
+
+
 
 
 
