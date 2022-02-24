@@ -3341,7 +3341,7 @@ function plot_topoplot(fig)
             mark                    = ones([0,5] + size(winrej'));
             mark(:,6:end)           = double(winrej');
             mark(:,1)               = 1:EEG.pnts:EEG.pnts*EEG.trials;   % start sample
-            mark(:,2)               = mark(:,1)+EEG.pnts;               % end   sample
+            mark(:,2)               = mark(:,1)+EEG.pnts-1;               % end   sample
             mark(bTrial_ind,3)      = 1;                                % R for bad trials
             mark(bTrial_ind,4)      = 0.8;                              % G for bad trials
             mark(bTrial_ind,5)      = 0.9;                              % B for bad trials
