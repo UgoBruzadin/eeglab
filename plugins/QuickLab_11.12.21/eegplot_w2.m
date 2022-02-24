@@ -2193,7 +2193,7 @@ function draw_data(varargin)
                 abscmin = max(1,round(g.winrej(tpmi,1)-lowlim));
                 abscmax = round(g.winrej(tpmi,2)-lowlim);
                 maxXlim = get(gca, 'xlim');
-                % found a quick solution.... abscmax didn't le tme draw the
+                % found a quick solution.... abscmax didn't let me draw the
                 % red lines at first, so I sorta removed it. Now I have to
                 % keep it, so i left it as a try error.
                 try
@@ -2207,7 +2207,11 @@ function draw_data(varargin)
                         end
                     end
                 catch
-                    abscmax = min(abscmax, round(maxXlim(2)-1));
+                    % for some reason, abscmax is weird. I fixed it by
+                    % taking -1 out of it, but still unsure how to fix it.
+                    % the bug is that it does not display the red channels at the last
+                    % few epochs!
+                    abscmax = abscmax-1;
                     for i = 1:g.chans
                         if g.winrej(tpmi,g.chans-i+1+5)
                             plot(ax1,abscmin+1:abscmax+1,data(g.chans-i+1,abscmin+lowlim:abscmax+lowlim) ...
@@ -3059,6 +3063,10 @@ if isfield(g, 'eloc_file')
         g.eloc_file(channel_index).badchan = 1-g.eloc_file(channel_index).badchan;
     end
     end
+    
+    % removes all repetitive marks
+    g.winrej = unique(g.winrej,'rows');
+    
     set(fig,'UserData',g);
     draw_data([],[],fig,0,[],g);
 end;
