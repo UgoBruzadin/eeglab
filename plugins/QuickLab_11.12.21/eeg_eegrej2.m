@@ -135,14 +135,26 @@ regions_for_interp = regions;
 regions_for_rej = [];
 rejcounter = 0;
 
+%% NEEDS TO BE TESTED FIRST!!!!!
 % --- remove the rejection data from regions_for interp with not-green color and add it to
 % ---- the variable regions_for_rej
 if ~isempty(regions)
     for i=1:size(regions,1)
-        if regions(i,3) == [1]  %check for red color of interpolation %needs to be better!!!
+        if regions(i,3) == [1] && regions(i,4) ~= [1]   %check for red color of interpolation %needs to be better!!!
             regions_for_interp(i-rejcounter,:) = [];
             rejcounter = rejcounter + 1;
             regions_for_rej(rejcounter,:) = regions(i,:);
+        end
+    end
+end
+
+% --- remove the non-rejection data from regions_for interp with not-white color
+if ~isempty(regions)
+    for i=1:size(regions,1)
+        if regions(i,4) == [1] && regions(i,3) == [1]   %check for white color for no interpolation and no rejection!
+            regions_for_interp(i-rejcounter,:) = [];
+            rejcounter = rejcounter + 1;
+            %regions_for_rej(rejcounter,:) = regions(i,:);
         end
     end
 end
@@ -199,7 +211,7 @@ if ~isempty(list_of_chans_or_comps)
             EEGinterp = pop_interp(EEGcumulative, [compOrChan], 'spherical');
             for i=1:size(regions_for_interp,1)
 
-                fprintf(strcat('Interpolating channels(s)',{' '}, num2str(compOrChan),' for the period',{' '},num2str(regions_for_interp(i,1)),' to',{' '},num2str(regions_for_interp(i,2))), '\r' );
+                fprintf(strcat('Interpolating channels(s) ', num2str(compOrChan),' for the period...',num2str(regions_for_interp(i,1)),' to...',num2str(regions_for_interp(i,2))), '\r' );
                 EEGmod.data(compOrChan,regions_for_interp(i,1):regions_for_interp(i,2)) = EEGinterp.data(compOrChan,regions_for_interp(i,1):regions_for_interp(i,2));
                 
             end
@@ -207,7 +219,7 @@ if ~isempty(list_of_chans_or_comps)
         else
             EEGinterp = pop_subcomp(EEGcumulative, [compOrChan]);
             for i=1:size(regions_for_interp,1)
-                fprintf(strcat('Interpolating components(s)',{' '}, num2str(compOrChan),' for the period',{' '},num2str(regions_for_interp(i,1)),' to',{' '},num2str(regions_for_interp(i,2))), '\r' );
+                fprintf(strcat('Interpolating components(s) ', num2str(compOrChan),' for the period...',num2str(regions_for_interp(i,1)),' to...',num2str(regions_for_interp(i,2))), '\r' );
                 EEGmod.data(:,regions_for_interp(i,1):regions_for_interp(i,2)) = EEGinterp.data(:,regions_for_interp(i,1):regions_for_interp(i,2));
                 EEGmod.icaact = EEGinterp.icaact;
                 %EEGmod.icaact(compOrChan,regions_for_interp(i,1):regions_for_interp(i,2)) = EEGinterp.icaact(compOrChan,regions_for_interp(i,1):regions_for_interp(i,2));
