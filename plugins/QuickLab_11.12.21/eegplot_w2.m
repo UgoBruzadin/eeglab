@@ -347,7 +347,13 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    if isstruct(EEG)
        g.EEG = EEG;
        if isempty(g.winrej)
-            if EEG.plotIc == 1
+           % makes an empty array of winrej
+%            g.winrej                    = zeros(EEG.trials,5+EEG.nbchan);
+%            g.winrej(:,1)               = 1:EEG.pnts:EEG.pnts*EEG.trials;   % start sample
+%            g.winrej(:,2)               = g.winrej(:,1)+EEG.pnts-1;               % end   sample
+%            g.winrej(:,3:5) = 1;
+%            
+           if EEG.plotIc == 1
                if isfield(EEG,'chanrej')
                    g.winrej = EEG.chanrej;
                end
@@ -572,8 +578,8 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
           if isfield(EEG.reject, 'gcompreject')
               if sum(EEG.reject.gcompreject) 
                   mybadcomp2 = find(EEG.reject.gcompreject);
-                  for ind = mybadcomp2'
-                      g.eloc_file(ind).badchan = 1; % marks component as bad
+                  for ind = 1:size(mybadcomp2,2)
+                      g.eloc_file(mybadcomp2(ind)).badchan = 1; % marks component as bad
                   end
               end
           end
@@ -2710,7 +2716,7 @@ if ismember(SelectionType, {'normal', 'alt'})
                         alltrialtag = [0:g.trialstag:g.frames]; % NEEDED FIXING, ADDED + 1 to count for trialstag variance
                         I1 = find(alltrialtag < (tmppos(1)+lowlim) );
                         if ~isempty(I1) && I1(end) ~= length(alltrialtag)
-                            g.winrej = [g.winrej' [alltrialtag(I1(end)) alltrialtag(I1(end)+1) g.wincolor zeros(1,g.chans)]']';
+                            g.winrej = [g.winrej' [alltrialtag(I1(end))+1 (alltrialtag(I1(end)+1)) g.wincolor zeros(1,g.chans)]']';
                         end;
                     else
                         g.incallback = 1;  % set this variable for callback for continuous data
@@ -2838,7 +2844,16 @@ g = get(fig,'UserData');
             tmpelec = min(max(double(tmpelec), 1),g.chans);
             labls = get(ax1, 'YtickLabel');
             set(hv, 'string', num2str(eegplotdata(g.chans+1-tmpelec, min(g.frames,max(1,double(round(tmppos(1)+lowlim)))))));  % put value in the box
-            set(he, 'string', labls(tmpelec+1,:));
+            Class = '';
+            if issubfield(g,'EEG.etc.ic_classification.ICLabel.classifications') && g.EEG.plotIc == 2
+                Classification = g.EEG.etc.ic_classification.ICLabel.classifications(tmpelec,:);
+                Classes = g.EEG.etc.ic_classification.ICLabel.classes;
+                ClassName = Classes(ismember(Classification,max(Classification)));
+                ClassName = ClassName{:};
+                Percent = string(round(max(Classification)*100,1));
+                Class = strcat({' '},ClassName,{' '},Percent,'%');
+            end
+            set(he, 'string', strcat(labls(tmpelec+1,:),Class));
         else
             set(hv, 'string', ' ');
             set(he, 'string', ' ');
@@ -3038,6 +3053,7 @@ if isfield(g, 'eloc_file')
     % badchan is a dummy variable which makes sure only channels selected
     % for complete rejection and added to g.eloc_file.badchan 
     badchan = 0;
+    changed = 0;
     % if winrej for this channel is empty
     if ~isempty(g.winrej)
         % LOOPS FOR EVERY STRETCH OF REJECTION
@@ -3045,9 +3061,24 @@ if isfield(g, 'eloc_file')
             % CHECKS FOR MOUSE POSITION WITHIN A REJECTION STRETCH
             if tmpval >= g.winrej(k,1) && tmpval <= g.winrej(k,2)
                 % MAKE SURE CHANNEL ISNT ALREADY REJECTED
-                if ~g.eloc_file(channel_index).badchan
+                if ~g.eloc_file(channel_index).badchan && ~changed
                     % ADDS THE CHANNEL TO THE REJECTION WINDOW
-                    g.winrej(k,5+channel_index) = 1-g.winrej(k,5+channel_index);
+                    
+                    % this beautiful code uses operators; selects only
+                    % lines which match the tmpval in col 1 and 2, then
+                    % changes the channel index to 0 or 1; 
+                    % this is a workaround the problem of having a
+                    % disorganized g.winrej; still working on it.
+                    if sum(g.winrej(tmpval >= g.winrej(:,1) & tmpval <= g.winrej(:,2),5+channel_index)) > 0
+                       g.winrej(tmpval >= g.winrej(:,1) & tmpval <= g.winrej(:,2),5+channel_index) = 0;
+                       changed = 1;
+                    else
+                       g.winrej(tmpval >= g.winrej(:,1) & tmpval <= g.winrej(:,2),5+channel_index) = 1;
+                       changed = 1;
+                    end
+                    %g.winrej(k,5+channel_index) = 1-g.winrej(k,5+channel_index);
+                    %g.winrej(tmpval >= g.winrej(:,1) & tmpval <= g.winrej(:,2),5+channel_index)
+
                 end
                 % REDUCED BADCHAN TO MAKE SURE CHANNEL WONT BE MARKED FOR COMPLETE REJECTION 
                 badchan = badchan + 1;
@@ -3065,7 +3096,7 @@ if isfield(g, 'eloc_file')
     end
     
     % removes all repetitive marks
-    g.winrej = unique(g.winrej,'rows');
+    %g.winrej = unique(g.winrej,'rows');
     
     set(fig,'UserData',g);
     draw_data([],[],fig,0,[],g);
@@ -3290,6 +3321,7 @@ function plot_topoplot(fig)
             case 5
                 comrej  = ['[EEG, ~, comrej]    = pop_rejspec(EEG, ' icacomp ',' opt(1).String , ',''elecrange'',' chancomps ');'];
                 bads    = 'rejfreqE';
+                
             case 6
                 comrej  = ['[EEG, comrej]    = pop_eegmaxmin(EEG,' opt(1).String ');'];
                 bads    = 'rejmaxminE';
@@ -3301,7 +3333,11 @@ function plot_topoplot(fig)
         eval(comrej);
         
         winrej = EEG.reject.(strcat(ica,bads)); % Gets rejected data into winrej
-        
+%         
+%         if ~isempty(winrej)
+%            winrej = winrej | g.winrej(:,6:end);
+%         end
+            
         %% Find bad trials and Channels
         
         % Find channels that have been marked as bad in more than X% of trials:
@@ -3336,12 +3372,17 @@ function plot_topoplot(fig)
         bTrial_num  = trials_ind(bTrial_ind);	% trial list
         nbadtrial   = length(bTrial_num);       % count bad trials
         
+        % trying to combine the trials
+%         old_bad_trials = find(g.winrej(:,3) == 1 & g.winrej(:,4) ~= 1)';
+%         old_chan_interp = find(g.winrej(:,4) == 1 & g.winrej(:,3) ~= 1)';
+%         
         % Paints rejections red-ish and interpolations green-ish
         if ~isempty(winrej)
             mark                    = ones([0,5] + size(winrej'));
             mark(:,6:end)           = double(winrej');
             mark(:,1)               = 1:EEG.pnts:EEG.pnts*EEG.trials;   % start sample
             mark(:,2)               = mark(:,1)+EEG.pnts-1;               % end   sample
+
             mark(bTrial_ind,3)      = 1;                                % R for bad trials
             mark(bTrial_ind,4)      = 0.8;                              % G for bad trials
             mark(bTrial_ind,5)      = 0.9;                              % B for bad trials
@@ -3350,18 +3391,35 @@ function plot_topoplot(fig)
             mark(~bTrial_ind,4)      = 1;                                % G for bad chans
             mark(~bTrial_ind,5)      = 0.8;                              % B for bad chans
             
+            % paints the trials with empty selected channels white
+            %mark((sum(mark(:,5:end),2) < 1),3:5) = 1;                    % cleaner code compared with the for loop
+            mark((sum(mark(:,5:end),2) < 1),:) = [];                    % cleaner code compared with the for loop
+            
             % clean non-rejected trials from winrej.
-            for i=size(mark,1):-1:1
-                if ~sum(mark(i,6:end))
-                    mark(i,:) = [];
-                end
-            end
+            %mark((sum(mark(:,5:end),2) < 1),3:5) = 1
+%             for i=size(mark,1):-1:1
+%                 if ~sum(mark(i,6:end))
+%                     mark(i,3:5) = 1; % paint their background white!
+%                 end
+%             end
             
             % collects all marks and adds to g.winrej
+             %try 
+                 % combines previous g.winrej with new marks
+             %    g.winrej(:,6:end) = g.winrej(:,6:end) | mark(:,6:end);
+                 % combine the paints of greens, reds and whites.
+                 %mark(mark(:,3:5) == [1,0.8,0.9])
+                 %not greens)
+
+             %catch
             g.winrej = [g.winrej;mark];
-            
+             %end
             % removes all repetitive marks
+            
             g.winrej = unique(g.winrej,'rows');
+                       
+            
+            g.winrej = merge_trials(g.winrej);
             
             update_trial_rejections(g);
         end
@@ -3400,5 +3458,93 @@ set(findobj(gcf, 'Tag', 'Count_Trials'),'string',total_marks);%
 
 
 
+function tf = issubfield(S,FIELD)
+    % Posted by Geoff McVittie on Matlab Answers on https://www.mathworks.com/matlabcentral/answers/103924-is-it-possible-to-check-for-existence-of-fields-in-nested-structures-with-isfield-in-matlab-8-1-r20
+%ISSUBFIELD Determine if FIELD is valid in struct S
+%   Determine if the specified FIELD or nested FIELD is present in the
+%   given structure.
+%
+%   A.b.c.d = 1;
+%   issubfield(A,"b.c.d")       % TRUE
+%   issubfield(A,"b")           % TRUE
+%   issubfield(A,"b.c.d.e")     % FALSE
+%   issubfield(A,"f")           % FALSE
+arguments
+    S (1,1) struct
+    FIELD (1,1) string
+end
+SUBFIELD = strsplit(FIELD,'.');
+if numel(SUBFIELD) == 1
+    tf = isfield(S,FIELD);
+    return;    
+end
+tf = true;
+for i = 2:numel(SUBFIELD)    
+    S = S.(SUBFIELD(i-1));
+    if ~isfield(S,SUBFIELD(i))
+        tf = false;
+        break;
+    end
+end
+
+
+function merged_list = merge_trials(rejlist)
+    %% merges repetitive regions rejection 
+    
+    % get bollean list of repetitive 
+    % merge
+    % make it red if X, green if > 1, delete if empty;
+    merged_list = [];
+    og_rejlist = rejlist;
+    counter = 0;
+    for i = 1:size(rejlist,1)
+        if size(rejlist,1) < i-counter
+            break;
+        else
+        %try
+            copies = rejlist(rejlist(:,1) == rejlist(i-counter,1) & rejlist(:,2) == rejlist(i-counter,2),:);
+        %catch
+        %    break;
+        %end
+        if size(copies,1) > 1
+            %fullcopies = rejlist(rejlist(:,1) == copies(1),:);
+
+            templist      = zeros(1,size(rejlist,2));
+            templist(1,1:2) = copies(1,1:2);
+            templist(1,3:5) = copies(1,3:5);                              % R for bad chans
+
+            %for j = 1:size(copies,1)-1
+                
+                %templist(1,6:end) = copies(j,6:end) | copies(j+1,6:end);
+            templist(6:end) = any(copies(:,6:end));
+            anyreds = copies(copies(1:size(copies,1),3) == 1,3:5);
+            if size(anyreds,1) > 1 
+                templist(3:5) = anyreds(1,:);
+            end
+            %end
+            merged_list = [merged_list;templist];
+            
+            counter = size(copies,1)-1;
+            rejlist(rejlist(:,1) == copies(1),:) = [];
+        else
+            merged_list = [merged_list;rejlist(i-counter,:)];
+        end
+        end
+    end
+    
+    
+    
+    
+    
+%     merged_list = [];
+%     for i = 1:size(list,1)
+%         if list(i,1:5) == list(i+1,1:5)
+%             list(i,6:end) = list(i,6:end) | list(i+1,6:end);
+%         end
+%     end
+    
+        
+        
+        
 
 
