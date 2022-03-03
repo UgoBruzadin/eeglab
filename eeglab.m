@@ -1315,11 +1315,11 @@ loadpostcommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex 
 % filelist
 loadfilecommand = ['cd(EEG.filepath);EEG = pop_loadset( files(get(findobj(''tag'',''LoadFileList''),''value'')).name, pwd);eeglab redraw;'];
 
-
+% ?, win0, PATH, win1, val2/win2, val3/win3, val4/win4 , val5/win5 , val6/win6, val7/win7, val8/win8, val9/win9
 geometry = { [1] [1] [1] [1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [1 1 1 1 0.3 0.3 3 1] [1] };
 listui = { { 'style', 'text', 'string', 'Parameters of the current set', 'tag', 'win0' } { } ...
-           { 'style', 'text', 'tag', 'PATH', 'string', ' ', 'userdata', 'datinfo' } ...
            { 'style', 'text', 'tag', 'win1', 'string', ' ', 'userdata', 'datinfo' } ...
+           { 'style', 'text', 'tag', 'PATH', 'string', ' ', 'userdata', 'datinfo' } ...
            { 'style', 'text', 'tag', 'win2', 'string', 'Channels per frame', 'userdata', 'datinfo'} ...
            { 'style', 'text', 'tag', 'val2', 'string', ' ', 'userdata', 'datinfo' } ...
            { 'style', 'text', 'tag', 'win3', 'string', 'Frames per epoch', 'userdata', 'datinfo'} ...
@@ -1338,7 +1338,7 @@ listui = { { 'style', 'text', 'string', 'Parameters of the current set', 'tag', 
            { 'style', 'text', 'tag', 'val9', 'string', ' ', 'userdata', 'datinfo' } ...
            { 'style', 'text', 'tag', 'win10', 'string', 'Channel locations', 'userdata', 'datinfo'} ...
            { 'style', 'text', 'tag', 'val10', 'string', ' ', 'userdata', 'datinfo' } ...
-           { 'style', 'text', 'tag', 'win11', 'string', 'ICA weights', 'userdata', 'datinfo'  } ...
+           { 'style', 'text', 'tag', 'win11', 'string', 'ICA weights + (data rank)', 'userdata', 'datinfo'  } ...
            { 'style', 'text', 'tag', 'val11', 'string', ' ', 'userdata', 'datinfo' } ...
            { 'style', 'text', 'tag', 'win12', 'string', 'Dataset size (Mb)', 'userdata', 'datinfo' } ...
            { 'style', 'text', 'tag', 'val12', 'string', ' ', 'userdata', 'datinfo' } ...
@@ -1891,7 +1891,18 @@ elseif (exist('EEG') == 1) && ~isnumeric(EEG) && ~isempty(EEG(1).data)
             end
         end
         
-        set( g.val11, 'String', fastif(isempty(EEG.icasphere), 'No', size(EEG.icaweights,1)));
+        % Display Data Rank!
+        tmpdata = reshape( EEG.data(1:EEG.nbchan,:,:), EEG.nbchan, EEG.pnts*EEG.trials);
+        tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
+        rank = strcat({'; '},'Rank',{' ('},num2str(tmprank),')');
+        
+        ica_text = fastif(isempty(EEG.icasphere), 'No', num2str(size(EEG.icaweights,1)));
+        ica_and_rank = strcat(ica_text,rank);
+        
+        % Display ICA component numbers
+        %set( g.val11, 'String', fastif(isempty(EEG.icasphere), 'No', size(EEG.icaweights,1)));
+        set( g.val11, 'String', ica_and_rank);
+        
         tmp = whos('EEG');
         if ~isa(EEG.data, 'memmapdata') && ~isa(EEG.data, 'mmo') 
             set( g.val12, 'String', num2str(round(tmp.bytes/1E6*10)/10));
@@ -2161,3 +2172,18 @@ function h = eegmenu( versL, varargin)
         h = uimenu(varargin{:});
     end
      
+    
+function tmprank2 = getrank(tmpdata)
+        
+tmprank = rank(tmpdata);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Here: alternate computation of the rank by Sven Hoffman
+%tmprank = rank(tmpdata(:,1:min(3000, size(tmpdata,2)))); old code
+covarianceMatrix = cov(tmpdata', 1);
+[~, D] = eig (covarianceMatrix);
+rankTolerance = 1e-7;
+tmprank2=sum (diag (D) > rankTolerance);
+if tmprank ~= tmprank2
+    %fprintf('Warning: fixing rank computation inconsistency (%d vs %d) most likely because running under Linux 64-bit Matlab\n', tmprank, tmprank2);
+    tmprank2 = max(tmprank, tmprank2);
+end
