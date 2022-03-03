@@ -244,13 +244,13 @@ if ~isempty(list_of_chans_or_comps)
             end
             
             if chanorcomp == 1
-                fprintf(strcat('Interpolating channels(s) _', num2str(compOrChan),' for the period _',num2str(regions_for_interp(j,1)),' to _',num2str(regions_for_interp(j,2))), '\r' );
+                fprintf(strcat('Interpolating channels(s)...', num2str(compOrChan),' for the period...',num2str(regions_for_interp(j,1)),' to...',num2str(regions_for_interp(j,2))), '\r' );
                 EEGinterp = pop_interp(EEGcumulative, [compOrChan], 'spherical');
                 %for i=1:size(regions,1)
                 EEGmod.data(compOrChan,regions_for_interp(j,1):regions_for_interp(j,2)) = EEGinterp.data(compOrChan,regions_for_interp(j,1):regions_for_interp(j,2));
                 %end
             else
-                fprintf(strcat('Interpolating components(s) _', num2str(compOrChan),' for the period _',num2str(regions_for_interp(j,1)),' to _',num2str(regions_for_interp(j,2))), '\r' );
+                fprintf(strcat('Interpolating components(s)...', num2str(compOrChan),' for the period...',num2str(regions_for_interp(j,1)),' to...',num2str(regions_for_interp(j,2))), '\r' );
                 EEGinterp = pop_subcomp(EEGcumulative,[compOrChan]);
                 %for i=1:size(regions,1)
                 EEGmod.data(:,regions_for_interp(j,1):regions_for_interp(j,2)) = EEGinterp.data(:,regions_for_interp(j,1):regions_for_interp(j,2));
