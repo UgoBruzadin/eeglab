@@ -1,0 +1,6 @@
+
+
+
+A = EEG.icaact(20,:);
+B = EEGa.icaact(17,:);
+C = corrcoef(A',B');
