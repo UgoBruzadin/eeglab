@@ -1,6 +1,6 @@
-function [EEGOUT,com] = quick_bss(EEGIN,window,windowshift)
+function [EEGOUT,com] = quick_bss2(EEGIN,window,windowshift)
 
-% [EEG,com] = quick_bss(EEG,window,windowshift) 
+% [EEG,com] = quick_PCA(EEG,IC,type) 
 %
 % Author: Ugo Bruzadin Nunes
 %
@@ -19,8 +19,8 @@ function [EEGOUT,com] = quick_bss(EEGIN,window,windowshift)
 % along with this program; if not, write to the Free Software
 
 if nargin < 2
-    window = (EEGIN.pnts/EEGIN.srate)*2;
-    
+    %window = (EEGIN.pnts/EEGIN.srate)*2;
+    window = (EEGIN.pnts/EEGIN.srate)*EEGIN.trials;
 end
 
 if nargin < 3
