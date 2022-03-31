@@ -89,7 +89,7 @@ uimenu( dipfitmenu, 'label', 'Quick ICA & DipFit', 'callback', ...
     ['EEG = quick_PCA(EEG);EEG = quick_dipfit(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu( dipfitmenu, 'label', 'Quick N-1 PCA & DipFit', 'callback', ...
-    ['EEG = quick_PCA(EEG,size(EEG.icaact,1)-1));EEG = quick_dipfit(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['EEG = quick_PCA(EEG, strcat(size(EEG.icaact,1)-1));EEG = quick_dipfit(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 for d=6:2:50
 uimenu( dipfitmenu, 'label', strcat('PCA ',num2str(d),' & DipFit'), 'callback', ...
@@ -100,7 +100,7 @@ uimenu( pcamenu, 'label', 'ICA', 'callback', ...
     ['[EEG,com] = quick_PCA(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu( pcamenu, 'label', 'N-1 PCA', 'callback', ...
-    ['[EEG,com] = quick_PCA(EEG,size(EEG.icaact,1)-1));[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,com] = quick_PCA(EEG,strcat(size(EEG.icaact,1)-1));[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 for i=4:35
 uimenu( pcamenu, 'label', strcat('PCA ',num2str(i)), 'callback', ...
@@ -122,24 +122,24 @@ try
         cudamenu = uimenu (supermenu, 'label', 'Quick CUDAICA');
         
         uimenu( cudamenu, 'label', 'ICA', 'callback', ...
-            ['EEG = quick_PCA(EEG,[],''cudaica'');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+            ['[EEG,com] = quick_PCA(EEG,[],''cudaica'');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
         
         uimenu( cudamenu, 'label', 'N-1 PCA', 'callback', ...
-            ['EEG = quick_PCA(EEG,size(EEG.icaact,1)-1),''cudaica'');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+            ['[EEG,com] = quick_PCA(EEG,strcat(size(EEG.icaact,1)-1)),''cudaica'');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
         
         for i=4:35
             uimenu( cudamenu, 'label', strcat('PCA ',num2str(i)), 'callback', ...
-                ['EEG = quick_PCA(EEG,' num2str(i) ',''cudaica'');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+                ['[EEG,com] = quick_PCA(EEG,' num2str(i) ',''cudaica'');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
         end
         for i=36:2:50
             uimenu( cudamenu, 'label', strcat('PCA ',num2str(i)), 'callback', ...
-                ['EEG = quick_PCA(EEG,' num2str(i) ',''cudaica'');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+                ['[EEG,com] = quick_PCA(EEG,' num2str(i) ',''cudaica'');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
         end
         
         secondcudamenu = uimenu (cudamenu, 'label', 'MORE PCAs');
         for g=51:75
             uimenu( secondcudamenu, 'label', strcat('PCA ',num2str(g)), 'callback', ...
-                ['EEG = quick_PCA(EEG,' num2str(g) ',''cudaica'');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+                ['[EEG,com] = quick_PCA(EEG,' num2str(g) ',''cudaica'');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
         end
     end
 catch
@@ -148,8 +148,11 @@ end
 
 bssmenu = uimenu (supermenu, 'label', 'BSS Menu');
 
-uimenu (bssmenu, 'label', 'Quick BSS', 'callback', ...
+uimenu (bssmenu, 'label', 'Quick BSS 2 epochs', 'callback', ...
     ['[EEG,com] = quick_bss(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+
+uimenu (bssmenu, 'label', 'Quick BSS full file', 'callback', ...
+    ['[EEG,com] = quick_bss2(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu (bssmenu, 'label', 'BSS+', 'callback', ...
     ['[EEG com]  = pop_autobssemgQL(EEG);EEG = eegh(com, EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
