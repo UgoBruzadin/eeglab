@@ -314,7 +314,7 @@ end
 
 % Run data rejection in case of rejection selected.
 if ~isempty(regions_for_rej)
-    if size(EEG.data) > 2
+    if size(EEG.data,3) > 1
         rejected_epochs = [];
         for i=1:size(regions_for_rej,1)
             rejected_epochs = [rejected_epochs, floor(regions_for_rej(i,1)/EEG.pnts)+1];
