@@ -2846,14 +2846,14 @@ g = get(fig,'UserData');
             labls = get(ax1, 'YtickLabel');
             set(hv, 'string', num2str(eegplotdata(g.chans+1-tmpelec, min(g.frames,max(1,double(round(tmppos(1)+lowlim)))))));  % put value in the box
             Class = '';
-            if issubfield(g,'EEG.etc.ic_classification.ICLabel.classifications') && g.EEG.plotIc == 2
-                Classification = g.EEG.etc.ic_classification.ICLabel.classifications(tmpelec,:);
-                Classes = g.EEG.etc.ic_classification.ICLabel.classes;
-                ClassName = Classes(ismember(Classification,max(Classification)));
-                ClassName = ClassName{:};
-                Percent = string(round(max(Classification)*100,1));
-                Class = strcat({' '},ClassName,{' '},Percent,'%');
-            end
+%             if issubfield(g,'EEG.etc.ic_classification.ICLabel.classifications') && g.EEG.plotIc == 2
+%                 Classification = g.EEG.etc.ic_classification.ICLabel.classifications(tmpelec,:);
+%                 Classes = g.EEG.etc.ic_classification.ICLabel.classes;
+%                 ClassName = Classes(ismember(Classification,max(Classification)));
+%                 ClassName = ClassName{:};
+%                 Percent = string(round(max(Classification)*100,1));
+%                 Class = strcat({' '},ClassName,{' '},Percent,'%');
+%             end
             set(he, 'string', strcat(labls(tmpelec+1,:),Class));
         else
             set(hv, 'string', ' ');
@@ -3581,10 +3581,10 @@ function tf = issubfield(S,FIELD)
 %   issubfield(A,"b")           % TRUE
 %   issubfield(A,"b.c.d.e")     % FALSE
 %   issubfield(A,"f")           % FALSE
-arguments
-    S (1,1) struct
-    FIELD (1,1) string
-end
+% arguments
+%      S (1,1)  = struct
+%      FIELD (1,1)  = string
+% end
 SUBFIELD = strsplit(FIELD,'.');
 if numel(SUBFIELD) == 1
     tf = isfield(S,FIELD);
