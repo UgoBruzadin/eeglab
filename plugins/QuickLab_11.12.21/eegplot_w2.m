@@ -3237,7 +3237,10 @@ function plot_topoplot(fig)
                 % CHECKS FOR MOUSE POSITION WITHIN A REJECTION STRETCH
                 if datapos >= g.winrej(k,1) && datapos <= g.winrej(k,2)
                     % Calculates the average for that stretch
-                    EpochAverage = mean(data(:,g.winrej(k,1):g.winrej(k,2)),2);
+                    %EpochAverage = mean(data(:,g.winrej(k,1):g.winrej(k,2)),2);
+                    EpochAverage = std(data(:,g.winrej(k,1):g.winrej(k,2)),0,2);
+                    MeanDeviation = mean(EpochAverage);
+                    EpochAverage = EpochAverage - MeanDeviation;
                     % PLOTS AVERAGE OF THAT STRETCH
                     topoplot(EpochAverage, g.eloc_file);
                     % This makes sure it only prints once
