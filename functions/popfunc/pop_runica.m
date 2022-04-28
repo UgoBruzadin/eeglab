@@ -402,7 +402,8 @@ end
 tmpdata = reshape( EEG.data(g.chanind,:,:), length(g.chanind), EEG.pnts*EEG.trials);
 tmprank = getrank(double(tmpdata(:,1:min(3000, size(tmpdata,2)))));
 tmpdata = tmpdata - repmat(mean(tmpdata,2), [1 size(tmpdata,2)]); % zero mean 
-if ~strcmpi(g.icatype, 'binica')
+
+if ~strcmpi(g.icatype, 'binica') && ~strcmpi(g.icatype, 'cudaica')
     try
         disp('Attempting to convert data matrix to double precision for more accurate ICA results.')
         tmpdata = double(tmpdata);
@@ -478,7 +479,7 @@ switch lower(g.icatype)
         end
         toc
     case 'cudaica' % Add by Yunhui on 2018-09-09
-        tic
+        %tic
         icadefs;
         fprintf(['Warning: If the CUDAICA ICA function does not work, check that you have added the\n' ...
                  'binary file location (in the EEGLAB directory) to your Unix /bin directory (.cshrc file)\n']);
@@ -498,7 +499,7 @@ switch lower(g.icatype)
             end
         end
         %[EEG.icaweights,EEG.icasphere] = cudaica(tmpdata, 'lrate', 0.001, g.options{:} );    % Added EEG by Ugo Nunes 06/21/2020 
-        toc
+        %toc
     case 'amica'
         tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
         fprintf('Now Running AMICA\n');
@@ -637,7 +638,7 @@ function tmprank2 = getrank(tmpdata)
     covarianceMatrix = cov(tmpdata', 1);
     [~, D] = eig (covarianceMatrix);
     rankTolerance = 1e-7;
-    tmprank2=sum (diag (D) > rankTolerance);
+    tmprank2 = sum (diag (D) > rankTolerance);
     if tmprank ~= tmprank2
         fprintf('Warning: fixing rank computation inconsistency (%d vs %d) most likely because running under Linux 64-bit Matlab\n', tmprank, tmprank2);
         tmprank2 = max(tmprank, tmprank2);
