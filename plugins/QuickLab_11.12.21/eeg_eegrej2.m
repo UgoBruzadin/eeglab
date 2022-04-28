@@ -53,7 +53,7 @@ if nargin < 3
     tmprej = 0;
 end
 
-% ---- this code has been depricated, but kept in for compatibility sake
+%% ---- this code has been depricated, but kept in for compatibility sake
 if ~isfield(EEG,'myVariables')
     EEG.myVariables = {0 0 '' 0};
 end
@@ -84,6 +84,13 @@ end
 EEG.myVariables = {};
 % --- end of compatibility region
 
+%% --- STORE CURRENT MARKS TO FILE (BETA)
+%[EEG] = pop_saveset(EEG, 'filepath',EEG.filepath);
+[EEG] = pop_saveset(EEG, 'filename', [strcat( EEG.filename(1:end-4),'SM','.set')],'filepath',EEG.filepath);
+%[EEG] = eeg_store(EEG); 
+eeglab redraw; %save set ADDED BY UGO
+
+%% --- start organizing variables
 com = '';
 if nargin < 2
     help eeg_eegrej;
@@ -135,7 +142,7 @@ regions_for_interp = regions;
 regions_for_rej = [];
 rejcounter = 0;
 
-%% NEEDS TO BE TESTED FIRST!!!!!
+%% DISTRIBUTES REGIONS into reds (for removal) and greens (for interpolation)
 % --- remove the rejection data from regions_for interp with not-green color and add it to
 % ---- the variable regions_for_rej
 if ~isempty(regions)
@@ -159,7 +166,7 @@ if ~isempty(regions)
     end
 end
 
-% Does something with channels!
+%% --- Distributes channels or components for removal and channels for interpolation
 chancounter = 0;
 if ~isempty(regions_for_interp)
     for i=1:size(regions_for_interp,1)
@@ -186,7 +193,7 @@ end
 % end
 
 %Get the split divisions. This was originally made so that one could type
-%the channels on a box, which was deprecated, but still installed in case
+%the channels on a textbox, which was deprecated, but still installed in case
 %needs to be used later.
 divisors = strfind(list_of_chans_or_comps,';');
 if isempty(divisors)
@@ -265,7 +272,7 @@ if ~isempty(list_of_chans_or_comps)
     % not using text,only clicks, useText    
 end % end partial interpolations
 
-%% Full channel or component interpolations
+%% Full channel interpolations or component removal
 EEGmod2 = EEGcumulative;
 
 if ~isempty(chansorcomps4removal)
@@ -282,12 +289,12 @@ if ~isempty(chansorcomps4removal)
 end
 
 
-%% for plotting the data difference
+%% --- For plotting the data difference, mostly a debugging tool
 
 if plotdiff == 1
     EEGdiff = EEGOG.data - EEGmod2.data;
-    eegplot_w( EEGdiff, 'srate', EEG.srate, 'title', [ 'DIFFERENCE PRE AND POST CHANNEL/COMPONENT INTERPOLATION -- eegplot_w(): ' EEG.setname], ...
-        'limits', [EEG.xmin EEG.xmax]*1000 )% , 'command', command, eegplotoptions{:}, varargin{:});
+    eegplot_w2( EEGdiff, 'srate', EEGOG.srate, 'title', [ 'DIFFERENCE PRE AND POST CHANNEL/COMPONENT INTERPOLATION -- eegplot_w(): ' EEGOG.setname], ...
+        'limits', [EEGOG.xmin EEGOG.xmax]*1000 )% , 'command', command, eegplotoptions{:}, varargin{:});
 end
 
 %final EEG!
@@ -295,7 +302,7 @@ EEGOUT = EEGmod2;
 
 com = sprintf('EEGOUT = eeg_eegrej2( EEGOUT, %s );', vararg2str({ regions, list_of_chans_or_comps, chanorcomp, tmprej }));
 
-%clear rejection variables from EEG variable
+%% --- Clears rejection variables from EEG variable
 if chanorcomp == 1
     if isfield(EEGOUT,'chanrej')
         EEGOUT.chanrej = [];
@@ -312,7 +319,7 @@ else
     end
 end
 
-% Run data rejection in case of rejection selected.
+%% --- Runs data rejection in case of rejection selected.
 if ~isempty(regions_for_rej)
     if size(EEG.data,3) > 1
         rejected_epochs = [];
