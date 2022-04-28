@@ -388,7 +388,8 @@ end
 tmpdata = reshape( EEG.data(g.chanind,:,:), length(g.chanind), EEG.pnts*EEG.trials);
 tmprank = getrank(double(tmpdata(:,1:min(3000, size(tmpdata,2)))));
 tmpdata = tmpdata - repmat(mean(tmpdata,2), [1 size(tmpdata,2)]); % zero mean 
-if ~strcmpi(g.icatype, 'binica')
+
+if ~strcmpi(g.icatype, 'binica') && ~strcmpi(g.icatype, 'cudaica')
     try
         disp('Attempting to convert data matrix to double precision for more accurate ICA results.')
         tmpdata = double(tmpdata);
@@ -464,7 +465,7 @@ switch lower(g.icatype)
             end
         end
     case 'cudaica' % Add by Yunhui on 2018-09-09 % edited by Ugo 2021
-        tic
+        %tic
         tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
         if tmprank == size(tmpdata,1) || pca_opt
             [EEG.icaweights,EEG.icasphere] = cudaica(tmpdata, 'lrate', 0.001, g.options{:} ); % Added EEG by Ugo Nunes 06/21/2020
@@ -473,7 +474,7 @@ switch lower(g.icatype)
             [EEG.icaweights,EEG.icasphere] = cudaica(tmpdata, 'lrate', 0.001, 'pca', tmprank, g.options{:}); % Added EEG by Ugo Nunes 06/21/2020
         end
         %[EEG.icaweights,EEG.icasphere] = cudaica(tmpdata, 'lrate', 0.001, g.options{:} );    % Added EEG by Ugo Nunes 06/21/2020 
-        toc
+        %toc
         if isfield(EEG,'dipfit')
             if isfield(EEG.dipfit,'model')
                 EEG.dipfit.model = [];
@@ -619,10 +620,10 @@ function tmprank2 = getrank(tmpdata)
     tmprank2 = sum (diag (D) > rankTolerance);
     if tmprank ~= tmprank2
         fprintf('Warning: fixing rank computation inconsistency (%d vs %d) most likely because running under Linux 64-bit Matlab\n', tmprank, tmprank2);
-        tmprank2 = min(tmprank, tmprank2);
+        tmprank2 = max(tmprank, tmprank2);
     end
            
-function tmprank2 = getrankMax(tmpdata)
+function tmprank2 = getrankMin(tmpdata)
     
     tmprank = rank(tmpdata);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -634,6 +635,6 @@ function tmprank2 = getrankMax(tmpdata)
     tmprank2 = sum (diag (D) > rankTolerance);
     if tmprank ~= tmprank2
         fprintf('Warning: fixing rank computation inconsistency (%d vs %d) most likely because running under Linux 64-bit Matlab\n', tmprank, tmprank2);
-        tmprank2 = max(tmprank, tmprank2);
+        tmprank2 = min(tmprank, tmprank2);
     end
             
