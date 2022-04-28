@@ -18,6 +18,14 @@ function [EEGOUT,com] = quick_bss2(EEGIN,window,windowshift)
 % You should have received a copy of the GNU General Public License
 % along with this program; if not, write to the Free Software
 
+% DG's theory
+% The BSS runs the cross correlations between channels
+% for a specific period time. It requires a power of 2
+% the bss program is running ffts, and they need to run in a power of 2
+% the values of the original pogram defaults to powers of 2
+% 
+
+
 if nargin < 2
     %window = (EEGIN.pnts/EEGIN.srate)*2;
     window = (EEGIN.pnts/EEGIN.srate)*EEGIN.trials;
