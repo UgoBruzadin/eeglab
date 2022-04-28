@@ -19,15 +19,16 @@
 %
 % You should have received a copy of the GNU General Public License
 % along with this program; if not, write to the Free Software
-
+%% Color defaults
 BUTTONCOLOR = [0.9 0.9 0.9];
 BACKGROUNDCOLOR = [.66 .76 1];
-
+%% SPECTOPO FEDAULTS
 % Highest Frequency, Lowest Frequency, Maxwindow
 SPECTRADEFS = [40,2,2048];
 % Specific Expected Frequencies for Topoplot Display 
 SPECTRATOPO = [4 5 6 7 8 9 10 11 12 15 20 25 30 36];
 
+%% Headmodel and references defaults
 % Location of Headmodel(s)
 HEADMODELLOCATION = [''];
 
@@ -36,37 +37,45 @@ OG_REF = 'Cz';
 CZ_REF = 'Cz';
 LE_REFS = ['*E57','*E100'];
 REFLOC = struct('labels',{'Cz'},'Y',{0},'X',{0},'Z',{8.7919},'sph_theta',{0},'sph_phi',{0},'sph_radius',{0},'theta',{0},'radius',{0},'type',{''},'ref',{'Cz'},'urchan',{[]},'datachan',{0});
+KEEPREF = 'on';
 
-% CORRMAP defaults
+%% CORRMAP defaults
 % CORRMAP folder locations
 CORRMAPDEFS = [''];
 
-% Defaults for PCA/ICA & ICLABEL
+%% Defaults for PCA/ICA & ICLABEL
 PCADEFS = ['icatype','cudaica','extended',1,'verbose','off'];
 % ICLABEL type, Highest Frequency, Lowest Frquency
 ICLABELDEFS = ['default',40,2];
 
-% Number of dipoles to plot in DIPFIT (1 or 2)
+%% Number of dipoles to plot in DIPFIT (1 or 2)
 DIPFITDEFS = [1];
 OTHERDIPFITDEFS = [];
 
-% Defaults for running BSS
+%% Defaults for running BSS
 BSSDEFS = [];
 
-% defaults for lowpass and highpass filter for quick filter
+%% Defaults for lowpass and highpass filter for quick filter
 % smallest frequency, highest frequency, in between steps
 LOWPASSDEFS = [14,40,1];
 HIGHPASSDEFS = [0.5,0.5,22];
 
-% default for epoching the data
+%% Default for epoching the data
 % Epoch name(s), if any
 EPOCHNAMES = ['DIN '];
 % Epoch time pre and post (1)
-EPOCH1DEFS = [0.400,2.448];
+EPOCH1DEFS = [0.600,2.648];
 % Epoch time pre and post (2)
 EPOCH2DEFS = [-1,3.096];
 
-% Binary defaults: Should ICLABEL be plotted after every iclabel run?
-PLOTICLABELS = [1];
+%% Binary default options for data plotting and saving in QuickLab
+
+% Should ICLABEL be plotted after every iclabel run?
+PLOTICLABELS = 1;
 % Should every data modification try to plot the data difference?
-PLOTDATADIFF = [1];
+PLOTDATADIFF = 1;
+
+% Should every data modification save the markers in a new file?
+SAVADATAMARKERS = 1;
+% if so, what should the new file markers be named?
+SAVEDATAMARKERTITLE = 'SM';
