@@ -50,7 +50,7 @@ uimenu( plotmenu, 'label', 'Quick Plot Channel Spectra 2 to 40hz', 'callback', .
     ['[com] = quick_spectra(EEG,40,2);']);
 
 uimenu( plotmenu, 'label', 'Quick Plot Channel Spectra as AVG', 'callback', ...
-    ['[com] = quick_spectra_avg(EEG,40,2);']);
+    ['[com] = quick_spectra(EEG,40,2,''AVG'');']);
 
 othermenu = uimenu (plotmenu, 'label', 'Other'); 
 
@@ -79,6 +79,9 @@ uimenu( printmenu, 'label', 'Print FFT', 'callback', ...
     ['print_FFT(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 % plot fft difference!
+
+uimenu(supermenu, 'label','Quick DotLoc Defaults','callback',...
+    ['[EEG,com] = quick_dotloc(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 % --- second submenu: Quick ICA/PCAs
 pcamenu = uimenu (supermenu, 'label', 'Quick PCA');
@@ -210,19 +213,19 @@ uimenu( epochsmenu, 'label', strcat('Epoch every_', num2str(s), '_seconds'), 'ca
 end
 
 uimenu( epochsmenu, 'label', 'UN-Epoch (Back to Continuous)', 'callback', ...
-    ['[EEG,com] =  quick_unepoch(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,com] = quick_unepoch(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu( epochsmenu, 'label', 'Quick Epoch 0.400 2.448 (DotLoc)', 'callback', ...
-    ['[EEG,com] =  quick_epoch(EEG,0.400,2.448);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,com] = quick_epoch(EEG,0.400,2.448);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu( epochsmenu, 'label', 'Quick Epoch 0.600 2.648 (DotLoc)', 'callback', ...
-    ['[EEG,com] =  quick_epoch(EEG,0.600,2.648);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,com] = quick_epoch(EEG,0.600,2.648);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu( epochsmenu, 'label', 'Quick Epoch 0.700 2.748 (DotLoc)', 'callback', ...
-    ['[EEG,com] =  quick_epoch(EEG,0.700,2.748);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,com] = quick_epoch(EEG,0.700,2.748);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu( epochsmenu, 'label', 'Quick Epoch -1 3.096 (DotLoc)', 'callback', ...
-    ['[EEG,com] =  quick_epoch(EEG,-1,3.096);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,com] = quick_epoch(EEG,-1,3.096);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 % Deprecated!
 % rejmenu = uimenu( epochsmenu, 'label', 'Epoch Rejection by probability');
