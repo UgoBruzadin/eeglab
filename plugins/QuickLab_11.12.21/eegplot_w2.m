@@ -307,7 +307,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    try, g.srate; 		    catch, g.srate		= 256; 	end;
    try, g.spacing; 			catch, g.spacing	= 0; 	end;
    try, g.eloc_file; 		catch, g.eloc_file	= 0; 	end; % 0 mean numbered
-   try, g.winlength; 		catch, g.winlength	= 10; 	end; % Number of seconds of EEG displayed
+   try, g.winlength; 		catch, g.winlength	= 5; 	end; % Number of seconds of EEG displayed
    try, g.fullscreen; 	    catch, g.fullscreen = 'on';	end;
    try, g.position; 	    catch, g.position	= ORIGINAL_POSITION; g.fullscreen = 'on';	end;
    try, g.title; 		    catch, g.title		= ['Scroll activity -- eegplot_w2()']; 	end;
@@ -781,7 +781,7 @@ end
 	'Position', posbut(38,:), ...
 	'Style','edit', ...
 	'Tag','TBT%',...
-	'string','15');
+	'string','30');
 
   u(39) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -789,7 +789,7 @@ end
 	'Position', posbut(39,:), ...
 	'Style','edit', ...
 	'Tag','TBTnchans',...
-	'string','5');
+	'string','8');
 
   u(40) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -1032,7 +1032,7 @@ u(22) = uicontrol('Parent',figh, ...
   if isempty(g.command) tmpcom = 'fprintf(''Rejections saved in variable TMPREJ\n'');';   
   else tmpcom = g.command;
   end;
-  acceptcommand = [ 'g = get(gcbf, ''userdata'');' ...               
+  acceptcommand = [ 'g = get(gcbf, ''userdata'');' ... 
                     'TMPREJ = g.winrej;' ...
                     'if isfield(g, ''eloc_file'') && isfield(g.eloc_file, ''badchan''); '...
                          'TMPREJCHN = find([g.eloc_file.badchan]); '...
@@ -1080,7 +1080,7 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
 	'Callback', savecommand );
   end;
 
-
+ acceptandsavecommand = [savecommand acceptcommand];
         
   if ~isempty(g.events)
       u(17) = uicontrol('Parent',figh, ...
@@ -1104,7 +1104,7 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
   m(7) = uimenu('Parent',figh,'Label','Figure');
   m(8) = uimenu('Parent',m(7),'Label','Print');
   uimenu('Parent',m(7),'Label','Edit figure', 'Callback', 'eegplot_w2(''noui'');');
-  uimenu('Parent',m(7),'Label','Accept and close', 'Callback', acceptcommand );
+  uimenu('Parent',m(7),'Label','Accept and close', 'Callback', acceptandsavecommand );
   uimenu('Parent',m(7),'Label','Cancel and close', 'Callback','delete(gcbf)')
   
   % Portrait %%%%%%%%
@@ -3647,8 +3647,29 @@ function merged_list = merge_trials(rejlist)
         end
     end
     
-    
-    
+function storemarks(g)
+        
+   if isstruct(EEG)
+       g.EEG = EEG;
+       if isempty(g.winrej)
+           % makes an empty array of winrej
+%            g.winrej                    = zeros(EEG.trials,5+EEG.nbchan);
+%            g.winrej(:,1)               = 1:EEG.pnts:EEG.pnts*EEG.trials;   % start sample
+%            g.winrej(:,2)               = g.winrej(:,1)+EEG.pnts-1;               % end   sample
+%            g.winrej(:,3:5) = 1;
+%            
+           if EEG.plotIc == 1
+               if isfield(EEG,'chanrej')
+                   g.winrej = EEG.chanrej;
+               end
+           else
+               if isfield(EEG,'comprej')
+                   g.winrej = EEG.comprej;
+               end
+           end
+       end
+   end
+ 
     
     
 %     merged_list = [];
