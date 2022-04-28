@@ -19,8 +19,8 @@
 %                    equivalent 'reject'.
 % Inputs:
 %   EEG        - input EEG dataset
-%   icacomp    - type of rejection 0 = independent components;
-%                                  1 = data channels. {Default: 1 = data channels}
+%   isChannels - 0 = independent components;
+%              - 1 = data channels. {Default: 1 = data channels}
 %   superpose  - 0 = Show new marks only: Do not color the background of data portions 
 %                    previously marked for rejection by visual inspection. Mark new data 
 %                    portions for rejection by first coloring them (by dragging the left 
@@ -45,7 +45,9 @@
 %                    rejection, press button 'Reject' to reject (remove) them from the EEG 
 %                    dataset (i.e., those portions plottted on a colored background. 
 %                    {default: 1, mark for rejection only}
-%
+% NEEDS FIXING
+%   isEpoched  - 1 = epoched;????
+%              - 2 = data channels. {Default: 1 = epoched if possible)
 %  topcommand   -  Input deprecated.  Kept for compatibility with other function calls
 % Outputs:
 %   Modifications are applied to the current EEG dataset at the end of the
@@ -84,8 +86,9 @@
 % 2017-01-24 allow select channels/components for rejection -mb
 % 2021-11-14 altered for channel/component interpolation -ubn
 
-function com = pop_eegplot_w2( EEG, icacomp, superpose, reject, epoc, topcommand, varargin)
+function com = pop_eegplot_w2( EEG, isComponents, superpose, reject, isEpoched, topcommand, varargin)
 
+%% ---  setting defaults
 com = '';
 if ~exist('topcommand','var')
     topcommand = [];
@@ -95,7 +98,7 @@ if nargin < 1
 	return;
 end;	
 if nargin < 2
-	icacomp = 1;
+	isComponents = 1;
 end;	
 if nargin < 3
 	superpose = 0;
@@ -103,12 +106,13 @@ end;
 if nargin < 4
 	reject = 1;
 end;
-if icacomp ~= 1
+if isComponents ~= 1
 	if isempty( EEG.icasphere )
 		disp('Error: you must run ICA first'); return;
 	end;
 end;
 
+%% --- get UI help, deprecated but left behind just in case
 if nargin < 3 && EEG.trials > 1
 
 	% which set to save
@@ -118,7 +122,7 @@ if nargin < 3 && EEG.trials > 1
                      { 'style' 'text' 'string' 'Reject marked trials? (checked=yes)'} , ...
          	         { 'style' 'checkbox' 'string' '' 'value' 0 } };
     result = inputgui( { [ 2 0.2] [ 2 0.2]} , uilist, 'pophelp(''pop_eegplot_w'');', ...
-                       fastif(icacomp==0, 'Manual component rejection -- pop_eegplot_w()', ...
+                       fastif(isComponents==0, 'Manual component rejection -- pop_eegplot_w()', ...
 								'Reject epochs by visual inspection -- pop_eegplot_w()'));
 	size_result  = size( result );
 	if size_result(1) == 0 return; end;
@@ -128,17 +132,18 @@ if nargin < 3 && EEG.trials > 1
 
 end;
 
-
-if icacomp == 1
+%% --- get data, if components or data
+if isComponents == 1
      elecrange = [1:EEG.nbchan];
 else elecrange = [1:size(EEG.icaweights,1)];
 end;
 
+%% --- setting save & final editing command
 if reject
     com1 = ...
         [  'EEGTMP=EEG; '...
         'if ~isempty(TMPREJCHN); '];
-    if icacomp == 1
+    if isComponents == 1
         com1 = [ com1 ...
             'EEG.chanrej = TMPREJ;[EEGTMP LASTCOM1] = eeg_eegrej2(EEGTMP,TMPREJ,1,TMPREJCHN); ' ]; %modified for eegrej2
     else
@@ -151,13 +156,13 @@ if reject
          '  end;' ...
         'else LASTCOM1=''''; ' ...
         'end; ' ];
-    if icacomp == 1
+    if isComponents == 1
         com3 = 'EEGTMP=EEG;EEG.chanrej = TMPREJ;[EEGTMP LASTCOM1] = eeg_eegrej2(EEGTMP,TMPREJ,1,TMPREJCHN); ' ; %modified for eegrej2
     else
         com3 = 'EEGTMP=EEG;EEG.comprej = TMPREJ;[EEGTMP LASTCOM1] = eeg_eegrej2(EEGTMP,TMPREJ,2,TMPREJCHN); ' ; %modified for eegrej2
     end;
     % Created for Save & Close Command
-    if icacomp == 1
+    if isComponents == 1
         com5 = 'LASTCOM1='''';EEG.chanrej = TMPREJ;EEG.mybadchan = TMPREJCHN;EEGTMP=EEG;' ; %modified for eegrej2 #Ugo 
     else
         com5 = 'LASTCOM1='''';EEG.comprej = TMPREJ;EEG.mybadcomp = TMPREJCHN;EEGTMP=EEG;' ; %modified for eegrej2#Ugo 
@@ -343,10 +348,10 @@ end;
     eegplotoptions = { 'events', EEG.event };
 % end;
 
-if ~isempty(EEG.chanlocs) && icacomp == 1
+if ~isempty(EEG.chanlocs) && isComponents == 1
     eegplotoptions = { eegplotoptions{:}  'eloc_file', EEG.chanlocs(elecrange) };
 else
-    if ~icacomp 
+    if ~isComponents 
         try gcompreject=EEG.reject.gcompreject;
         catch
             gcompreject=zeros(1,size(EEG.icaweights,1));
@@ -366,16 +371,28 @@ if EEG.nbchan > 100
     eegplotoptions = { eegplotoptions{:} 'submean' 'off' };
 end;
 
-EEG.plotEp = epoc;
-EEG.plotIc = icacomp;
+EEG.plotEp = isEpoched;
+EEG.plotIc = isComponents;
 
-if epoc ~= 3
-    eegplot_w2( EEG, 'srate', EEG.srate, 'title', [ 'Channel or Component Interpolation! -- eegplot_w2(): ' EEG.setname], ...
-             'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command,'savecommand',savecommand, eegplotoptions{:}, varargin{:});
+%% --- Editing the title of the figure
+if isEpoched == 3
+    title = ['Frequencies in '];
 else
-    eegplot_w2freq( EEG, 'srate', EEG.srate, 'title', [ 'Frequency Interpolation! -- eegplot_w2(): ' EEG.setname], ...
-             'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command,'savecommand',savecommand, eegplotoptions{:}, varargin{:});
+    if ~isComponents
+        title = ['Channels in '];
+    else
+        title = ['Components in '];
+    end
 end
+
+%% --- run eegplot_w2!!
+% if isEpoched ~= 3
+    eegplot_w2( EEG, 'srate', EEG.srate, 'title', [ title 'QuickLab Data Editor! -- eegplot_w2(): ' EEG.setname], ...
+             'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command,'savecommand',savecommand, eegplotoptions{:}, varargin{:});
+% else
+%     eegplot_w2freq( EEG, 'srate', EEG.srate, 'title', [ 'Frequency Interpolation! -- eegplot_w2(): ' EEG.setname], ...
+%              'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command,'savecommand',savecommand, eegplotoptions{:}, varargin{:});
+% end
 % if epoc == 1
 %     if icacomp == 1
 %         eegplot_w2( EEG, 'srate', EEG.srate, 'title', [ 'Scroll channel activities -- eegplot_w(): ' EEG.setname], ...
@@ -396,5 +413,5 @@ end
 %             'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command, eegplotoptions{:}, varargin{:});
 %     end;
 % end
-com = [ com sprintf('pop_eegplot_w2( %s, %d, %d, %d);', inputname(1), icacomp, superpose, reject) ];
+com = [ com sprintf('pop_eegplot_w2( %s, %d, %d, %d);', inputname(1), isComponents, superpose, reject) ];
 return;
