@@ -287,7 +287,7 @@ function [EEG, com] = pop_par_multifit2(EEG, comps, varargin)
     catch
         fprintf('Could not run eeg_compatlas3 \r') ;
     end
-    com = sprintf('EEG = pop_multifit(EEG, %s);', vararg2str({ comps options{:}}));
+    com = sprintf('EEG = pop_par_multifit2(EEG, %s);', vararg2str({ comps options{:}}));
     return;
     
 % get electrode positions from eeglag
