@@ -32,6 +32,7 @@ end
 
 if isempty(EEG.data)
     [EEG,com] = pop_loadset;
+    EEG = eegh(com, EEG);
 end
 if isempty(EEG.icawinv)
     fprintf('Error: must first run an ICA or PCA \r');
@@ -41,10 +42,12 @@ if isempty(EEG.icaact)
 end
 
 [EEG,com] = pop_iclabel(EEG,type);
-
+EEG = eegh(com, EEG);
 if df
     [EEG,com] = quick_dipfit(EEG);
+    EEG = eegh(com, EEG);
 end
-[com] = pop_viewprops2(EEG,0,1:size(EEG.icawinv,2),{'freqrange',[minfreq maxfreq]});
 
+com = pop_viewprops2(EEG,0,1:size(EEG.icawinv,2),{'freqrange',[minfreq maxfreq]});
+EEG = eegh(com, EEG);
 end
