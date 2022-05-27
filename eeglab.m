@@ -1384,6 +1384,15 @@ set(alltexth, 'fontname', FONTNAME, 'fontsize', FONTSIZE);
 
 set(W_MAIN, 'visible', 'on');
 
+%% plot piechart or files left to work on!
+
+axisPanel = uipanel(W_MAIN, 'Position',[.9 .05 .05 .25], 'BackgroundColor', COLOR,'Tag','PieChart');
+
+% % Create a new axis on the panel
+leftAxis = axes(axisPanel, 'Tag','pie_chart','Position', [0 0 1 1]);
+
+CountDownDotLoc(leftAxis);
+
 return;
 
 % eeglab(''redraw'')() - Update EEGLAB menus based on values of global variables.
@@ -1893,6 +1902,7 @@ elseif (exist('EEG') == 1) && ~isnumeric(EEG) && ~isempty(EEG(1).data)
         
         % Display Data Rank!
         tmpdata = reshape( EEG.data(1:EEG.nbchan,:,:), EEG.nbchan, EEG.pnts*EEG.trials);
+        tmpdata = tmpdata - repmat(mean(tmpdata,2), [1 size(tmpdata,2)]); % zero mean 
         tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
         rank = strcat({'; '},'Rank',{' ('},num2str(tmprank),')');
         
@@ -2187,3 +2197,5 @@ if tmprank ~= tmprank2
     %fprintf('Warning: fixing rank computation inconsistency (%d vs %d) most likely because running under Linux 64-bit Matlab\n', tmprank, tmprank2);
     tmprank2 = max(tmprank, tmprank2);
 end
+
+
