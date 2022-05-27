@@ -19,10 +19,20 @@
 %
 % You should have received a copy of the GNU General Public License
 % along with this program; if not, write to the Free Software
-%% Color defaults
+%% COLOR DEFAULTS
 BUTTONCOLOR = [0.9 0.9 0.9];
 BACKGROUNDCOLOR = [.66 .76 1];
-%% SPECTOPO FEDAULTS
+
+%% FILTER DEFAULTS
+HIGHPASS = 2;
+LOWPASS = 55;
+NOTCHFILTER = 60;
+
+%% EEGPLOTW2 DEFAULTS
+
+
+
+%% SPECTOPO DISPLAY DEFAULTS
 % Highest Frequency, Lowest Frequency, Maxwindow
 SPECTRADEFS = [40,2,2048];
 % Specific Expected Frequencies for Topoplot Display 
@@ -44,8 +54,12 @@ KEEPREF = 'on';
 CORRMAPDEFS = [''];
 
 %% Defaults for PCA/ICA & ICLABEL
-PCADEFS = ['icatype','cudaica','extended',1,'verbose','off'];
+ICATYPE = 'cudaica';
+EXTENDED = 1;
+VERBOSE = 'off';
+PCADEFS = ['icatype',ICATYPE,'extended',EXTENDED,'verbose',VERBOSE];
 % ICLABEL type, Highest Frequency, Lowest Frquency
+
 ICLABELDEFS = ['default',40,2];
 
 %% Number of dipoles to plot in DIPFIT (1 or 2)
@@ -67,6 +81,8 @@ EPOCHNAMES = ['DIN '];
 EPOCH1DEFS = [0.600,2.648];
 % Epoch time pre and post (2)
 EPOCH2DEFS = [-1,3.096];
+% Recurrent epoch length
+EPOCHLENGTH = 1;
 
 %% Binary default options for data plotting and saving in QuickLab
 
