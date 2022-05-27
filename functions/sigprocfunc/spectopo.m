@@ -570,8 +570,8 @@ if strcmpi(g.plot, 'on')
     xl=xlabel('Frequency (Hz)');
     set(xl,'fontsize',AXES_FONTSIZE_L);
     % yl=ylabel('Rel. Power (dB)');
-    yl=ylabel('Log Power Spectral Density 10*log_{10}(\muV^{2}/Hz)');%yl=ylabel('Power 10*log_{10}(\muV^{2}/Hz)');
-    set(yl,'fontsize',AXES_FONTSIZE_L);
+    %yl=ylabel('Log Power Spectral Density 10*log_{10}(\muV^{2}/Hz)');%yl=ylabel('Power 10*log_{10}(\muV^{2}/Hz)');
+    %set(yl,'fontsize',AXES_FONTSIZE_L);
     set(gca,'fontsize',AXES_FONTSIZE_L)
     box off;
 end
@@ -815,10 +815,10 @@ if ~isempty(g.freq) &&  strcmpi(g.plot, 'on')
                     set(gca, 'userdata', ['text(-0.6, -0.6, ''PVAF: ' sprintf('%6.2f', resvar(g.icacomps(compnum))) ''');'] );
                 end
             catch, end
-			if realpos(index+1) == max(realpos), plotcolbar(g); end
+			%if realpos(index+1) == max(realpos), plotcolbar(g); end
 		end
 	else 
-		plotcolbar(g);
+		%plotcolbar(g);
 	end
 end
 
