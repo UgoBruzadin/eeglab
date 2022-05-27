@@ -20,11 +20,13 @@
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-function [com] = quick_spectra(EEGIN,high,low,topo,references)
+function [EEG,com] = quick_spectra(EEG,high,low,references,topo)
 
-if isempty(EEGIN.data)
-    [EEGIN,com] = pop_loadset();
-    [EEGIN,com] = eeg_store(EEGIN);
+com = '';
+
+if isempty(EEG.data)
+    [EEG,com] = pop_loadset();
+    [EEG,com] = eeg_store(EEG);
 end
 
 % collects defaults defined at QuickLabDefs
@@ -33,12 +35,12 @@ QuickLabDefs; % using SPECTRADEFS 1 for High Frequency filter, 2 for low frequen
               % also using SPECTRATOPO for defaulty defined frequencies to display
 %% collecting defaults or given variables
               
-if nargin > 3
-    [EEGIN,com] = quick_reref(EEGIN,references);
+if nargin < 5
+   topo = SPECTRATOPO; % SPECTRATOPO DEFINED INSIDE QuickLabDefs 
 end
 
-if nargin < 4
-   topo = SPECTRATOPO; % SPECTRATOPO DEFINED INSIDE QuickLabDefs 
+if nargin > 3
+    [EEG,com] = quick_reref(EEG,references);
 end
 
 if nargin < 3 
@@ -49,8 +51,8 @@ end
 if nargin < 2
     %high = 55;
     high = SPECTRADEFS(1); % SPECTRADEFS DEFINED INSIDE QuickLabDefs 
-    
-maxWindow = 2^floor(log2(EEGIN.pnts));
+end
+maxWindow = 2^floor(log2(EEG.pnts));
 if maxWindow > SPECTRADEFS(3)
     %maxWindow = 2048;
     maxWindow = SPECTRADEFS(3);
@@ -69,8 +71,12 @@ end
 
 %% runs pop_spectopo with the given defaults or variables
 
-tic
-figure; pop_spectopo(EEGIN, 1, [EEGIN.xmin*1000  EEGIN.xmax*1000], 'EEG' , 'freq', [topo], 'freqrange',[low high],'winsize',maxWindow,'electrodes','off');
-toc
+%tic
+figure; pop_spectopo(EEG, 1, [EEG.xmin*1000  EEG.xmax*1000], 'EEG' , 'freq', [topo], 'freqrange',[low high],'winsize',maxWindow,'electrodes','off');
+%toc
+savecommand = ['saveas(gcf,[EEG.filename(1:end-4),''FFT.jpg'']);'];
+save = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized','Tag', 'save', 'Position', [.05 .90 .2 .08],'String','Save Figure','Callback',savecommand);
+
+EEG = eegh(com, EEG);
 
 end
