@@ -466,7 +466,7 @@ switch lower(g.icatype)
         end
     case 'cudaica' % Add by Yunhui on 2018-09-09 % edited by Ugo 2021
         %tic
-        tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
+        tmprank = getrankMin(tmpdata(:,1:min(3000, size(tmpdata,2))));
         if tmprank == size(tmpdata,1) || pca_opt
             [EEG.icaweights,EEG.icasphere] = cudaica(tmpdata, 'lrate', 0.001, g.options{:} ); % Added EEG by Ugo Nunes 06/21/2020
         else 
