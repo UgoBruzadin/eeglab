@@ -206,6 +206,7 @@ function [outvar1,EEG] = eegplot_w2(EEG, varargin); % p1,p2,p3,p4,p5,p6,p7,p8,p9
 
 %% Collects component or channel plot, continuous or epoched plot
 if isstruct(EEG)
+    EEG.varargin = varargin;
     if ~isfield(EEG,'plotIc')
         EEG.plotIc = 1;
     end
@@ -636,20 +637,19 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
 
   posbut(26,:) = [ 0.93    0.25    0.080    defaultsizes(1) ]; % Plot data difference #Ugo
   
-  posbut(27,:) = [ 0.92    0.18    0.080    defaultsizes(2) ]; % +  
-  posbut(28,:) = [ 0.92    0.21    0.080    defaultsizes(2) ]; % -  
+  posbut(27,:) = [ 0.92    0.18    0.080    defaultsizes(2) ]; % Rejecting/Interpolating Mode  
+  posbut(28,:) = [ 0.92    0.21    0.080    defaultsizes(2) ]; % Epoched/Continuous Mode
 
 %   %deprecated
-%   posbut(24,:) = [ 0.92    0.15    0.080    defaultsizes(1) ]; % Channel Rejection tag #Ugo
-%   posbut(25,:) = [ 0.92    0.13    0.080    defaultsizes(1) ]; % Channel Rejection #Ugo
+%   posbut(24,:) = [ 0.92    0.15    0.080    defaultsizes(1) ]; % UNUSED
+%   posbut(25,:) = [ 0.92    0.13    0.080    defaultsizes(1) ]; % UNUSED
 
   posbut(42,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % store marks #Ugo
   
-  % Coming soon: Save file with text!
-  
-  posbut(43,:) = [ 0.92    0.13    0.080    defaultsizes(2) ]; % save file text #Ugo
   posbut(44,:) = [ 0.92    0.11    0.080    defaultsizes(2) ]; % save file button #Ugo
   
+  posbut(43,:) = [ 0.92    0.11    0.080    defaultsizes(2) ]; % UNUSED
+
   posbut(13,:) = [ 0.92    0.08    0.080    defaultsizes(1) ]; % cancel/close
   posbut(12,:) = [ 0.92    0.03    0.080    defaultsizes(4) ]; % accept/close
   
@@ -667,6 +667,9 @@ chaninterp2 = ['EEG.myVariables{3} = get(findobj(gcf, ''Tag'', ''Removal''),''st
 displayep = ['eegplot_w2(''redraw'')'];
 togglerej = ['eegplot_w2(''rejection'')'];
 displaycomp = ['EEG.plotEp = 1 - EEG.plotEp; eegplot_w2(EEG,varargin)'];
+
+% --- new command for data change
+changedata = ['eegplot_w2(''data'')'];
 
 %     function selection(src,event)
 %         val = c.Value;
@@ -806,6 +809,16 @@ end
     'BackgroundColor',[1 .5 0.5],...
 	'string','Clear All Marks',...
 	'Callback', ['eegplot_w2(''ClearMarks'')'] );
+
+%% data change attempts #Ugo 5/19/2022
+u(27) = uicontrol('Parent',figh, ...
+	'Units', 'normalized', ...
+	'Position', posbut(43,:), ...
+	'Tag','Data',...
+    'BackgroundColor',[.5 1 0.5],...
+	'string','Select Channels',...
+	'Callback', changedata );
+
 
 %% channel or epoch, rejection or interpolation buttons #Ugo
 
@@ -1032,14 +1045,16 @@ u(22) = uicontrol('Parent',figh, ...
   if isempty(g.command) tmpcom = 'fprintf(''Rejections saved in variable TMPREJ\n'');';   
   else tmpcom = g.command;
   end;
+  closecommand = ['if g.children, delete(g.children); end;'...
+                 'delete(gcbf);'];
+
   acceptcommand = [ 'g = get(gcbf, ''userdata'');' ... 
                     'TMPREJ = g.winrej;' ...
                     'if isfield(g, ''eloc_file'') && isfield(g.eloc_file, ''badchan''); '...
                          'TMPREJCHN = find([g.eloc_file.badchan]); '...
                     'else TMPREJCHN = [];'...
                     'end; ' ...
-                    'if g.children, delete(g.children); end;' ...
-                    'delete(gcbf);' ...
+                          closecommand ...
 		  				  tmpcom ...
                     '; clear g;']; % quitting expression
   if ~isempty(g.command)
@@ -1474,7 +1489,44 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
 else
   try p1 = varargin{1}; p2 = varargin{2}; catch, end;
   switch data
-      
+  
+  case 'data'
+    g = get(gcf,'UserData');
+    dis = findobj('tag', 'Rejection');
+    figh = findobj('tag', g.tag);
+    if g.wincolor == [0.7 1 0.9]
+        g.wincolor = [1 0.8 0.8];
+        set(dis,'BackgroundColor',[1 0.5 0.5]);
+        set(dis,'string','Rejecting Mode');
+        set(figh,'Color',[.9 .7 .7])
+    else
+        g.wincolor = [0.7 1 0.9];
+        set(dis,'BackgroundColor',[0.5 1 0.5]);
+        set(dis,'string','Interpolating Mode');
+        set(figh,'Color',[.93 .96 1])
+    end
+
+%     g = get(gcf,'UserData');
+%     EEG = g.EEG;
+%     %g.EEGtimeline = EEG;
+%     if ~isfield(g.eloc_file, 'display')
+%         for ii=1:length(g.eloc_file)
+%             g.eloc_file(ii).display = 1;
+%         end;
+%     end
+%     [channels chanliststr] = pop_chansel( { EEG.chanlocs.labels } );
+%     if ~isempty(channels)
+%         notDisplay = setdiff([1:g.chans],channels);
+%     end
+%     if ~isempty(notDisplay)
+%         for i=1:length(notDisplay)
+%             g.eloc_file(i).display = 0;
+%         end;
+%     end
+% 
+%     draw_data([],[],gcf,5,[],g);
+    
+
   case 'TBT'
       g = get(gcf,'UserData');
       g = TBT(g);
@@ -1963,6 +2015,8 @@ function draw_data(varargin)
             else
                 g.time = (g.time - 1) * epoch;
             end
+        case 6
+        g.time = g.time;
     end
     
     if g.trialstag ~= -1 % time in second or in trials
@@ -2009,13 +2063,19 @@ function draw_data(varargin)
     % ---------
     hold(ax1,'on')
     
+    if ~isfield(g.eloc_file, 'display')
+        for ii=1:length(g.eloc_file)
+            g.eloc_file(ii).display = 1;
+        end;
+    end
+    
     chans_list_bad=[];
     list_bad_chans=[];
     chans_list_good=[];
     chans_list_good2=[];
     if ~isfield(g, 'eloc_file')
-        chans_list_good=1:g.chans;
-        chans_list_good2=1:g.chans;
+        chans_list_good=find([g.eloc_file.display]);
+        chans_list_good2=find([g.eloc_file.display]);
     else
         if isstruct(g.eloc_file) 
             if ~isfield(g.eloc_file, 'badchan')
@@ -2023,9 +2083,10 @@ function draw_data(varargin)
                     g.eloc_file(ii).badchan = 0;
                 end;
             end
+
         chans_list_bad=g.chans-find([g.eloc_file.badchan])+1;
         chans_list_good=setdiff(1:g.chans,chans_list_bad);
-        chans_list_good2=1:g.chans;
+        chans_list_good2=find([g.eloc_file.display]);
         end;
     end;
     
@@ -3167,6 +3228,9 @@ switch evnt.Key
     case {'v'}
         draw_data([],[],fig,0,[],[],[],...
             'if strcmp(g.plotevent,''on''); g.plotevent = ''off''; else g.plotevent = ''on''; end;');
+    case {'b'}
+        plot_topoplot_CHANNEL(fig)
+
 end
 if nargin > 3
     mouse_motion([],[],varargin{:})
@@ -3191,14 +3255,14 @@ end
 
 function plot_topoplot(fig)
 
-    g = get(fig,'UserData');
-    EEG = g.EEG;
-    
-    if EEG.plotIc == 1
+g = get(fig,'UserData');
+EEG = g.EEG;
+
+if EEG.plotIc == 1
     if ~isstruct(g.eloc_file) || ~isfield(g.eloc_file, 'theta') || isempty( [ g.eloc_file.theta ])
         return;
     end;
-    ax1 = findobj('tag','backeeg','parent',fig); 
+    ax1 = findobj('tag','backeeg','parent',fig);
     tmppos = get(ax1, 'currentpoint');
     ax1 = findobj('tag','eegaxis','parent',fig); % axes handle
     % plot vertical line
@@ -3212,7 +3276,7 @@ function plot_topoplot(fig)
     lowlim = round(g.time*multiplier+1);
     highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
     % makes sure click is in valid position
-    
+
     if g.trialstag ~= -1
         point_is_valid=tmppos(1) >= 0 && tmppos(1) < g.winlength*g.trialstag;
     else
@@ -3223,17 +3287,17 @@ function plot_topoplot(fig)
         datapos = max(1, round(tmppos(1)+lowlim));
         datapos = min(datapos, g.frames);
         axes('Parent', fig, 'position',[ 0.92    0.31    0.080    0.10 ],'units','normalized');
-        
+
         % get color
         BackColor = get(fig,'Color');
-        
+
         Printed = 0;
         % plot topo % it changes the background color of the figure to EEGLAB's default
         %topoplot(data(:,datapos), g.eloc_file);
         if ~isempty(g.winrej)
             % LOOPS FOR EVERY STRETCH OF REJECTION
             for k=1:size(g.winrej,1)
-                
+
                 % CHECKS FOR MOUSE POSITION WITHIN A REJECTION STRETCH
                 if datapos >= g.winrej(k,1) && datapos <= g.winrej(k,2)
                     % Calculates the average for that stretch
@@ -3257,13 +3321,13 @@ function plot_topoplot(fig)
         else
             topoplot(data(:,datapos), g.eloc_file);
         end
-            
+
         % set background color back to whatever it was before.
         set(fig,'Color',BackColor);
     end
-    else
-%     ax1 = findobj('tag','backeeg','parent',fig); 
-%     tmppos = get(ax1, 'currentpoint');
+else
+    %     ax1 = findobj('tag','backeeg','parent',fig);
+    %     tmppos = get(ax1, 'currentpoint');
     ax1 = findobj('tag','eegaxis','parent',fig); % axes handle
     tmppos = get(ax1, 'currentpoint');
     % plot vertical line
@@ -3277,7 +3341,7 @@ function plot_topoplot(fig)
     lowlim = round(g.time*multiplier+1);
     highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
     % makes sure click is in valid position
-    
+
     if g.trialstag ~= -1
         point_is_valid=tmppos(1) >= 0 && tmppos(1) < g.winlength*g.trialstag;
     else
@@ -3286,13 +3350,13 @@ function plot_topoplot(fig)
     if point_is_valid
         tmpelec = g.chans + 1 - round(tmppos(1,2) / g.spacing);
         tmpelec = min(max(tmpelec, 1), g.chans);
-        
+
         %labls = get(ax1, 'YtickLabel');
         %component = str2num(labls(tmpelec+1,:));
-        
+
         pop_prop_extended2(EEG, 0, tmpelec,'NaN',{'freqrange', [2 55]});
     end
-    end
+end
 %     if g.trialstag == -1
 %          latsec = (datapos-1)/g.srate;
 %          title(sprintf('Latency of %d seconds and %d milliseconds', floor(latsec), round(1000*(latsec-floor(latsec)))));
@@ -3301,6 +3365,112 @@ function plot_topoplot(fig)
 %         latintrial = eeg_point2lat(datapos, trial, g.srate, g.limits, 0.001);
 %         title(sprintf('Latency of %d ms in trial %d', round(latintrial), trial));
 %     end
+
+function plot_topoplot_CHANNEL(fig)
+
+g = get(fig,'UserData');
+EEG = g.EEG;
+
+%if EEG.plotIc == 1
+    if ~isstruct(g.eloc_file) || ~isfield(g.eloc_file, 'theta') || isempty( [ g.eloc_file.theta ])
+        g.eloc_file = EEG.chanlocs(:);
+        %return;
+    end;
+    ax1 = findobj('tag','backeeg','parent',fig);
+    tmppos = get(ax1, 'currentpoint');
+    ax1 = findobj('tag','eegaxis','parent',fig); % axes handle
+    % plot vertical line
+    %yl = ylim(ax1);
+    %plot(ax1, [ tmppos tmppos ], yl, 'color', [0.8 0.8 0.8]);
+    if g.trialstag ~= -1 % time in second or in trials
+        multiplier = g.trialstag;
+    else
+        multiplier = g.srate;
+    end;
+    lowlim = round(g.time*multiplier+1);
+    highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
+    % makes sure click is in valid position
+
+    if g.trialstag ~= -1
+        point_is_valid=tmppos(1) >= 0 && tmppos(1) < g.winlength*g.trialstag;
+    else
+        point_is_valid=tmppos(1) >= 0 && tmppos(1) <= highlim;
+    end;
+    if point_is_valid
+        data = get(ax1,'UserData');
+        datapos = max(1, round(tmppos(1)+lowlim));
+        datapos = min(datapos, g.frames);
+        axes('Parent', fig, 'position',[ 0.92    0.31    0.080    0.10 ],'units','normalized');
+
+        % get color
+        BackColor = get(fig,'Color');
+
+        Printed = 0;
+        % plot topo % it changes the background color of the figure to EEGLAB's default
+        %topoplot(data(:,datapos), g.eloc_file);
+        if ~isempty(g.winrej)
+            % LOOPS FOR EVERY STRETCH OF REJECTION
+            for k=1:size(g.winrej,1)
+
+                % CHECKS FOR MOUSE POSITION WITHIN A REJECTION STRETCH
+                if datapos >= g.winrej(k,1) && datapos <= g.winrej(k,2)
+                    % Calculates the average for that stretch
+                    %EpochAverage = mean(data(:,g.winrej(k,1):g.winrej(k,2)),2);
+                    EpochAverage = std(EEG.data(:,g.winrej(k,1):g.winrej(k,2)),0,2);
+                    MeanDeviation = mean(EpochAverage);
+                    EpochAverage = EpochAverage - MeanDeviation;
+                    % PLOTS AVERAGE OF THAT STRETCH
+                    topoplot(EpochAverage, EEG.chanlocs(:));
+                    % This makes sure it only prints once
+                    Printed = 1;
+                    break;
+                end
+            end
+            if ~Printed
+                % if no prints have been done, then there's no matching
+                % rejected areas, therefore prints normal topoplot for that
+                % column
+                topoplot(EEG.data(:,datapos), EEG.chanlocs(:));
+            end
+        else
+            topoplot(EEG.data(:,datapos), EEG.chanlocs(:));
+        end
+
+        % set background color back to whatever it was before.
+        set(fig,'Color',BackColor);
+    end
+%else
+    %     ax1 = findobj('tag','backeeg','parent',fig);
+    %     tmppos = get(ax1, 'currentpoint');
+    %ax1 = findobj('tag','eegaxis','parent',fig); % axes handle
+    %tmppos = get(ax1, 'currentpoint');
+    % plot vertical line
+    %yl = ylim(ax1);
+    %plot(ax1, [ tmppos tmppos ], yl, 'color', [0.8 0.8 0.8]);
+%     if g.trialstag ~= -1 % time in second or in trials
+%         multiplier = g.trialstag;
+%     else
+%         multiplier = g.srate;
+%     end;
+%     lowlim = round(g.time*multiplier+1);
+%     highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
+%     % makes sure click is in valid position
+% 
+%     if g.trialstag ~= -1
+%         point_is_valid=tmppos(1) >= 0 && tmppos(1) < g.winlength*g.trialstag;
+%     else
+%         point_is_valid=tmppos(1) >= 0 && tmppos(1) <= highlim;
+%     end;
+%     if point_is_valid
+%         tmpelec = g.chans + 1 - round(tmppos(1,2) / g.spacing);
+%         tmpelec = min(max(tmpelec, 1), g.chans);
+% 
+%         %labls = get(ax1, 'YtickLabel');
+%         %component = str2num(labls(tmpelec+1,:));
+% 
+%         pop_prop_extended2(EEG, 0, tmpelec,'NaN',{'freqrange', [2 55]});
+%     end
+%end
 
 
 function plot_topoplot_old(fig)
