@@ -400,6 +400,7 @@ end
 % compute ICA on a definite set
 % -----------------------------
 tmpdata = reshape( EEG.data(g.chanind,:,:), length(g.chanind), EEG.pnts*EEG.trials);
+tmpdata = tmpdata - repmat(mean(tmpdata,2), [1 size(tmpdata,2)]); % zero mean 
 tmprank = getrank(double(tmpdata(:,1:min(3000, size(tmpdata,2)))));
 tmpdata = tmpdata - repmat(mean(tmpdata,2), [1 size(tmpdata,2)]); % zero mean 
 
