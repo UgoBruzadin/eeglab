@@ -17,14 +17,16 @@ function [EEG,com] = quick_PCA(EEG,IC,type,disp)
 % You should have received a copy of the GNU General Public License
 % along with this program; if not, write to the Free Software
 
-com = [];
+QuickLabDefs;
+com = '';
 if isempty(EEG.data)
-    EEG = pop_loadset();
+    [EEG,com] = pop_loadset();
+    EEG = eegh(com, EEG);
     eeglab redraw
 end
 
 if nargin < 3
-    type = 'binica';
+    type = ICATYPE;
 end
 
 if nargin < 4
@@ -39,20 +41,27 @@ if nargin < 2 || isempty(IC)
         IC = IC - size(mybadcomps,2);            %stores the number to be the next components analysis
         fprintf('Rejecting selected components... \r');
         [EEG,com] = pop_subcomp(EEG, mybadcomps, 0);       % actually removes the flagged components
+        EEG = eegh(com, EEG);
     end
-    [EEG,com] = pop_par_runica(EEG,'extended', 1,'icatype',type, 'verbose','off');
+    [EEG,com] = pop_par_runica(EEG,'extended', EXTENDED,'icatype',type, 'verbose',VERBOSE);
+    EEG = eegh(com, EEG);
 else
 
     if ~isempty(mybadcomps)
         fprintf('Rejecting selected components... \r');
         [EEG,com] = pop_subcomp(EEG, mybadcomps, 0);       % actually removes the flagged components
+        EEG = eegh(com, EEG);
     end
     if ischar(IC)
         IC = size(EEG.icaact,1)-1;
     end
-    [EEG,com] = pop_par_runica(EEG,'extended', 1,'icatype',type,'pca',IC, 'verbose','off');
+    [EEG,com] = pop_par_runica(EEG,'extended', EXTENDED,'icatype',type,'pca',IC, 'verbose',VERBOSE);
+    EEG = eegh(com, EEG);
 end
 if disp
     [EEG,com] = quick_IClabel(EEG);
+    EEG = eegh(com, EEG);
 end
+
+%com = sprintf('quick_PCA( %s, %s,%s,%s )', EEG,IC,type,disp);
 end
