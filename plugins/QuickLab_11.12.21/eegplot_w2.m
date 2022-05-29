@@ -669,7 +669,7 @@ togglerej = ['eegplot_w2(''rejection'')'];
 displaycomp = ['EEG.plotEp = 1 - EEG.plotEp; eegplot_w2(EEG,varargin)'];
 
 % --- new command for data change
-changedata = ['eegplot_w2(''data'')'];
+fft = ['eegplot_w2(''fft'')'];
 
 %     function selection(src,event)
 %         val = c.Value;
@@ -810,14 +810,14 @@ end
 	'string','Clear All Marks',...
 	'Callback', ['eegplot_w2(''ClearMarks'')'] );
 
-%% data change attempts #Ugo 5/19/2022
+%% fft attempts #Ugo 5/27/2022
 u(27) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
 	'Position', posbut(43,:), ...
 	'Tag','Data',...
     'BackgroundColor',[.5 1 0.5],...
-	'string','Select Channels',...
-	'Callback', changedata );
+	'string','Plot AVG FFT',...
+	'Callback', fft );
 
 
 %% channel or epoch, rejection or interpolation buttons #Ugo
@@ -1490,42 +1490,10 @@ else
   try p1 = varargin{1}; p2 = varargin{2}; catch, end;
   switch data
   
-  case 'data'
+  case 'fft'
     g = get(gcf,'UserData');
-    dis = findobj('tag', 'Rejection');
-    figh = findobj('tag', g.tag);
-    if g.wincolor == [0.7 1 0.9]
-        g.wincolor = [1 0.8 0.8];
-        set(dis,'BackgroundColor',[1 0.5 0.5]);
-        set(dis,'string','Rejecting Mode');
-        set(figh,'Color',[.9 .7 .7])
-    else
-        g.wincolor = [0.7 1 0.9];
-        set(dis,'BackgroundColor',[0.5 1 0.5]);
-        set(dis,'string','Interpolating Mode');
-        set(figh,'Color',[.93 .96 1])
-    end
-
-%     g = get(gcf,'UserData');
-%     EEG = g.EEG;
-%     %g.EEGtimeline = EEG;
-%     if ~isfield(g.eloc_file, 'display')
-%         for ii=1:length(g.eloc_file)
-%             g.eloc_file(ii).display = 1;
-%         end;
-%     end
-%     [channels chanliststr] = pop_chansel( { EEG.chanlocs.labels } );
-%     if ~isempty(channels)
-%         notDisplay = setdiff([1:g.chans],channels);
-%     end
-%     if ~isempty(notDisplay)
-%         for i=1:length(notDisplay)
-%             g.eloc_file(i).display = 0;
-%         end;
-%     end
-% 
-%     draw_data([],[],gcf,5,[],g);
-    
+    EEG = g.EEG;
+    [EEG, ~] = quick_spectra(EEG,40,2,'AVG');
 
   case 'TBT'
       g = get(gcf,'UserData');
