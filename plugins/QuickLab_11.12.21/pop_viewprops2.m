@@ -297,7 +297,7 @@ clearComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.9 0.7 0.
 
 % Plot ScrollPlot button
 % -------------
-commandPlot = ['pop_eegplot_w2(EEG, 2, 2, 1, 2);'];
+commandPlot = ['pop_eegplot_w2(EEG, 2, 2, 1, 1);'];
         
 plotComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.7 0.9 0.7], 'string', 'Plot Component Scroll', 'Units','Normalized','Position',[30 -10 15 6].*s+q, 'callback', commandPlot');
 
