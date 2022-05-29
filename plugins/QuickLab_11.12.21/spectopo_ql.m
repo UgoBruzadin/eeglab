@@ -155,7 +155,7 @@
 
 % Uses: MATLAB pwelch(), changeunits(), topoplot(), textsc()
 
-function [eegspecdB,freqs,compeegspecdB,resvar,specstd] = spectopo(data,frames,srate,varargin) 
+function [eegspecdB,freqs,compeegspecdB,resvar,specstd] = spectopo_ql(data,frames,srate,varargin) 
 
 % formerly: ... headfreqs,chanlocs,limits,titl,freqfac, percent, varargin)
 

@@ -72,7 +72,7 @@ end
 %% runs pop_spectopo with the given defaults or variables
 
 %tic
-figure; pop_spectopo(EEG, 1, [EEG.xmin*1000  EEG.xmax*1000], 'EEG' , 'freq', [topo], 'freqrange',[low high],'winsize',maxWindow,'electrodes','off');
+figure; pop_spectopo_ql(EEG, 1, [EEG.xmin*1000  EEG.xmax*1000], 'EEG' , 'freq', [topo], 'freqrange',[low high],'winsize',maxWindow,'electrodes','off');
 %toc
 savecommand = ['saveas(gcf,[EEG.filename(1:end-4),''FFT.jpg'']);'];
 
