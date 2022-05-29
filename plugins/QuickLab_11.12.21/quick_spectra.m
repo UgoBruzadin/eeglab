@@ -75,8 +75,32 @@ end
 figure; pop_spectopo(EEG, 1, [EEG.xmin*1000  EEG.xmax*1000], 'EEG' , 'freq', [topo], 'freqrange',[low high],'winsize',maxWindow,'electrodes','off');
 %toc
 savecommand = ['saveas(gcf,[EEG.filename(1:end-4),''FFT.jpg'']);'];
-save = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized','Tag', 'save', 'Position', [.05 .90 .2 .08],'String','Save Figure','Callback',savecommand);
+
+save = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized','Tag', 'save', 'Position', [.91 .08 .09 .05],'String','Save Figure','Callback',savecommand);
+
+
+
+
+% set(gcf, 'windowbuttondownfcn',   {@mouse_down,figh});
+% set(gcf, 'windowbuttonupfcn',     {@mouse_up,figh});
+% set(gcf, 'windowbuttonmotionfcn', {@mouse_motion,gcf});
 
 EEG = eegh(com, EEG);
 
+
 end
+% 
+% % 
+% function mouse_motion(gcf)
+% fig = gcf
+% g = get(fig,'UserData');
+% % 
+% % tmppos = get(ax0, 'currentpoint');
+% % 
+% % figh = gcf;
+% % 
+%  fprintf('MOVEMENT CAPTURED')
+% % 
+% % set(findobj('Tag','title'),'String','HELLO THERE')
+% 
+% end
