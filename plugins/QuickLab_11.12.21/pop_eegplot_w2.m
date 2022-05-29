@@ -334,7 +334,7 @@ end;
     eeglab_options; % changed from eeglaboptions 3/30/02 -sm
     if reject == 0, command = '';
     else
-        command = [com3 com4 ];
+        command = [com5 com3 com4 ];
         savecommand = [com5 com4];
         if nargin < 4
             res = questdlg2( strvcat('Mark stretches of continuous data for rejection', ...
