@@ -30,10 +30,10 @@ function rec = plotfft(EEG,files,jpgindex)
 W_MAIN = findobj('Tag','EEGLAB');
 
 axisPie = uipanel(W_MAIN, 'Position',[.9 .05 .05 .25],'Tag','PieChart',Visible='on',BackgroundColor=W_MAIN.Color,BorderType='none');
-axisFFT = uipanel(W_MAIN, 'Position',[.5 .15 .35 .67],'Tag','Picture',Visible='on',BackgroundColor=W_MAIN.Color,BorderType='none');
+
 % % Create a new axis on the panel
 pieAxis = axes(axisPie, 'Tag','pie_chart','Position', [0 0 1 1],Visible='on');
-fftAxis = axes(axisFFT, 'Tag','fft_chart','Position', [0 0 1 1],Visible='on');
+
 
 CountDownDotLoc(pieAxis);
 
@@ -49,10 +49,11 @@ if exist('EEG','var')
             figfiles = dir('*FFT*fig');
             figindex = find(strcmp({figfiles.name}, strcat(EEG.filename(1:end-4),'FFT.fig')));
             if ~isempty(jpgindex)
-%                
-%                 
-                 pic = jpgfiles(jpgindex).name;
-                 rec = imshow(pic,'Parent',fftAxis,'InitialMagnification','fit');
+                
+                axisFFT = uipanel(W_MAIN, 'Position',[.5 .15 .35 .67],'Tag','Picture',Visible='on',BackgroundColor=W_MAIN.Color,BorderType='none');
+                fftAxis = axes(axisFFT, 'Tag','fft_chart','Position', [0 0 1 1],Visible='on');
+                pic = jpgfiles(jpgindex).name;
+                rec = imshow(pic,'Parent',fftAxis,'InitialMagnification','fit');
             elseif ~isempty(figindex)
 % 
 %                  pic = figfiles(figindex).name;
