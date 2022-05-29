@@ -60,6 +60,7 @@ else
 end
 if disp
     [EEG,com] = quick_IClabel(EEG);
+    %com = pop_eegplot_w2(EEG, 2, 2, 1, 1);
     EEG = eegh(com, EEG);
 end
 
