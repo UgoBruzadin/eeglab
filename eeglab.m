@@ -2231,8 +2231,9 @@ totalleft = total-totalstarted;
 % total
 % totalstarted
 % totalstarted/total*100
-
-pie(axis,[totalleft,totalstarted],{num2str(totalleft),num2str(totalstarted)})
-
+try
+pie(axis,[totalleft,totalstarted],{num2str(totalleft), '(',num2str(totalstarted/total) ,'%)',num2str(totalstarted)})
+catch
+end
 % pie([total-totalstarted,totalstarted])
 
