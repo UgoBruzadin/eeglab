@@ -534,23 +534,32 @@ if isnan(g.limits(5))+isnan(g.limits(6)) == 1
    return
 end
 
-%
-% MAKE PRINT WORK
-%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+% PRINTING DATA ON THE SCREEN #Ugo 5/30/2022
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %set(gcf, 'WindowButtonMotionFcn', @mouse_motion);
-
-save = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized','Tag', 'save', 'Position', [.91 .08 .09 .05],'String','Save Figure');
-
-channel_text = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'channel_text', 'Position', [.91 .30 .09 .05],'String','Channel');
-
-channel = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'channel', 'Position', [.91 .25 .09 .05],'String','channel');
-
-power_text = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'power_text', 'Position', [.91 .20 .09 .05],'String','Power');
-
-power = uicontrol(gcf,'Style','button','Units','Normalized','Tag', 'power', 'Position', [.91 .15 .09 .05],'String','power','Callback', powercom);
    
-powercom = ['getPlotPoint(findobj(''Tag'',string(''  '')'];
+   freq_text = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'power_text', 'Position', [.91 .38 .09 .05],'String','Frequency');
 
+        freq = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'freq', 'Position', [.91 .33 .09 .05],'String','freq');
+
+channel_text = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'channel_text', 'Position', [.91 .28 .09 .05],'String','Channel');
+
+     channel = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'channel', 'Position', [.91 .23 .09 .05],'String','channel');
+
+  power_text = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'power_text', 'Position', [.91 .18 .09 .05],'String','Power');
+
+       power = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'power', 'Position', [.91 .13 .09 .05],'String','power');
+
+        save = uicontrol(gcf,'Style', 'pushbutton', 'Units','Normalized','Tag', 'save', 'Position', [.91 .08 .09 .05],'String','Save Figure','BackgroundColor',GUIBUTTONCOLOR);
+
+set(findobj(gcf,'Style','text'),'BackgroundColor',BACKCOLOR)
+g.eegspecdB = eegspecdB;
+g.freqs = freqs;
+
+fig = uicontrol(gcf, 'Style', 'text', 'UserData', g, 'Tag', 'Data', Visible='off');
+   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % plot spectrum of each channel
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -560,27 +569,58 @@ if strcmpi(g.plot, 'on')
     if ~isempty(g.freq)
         specaxes = sbplot(3,4,[4.7 12], 'ax', mainfig); 
     end
-    
+   
     if isempty(g.weights)
         %pl=plot(freqs(1:maxfreqidx),eegspecdB(:,1:maxfreqidx)'); % old command
         if strcmpi(g.plotmean, 'on'), specdata = mean(eegspecdB,1); % average channels
         else                          specdata = eegspecdB;
         end
+        
+        
         for index = 1:size(specdata,1) % scan channels
             tmpcol  = allcolors{mod(index, length(allcolors))+1};
-            %command = [ 'disp(''Channel ' int2str(index) ''')' ];
-            command = ['set(findobj(''Tag'',''channel''),''String'',' int2str(index) ');'] ;
-            powerpointcommand = 
+            %command = [ 'disp(''Channel ' int2str(index) ''')' ]; % OG
+
+            % get mouse position, plot channel, power, and frequency when
+            % clicked.
+%             allcom = ['if get(gcf, ''SelectionType'') == ''alt'';',...
+%                 'plot_topofreq();',...
+%                 'end;',...
+%                 'set(findobj(''Tag'',''channel''),''String'',' int2str(index) ');...' ,...
+%                 '[power2,frequency2] = getPlotPoint(); set( findobj( ''Tag'',''power''),''String'', num2str(power2));', ...
+%                 'set(findobj(''Tag'',''freq''),''String'', num2str(frequency2) );'];
+
+
+            allcom = ['plot_topofreq();',...
+                'set(findobj(''Tag'',''channel''),''String'',' int2str(index) ');...' ,...
+                '[power,frequency] = getPlotPoint(); set(findobj( ''Tag'',''power''),''String'', power);', ...
+                'set(findobj(''Tag'',''freq''),''String'', frequency );'];
+
+% 
+%             channelcom = ['set(findobj(''Tag'',''channel''),''String'',' int2str(index) ');'] ;
+%             powercom = ['[power,~] = getPlotPoint(); set(findobj(''Tag'',''power''),''String'', power );'];
+%             freqcom = ['[~,frequency] = getPlotPoint(); set(findobj(''Tag'',''freq''),''String'', frequency );'];
+            
+            %newcom = [rightcom,channelcom,powercom,freqcom];
             pl(index)=plot(freqs(1:maxfreqidx),specdata(index,1:maxfreqidx)', ...
-                           'color', tmpcol, 'Tag',num2str(index),'ButtonDownFcn', command); hold on;
+                           'color', tmpcol, 'Tag',num2str(index),'ButtonDownFcn', allcom,Visible='on'); hold on;
         end
     else 
         for index = 1:size(eegspecdBtoplot,1)
             tmpcol  = allcolors{mod(index, length(allcolors))+1};
             %command = [ 'disp(''Channel ' int2str(g.plotchan(index)) ''')' ];
-            command = ['set(findobj(''Tag'',''channel''),''String'',' int2str(g.plotchan(index)) ');'];
+            allcom = ['if get(gcf, ''SelectionType'') == ''alt''; plot_topofreq(); end;',...
+                'set(findobj(''Tag'',''channel''),''String'',' int2str(g.plotchan(index)) ');',...
+                'power,frequency = getPlotPoint(); set(findobj(''Tag'',''power''),''String'', power );', ...
+                'set(findobj(''Tag'',''freq''),''String'', frequency );'];
+            %channelcom = ['set(findobj(''Tag'',''channel''),''String'',' int2str(index) ');'] ;
+            %powercom = ['[power,~] = getPlotPoint(); set(findobj(''Tag'',''power''),''String'', power );'];
+            %freqcom = ['[~,frequency] = getPlotPoint(); set(findobj(''Tag'',''freq''),''String'', frequency );'];
+            
+            %newcom = [channelcom,powercom,freqcom,rightcom];
+            
             pl(index)=plot(freqs(1:maxfreqidx),eegspecdBtoplot(index,1:maxfreqidx)', ...
-                           'color', tmpcol, 'Tag',num2str(index), 'ButtonDownFcn', command); hold on;
+                           'color', tmpcol, 'Tag',num2str(index), 'ButtonDownFcn', allcom,Visible='on'); hold on;
         end
     end
     set(pl,'LineWidth',2);
@@ -612,17 +652,17 @@ if ~isempty(g.weights)
         hold on;
         for f=1:length(g.icamaps)
             colr = colrs{mod((f-1),5)+1};
-            command = [ 'disp(''Component ' int2str(g.icamaps(f)) ''')' ];
+            channelcom = [ 'disp(''Component ' int2str(g.icamaps(f)) ''')' ];
             pl2(index)=plot(freqs(1:maxfreqidx),compeegspecdB(g.icamaps(f),1:maxfreqidx)', ...
-                            'color', colr, 'ButtonDownFcn', command); hold on;
+                            'color', colr, 'ButtonDownFcn', channelcom); hold on;
         end
         othercomps = setdiff_bc(1:size(compeegspecdB,1), g.icamaps);
         if ~isempty(othercomps)
             for index = 1:length(othercomps)
                 tmpcol  = allcolors{mod(index, length(allcolors))+1};
-                command = [ 'disp(''Component ' int2str(othercomps(index)) ''')' ];
+                channelcom = [ 'disp(''Component ' int2str(othercomps(index)) ''')' ];
                 pl(index)=plot(freqs(1:maxfreqidx),compeegspecdB(othercomps(index),1:maxfreqidx)', ...
-                               'color', tmpcol, 'ButtonDownFcn', command); hold on;
+                               'color', tmpcol, 'ButtonDownFcn', channelcom); hold on;
             end
         end
         if length(g.limits)<3|isnan(g.limits(3))
@@ -651,7 +691,7 @@ if ~isempty(g.weights)
                 end
                 resvar(index) = mean(resvartmp); % mean contribution for all channels
                 stdvar(index) = std(resvartmp);
-                myfprintf(g.verbose, 'Component %d percent variance accounted for: %6.2f ± %3.2f\n', ...
+                myfprintf(g.verbose, 'Component %d percent variance accounted for: %6.2f Â± %3.2f\n', ...
                         g.icacomps(index), resvar(index), stdvar(index));
             else
                 resvar(index)  = 100 - 100*exp(-(maxdatadb-compeegspecdB(index, indexfreq))/10*log(10));
