@@ -547,10 +547,9 @@ channel = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'channel', 'P
 
 power_text = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'power_text', 'Position', [.91 .20 .09 .05],'String','Power');
 
-powercom = ['getPlotPoint(gca)'];
-
-power = uicontrol(gcf,'Style','pushbutton','Units','Normalized','Tag', 'power', 'Position', [.91 .15 .09 .05],'String','power','Callback', powercom);
+power = uicontrol(gcf,'Style','button','Units','Normalized','Tag', 'power', 'Position', [.91 .15 .09 .05],'String','power','Callback', powercom);
    
+powercom = ['getPlotPoint(findobj(''Tag'',string(''  '')'];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % plot spectrum of each channel
@@ -569,9 +568,9 @@ if strcmpi(g.plot, 'on')
         end
         for index = 1:size(specdata,1) % scan channels
             tmpcol  = allcolors{mod(index, length(allcolors))+1};
-            command = [ 'disp(''Channel ' int2str(index) ''')' ];
-            %command = ['set(findobj(''Tag'',''channel''),''String'',' int2str(index) ');'] ;
-            
+            %command = [ 'disp(''Channel ' int2str(index) ''')' ];
+            command = ['set(findobj(''Tag'',''channel''),''String'',' int2str(index) ');'] ;
+            powerpointcommand = 
             pl(index)=plot(freqs(1:maxfreqidx),specdata(index,1:maxfreqidx)', ...
                            'color', tmpcol, 'Tag',num2str(index),'ButtonDownFcn', command); hold on;
         end
