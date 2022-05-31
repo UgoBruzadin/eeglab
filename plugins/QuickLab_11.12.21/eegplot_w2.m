@@ -633,6 +633,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   posbut(30,:) = [ 0.92    0.47    0.080    defaultsizes(1) ]; % Counting marks tag #Ugo
   posbut(29,:) = [ 0.92    0.45    0.080    defaultsizes(1) ]; % Counting marks #Ugo
   
+  posbut(24,:) = [ 0.92    0.41    0.080    defaultsizes(1) ]; % Topoplot title
   posbut(32,:) = [ 0.92    0.38    0.080    0.10 ]; % Topoplot
 
   posbut(26,:) = [ 0.93    0.25    0.080    defaultsizes(1) ]; % Plot data difference #Ugo
@@ -683,6 +684,16 @@ fft = ['eegplot_w2(''fft'')'];
 % savecommand = ['[EEG] = pop_saveset(EEG, ''filename'', [strcat( EEG.filename(1:end-4),get(findobj(''tag'',''SAVETEXT''),''string''),''.set'')],''filepath'',EEG.filepath);'...
 %      '[ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);' loaddircommand 'eeglab redraw;']; %save set ADDED BY UGO
 % 
+
+%% hearmap title
+  u(24) = uicontrol('Parent',figh, ...
+	'Units', 'normalized', ...
+	'Position', posbut(24,:), ...
+    'BackgroundColor',DEFAULT_FIG_COLOR, ...
+	'Style','text', ...
+    'FontSize',8, ...
+	'Tag','headmap',...
+	'string','Headmap');
 
 %% TBT part modified from pop_TBT() scripts
 if isstruct(EEG)
@@ -3193,11 +3204,24 @@ switch evnt.Key
         eegplot_w2('window');
     case {'tab'}
         eegplot_w2('winelec');
-    case {'v'}
-        draw_data([],[],fig,0,[],[],[],...
-            'if strcmp(g.plotevent,''on''); g.plotevent = ''off''; else g.plotevent = ''on''; end;');
+    case {'v'} 
+        plot_topoplot_CHANNEL(fig,evnt.Key)
+        %set(findobj('Tag','headmap'),'String','Std. Dev.');
     case {'b'}
-        plot_topoplot_CHANNEL(fig)
+        plot_topoplot_CHANNEL(fig,evnt.Key)
+        %set(findobj('Tag','headmap'),'String','Mean');
+    case {'n'}
+        plot_topoplot_CHANNEL(fig,evnt.Key)
+        %set(findobj('Tag','headmap'),'String','Abs mean');
+    case {'m'}
+        plot_topoplot_CHANNEL(fig,evnt.Key)
+        %set(findobj('Tag','headmap'),'String','Variance');
+%     case {'v'} || {'b'} || {'n'}
+%         plot_topoplot_CHANNEL(fig,evnt.Key)
+%         draw_data([],[],fig,0,[],[],[],...
+%             'if strcmp(g.plotevent,''on''); g.plotevent = ''off''; else g.plotevent = ''on''; end;');
+%     case {'b'}
+%         plot_topoplot_CHANNEL(fig)
 
 end
 if nargin > 3
@@ -3269,8 +3293,8 @@ if EEG.plotIc == 1
                 % CHECKS FOR MOUSE POSITION WITHIN A REJECTION STRETCH
                 if datapos >= g.winrej(k,1) && datapos <= g.winrej(k,2)
                     % Calculates the average for that stretch
-                    %EpochAverage = mean(data(:,g.winrej(k,1):g.winrej(k,2)),2);
-                    EpochAverage = std(data(:,g.winrej(k,1):g.winrej(k,2)),0,2);
+                    EpochAverage = mean(data(:,g.winrej(k,1):g.winrej(k,2)),2);
+                    %EpochAverage = std(data(:,g.winrej(k,1):g.winrej(k,2)),0,2);
                     MeanDeviation = mean(EpochAverage);
                     EpochAverage = EpochAverage - MeanDeviation;
                     % PLOTS AVERAGE OF THAT STRETCH
@@ -3334,7 +3358,11 @@ end
 %         title(sprintf('Latency of %d ms in trial %d', round(latintrial), trial));
 %     end
 
-function plot_topoplot_CHANNEL(fig)
+function plot_topoplot_CHANNEL(fig,button)
+
+if nargin < 2
+    button = {'b'};
+end
 
 g = get(fig,'UserData');
 EEG = g.EEG;
@@ -3382,9 +3410,24 @@ EEG = g.EEG;
 
                 % CHECKS FOR MOUSE POSITION WITHIN A REJECTION STRETCH
                 if datapos >= g.winrej(k,1) && datapos <= g.winrej(k,2)
-                    % Calculates the average for that stretch
-                    %EpochAverage = mean(data(:,g.winrej(k,1):g.winrej(k,2)),2);
-                    EpochAverage = std(EEG.data(:,g.winrej(k,1):g.winrej(k,2)),0,2);
+                    % Calculates the averageb for that stretch
+                    switch button
+                        case 'v'
+                        EpochAverage = var(EEG.data(:,g.winrej(k,1):g.winrej(k,2)),0,2);
+                        set(findobj(gcf,'Tag','headmap'),'String','Variance');
+
+                        case 'b'
+                        EpochAverage = std((EEG.data(:,g.winrej(k,1):g.winrej(k,2))),0,2);
+                        set(findobj(gcf,'Tag','headmap'),'String','Std. Dev.');
+                        
+                        case 'n'
+                        EpochAverage = mean(abs(EEG.data(:,g.winrej(k,1):g.winrej(k,2))),2);
+                        set(findobj(gcf,'Tag','headmap'),'String','Abs. Mean');
+                        
+                        case 'm'
+                        EpochAverage = mean(log10(abs(EEG.data(:,g.winrej(k,1):g.winrej(k,2)))),2);
+                        set(findobj(gcf,'Tag','headmap'),'String','log Mean');
+                    end
                     MeanDeviation = mean(EpochAverage);
                     EpochAverage = EpochAverage - MeanDeviation;
                     % PLOTS AVERAGE OF THAT STRETCH
