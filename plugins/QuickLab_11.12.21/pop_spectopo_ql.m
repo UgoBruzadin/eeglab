@@ -112,11 +112,11 @@
 % 03-16-02 add all topoplot options -ad
 % 04-04-02 added outputs -ad & sm
 
-function varargout = pop_spectopo_ql_ql( EEG, dataflag, timerange, processflag, varargin);
+function varargout = pop_spectopo_ql( EEG, dataflag, timerange, processflag, varargin);
 
 varargout{1} = '';
 if nargin < 2
-	help pop_spectopo_ql_ql;
+	help pop_spectopo_ql;
 	return;
 end;	
 
@@ -330,6 +330,15 @@ end
 
 % plot the data and generate output and history commands
 % ------------------------------------------------------
+
+% --- Set figure title # added Ugo 06/02/2022
+set(gcf,'Name',EEG.filename)
+
+% --- Set comparison button
+% add button compare this file to...
+% open load file options, load file as a new file, run fft, store the data,
+% compare the difference.
+
 
 %try SIGTMP = gpuArray(SIGTMP); catch; end
 popcom = sprintf('figure; pop_spectopo_ql(EEG, %d, [%s], ''%s'' %s);', dataflag, num2str(timerange), processflag, options);
