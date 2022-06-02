@@ -1,4 +1,14 @@
-function plot_topofreq()
+function plot_topofreq(index)
+
+currentPoint = get(gca, 'CurrentPoint');
+power = currentPoint(1,2);
+freq = currentPoint(1,1);
+
+set(findobj(gcf,'Tag','power'),'String',power)
+set(findobj(gcf,'Tag','freq'),'String',freq)
+set(findobj('Tag','channel'),'String', int2str(index));
+
+disp(strcat('Channel selected ','...', num2str(index)));
 
 mainfig = findobj('Tag','Data');
 
@@ -7,7 +17,7 @@ g = mainfig.UserData;
 
 eegspecdB = g.eegspecdB;
 
-[power,freq] = getPlotPoint();
+%[power,freq] = getPlotPoint(index);
 
 A = g.freqs - freq;
 f = find(abs(A) == min(abs(A)));
