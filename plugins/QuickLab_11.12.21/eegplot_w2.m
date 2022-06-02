@@ -593,6 +593,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   defaultsizes = [0.02,0.03,0.04,0.05];
   
 % positions of buttons
+%                  bottom  left    width    heigth
   posbut(22,:) = [ 0.92    0.98    0.080    defaultsizes(1) ]; % stack channels(same offset)  
   posbut(21,:) = [ 0.92    0.96    0.080    defaultsizes(1) ]; % normalize
   posbut(17,:) = [ 0.92    0.94    0.080    defaultsizes(1) ]; % events types
@@ -634,7 +635,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   posbut(29,:) = [ 0.92    0.45    0.080    defaultsizes(1) ]; % Counting marks #Ugo
   
   posbut(24,:) = [ 0.92    0.41    0.080    defaultsizes(1) ]; % Topoplot title
-  posbut(32,:) = [ 0.92    0.38    0.080    0.10 ]; % Topoplot
+  posbut(32,:) = [ 0.92    0.38    0.080    0.15 ]; % Topoplot
 
   posbut(26,:) = [ 0.93    0.25    0.080    defaultsizes(1) ]; % Plot data difference #Ugo
   
@@ -3204,24 +3205,21 @@ switch evnt.Key
         eegplot_w2('window');
     case {'tab'}
         eegplot_w2('winelec');
-    case {'v'} 
+
+    case {'v'} % VARIANCE
         plot_topoplot_CHANNEL(fig,evnt.Key)
-        %set(findobj('Tag','headmap'),'String','Std. Dev.');
-    case {'b'}
+
+    case {'b'} % STD DEV
         plot_topoplot_CHANNEL(fig,evnt.Key)
-        %set(findobj('Tag','headmap'),'String','Mean');
-    case {'n'}
+
+    case {'n'} % ABS MEAN
         plot_topoplot_CHANNEL(fig,evnt.Key)
-        %set(findobj('Tag','headmap'),'String','Abs mean');
-    case {'m'}
+
+    case {'m'} % LOG
         plot_topoplot_CHANNEL(fig,evnt.Key)
-        %set(findobj('Tag','headmap'),'String','Variance');
-%     case {'v'} || {'b'} || {'n'}
-%         plot_topoplot_CHANNEL(fig,evnt.Key)
-%         draw_data([],[],fig,0,[],[],[],...
-%             'if strcmp(g.plotevent,''on''); g.plotevent = ''off''; else g.plotevent = ''on''; end;');
-%     case {'b'}
-%         plot_topoplot_CHANNEL(fig)
+
+    case {'c'} % EXPONENTIAL
+        plot_topoplot_CHANNEL(fig,evnt.Key)
 
 end
 if nargin > 3
@@ -3427,6 +3425,10 @@ EEG = g.EEG;
                         case 'm'
                         EpochAverage = mean(log10(abs(EEG.data(:,g.winrej(k,1):g.winrej(k,2)))),2);
                         set(findobj(gcf,'Tag','headmap'),'String','log Mean');
+
+                        case 'c'
+                        EpochAverage = mean(exp(EEG.data(:,g.winrej(k,1):g.winrej(k,2))),2);
+                        set(findobj(gcf,'Tag','headmap'),'String','exp Mean');
                     end
                     MeanDeviation = mean(EpochAverage);
                     EpochAverage = EpochAverage - MeanDeviation;
