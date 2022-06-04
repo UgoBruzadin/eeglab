@@ -563,9 +563,10 @@ set(findobj(gcf,'Style','text'),'BackgroundColor',BACKCOLOR)
 g.eegspecdB = eegspecdB;
 % --- stores frequecies
 g.freqs = freqs;
-% --- creates an invisible object that contains 
+% --- creates an invisible object that contains the g data in UserData
 fig = uicontrol(gcf, 'Style', 'text', 'UserData', g, 'Tag', 'Data', Visible='off');
-   
+
+%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % plot spectrum of each channel
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -585,7 +586,7 @@ if strcmpi(g.plot, 'on')
         for index = 1:size(specdata,1) % scan channels
             tmpcol  = allcolors{mod(index, length(allcolors))+1};
             %command = [ 'disp(''Channel ' int2str(index) ''')' ]; % OG
-
+            
             % get mouse position, plot channel, power, and frequency when
             % clicked.
             dispallcom = ['plot_topofreq(' num2str(index) ');'];
@@ -599,11 +600,9 @@ if strcmpi(g.plot, 'on')
     else 
         for index = 1:size(eegspecdBtoplot,1)
             tmpcol  = allcolors{mod(index, length(allcolors))+1};
+            dispallcom = ['plot_topofreq(' num2str(g.plotchan(index)) ');'];
             %command = [ 'disp(''Channel ' int2str(g.plotchan(index)) ''')' ];
-            dispallcom = ['if get(gcf, ''SelectionType'') == ''alt''; plot_topofreq(); end;',...
-                'set(findobj(''Tag'',''channel''),''String'',' int2str(g.plotchan(index)) ');',...
-                'power,frequency = getPlotPoint(' index ')'];
-            
+                        
             pl(index)=plot(freqs(1:maxfreqidx),eegspecdBtoplot(index,1:maxfreqidx)', ...
                            'color', tmpcol, 'Tag',num2str(index), 'ButtonDownFcn', dispallcom,Visible='on'); hold on;
         end
@@ -701,21 +700,25 @@ if ~isempty(g.freq) &&  strcmpi(g.plot, 'on')
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% plot vertical lines through channel trace bundle at each headfreq
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	if isempty(g.weights)
-		for f=1:length(g.freq)
-			hold on; 
-			plot([freqs(freqidx(f)) freqs(freqidx(f))], ...
-				 [min(eegspecdB(:,freqidx(f))) max(eegspecdB(:,freqidx(f)))],...
-				 'k','LineWidth',2.5);
-		end
+
+    % removed; covers up the lines so it can't be clicked, also,
+    % unnecessary, and slow.
+
+ 	if isempty(g.weights)
+% 		for f=1:length(g.freq)
+% 			hold on; 
+% 			plot([freqs(freqidx(f)) freqs(freqidx(f))], ...
+% 				 [min(eegspecdB(:,freqidx(f))) max(eegspecdB(:,freqidx(f)))],...
+% 				 'k','LineWidth',1.5);
+% 		end
 	else
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		% plot vertical line at comp analysis freq
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-		mincompdB = min([min(eegspecdB(:,freqidx(1))) min(compeegspecdB(:,freqidx(1)))]);
-		maxcompdB = max([max(eegspecdB(:,freqidx(1))) max(compeegspecdB(:,freqidx(1)))]);
-		hold on;
-		plot([freqs(freqidx(1)) freqs(freqidx(1))],[mincompdB maxcompdB],'k', 'LineWidth',2.5);
+% 		mincompdB = min([min(eegspecdB(:,freqidx(1))) min(compeegspecdB(:,freqidx(1)))]);
+% 		maxcompdB = max([max(eegspecdB(:,freqidx(1))) max(compeegspecdB(:,freqidx(1)))]);
+% 		hold on;
+% 		plot([freqs(freqidx(1)) freqs(freqidx(1))],[mincompdB maxcompdB],'k', 'LineWidth',2.5);
 	end
 	
 	%%%%%%%%%%%%%%%%%%%%%%%%%%
