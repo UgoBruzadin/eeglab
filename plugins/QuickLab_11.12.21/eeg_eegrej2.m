@@ -145,12 +145,13 @@ rejcounter = 0;
 %% DISTRIBUTES REGIONS into reds (for removal) and greens (for interpolation)
 % --- remove the rejection data from regions_for interp with not-green color and add it to
 % ---- the variable regions_for_rej
-if ~isempty(regions)
-    for i=1:size(regions,1)
-        if regions(i,3) == [1] && regions(i,4) ~= [1]   %check for red color of interpolation %needs to be better!!!
-            regions_for_interp(i-rejcounter,:) = [];
-            rejcounter = rejcounter + 1;
-            regions_for_rej(rejcounter,:) = regions(i,:);
+if ~isempty(regions) % if regions are not empty
+    for i=1:size(regions,1) % for the size of regions selected
+       %if IS ~RED~            AND NOT ~GREEN~ OR ~WHITE~ 
+        if regions(i,3) == [1] && regions(i,4) ~= [1]       % check for red color (3) and not of interpolation
+            regions_for_interp(i-rejcounter,:) = [];        % removes from interpolation
+            rejcounter = rejcounter + 1;                    % adds a counter for number of regions to reject
+            regions_for_rej(rejcounter,:) = regions(i,:);   % adds region to rejection
         end
     end
 end
@@ -158,19 +159,23 @@ end
 % --- remove the non-rejection data from regions_for interp with not-white color
 if ~isempty(regions)
     for i=1:size(regions,1)
-        if regions(i,4) == [1] && regions(i,3) == [1]   %check for white color for no interpolation and no rejection!
-            regions_for_interp(i-rejcounter,:) = [];
-            rejcounter = rejcounter + 1;
-            %regions_for_rej(rejcounter,:) = regions(i,:);
+       %if IS ~WHITE~ 
+        if regions(i,4) == [1] && regions(i,3) == [1]       % check for white painted regions
+            regions_for_interp(i-rejcounter,:) = [];        % removes from interpolation
+            %rejcounter = rejcounter + 1;                   % doesnt need
+            %regions_for_rej(rejcounter,:) = regions(i,:);  % doesnt need
         end
     end
 end
 
 %% --- Distributes channels or components for removal and channels for interpolation
 chancounter = 0;
-if ~isempty(regions_for_interp)
-    for i=1:size(regions_for_interp,1)
+if ~isempty(regions_for_interp)                                  % if regions are not empty
+    for i=1:size(regions_for_interp,1)                           % for the size of regions selected
         channels = find(regions_for_interp(i-chancounter,6:end));
+        
+        channels = diff(channels,chansorcomps4removal);          %new bug fixed: removes channels/comps selected for full interpolation #was doubledipping!!!
+
         if channels ~= 0
             if ~isempty(list_of_chans_or_comps)
                 list_of_chans_or_comps = strcat(list_of_chans_or_comps,';');
