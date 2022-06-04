@@ -47,7 +47,7 @@
 % ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 % THE POSSIBILITY OF SUCH DAMAGE.
 
-function [EEGOUT, comfinal] = eeg_eegrej2( EEG, regions, chanorcomp, tmprej);
+function [EEGOUT, com] = eeg_eegrej2( EEG, regions, chanorcomp, tmprej);
 
 if nargin < 3
     tmprej = 0;
@@ -145,12 +145,13 @@ rejcounter = 0;
 %% DISTRIBUTES REGIONS into reds (for removal) and greens (for interpolation)
 % --- remove the rejection data from regions_for interp with not-green color and add it to
 % ---- the variable regions_for_rej
-if ~isempty(regions)
-    for i=1:size(regions,1)
-        if regions(i,3) == [1] && regions(i,4) ~= [1]   %check for red color of interpolation %needs to be better!!!
-            regions_for_interp(i-rejcounter,:) = [];
-            rejcounter = rejcounter + 1;
-            regions_for_rej(rejcounter,:) = regions(i,:);
+if ~isempty(regions) % if regions are not empty
+    for i=1:size(regions,1) % for the size of regions selected
+       %if IS ~RED~            AND NOT ~GREEN~ OR ~WHITE~ 
+        if regions(i,3) == [1] && regions(i,4) ~= [1]       % check for red color (3) and not of interpolation
+            regions_for_interp(i-rejcounter,:) = [];        % removes from interpolation
+            rejcounter = rejcounter + 1;                    % adds a counter for number of regions to reject
+            regions_for_rej(rejcounter,:) = regions(i,:);   % adds region to rejection
         end
     end
 end
@@ -158,19 +159,23 @@ end
 % --- remove the non-rejection data from regions_for interp with not-white color
 if ~isempty(regions)
     for i=1:size(regions,1)
-        if regions(i,4) == [1] && regions(i,3) == [1]   %check for white color for no interpolation and no rejection!
-            regions_for_interp(i-rejcounter,:) = [];
-            rejcounter = rejcounter + 1;
-            %regions_for_rej(rejcounter,:) = regions(i,:);
+       %if IS ~WHITE~ 
+        if regions(i,4) == [1] && regions(i,3) == [1]       % check for white painted regions
+            regions_for_interp(i-rejcounter,:) = [];        % removes from interpolation
+            %rejcounter = rejcounter + 1;                   % doesnt need
+            %regions_for_rej(rejcounter,:) = regions(i,:);  % doesnt need
         end
     end
 end
 
 %% --- Distributes channels or components for removal and channels for interpolation
 chancounter = 0;
-if ~isempty(regions_for_interp)
-    for i=1:size(regions_for_interp,1)
+if ~isempty(regions_for_interp)                                  % if regions are not empty
+    for i=1:size(regions_for_interp,1)                           % for the size of regions selected
         channels = find(regions_for_interp(i-chancounter,6:end));
+        
+        channels = diff(channels,chansorcomps4removal);         
+
         if channels ~= 0
             if ~isempty(list_of_chans_or_comps)
                 list_of_chans_or_comps = strcat(list_of_chans_or_comps,';');
@@ -281,10 +286,10 @@ if ~isempty(chansorcomps4removal)
     end
     if chanorcomp == 1
         fprintf(strcat('Interpolating channels(s) _', num2str(chansorcomps4removal),'\r' ));
-        [EEGmod2, com] = pop_interp(EEGcumulative, [chansorcomps4removal], 'spherical');
+        EEGmod2 = pop_interp(EEGcumulative, [chansorcomps4removal], 'spherical');
     else
         fprintf(strcat('Removing components(s) _', num2str(chansorcomps4removal),'\r' ));
-        [EEGmod2, com] = pop_subcomp(EEGcumulative, [chansorcomps4removal]);
+        EEGmod2 = pop_subcomp(EEGcumulative, [chansorcomps4removal]);
     end
 end
 
@@ -299,10 +304,9 @@ end
 
 %final EEG!
 EEGOUT = EEGmod2;
-eegh(com)
-com2 = sprintf('EEGOUT = eeg_eegrej2( EEGOUT, %s );', vararg2str({ regions, list_of_chans_or_comps, chanorcomp, tmprej }));
-eegh(com2)
-%comfinal = [com com2]
+
+com = sprintf('EEGOUT = eeg_eegrej2( EEGOUT, %s );', vararg2str({ regions, list_of_chans_or_comps, chanorcomp, tmprej }));
+
 %% --- Clears rejection variables from EEG variable
 if chanorcomp == 1
     if isfield(EEGOUT,'chanrej')
