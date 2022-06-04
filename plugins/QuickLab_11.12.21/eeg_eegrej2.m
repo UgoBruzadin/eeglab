@@ -174,8 +174,10 @@ if ~isempty(regions_for_interp)                                  % if regions ar
     for i=1:size(regions_for_interp,1)                           % for the size of regions selected
         channels = find(regions_for_interp(i-chancounter,6:end));
         
-        channels = diff(channels,chansorcomps4removal);          %new bug fixed: removes channels/comps selected for full interpolation #was doubledipping!!!
-
+        rejboll = ismember(channels,chansorcomps4removal);
+        if any(rejboll)
+            channels = channels(~rejboll);          %new bug fixed: removes channels/comps selected for full interpolation #was doubledipping!!!
+        end
         if channels ~= 0
             if ~isempty(list_of_chans_or_comps)
                 list_of_chans_or_comps = strcat(list_of_chans_or_comps,';');
