@@ -1357,7 +1357,7 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
  %      uimenu('Parent',m(2),'Label','Zoom off/on', 'callback', 'warning(''FIXME: Zoom not work in MATLAB >= 8.4.0'')');
  % end
       
-  uimenu('Parent',figh,'Label', 'Help', 'callback', 'pophelp(''eegplot_w2'');');
+  uimenu('Parent',m(2),'Label', 'Help', 'callback', 'pophelp(''eegplot_w2'');'); %changed from figh to m(2) > settings
 
   % Events %%%%%%%%
   ev = uimenu('Parent',m(2),'Label','Events');
