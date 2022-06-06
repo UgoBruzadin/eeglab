@@ -492,6 +492,24 @@ if ~isempty(g.freq)
 	end
 	
 	g.freq = sort(g.freq);          % Determine topoplot frequencies
+
+    % --- reorganizing the frequencies to plot them in the right order. % UGO
+
+    nfreqs = logiczeros(1,length(g.freq));
+    for i=1:2:length(g.freq)
+        nfreqs(i) = 1;
+    end
+    
+    oddfreqs = g.freq(nfreqs);
+    evenfreqs =  g.freq(~nfreqs);
+
+    g.freq = [evenfreqs oddfreqs];
+
+%     odd_division = rem(g.freq,2) ~= 0; % gets a bollean array  of the divisions of 2 with remainders (odds)
+%     oddfreqs = g.freq(odd_division); % gets all the odds
+%     evenfreqs = g.freq(~odd_division); % gets all the evens.  
+%     g.freq = [evenfreqs oddfreqs];
+
 	freqidx = zeros(1,length(g.freq)); % Do not interpolate between freqs
 	for f=1:length(g.freq)
 		[tmp fi] = min(abs(freqs-g.freq(f)));
