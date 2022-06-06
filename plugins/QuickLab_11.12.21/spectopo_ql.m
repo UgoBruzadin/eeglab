@@ -492,6 +492,19 @@ if ~isempty(g.freq)
 	end
 	
 	g.freq = sort(g.freq);          % Determine topoplot frequencies
+
+    % --- reorganizing the frequencies to plot them in the right order. % UGO
+
+    nfreqs = false(1,length(g.freq));
+    for i=1:2:length(g.freq)
+        nfreqs(i) = true();
+    end
+    
+    oddfreqs = g.freq(nfreqs);
+    evenfreqs =  g.freq(~nfreqs);
+
+    g.freq = [evenfreqs oddfreqs];
+
 	freqidx = zeros(1,length(g.freq)); % Do not interpolate between freqs
 	for f=1:length(g.freq)
 		[tmp fi] = min(abs(freqs-g.freq(f)));
