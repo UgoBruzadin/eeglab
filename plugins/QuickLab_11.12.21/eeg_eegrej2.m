@@ -172,9 +172,11 @@ end
 chancounter = 0;
 if ~isempty(regions_for_interp)                                  % if regions are not empty
     for i=1:size(regions_for_interp,1)                           % for the size of regions selected
+        % --- finds the number of all channels rejected in this region
         channels = find(regions_for_interp(i-chancounter,6:end));
-        
+        % --- checks if the chans/comps are being remoed entirely
         rejboll = ismember(channels,chansorcomps4removal);
+        % --- if they are, removes them from the channels[] array
         if any(rejboll)
             channels = channels(~rejboll);          %new bug fixed: removes channels/comps selected for full interpolation #was doubledipping!!!
         end
