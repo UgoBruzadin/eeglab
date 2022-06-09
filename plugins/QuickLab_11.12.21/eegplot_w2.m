@@ -703,10 +703,11 @@ if isstruct(EEG)
         'Improbable data|'...
         'Abnormal distributions|'...
         'Abnormal spectra|'...
-        'Max-Min Threshold'];
+        'Max-Min Threshold|'...
+        'Detect Flatline'];
     
     g.tbtoptions = {...
-        ['-50 , 50 ,' num2str(EEG.xmin) ' , ' num2str(EEG.xmax)],...
+        ['-500 , 500 ,' num2str(EEG.xmin) ' , ' num2str(EEG.xmax)],...
         'lowthresh, upthresh, starttime, endtime',...
         'pop_eegthresh';...
         ...
@@ -723,12 +724,16 @@ if isstruct(EEG)
         'pop_rejkurt';...
         ...
         ['''method'' , ''FFT'' , ''threshold'' , [-70 , 15] ,''freqlimits'' , [20 , 55]'],...
-        'threshold in Db, freqlimits in Hz, must be >34',...
+        'th in Db, limits in Hz >34',...
         'pop_rejspec';...
         ...
         ['[1:' num2str(EEG.nbchan) '],[' num2str([EEG.xmin EEG.xmax]*1000) '],100,' num2str([EEG.xmax - EEG.xmin]*1000) ',1,0'],...
-        'chanRange,timeRange,minmaxThresh,winSize,stepSize,maW',...
+        'chRange,timeRange,minmaxThresh,winSize,stepSize,maW',...
         'pop_eegmaxmin';...
+        ...
+        ['5, 20'],...
+        ['fl duration, max jitter'],...
+        '';...
         };
 else
     g.tbtmethods = {'0','0'};
@@ -796,7 +801,7 @@ end
 	'Position', posbut(38,:), ...
 	'Style','edit', ...
 	'Tag','TBT%',...
-	'string','30');
+	'string','60');
 
   u(39) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -804,7 +809,7 @@ end
 	'Position', posbut(39,:), ...
 	'Style','edit', ...
 	'Tag','TBTnchans',...
-	'string','8');
+	'string','4');
 
   u(40) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -3598,32 +3603,36 @@ function plot_topoplot_old(fig)
             chancomps = '1:EEG.nbchan';
             ica = ''; 
         end
-        met = findobj('tag', 'TBTmethods');
-        opt = findobj('tag', 'TBToptions');
+        method = findobj('tag', 'TBTmethods');
+        options = findobj('tag', 'TBToptions');
         nbadchans = findobj('tag', 'TBTnchans');
         pctbadtrial = findobj('tag', 'TBT%');
         
-        switch met(1).Value
-        case 1
-            comrej  = ['EEG = pop_eegthresh(EEG, ' icacomp ',' chancomps ',' opt(1).String ', 1, 0);'];
-            bads    = 'rejthreshE';
-        case 2
-            comrej  = ['[EEG, comrej] = pop_rejtrend(EEG, ' icacomp ', ' chancomps ',' opt(1).String ', 1, 0,0);'];
-            bads    = 'rejconstE';
-        case 3
-            comrej  = ['[EEG, ~,~,~,comrej] = pop_jointprob(EEG, ' icacomp ', ' chancomps ',' opt(1).String ', 1, 0, 0);'];
-            bads    = 'rejjpE';
-        case 4
-            comrej  = ['[EEG, ~,~,~,comrej] = pop_rejkurt(EEG, ' icacomp ', ' chancomps ',' opt(1).String ', 1, 0, 0);'];
-            bads    = 'rejkurtE';
+        switch method(1).Value
+            case 1
+                comrej  = ['EEG = pop_eegthresh(EEG, ' icacomp ',' chancomps ',' options(1).String ', 1, 0);'];
+                bads    = 'rejthreshE';
+            case 2
+                comrej  = ['[EEG, comrej] = pop_rejtrend(EEG, ' icacomp ', ' chancomps ',' options(1).String ', 1, 0,0);'];
+                bads    = 'rejconstE';
+            case 3
+                comrej  = ['[EEG, ~,~,~,comrej] = pop_jointprob(EEG, ' icacomp ', ' chancomps ',' options(1).String ', 1, 0, 0);'];
+                bads    = 'rejjpE';
+            case 4
+                comrej  = ['[EEG, ~,~,~,comrej] = pop_rejkurt(EEG, ' icacomp ', ' chancomps ',' options(1).String ', 1, 0, 0);'];
+                bads    = 'rejkurtE';
             case 5
-                comrej  = ['[EEG, ~, comrej]    = pop_rejspec(EEG, ' icacomp ',' opt(1).String , ',''elecrange'',' chancomps ');'];
+                comrej  = ['[EEG, ~, comrej]    = pop_rejspec(EEG, ' icacomp ',' options(1).String , ',''elecrange'',' chancomps ');'];
                 bads    = 'rejfreqE';
-                
             case 6
-                comrej  = ['[EEG, comrej]    = pop_eegmaxmin(EEG,' opt(1).String ');'];
+                comrej  = ['[EEG, comrej]    = pop_eegmaxmin(EEG,' options(1).String ');'];
                 bads    = 'rejmaxminE';
                 ica = ''; %rejmaxminE doesn't have options for ICA
+            case 7
+                opt = options(1).String;
+                g = detect_flatline(g);
+                update_trial_rejections(g);
+                return;
         end
         
         fprintf(strcat('Running function:',comrej)); % Prints function being run
@@ -3720,6 +3729,10 @@ function plot_topoplot_old(fig)
             g.winrej = merge_trials(g.winrej);
             
             update_trial_rejections(g);
+            
+            %% DETECT FLATLINE
+            
+
         end
 
 
@@ -3830,7 +3843,8 @@ function merged_list = merge_trials(rejlist)
         end
     end
     
-function storemarks(g)
+    %% not used!
+function g = storemarks(g)
         
    if isstruct(EEG)
        g.EEG = EEG;
@@ -3852,18 +3866,29 @@ function storemarks(g)
            end
        end
    end
- 
-    
-    
+
+function g = detect_flatline(g,max_flatline_duration,max_allowed_jitter)
+   % modified from cleanline plugin
+   % Copyright (C) Christian Kothe, SCCN, 2012, ckothe@ucsd.edu
+
+   EEG = g.EEG;
+   if nargin < 2
+       max_flatline_duration = 5;
+       max_allowed_jitter = 0.1;
+   end
+   for c = 1:EEG.nbchan
+       zero_intervals = reshape(find(diff([false abs(diff(EEG.data(c,:)))<(max_allowed_jitter) false])),2,[])';
+       if max(zero_intervals(:,2) - zero_intervals(:,1)) > max_flatline_duration*EEG.srate
+           g.eloc_file(c).badchan = 1;
+       end
+   end
+
 %     merged_list = [];
 %     for i = 1:size(list,1)
 %         if list(i,1:5) == list(i+1,1:5)
 %             list(i,6:end) = list(i,6:end) | list(i+1,6:end);
 %         end
 %     end
-    
-        
-        
-        
+
 
 
