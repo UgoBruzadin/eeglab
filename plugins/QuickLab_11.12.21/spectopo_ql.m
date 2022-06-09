@@ -555,19 +555,19 @@ end
 %set(gcf, 'WindowButtonMotionFcn', @mouse_motion);
 
 % --- Title for Frequency
-freq_text = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'power_text', 'Position', [.91 .38 .09 .05],'String','Frequency');
+freq_text = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'power_text', 'Position', [.93 .38 .05 .05],'String','Freq');
 % --- Text Display for Frequency
-freq = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'freq', 'Position', [.91 .33 .09 .05],'String','freq');
+freq = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'freq', 'Position', [.93 .33 .05 .05],'String','freq');
 % --- Title for Channel Number
-channel_text = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'channel_text', 'Position', [.91 .28 .09 .05],'String','Channel');
+channel_text = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'channel_text', 'Position', [.93 .28 .05 .05],'String','Chan');
 % --- Text Display for Channel Number
-channel = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'channel', 'Position', [.91 .23 .09 .05],'String','channel');
+channel = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'channel', 'Position', [.93 .23 .05 .05],'String','channel');
 % --- Title for Power
-power_text = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'power_text', 'Position', [.91 .18 .09 .05],'String','Power');
+power_text = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'power_text', 'Position', [.93 .18 .05 .05],'String','Power');
 % --- Text Display for Power
-power = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'power', 'Position', [.91 .13 .09 .05],'String','power');
+power = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'power', 'Position', [.93 .13 .05 .05],'String','power');
 % --- Save button
-save = uicontrol(gcf,'Style', 'pushbutton', 'Units','Normalized','Tag', 'save', 'Position', [.91 .08 .09 .05],'String','Save Figure','BackgroundColor',GUIBUTTONCOLOR);
+save = uicontrol(gcf,'Style', 'pushbutton', 'Units','Normalized','Tag', 'save', 'Position', [.93 .08 .05 .05],'String','Save Figure','BackgroundColor',GUIBUTTONCOLOR);
 
 % --- Sets background color for all texts
 set(findobj(gcf,'Style','text'),'BackgroundColor',BACKCOLOR)
@@ -613,11 +613,11 @@ if strcmpi(g.plot, 'on')
     else 
         for index = 1:size(eegspecdBtoplot,1)
             tmpcol  = allcolors{mod(index, length(allcolors))+1};
-            dispallcom = ['plot_topofreq(' num2str(g.plotchan(index)) ');'];
-            %command = [ 'disp(''Channel ' int2str(g.plotchan(index)) ''')' ];
+            %dispallcom = ['plot_topofreq(' num2str(g.plotchan(index)) ');'];
+            command = [ 'disp(''Channel ' int2str(g.plotchan(index)) ''')' ];
                         
             pl(index)=plot(freqs(1:maxfreqidx),eegspecdBtoplot(index,1:maxfreqidx)', ...
-                           'color', tmpcol, 'Tag',num2str(index), 'ButtonDownFcn', dispallcom,Visible='on'); hold on;
+                           'color', tmpcol, 'Tag',num2str(index), 'ButtonDownFcn', command,Visible='on'); hold on;
         end
     end
     set(pl,'LineWidth',2);
