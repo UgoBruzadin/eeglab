@@ -1386,7 +1386,7 @@ set(W_MAIN, 'visible', 'on');
 
 %% plot piechart or files left to work on!
 
-axisPanel = uipanel(W_MAIN, 'Position',[.9 .05 .05 .25], 'BackgroundColor', COLOR,'Tag','PieChart');
+axisPanel = uipanel(W_MAIN, 'Position',[.9 .05 .08 .35], 'BackgroundColor', COLOR,'Tag','PieChart');
 
 % % Create a new axis on the panel
 leftAxis = axes(axisPanel, 'Tag','pie_chart','Position', [0 0 1 1]);
