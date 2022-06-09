@@ -8,7 +8,6 @@ set(findobj(gcf,'Tag','power'),'String',power)
 set(findobj(gcf,'Tag','freq'),'String',freq)
 set(findobj('Tag','channel'),'String', int2str(index));
 
-disp(strcat('Channel selected ','...', num2str(index)));
 
 mainfig = findobj('Tag','Data');
 
@@ -17,13 +16,17 @@ g = mainfig.UserData;
 
 eegspecdB = g.eegspecdB;
 
+if size(eegspecdB,1) ~= 1
 %[power,freq] = getPlotPoint(index);
+    disp(strcat('Channel selected ','...', num2str(index)));
+    A = g.freqs - freq;
+    f = find(abs(A) == min(abs(A)));
 
-A = g.freqs - freq;
-f = find(abs(A) == min(abs(A)));
 
-topodata = eegspecdB(:,f)-nan_mean(eegspecdB(:,f));
+    topodata = eegspecdB(:,f)-nan_mean(eegspecdB(:,f));
 
-axes('Parent', gcf, 'position',[ 0.91 0.50 0.085 0.15 ],'units','normalized');
+    axes('Parent', gcf, 'position',[ 0.91 0.50 0.085 0.15 ],'units','normalized');
 
-topoplot(topodata,g.chanlocs);
+    topoplot(topodata,g.chanlocs);
+end
+
