@@ -202,14 +202,14 @@ for ri = chanorcomp
         end;
         ha = axes('Units','Normalized', 'Position',[X Y sizewx sizewy].*s+q);
         if typecomp
-            topoplot( ri, EEG.chanlocs, 'chaninfo', EEG.chaninfo, ...
+            to = topoplot( ri, EEG.chanlocs, 'chaninfo', EEG.chaninfo, ...
                 'electrodes','off', 'style', 'blank', 'emarkersize1chan', 12);
         else
             if plotelec
-                topoplot( EEG.icawinv(:,ri), EEG.chanlocs, 'verbose', ...
+                to = topoplot( EEG.icawinv(:,ri), EEG.chanlocs, 'verbose', ...
                     'off', 'style' , 'fill', 'chaninfo', EEG.chaninfo, 'numcontour', 8);
             else
-                topoplot( EEG.icawinv(:,ri), EEG.chanlocs, 'verbose', ...
+                to = topoplot( EEG.icawinv(:,ri), EEG.chanlocs, 'verbose', ...
                     'off', 'style' , 'fill','electrodes','off', 'chaninfo', EEG.chaninfo, 'numcontour', 8);
             end;
             % labels
@@ -249,6 +249,7 @@ for ri = chanorcomp
         %    [X Y+sizewy sizewx/3 sizewy*0.18].*s+q, 'tag', ['comp' num2str(ri)]);
         
         % plots smaller buttons
+        
         button = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized', 'Position',...
             [X Y+sizewy sizewx/3 sizewy*0.18].*s+q, 'tag', ['comp' num2str(ri)]);
         set( button, 'callback', {@pop_prop_extended2, EEG, typecomp, ri, NaN, spec_opt, erp_opt, scroll_event, classifier_name} );
@@ -272,10 +273,17 @@ for ri = chanorcomp
             status = 0;
         end
         % --- plots checkboxes # Added by Ugo Nunes Jun/2021
-%         check = uicontrol(gcf, 'Style', 'checkbox','Units','Normalized', 'Value',EEG.reject.gcompreject(ri),'Position',...
-%             [X+sizewx*2/3 Y+sizewy sizewx/3 sizewy*0.18].*s+q);  
-        check = uicontrol(gcf, 'Style', 'checkbox','Units','Normalized', 'Value',EEG.reject.gcompreject(ri),'Position',...
-            [X Y sizewx sizewy].*s+q);  
+        checktag = strcat('check',int2str(ri));
+
+        check = uicontrol(gcf, 'Style', 'checkbox','Units','Normalized','Tag',checktag, 'Value',EEG.reject.gcompreject(ri),'Position',...
+            [X+sizewx*2/3 Y+sizewy sizewx/3 sizewy*0.18].*s+q);  
+        
+        checkcom = ['get(findobj( gcf,''Tag'',' strcat(checktag) '),''Value'',];
+        
+        %checkcom = ['set(findobj(gcf,''Tag'',' checktag '),''Value'', abs(get(findobj(gcf,''Tag'', ' checktag '),''Value'')-1);'];
+        %set(findobj('Tag',currentfigtag),'ButtonDownFcn', checkcom);
+        set(to,'ButtonDownFcn', checkcom);
+
         end;
     if typecomp
         set( button, 'backgroundcolor', COLACC, 'string', EEG.chanlocs(ri).labels);
