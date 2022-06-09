@@ -372,10 +372,10 @@ end
 try
     hfreq = axes('Parent', fh, 'position', [0.5765 0.1109 0.3587 0.4336], 'units', 'normalized');
     if typecomp
-        spectopo( EEG.data(chanorcomp,:), EEG.pnts, EEG.srate, spec_opt{:} );
+        spectopo_ql( EEG.data(chanorcomp,:), EEG.pnts, EEG.srate, spec_opt{:} );
         title(hfreq,'Channel Activity Power Spectrum','units','normalized', 'fontsize', 14, 'FontWeight', 'Normal');
     else
-        spectopo( icaacttmp(1, :), EEG.pnts, EEG.srate, 'mapnorm', EEG.icawinv(:,chanorcomp), spec_opt{:} );
+        spectopo_ql( icaacttmp(1, :), EEG.pnts, EEG.srate, 'mapnorm', EEG.icawinv(:,chanorcomp), spec_opt{:} );
         title(hfreq,['IC' int2str(chanorcomp) ' Activity Power Spectrum'],'units','normalized', 'fontsize', 14, 'FontWeight', 'Normal');
     end
 	set(get(hfreq, 'ylabel'), 'string', 'Power 10*log_{10}(uV^2/Hz)', 'fontsize', 14); 
