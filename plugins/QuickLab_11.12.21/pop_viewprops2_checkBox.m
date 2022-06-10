@@ -1,4 +1,6 @@
 function pop_viewprops2_checkBox(index)
+
+
 % --- click or unclick the tag
 clickVal = get(findobj(gcf,'Tag',int2str(index)),'Value');
 

@@ -200,7 +200,7 @@ for ri = chanorcomp
         if ~strcmp(get(gcf, 'tag'), currentfigtag);
             figure(findobj('tag', currentfigtag));
         end;
-        ha = axes('Units','Normalized', 'Position',[X Y sizewx sizewy].*s+q);
+        ha = axes('Units','Normalized', 'Position',[X Y sizewx sizewy].*s+q,'Tag',strcat('H',int2str(ri)));
         if typecomp
             to = topoplot( ri, EEG.chanlocs, 'chaninfo', EEG.chaninfo, ...
                 'electrodes','off', 'style', 'blank', 'emarkersize1chan', 12);
@@ -278,11 +278,12 @@ for ri = chanorcomp
         check = uicontrol(gcf, 'Style', 'checkbox','Units','Normalized','Tag',int2str(ri), 'Value',EEG.reject.gcompreject(ri),'Position',...
             [X+sizewx*2/3 Y+sizewy sizewx/3 sizewy*0.18].*s+q,'Visible','on');  
         
-        checkcom = ['checkBox(' int2str(ri) ' )'];
+        checkcom = ['pop_viewprops2_checkBox(' int2str(ri) ' )'];
         
-        %checkcom = ['set(findobj(gcf,''Tag'',' checktag '),''Value'', abs(get(findobj(gcf,''Tag'', ' checktag '),''Value'')-1);'];
-        %set(findobj('Tag',currentfigtag),'ButtonDownFcn', checkcom);
+        % --- edits to the topoplots
+        topotag = strcat('T',checktag);
         set(to,'ButtonDownFcn', checkcom);
+        set(to,'Tag', topotag);
 
         end;
     if typecomp
