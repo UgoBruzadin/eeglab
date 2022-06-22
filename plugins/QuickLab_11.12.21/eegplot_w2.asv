@@ -704,7 +704,8 @@ if isstruct(EEG)
         'Abnormal distributions|'...
         'Abnormal spectra|'...
         'Max-Min Threshold|'...
-        'Detect Flatline'];
+        'Detect Flatline|'...
+        'Detect Channel Pops'];
     
     g.tbtoptions = {...
         ['-500 , 500 ,' num2str(EEG.xmin) ' , ' num2str(EEG.xmax)],...
@@ -733,6 +734,10 @@ if isstruct(EEG)
         ...
         ['5, 20'],...
         ['fl duration, max jitter'],...
+        '';...
+        ...
+        ['{5, 8, 100, 2, [],''mean''}'],...
+        ['SumWindow, StdRej, max rej win, Chancomps, type'],...
         '';...
         };
 else
@@ -809,7 +814,7 @@ end
 	'Position', posbut(39,:), ...
 	'Style','edit', ...
 	'Tag','TBTnchans',...
-	'string','4');
+	'string','10');
 
   u(40) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -1510,7 +1515,10 @@ else
   case 'fft'
     g = get(gcf,'UserData');
     EEG = g.EEG;
-    [EEG, ~] = quick_spectra(EEG,40,2,'AVG');
+    %figure; spy(g.winrej)
+    %interpolation_plot(g)
+    %draw_matrix(gcf,g);
+    %[EEG, ~] = quick_spectra(EEG,40,2,'AVG');
 
   case 'TBT'
       g = get(gcf,'UserData');
@@ -2021,7 +2029,9 @@ function draw_data(varargin)
     set(figh, 'userdata', g);
 
     lowlim = round(g.time*multiplier+1);
+
     highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
+
     
     % Plot data and update axes
     % -------------------------
@@ -2194,6 +2204,7 @@ function draw_data(varargin)
             tmpcolor = [ 1 0 0 ];
         elseif length(g.color) == 1
             tmpcolor = g.color{1};
+            %tmpcolor = [ 1 0 0 ];
         else
             plot_at_once=0; % in this case only mode "0" allowed
         end;
@@ -2224,6 +2235,7 @@ function draw_data(varargin)
         switch plot_at_once
             case 1
                 plot(ax1,tmp_plot_data_y', 'color', tmpcolor, 'clipping','on');
+                %plot(ax1,tmp_plot_data_x,tmp_plot_data_y, 'color', tmpcolor, 'clipping','on');
             case 2
                 plot(ax1,tmp_plot_data_x,tmp_plot_data_y, 'color', tmpcolor, 'clipping','on');
         end;
@@ -2242,6 +2254,7 @@ function draw_data(varargin)
             if (g.winrej(tpmi,1) >= lowlim && g.winrej(tpmi,1) <= highlim) || ...
                (g.winrej(tpmi,2) >= lowlim && g.winrej(tpmi,2) <= highlim) || ...
                (g.winrej(tpmi,1) <= lowlim && g.winrej(tpmi,2) >= highlim)
+                
                 abscmin = max(1,round(g.winrej(tpmi,1)-lowlim));
                 abscmax = round(g.winrej(tpmi,2)-lowlim);
                 maxXlim = get(gca, 'xlim');
@@ -2249,9 +2262,10 @@ function draw_data(varargin)
                 % red lines at first, so I sorta removed it. Now I have to
                 % keep it, so i left it as a try error.
                 try
-                    if maxXlim(2) >= 2 %SUPER BUG can't fix it?!
-                        abscmax = min(abscmax, round(maxXlim(2)-1));
-                    end
+                    % removed this fix as it was crashing my matrix plot!
+%                     if maxXlim(2) >= 2 %SUPER BUG can't fix it?!
+%                         abscmax = min(abscmax, round(maxXlim(2)-1));
+%                     end
                     for i = 1:g.chans
                         if g.winrej(tpmi,g.chans-i+1+5)
                             plot(ax1,abscmin+1:abscmax+1,data(g.chans-i+1,abscmin+lowlim:abscmax+lowlim) ...
@@ -2300,6 +2314,9 @@ function draw_data(varargin)
      else 
          draw_background([],[],figh,g);
      end;
+
+%draw_matrix(g)
+
 
 
 % Draw background
@@ -2609,6 +2626,7 @@ if verLessThan_matlab_9
     axes(ax1); % changing axes very slows down drawing
 end;
 
+%draw_matrix(g);
 
 % Redraw EEG and change window size
 function change_eeg_window_length(~,~,fig,p1)
@@ -2821,6 +2839,8 @@ if ~isempty(g.winrej)'
         end;
     end;
 end;
+
+g.winrej = sortrows(g.winrej,'ascend');
 
 update_trial_rejections(g)
 
@@ -3144,9 +3164,14 @@ if isfield(g, 'eloc_file')
     
     % removes all repetitive marks
     %g.winrej = unique(g.winrej,'rows');
-    
+    g.winred = merge_trials(g.winrej);
+
     set(fig,'UserData',g);
-    draw_data([],[],fig,0,[],g);
+
+    draw_data([],[],fig,0,[],g); % draws data
+
+    draw_matrix(g); % draws matrix
+    
 end;
 
 function MarkChannel2(~,~,fig,channel_index) %MarkChannel original for BACKUP!
@@ -3281,6 +3306,7 @@ if EEG.plotIc == 1
         data = get(ax1,'UserData');
         datapos = max(1, round(tmppos(1)+lowlim));
         datapos = min(datapos, g.frames);
+        
         axes('Parent', fig, 'position',[ 0.92    0.31    0.080    0.10 ],'units','normalized');
 
         % get color
@@ -3438,6 +3464,8 @@ EEG = g.EEG;
                     MeanDeviation = mean(EpochAverage);
                     EpochAverage = EpochAverage - MeanDeviation;
                     % PLOTS AVERAGE OF THAT STRETCH
+                    ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.13 ],'units','normalized','tag','picture','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
+
                     topoplot(EpochAverage, EEG.chanlocs(:));
                     % This makes sure it only prints once
                     Printed = 1;
@@ -3448,9 +3476,15 @@ EEG = g.EEG;
                 % if no prints have been done, then there's no matching
                 % rejected areas, therefore prints normal topoplot for that
                 % column
+                colormap("default");
+                ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.13 ],'units','normalized','tag','picture','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
+                %cla(reset);
+
                 topoplot(EEG.data(:,datapos), EEG.chanlocs(:));
             end
         else
+            ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.13 ],'units','normalized','tag','picture','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
+            %cla(reset);
             topoplot(EEG.data(:,datapos), EEG.chanlocs(:));
         end
 
@@ -3525,7 +3559,6 @@ function plot_topoplot_old(fig)
         datapos = max(1, round(tmppos(1)+lowlim));
         datapos = min(datapos, g.frames);
         axes('Parent', fig, 'position',[ 0.92    0.31    0.080    0.10 ],'units','normalized');
-        
         % get color
         BackColor = get(fig,'Color');
         
@@ -3611,35 +3644,38 @@ function plot_topoplot_old(fig)
         switch method(1).Value
             case 1
                 comrej  = ['EEG = pop_eegthresh(EEG, ' icacomp ',' chancomps ',' options(1).String ', 1, 0);'];
-                bads    = 'rejthreshE';
+                chosen_func    = 'rejthreshE';
             case 2
                 comrej  = ['[EEG, comrej] = pop_rejtrend(EEG, ' icacomp ', ' chancomps ',' options(1).String ', 1, 0,0);'];
-                bads    = 'rejconstE';
+                chosen_func    = 'rejconstE';
             case 3
                 comrej  = ['[EEG, ~,~,~,comrej] = pop_jointprob(EEG, ' icacomp ', ' chancomps ',' options(1).String ', 1, 0, 0);'];
-                bads    = 'rejjpE';
+                chosen_func    = 'rejjpE';
             case 4
                 comrej  = ['[EEG, ~,~,~,comrej] = pop_rejkurt(EEG, ' icacomp ', ' chancomps ',' options(1).String ', 1, 0, 0);'];
-                bads    = 'rejkurtE';
+                chosen_func    = 'rejkurtE';
             case 5
                 comrej  = ['[EEG, ~, comrej]    = pop_rejspec(EEG, ' icacomp ',' options(1).String , ',''elecrange'',' chancomps ');'];
-                bads    = 'rejfreqE';
+                chosen_func    = 'rejfreqE';
             case 6
                 comrej  = ['[EEG, comrej]    = pop_eegmaxmin(EEG,' options(1).String ');'];
-                bads    = 'rejmaxminE';
+                chosen_func    = 'rejmaxminE';
                 ica = ''; %rejmaxminE doesn't have options for ICA
             case 7
                 opt = options(1).String;
                 g = detect_flatline(g);
                 update_trial_rejections(g);
                 return;
+            case 8
+                comrej = ['[EEG,comrej] = pop_eegchannelpop(EEG,' icacomp ',' chancomps ',' options(1).String ');'];
+                chosen_func = 'rejchanpops';
         end
         
         fprintf(strcat('Running function:',comrej)); % Prints function being run
         % RUN FUNCTION!
         eval(comrej);
         
-        winrej = EEG.reject.(strcat(ica,bads)); % Gets rejected data into winrej
+        winrej = EEG.reject.(strcat(ica,chosen_func)); % Gets rejected data into winrej
 %         
 %         if ~isempty(winrej)
 %            winrej = winrej | g.winrej(:,6:end);
@@ -3698,6 +3734,7 @@ function plot_topoplot_old(fig)
             mark(~bTrial_ind,4)      = 1;                                % G for bad chans
             mark(~bTrial_ind,5)      = 0.8;                              % B for bad chans
             
+
             % paints the trials with empty selected channels white
             %mark((sum(mark(:,5:end),2) < 1),3:5) = 1;                    % cleaner code compared with the for loop
             mark((sum(mark(:,5:end),2) < 1),:) = [];                    % cleaner code compared with the for loop
@@ -3724,15 +3761,13 @@ function plot_topoplot_old(fig)
             % removes all repetitive marks
             
             g.winrej = unique(g.winrej,'rows');
-                       
-            
-            g.winrej = merge_trials(g.winrej);
+
+            g.winrej = sortrows(g.winrej,'ascend');
+
+            g.winrej = merge_trials(g.winrej); 
             
             update_trial_rejections(g);
-            
-            %% DETECT FLATLINE
-            
-
+           
         end
 
 
@@ -3741,6 +3776,8 @@ function update_trial_rejections(g)
 %g = get(gcf,'UserData');
 
 % calculate total numbers of rejections and interpolations
+g.winrej = sortrows(g.winrej,'ascend');
+
 reds = num2str(0);
 greens = num2str(0);
 bad_chans = num2str(0);
@@ -3765,6 +3802,7 @@ total_marks = strcat('Trial: ',{' '},reds,' red + ',{' '}, greens, ' g','reen');
 % prints on menu using these tags
 set(findobj(gcf, 'Tag', 'Count_Channels'),'string',total_chanmarks);%
 set(findobj(gcf, 'Tag', 'Count_Trials'),'string',total_marks);%
+draw_matrix(g);
 
 
 
@@ -3799,49 +3837,61 @@ for i = 2:numel(SUBFIELD)
 end
 
 
-function merged_list = merge_trials(rejlist)
+function winrej_merged = merge_trials(winrej)
     %% merges repetitive regions rejection 
     
     % get bollean list of repetitive 
     % merge
     % make it red if X, green if > 1, delete if empty;
-    merged_list = [];
-    og_rejlist = rejlist;
+    winrej_merged = [];
+    og_winrej = winrej;
     counter = 0;
-    for i = 1:size(rejlist,1)
-        if size(rejlist,1) < i-counter
+
+    winrej = sortrows(winrej,'ascend');
+        
+    for i = 1:size(winrej,1)
+        if size(winrej,1) < i-counter
             break;
         else
         %try
-            copies = rejlist(rejlist(:,1) == rejlist(i-counter,1) & rejlist(:,2) == rejlist(i-counter,2),:);
+            copies = winrej( winrej(:,1) == winrej(i-counter,1) & winrej(:,2) == winrej(i-counter,2),: );
         %catch
         %    break;
         %end
         if size(copies,1) > 1
             %fullcopies = rejlist(rejlist(:,1) == copies(1),:);
 
-            templist      = zeros(1,size(rejlist,2));
-            templist(1,1:2) = copies(1,1:2);
-            templist(1,3:5) = copies(1,3:5);                              % R for bad chans
+            new_rej_row      = zeros(1,size(winrej,2));
+            new_rej_row(1,1:2) = copies(1,1:2);
+            new_rej_row(1,3:5) = copies(1,3:5);                              % R for bad chans
 
             %for j = 1:size(copies,1)-1
                 
-                %templist(1,6:end) = copies(j,6:end) | copies(j+1,6:end);
-            templist(6:end) = any(copies(:,6:end));
+            %templist(1,6:end) = copies(j,6:end) | copies(j+1,6:end);
+            
+            % --- collects aany flagged channels in this trial
+            new_rej_row(6:end) = any(copies(:,6:end));
+
+            % --- gets any of the copies that is red, if any
             anyreds = copies(copies(1:size(copies,1),3) == 1,3:5);
-            if size(anyreds,1) > 1 
-                templist(3:5) = anyreds(1,:);
+
+            % --- if any of the flagged channels are red, paint new flag red
+            if size(anyreds,1) > 0 
+                new_rej_row(3:5) = anyreds(1,:);
             end
             %end
-            merged_list = [merged_list;templist];
+            %--- merges the new line in the new flags
+            winrej_merged = [winrej_merged;new_rej_row];
             
-            counter = size(copies,1)-1;
-            rejlist(rejlist(:,1) == copies(1),:) = [];
+            % --- adds number of flagged copies to counter
+            counter = counter + size(copies,1)-1;
+            winrej(winrej(:,1) == copies(1),:) = [];
         else
-            merged_list = [merged_list;rejlist(i-counter,:)];
+            winrej_merged = [winrej_merged;copies];
         end
         end
     end
+   
     
     %% not used!
 function g = storemarks(g)
@@ -3874,14 +3924,36 @@ function g = detect_flatline(g,max_flatline_duration,max_allowed_jitter)
    EEG = g.EEG;
    if nargin < 2
        max_flatline_duration = 5;
-       max_allowed_jitter = 100;
+       max_allowed_jitter = 0.1;
    end
    for c = 1:EEG.nbchan
-       zero_intervals = reshape(find(diff(false([abs(diff(EEG.data(c,:)))<(max_allowed_jitter*eps)]))),2,[])';
+       zero_intervals = reshape(find(diff([false abs(diff(EEG.data(c,:)))<(max_allowed_jitter) false])),2,[])';
        if max(zero_intervals(:,2) - zero_intervals(:,1)) > max_flatline_duration*EEG.srate
            g.eloc_file(c).badchan = 1;
        end
    end
+
+function g = detect_channelpop(g,max_num_changes,min_threshold)
+   % modified from cleanline plugin
+   % Copyright (C) Christian Kothe, SCCN, 2012, ckothe@ucsd.edu
+
+   EEG = g.EEG;
+%    if ica
+%    winrej = zeros(size(EEG.nbchan,EEG))
+%    
+%    else
+% 
+%    end
+   ipt = [];
+   for i=1:size(EEG.icaact,1)
+        for j=1:size(EEG.icaact,2)
+            [ipt,res] = findchangepts(EEG.icaact(i,j,:),"MaxNumChanges",max_num_changes,"MinThreshold",min_threshold,"MinDistance",minDistance)
+        if ~isempty(ipt)
+            winrej(i,j) = 1;
+        end
+        end
+   end
+
 
 %     merged_list = [];
 %     for i = 1:size(list,1)
@@ -3889,6 +3961,108 @@ function g = detect_flatline(g,max_flatline_duration,max_allowed_jitter)
 %             list(i,6:end) = list(i,6:end) | list(i+1,6:end);
 %         end
 %     end
+
+ %% plotting matrix
+
+function draw_matrix(g)
+% --- get EEG data
+EEG = g.EEG;
+% --- make axis for plot
+ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.13 ],'units','normalized','tag','picture','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
+hold on; % not sure if necessary
+
+% --- making empty matrix
+plot_matrix = zeros(size(g.eloc_file,2),EEG.trials);
+plot_matrix = plot_matrix - 10;
+
+if ~isempty(g.winrej)
+    winrej = g.winrej;
+
+    %% paints red trials
+    % --- check for red trials
+    rej_winrej = winrej(winrej(:,3) == 1,:);
+    
+    if ~isempty(rej_winrej)
+        rej_epoch_id = floor(1+rej_winrej(:,1)/EEG.pnts); % gets all red epochs
+
+        % --- paint rej epochs 
+        plot_matrix(:,rej_epoch_id) = 20; % populates them with a color
+
+        nb_rejs = size(rej_epoch_id,1);
+        rej_parts = rej_winrej(:,6:end);
+        
+        if ~isempty(rej_epoch_id)
+            for i=1:nb_rejs
+                if nb_rejs > 1
+                    rej_parts2 = find(rej_parts(i,:));
+                else
+                    rej_parts2 = find(rej_parts);
+                end
+                % --- paint specific trial-epoch regions
+                rej_parts2 = abs(rej_parts2 - size(g.eloc_file,2)); % flips the array
+                %% Paints matrix
+                plot_matrix(rej_parts2,rej_epoch_id(i)) = 1; % paints the matrix!
+            end
+        end
+
+    end
+    %% paints green trials
+    % --- check for green trials
+    int_winrej = winrej(winrej(:,4) == 1,:);
+    
+    if ~isempty(int_winrej)
+        int_epoch_id = floor(1+int_winrej(:,1)/EEG.pnts); % gets all red epochs
+
+        % --- paint int epochs 
+        plot_matrix(:,int_epoch_id) = 10; % populates them with a color
+
+        nb_ints = size(int_epoch_id,1);
+        int_parts = int_winrej(:,6:end);
+        
+        if ~isempty(int_epoch_id)
+            for i=1:nb_ints
+                if nb_ints > 1
+                    int_parts2 = find(int_parts(i,:));
+                else
+                    int_parts2 = find(int_parts);
+                end
+                int_parts2 = abs(int_parts2 - size(g.eloc_file,2)); % flips the array
+                % --- paint specific trial-epoch regions
+                %% Paints matrix
+                plot_matrix(int_parts2,int_epoch_id(i)) = 1;
+            end
+        end
+
+    end
+end
+%% Paints bad channels
+bad_chans = find([g.eloc_file.badchan]); % gets bad channels/components
+if ~isempty(bad_chans)
+    
+    bad_chans = abs(bad_chans - size(g.eloc_file,2)); % flips the array
+    if ~isempty(bad_chans)
+        plot_matrix(bad_chans,:) = 3; % Paints matrix
+    end
+end
+
+    %% plots image
+    imagesc(plot_matrix);
+
+    %% defining colors and axis
+            % 1st,     2nd,   3rd,   4th,   5th
+            % darkblue, black, yellow, green, red
+            % background, ticks, channels, greens, reds
+    mymap = [.2 .2 .5; 0 0 0; 1 1 0; 0 1 0; 1 0 0]; % color map of matrix
+    colormap(mymap) % applies new colors
+    clim('manual'); % makes color limits manual,
+    clim(ax_pic,[-10,20]); % fixes color patterns so that alwasy plots the same colors
+    
+    axis tight; % makes axis tight to bounderies, filling full space
+    %lim = clim %for debugging
+    set(findobj(gcf,'tag','headmap'),'String','Data Matrix');
+
+
+
 
 
 

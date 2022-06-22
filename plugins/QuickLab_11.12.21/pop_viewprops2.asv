@@ -200,7 +200,7 @@ for ri = chanorcomp
         if ~strcmp(get(gcf, 'tag'), currentfigtag);
             figure(findobj('tag', currentfigtag));
         end;
-        ha = axes('Units','Normalized', 'Position',[X Y sizewx sizewy].*s+q);
+        ha = axes('Units','Normalized', 'Position',[X Y sizewx sizewy].*s+q,'Tag',strcat('H',int2str(ri)));
         if typecomp
             to = topoplot( ri, EEG.chanlocs, 'chaninfo', EEG.chaninfo, ...
                 'electrodes','off', 'style', 'blank', 'emarkersize1chan', 12);
@@ -273,16 +273,17 @@ for ri = chanorcomp
             status = 0;
         end
         % --- plots checkboxes # Added by Ugo Nunes Jun/2021
-        checktag = strcat('check',int2str(ri));
+        checktag = int2str(ri);
 
-        check = uicontrol(gcf, 'Style', 'checkbox','Units','Normalized','Tag',checktag, 'Value',EEG.reject.gcompreject(ri),'Position',...
-            [X+sizewx*2/3 Y+sizewy sizewx/3 sizewy*0.18].*s+q);  
+        check = uicontrol(gcf, 'Style', 'checkbox','Units','Normalized','Tag',int2str(ri), 'Value',EEG.reject.gcompreject(ri),'Position',...
+            [X+sizewx*2/3 Y+sizewy sizewx/3 sizewy*0.18].*s+q,'Visible','on');  
         
-        checkcom = ['get(findobj( gcf,''Tag'',' strcat(checktag) '),''Value'',];
+        checkcom = ['pop_viewprops2_checkbox(' int2str(ri) ' )'];
         
-        %checkcom = ['set(findobj(gcf,''Tag'',' checktag '),''Value'', abs(get(findobj(gcf,''Tag'', ' checktag '),''Value'')-1);'];
-        %set(findobj('Tag',currentfigtag),'ButtonDownFcn', checkcom);
+        % --- edits to the topoplots
+        topotag = strcat('T',checktag);
         set(to,'ButtonDownFcn', checkcom);
+        set(to,'Tag', topotag);
 
         end;
     if typecomp
@@ -299,11 +300,17 @@ toc
 % -------------
 cancel  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.9 0.7 0.7], 'string', 'Cancel', 'Units','Normalized','Position',[-10 -10 10 6].*s+q, 'callback', 'close(gcf);');
 
-% CLEAR button
+% CLEAR ALL button
 % -------------
-commandClear = ['EEG.reject.gcompreject = zeros(1,size(EEG.icawinv,2));close gcf;EEG = quick_IClabel(EEG);'];
+commandClear = ['pop_viewprops2_selectall(0)'];
         
 clearComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.9 0.7 0.7], 'string', 'Clear Values', 'Units','Normalized','Position',[0 -10 10 6].*s+q, 'callback', commandClear');
+
+% SELECT ALL button
+% -------------
+commandSelAll = ['pop_viewprops2_selectall(1)'];
+        
+selectAll = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.9 0.9 0.7], 'string', 'Clear Values', 'Units','Normalized','Position',[20 -10 10 6].*s+q, 'callback', commandSelAll');
 
 % Plot ScrollPlot button
 % -------------
