@@ -11,7 +11,7 @@ axisPie = uipanel(W_MAIN, 'Position',[.9 .05 .1 .35],'Tag','PieChart',Visible='o
 
 % % Create a new axis on the panel
 pieAxis = axes(axisPie, 'Tag','pie_chart','Position', [0 0 1 1],Visible='on');
-
+%axis fill
 CountDownDotLoc(pieAxis);
 
 if exist('EEG','var')
