@@ -1,25 +1,3 @@
-
-
-% myImage = imread('1101E1DotLoc-1___HM_Av_2HP55LP_NF4460_BE60_CzEP60FFT.jpg');
-% set(handles.axes7,'Units','pixels');
-% resizePos = get(handles.axes7,'Position');
-% myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
-% axes(handles.axes7);
-% imshow(myImage);
-% set(handles.axes7,'Units','normalized');
-% 
-% function pushbutton1_Callback(hObject, eventdata, handles)
-%  % hObject    handle to pushbutton1 (see GCBO)
-%  % eventdata  reserved - to be defined in a future version of MATLAB
-%  % handles    structure with handles and user data (see GUIDATA)
-%  I = imread('1101E1DotLoc-1___HM_Av_2HP55LP_NF4460_BE60_CzEP60FFT.jpg');
-%  %J = imread('1101E1DotLoc-1___HM_Av_2HP55LP_NF4460_BE60_CzEP60FFT.jpg');
-%  axes(handles.axes1);
-%  imshow(I);
-%  %axes(handles.axes2);
-%  %imshow(J);
-
-
 function rec = plotfft(EEG,files,jpgindex)
 
 
@@ -33,7 +11,6 @@ axisPie = uipanel(W_MAIN, 'Position',[.9 .05 .1 .35],'Tag','PieChart',Visible='o
 
 % % Create a new axis on the panel
 pieAxis = axes(axisPie, 'Tag','pie_chart','Position', [0 0 1 1],Visible='on');
-
 
 CountDownDotLoc(pieAxis);
 
@@ -55,52 +32,11 @@ if exist('EEG','var')
                 pic = jpgfiles(jpgindex).name;
                 rec = imshow(pic,'Parent',fftAxis,'InitialMagnification','fit');
             elseif ~isempty(figindex)
-% 
-%                  pic = figfiles(figindex).name;
-%                  
-%                  rec = openfig(pic,'new', 'invisible');
-%                  set(rec,'Tag','rec')
-%                  hAxes = get(rec, 'CurrentAxes');
-%                  hCopy = copyobj(hAxes, handles.rec);
-%                  set(hCopy, 'Position', [.5 .15 .35 .67])
 
-
-
-
-
-% %                 rec = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized','Tag', 'rec', 'Position', [.5 .15 .35 .67]);
-%                 %fig = uifigure(gcf);
-%                 [picrgb,map] = imread(pic);
-%                 %uiimage(fig,"ImageSource",pic);
-%                 
-%                 %imshow(rec,pic2,'Parent',W_MAIN)
-%                 set(rec,'Units','pixels')
-%                 resizePos = get(rec,'Position');
-%                 [picrgb2,map] = imresize(picrgb, [resizePos(4) resizePos(3)]);
-%                 set(rec,'Units','normalized');
-%                 set(rec,'cdata',picrgb2);
             end
-            %fig = uifigure(gcf);
-            %uiimage(fig,"ImageSource",pic);
-            
-%             resizePos = get(rec,'Position');
-%                  [picrgb2,map] = imresize(picrgb, [resizePos(4) resizePos(3)]);
-%                  set(rec,'Units','normalized');
-%                  set(rec,'cdata',picrgb2);
-            %rec = uipanel(W_MAIN, 'Position', [.5 .15 .35 .67],'Tag','rec')
 
-            %try
-%                 [total,done] = CountDownDotLoc()
-%                 pieC = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized','Tag', 'pie', 'Position', [.9 .05 .05 .05]);
-%                 set(pieC,'Units','pixels')
-%                 resizePos = get(pieC,'Position');
-%                 pieData = pie([total-done,done]);
-%                 set(pieC,'cdata',pieData);
-            %end
 
         end
     end
 end
-% get(findobj('Tag','frame1'))
-% axes(findobj('Tag','frame1'))
-% plot([1 2 3])
+
