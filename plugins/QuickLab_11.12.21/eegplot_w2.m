@@ -3995,7 +3995,7 @@ if ~isempty(g.winrej)
                     rej_parts2 = find(rej_parts);
                 end
                 % --- paint specific trial-epoch regions
-                rej_parts2 = abs(rej_parts2 - size(g.eloc_file,2)); % flips the array
+                rej_parts2 = abs(rej_parts2 - size(g.eloc_file,2) -1 ); % flips the array
                 %% Paints matrix
                 plot_matrix(rej_parts2,rej_epoch_id(i)) = 1; % paints the matrix!
             end
@@ -4022,7 +4022,7 @@ if ~isempty(g.winrej)
                 else
                     int_parts2 = find(int_parts);
                 end
-                int_parts2 = abs(int_parts2 - size(g.eloc_file,2)); % flips the array
+                int_parts2 = abs(int_parts2 - size(g.eloc_file,2) -1); % flips the array
                 % --- paint specific trial-epoch regions
                 %% Paints matrix
                 plot_matrix(int_parts2,int_epoch_id(i)) = 1;
@@ -4035,7 +4035,7 @@ end
 bad_chans = find([g.eloc_file.badchan]); % gets bad channels/components
 if ~isempty(bad_chans)
     
-    bad_chans = abs(bad_chans - size(g.eloc_file,2)); % flips the array
+    bad_chans = [abs(bad_chans - 1 - size(g.eloc_file,2))]; % flips the array
     if ~isempty(bad_chans)
         plot_matrix(bad_chans,:) = 3; % Paints matrix
     end
@@ -4048,7 +4048,7 @@ end
             % 1st,     2nd,   3rd,   4th,   5th
             % darkblue, black, yellow, green, red
             % background, ticks, channels, greens, reds
-    mymap = [.2 .2 .5; 0 0 0; 1 1 0; 0 1 0; 1 0 0]; % color map of matrix
+    mymap = [.5 .5 .8; 0 0 0; 1 1 0; 0 1 0; 1 0 0]; % color map of matrix
     colormap(mymap) % applies new colors
     clim('manual'); % makes color limits manual,
     clim(ax_pic,[-10,20]); % fixes color patterns so that alwasy plots the same colors
