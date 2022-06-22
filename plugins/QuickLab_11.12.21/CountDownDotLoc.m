@@ -7,27 +7,30 @@ end
 
 %axis = axes(axis, 'Tag','pie_chart','Position', [0 0 1 1]);
 
-A = dir('*EP63.set');
-B = dir('*EP60.set');
-C = cat(1,A,B);
-total = length(C);
+Ep63 = dir('*EP63.set');
+Ep60 = dir('*EP60.set');
+allStartedFiles = cat(1,Ep63,Ep60);
+totalFilesInFolder = length(allStartedFiles);
 
-D = dir('*.set');
-F = [D.name];
+AllFilesFolder = dir('*.set');
+AllFilesFoldersName = [AllFilesFolder.name];
+
+
+
 totalstarted = 0;
 
-for i = 1:total
+for i = 1:totalFilesInFolder
     
-    G = strfind(F,C(i).name(1:end-4));
-    H = length(G);
+    LocationOfFileStrings = strfind(AllFilesFoldersName,allStartedFiles(i).name(1:end-4));
+    NumberOfCountedFiles = length(LocationOfFileStrings);
     
-    if H > 1
+    if NumberOfCountedFiles > 1
         totalstarted = totalstarted + 1;
     end
 
 end
 
-totalleft = total-totalstarted;
+totalleft = totalFilesInFolder-totalstarted;
 % total
 % totalstarted
 % totalstarted/total*100
