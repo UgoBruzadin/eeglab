@@ -22,7 +22,7 @@ function [fh, EEG, com] = pop_prop_extended2(EEG, typecomp, chanorcomp, winhandl
 %       varargin:  do not use this.
 %
 %   Outputs:
-%       findobj('Tag',int2str(random_id)): handle for figure used
+%       fh: handle for figure used
 %       EEG: EEG structure
 %
 %   Notes: for the dipole plot, you need EEG.dipfit precalculated
@@ -147,20 +147,15 @@ if typecomp
 else
     basename = ['IC' int2str(chanorcomp) ];
 end
-
-random_id = floor(rand(1)*10000000);
-
 fh = figure('name', [basename ' - pop_prop_extended2()'],...
     'color', BACKCOLOR,...
     'numbertitle', 'off',...
     'PaperPositionMode','auto',...
     'Visible', 'off', ...
     'ToolBar', 'none',...
-    'Tag',int2str(random_id),...
     'MenuBar','none');
-pos = get(findobj('Tag',int2str(random_id)),'position');
-
-set(findobj('Tag',int2str(random_id)),'Position', [pos(1)-1200+pos(3) pos(2)-700+pos(4) 1200 700]);
+pos = get(fh,'position');
+set(fh,'Position', [pos(1)-1200+pos(3) pos(2)-700+pos(4) 1200 700]);
 
 % initialize ica data
 if ~typecomp
@@ -183,7 +178,7 @@ if ~typecomp && isfield(EEG.etc, 'ic_classification') && ~isempty(classifier_nam
         warning(['The number of ICs do not match the number of IC classifications. This will result in incorrectly plotted labels. Please rerun ' classifier_name])
     end
     nclass = length(EEG.etc.ic_classification.(classifier_name).classes);
-    labelax = axes('Parent', findobj('Tag',int2str(random_id)), 'Position', [0.32 0.6389 0.035 0.28]);
+    labelax = axes('Parent', fh, 'Position', [0.32 0.6389 0.035 0.28]);
     yoffset = 0.5;
     xoffset = 0.01;
     barh(EEG.etc.ic_classification.(classifier_name).classifications(chanorcomp, end:-1:1), 'y')
@@ -205,18 +200,18 @@ else
 end
     
 % plot time series
-% datax = axes('Parent', findobj('Tag',int2str(random_id)), 'position',,'units','normalized');
+% datax = axes('Parent', fh, 'position',,'units','normalized');
 try
-datax = axes('Parent', findobj('Tag',int2str(random_id)), 'Position',scroll_position,'units','normalized');
-scrollax = uicontrol('Parent', findobj('Tag',int2str(random_id)), 'Style', 'Slider', ...
+datax = axes('Parent', fh, 'Position',scroll_position,'units','normalized');
+scrollax = uicontrol('Parent', fh, 'Style', 'Slider', ...
     'Units', 'Normalized', 'Position', [scroll_position(1) 0.6389 scroll_position(3) 0.025]);
 if ~scroll_event
     EEG.event = []; end
 if typecomp
-    scrollplot2(EEG.times, single(EEG.data(chanorcomp, :, :)), 5, EEG.event, findobj('Tag',int2str(random_id)), datax, scrollax);
+    scrollplot2(EEG.times, single(EEG.data(chanorcomp, :, :)), 5, EEG.event, fh, datax, scrollax);
     tstitle_h = title('Channel Time Series', 'fontsize', 14, 'FontWeight', 'Normal');
 else
-    scrollplot2(EEG.times, single(icaacttmp), 5, EEG.event, findobj('Tag',int2str(random_id)), datax, scrollax);
+    scrollplot2(EEG.times, single(icaacttmp), 5, EEG.event, fh, datax, scrollax);
     tstitle_h = title(['Scrolling IC' int2str(chanorcomp) ' Activity'], 'fontsize', 14, 'FontWeight', 'Normal');
 end
 set(tstitle_h,'FontSize',14, 'Position', get(tstitle_h, 'Position'), 'units', 'normalized');
@@ -226,7 +221,7 @@ ylabel(datax,'uV');
 catch
 end
 % plot scalp map
-axes('Parent', findobj('Tag',int2str(random_id)), 'position',[0.0143 0.6331 0.3121 0.3267],'units','normalized');
+axes('Parent', fh, 'position',[0.0143 0.6331 0.3121 0.3267],'units','normalized');
 if typecomp
     topoplot( chanorcomp, EEG.chanlocs, 'chaninfo', EEG.chaninfo, ...
              'electrodes','off', 'style', 'blank', 'emarkersize1chan', 12); axis square;
@@ -275,8 +270,7 @@ end
 
 % plot erpimage
 try
-hold on
-herp = axes('Parent', findobj('Tag',int2str(random_id)), 'position',[0.0643 0.1102 0.2421 0.3850],'units','normalized');
+herp = axes('Parent', fh, 'position',[0.0643 0.1102 0.2421 0.3850],'units','normalized');
 eeglab_options;
 if EEG.trials > 1 % epoched data
     axis(herp, 'off')
@@ -346,7 +340,6 @@ else % continuoous data
 end
 catch
 end
-hold on
 if exist('axhndls', 'var')
     try
         % 2014+
@@ -376,9 +369,8 @@ if exist('axhndls', 'var')
 end
 
 % plot spectrum
-hold on
 try
-    hfreq = axes('Parent', findobj('Tag',int2str(random_id)), 'position', [0.5765 0.1109 0.3587 0.4336], 'units', 'normalized');
+    hfreq = axes('Parent', fh, 'position', [0.5765 0.1109 0.3587 0.4336], 'units', 'normalized');
     if typecomp
         spectopo_ql( EEG.data(chanorcomp,:), EEG.pnts, EEG.srate, spec_opt{:} );
         title(hfreq,'Channel Activity Power Spectrum','units','normalized', 'fontsize', 14, 'FontWeight', 'Normal');
@@ -427,20 +419,20 @@ for it_dipfit_version = dipfit_order
                 rv = 'N/A';
                 loc = 'N/A';
             end
-            dip_background = axes('Parent', findobj('Tag',int2str(random_id)), 'position', [0.41 0.1 0.1 0.1557*3+0.0109], ...
+            dip_background = axes('Parent', fh, 'position', [0.41 0.1 0.1 0.1557*3+0.0109], ...
                 'units', 'normalized', 'XLim', [0 1], 'Ylim', [0 1]);
             patch([0 0 1 1], [0 1 1 0], 'k', 'parent', dip_background)
             axis(dip_background, 'off')
             colors = {'g', 'm', 'y'};
 
             % axial
-            ax(1) = axes('Parent', findobj('Tag',int2str(random_id)), 'position', [0.41 0.1109 0.1 0.1557], 'units', 'normalized');
+            ax(1) = axes('Parent', fh, 'position', [0.41 0.1109 0.1 0.1557], 'units', 'normalized');
             axis equal off
             dipplot(EEG.dipfit.model(chanorcomp), ...
                 'meshdata', meshdatapath, ...
                 'mri', mripath, ...
                 'normlen', 'on', 'coordformat', 'MNI', 'axistight', 'on', 'gui', 'off', 'view', [0 0 1], 'pointout', 'on');
-            temp = axes('Parent', findobj('Tag',int2str(random_id)), 'position', [0.41 0.1109 0.1 0.1557], 'units', 'normalized');
+            temp = axes('Parent', fh, 'position', [0.41 0.1109 0.1 0.1557], 'units', 'normalized');
             copyobj(allchild(ax(1)),temp);
             delete(ax(1))
             ax(1) = temp;
@@ -456,7 +448,7 @@ for it_dipfit_version = dipfit_order
             end
 
             % coronal
-            ax(2) = axes('Parent', findobj('Tag',int2str(random_id)), 'position', [0.41 0.2666 0.1 0.1557], 'units', 'normalized');
+            ax(2) = axes('Parent', fh, 'position', [0.41 0.2666 0.1 0.1557], 'units', 'normalized');
             axis equal off
             copyobj(allchild(ax(1)),ax(2));
             view([0 -1 0])
@@ -472,7 +464,7 @@ for it_dipfit_version = dipfit_order
             end
 
             % sagital
-            ax(3) = axes('Parent', findobj('Tag',int2str(random_id)), 'position', [0.41 0.4223 0.1 0.1557], 'units', 'normalized');
+            ax(3) = axes('Parent', fh, 'position', [0.41 0.4223 0.1 0.1557], 'units', 'normalized');
             axis equal off
             copyobj(allchild(ax(1)),ax(3));
             view([1 0 0])
@@ -490,7 +482,7 @@ for it_dipfit_version = dipfit_order
             % dipole text
             dip_title = title(dip_background, loc, 'FontWeight', 'Normal');
             set(dip_title,'FontSize',14);
-            set(findobj('Tag',int2str(random_id)), 'CurrentAxes', ax(1))
+            set(fh, 'CurrentAxes', ax(1))
             if size(EEG.dipfit.model(chanorcomp).momxyz, 1) == 2
                 dmr = norm(EEG.dipfit.model(chanorcomp).momxyz(1,:)) ...
                     / norm(EEG.dipfit.model(chanorcomp).momxyz(2,:));
@@ -509,13 +501,13 @@ end
 catch
 end
 % final figure adjustments
-rotate3d(findobj('Tag',int2str(random_id)), 'off');
-set(findobj('Tag',int2str(random_id)), 'color', BACKCOLOR, 'visible', 'on')
+rotate3d(fh, 'off');
+set(fh, 'color', BACKCOLOR, 'visible', 'on')
 
 
 % display buttons
 % ---------------
-winhandle = findobj('Tag',int2str(random_id));
+winhandle = fh;
 if ~exist('winhandle', 'var')
     winhandle = nan; end
 if isobject(winhandle) || ~isnan(winhandle)
@@ -620,7 +612,7 @@ end;
 drawnow;
 
 %catch
- %  [findobj('Tag',int2str(random_id)), EEG, com] = pop_prop_extended(EEG, typecomp, chanorcomp, winhandle, spec_opt, erp_opt, scroll_event, classifier_name, varargin);
+ %  [fh, EEG, com] = pop_prop_extended(EEG, typecomp, chanorcomp, winhandle, spec_opt, erp_opt, scroll_event, classifier_name, varargin);
 %end
 
 
