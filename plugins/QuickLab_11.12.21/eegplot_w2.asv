@@ -1528,10 +1528,10 @@ else
   case 'ClearMarks'
       g = get(gcf,'UserData');
       g.winrej = [];
-      update_trial_rejections(g);
       for ii=1:length(g.eloc_file)
           g.eloc_file(ii).badchan = 0;
       end
+      update_trial_rejections(g);
       draw_data([],[],gcf,0,[],g);
       
   case 'rejection'
@@ -3425,7 +3425,9 @@ EEG = g.EEG;
         data = get(ax1,'UserData');
         datapos = max(1, round(tmppos(1)+lowlim));
         datapos = min(datapos, g.frames);
-        axes('Parent', fig, 'position',[ 0.92    0.31    0.080    0.10 ],'units','normalized');
+        
+        colormap("default")
+        ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.13 ],'units','normalized','tag','picture','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
 
         % get color
         BackColor = get(fig,'Color');
@@ -3464,8 +3466,7 @@ EEG = g.EEG;
                     MeanDeviation = mean(EpochAverage);
                     EpochAverage = EpochAverage - MeanDeviation;
                     % PLOTS AVERAGE OF THAT STRETCH
-                    ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.13 ],'units','normalized','tag','picture','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
-
+                    colormap("default")
                     topoplot(EpochAverage, EEG.chanlocs(:));
                     % This makes sure it only prints once
                     Printed = 1;
@@ -3476,15 +3477,10 @@ EEG = g.EEG;
                 % if no prints have been done, then there's no matching
                 % rejected areas, therefore prints normal topoplot for that
                 % column
-                colormap("default");
-                ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.13 ],'units','normalized','tag','picture','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
-                %cla(reset);
-
+                %
                 topoplot(EEG.data(:,datapos), EEG.chanlocs(:));
             end
         else
-            ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.13 ],'units','normalized','tag','picture','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
-            %cla(reset);
             topoplot(EEG.data(:,datapos), EEG.chanlocs(:));
         end
 
@@ -3968,7 +3964,7 @@ function draw_matrix(g)
 % --- get EEG data
 EEG = g.EEG;
 % --- make axis for plot
-ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.13 ],'units','normalized','tag','picture','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
+ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.125 ],'units','normalized','tag','picture','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
 hold on; % not sure if necessary
 
 % --- making empty matrix
@@ -3999,7 +3995,7 @@ if ~isempty(g.winrej)
                     rej_parts2 = find(rej_parts);
                 end
                 % --- paint specific trial-epoch regions
-                rej_parts2 = abs(rej_parts2 - size(g.eloc_file,2)); % flips the array
+                rej_parts2 = abs(rej_parts2 - size(g.eloc_file,2) -1 ); % flips the array
                 %% Paints matrix
                 plot_matrix(rej_parts2,rej_epoch_id(i)) = 1; % paints the matrix!
             end
@@ -4026,7 +4022,7 @@ if ~isempty(g.winrej)
                 else
                     int_parts2 = find(int_parts);
                 end
-                int_parts2 = abs(int_parts2 - size(g.eloc_file,2)); % flips the array
+                int_parts2 = abs(int_parts2 - size(g.eloc_file,2) -1); % flips the array
                 % --- paint specific trial-epoch regions
                 %% Paints matrix
                 plot_matrix(int_parts2,int_epoch_id(i)) = 1;
@@ -4039,7 +4035,7 @@ end
 bad_chans = find([g.eloc_file.badchan]); % gets bad channels/components
 if ~isempty(bad_chans)
     
-    bad_chans = abs(bad_chans - size(g.eloc_file,2)); % flips the array
+    bad_chans = [abs(bad_chans - 1 - size(g.eloc_file,2))]; % flips the array
     if ~isempty(bad_chans)
         plot_matrix(bad_chans,:) = 3; % Paints matrix
     end
@@ -4047,19 +4043,26 @@ end
 
     %% plots image
     imagesc(plot_matrix);
-
+    axis tight;
+    xticks(ax_pic,EEG.trials);
+    yticks(ax_pic,size(g.eloc_file,2));
     %% defining colors and axis
             % 1st,     2nd,   3rd,   4th,   5th
             % darkblue, black, yellow, green, red
             % background, ticks, channels, greens, reds
-    mymap = [.2 .2 .5; 0 0 0; 1 1 0; 0 1 0; 1 0 0]; % color map of matrix
+    mymap = [.5 .5 .8; 0 0 0; 1 1 0; 0 1 0; 1 0 0]; % color map of matrix
     colormap(mymap) % applies new colors
     clim('manual'); % makes color limits manual,
     clim(ax_pic,[-10,20]); % fixes color patterns so that alwasy plots the same colors
     
-    axis tight; % makes axis tight to bounderies, filling full space
+     % makes axis tight to bounderies, filling full space
     %lim = clim %for debugging
-    set(findobj(gcf,'tag','headmap'),'String','Data Matrix');
+    
+    title = get(findobj(gcf,'tag','headmap'),'String');
+    if strcmp(title,'Data Matrix')
+         set(findobj(gcf,'tag','headmap'),'String','Data Matrix');
+    end
+    
 
 
 
