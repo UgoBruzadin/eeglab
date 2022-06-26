@@ -18,6 +18,7 @@ function [EEG,com] = quick_PCA(EEG,IC,type,disp)
 % along with this program; if not, write to the Free Software
 
 QuickLabDefs;
+
 com = '';
 if isempty(EEG.data)
     [EEG,com] = pop_loadset();
@@ -25,7 +26,7 @@ if isempty(EEG.data)
     eeglab redraw
 end
 
-if nargin < 3
+if nargin < 3 || isempty(type)
     type = ICATYPE;
 end
 
