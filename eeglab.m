@@ -1313,7 +1313,7 @@ loadprecommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex >
 % move right
 loadpostcommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex < length(files), findex = findex + 1;, EEG = pop_loadset( files(findex).name, pwd); eeglab redraw, end; rec = plotfft(EEG,files,findex);'];
 % filelist
-loadfilecommand = ['cd(EEG.filepath);EEG = pop_loadset( files(get(findobj(''tag'',''LoadFileList''),''value'')).name, pwd);eeglab redraw;'];
+loadfilecommand = ['cd(EEG.filepath);EEG = pop_loadset( files(get(findobj(''tag'',''LoadFileList''),''value'')).name, pwd);eeglab redraw;rec = plotfft(EEG,files,findex);'];
 
 % ?, win0, PATH, win1, val2/win2, val3/win3, val4/win4 , val5/win5 , val6/win6, val7/win7, val8/win8, val9/win9
 geometry = { [1] [1] [1] [1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [1 1 1 1 0.3 0.3 3 1] [1] };
@@ -1386,12 +1386,12 @@ set(W_MAIN, 'visible', 'on');
 
 %% plot piechart or files left to work on!
 
-axisPanel = uipanel(W_MAIN, 'Position',[.9 .05 .08 .35], 'BackgroundColor', COLOR,'Tag','PieChart');
-
-% % Create a new axis on the panel
-leftAxis = axes(axisPanel, 'Tag','pie_chart','Position', [0 0 1 1]);
-
-CountDownDotLoc(leftAxis);
+% axisPanel = uipanel(W_MAIN, 'Position',[.9 .05 .08 .35], 'BackgroundColor', COLOR,'Tag','PieChart');
+% 
+% % % Create a new axis on the panel
+% leftAxis = axes(axisPanel, 'Tag','pie_chart','Position', [0 0 1 1]);
+% 
+% CountDownDotLoc(leftAxis);
 
 return;
 
