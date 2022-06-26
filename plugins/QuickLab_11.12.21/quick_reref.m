@@ -41,11 +41,11 @@ if nargin < 2
 % EEG = pop_reref( EEG, [],'keepref','on');
     [EEG,com] = pop_reref( EEG, [], 'keepref', keepref);
 else
-if channels == 'AVG'
+if strcmp(channels,'AVG')
    [EEG,com] = pop_reref( EEG, [], 'keepref', keepref);
-elseif channels == 'LE'
+elseif strcmp(channels,'LE')
    [EEG,com] = pop_reref( EEG, LE_REFS, 'keepref', keepref);
-elseif channels == 'OG'
+elseif strcmp(channels,'OG')
    [EEG,com] = pop_reref( EEG, OG_REF, 'keepref', keepref);
 else
     %try finding channel names
