@@ -45,7 +45,21 @@ HEADMODELLOCATION = [''];
 % References
 OG_REF = 'Cz';
 CZ_REF = 'Cz';
-LE_REFS = ['*E57','*E100'];
+LE_REFS = [57 100];
+
+try
+    if ~isempty(EEG)
+        if EEG.nbchan == 92
+            LE_REFS = [44 74];
+        elseif EEG.nbchan == 128
+            LE_REFS = [57 100];
+        else
+            LE_REFS = [57 100];
+        end
+    end
+catch
+end
+
 REFLOC = struct('labels',{'Cz'},'Y',{0},'X',{0},'Z',{8.7919},'sph_theta',{0},'sph_phi',{0},'sph_radius',{0},'theta',{0},'radius',{0},'type',{''},'ref',{'Cz'},'urchan',{[]},'datachan',{0});
 KEEPREF = 'on';
 
