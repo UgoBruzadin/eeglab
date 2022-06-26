@@ -1528,10 +1528,10 @@ else
   case 'ClearMarks'
       g = get(gcf,'UserData');
       g.winrej = [];
-      update_trial_rejections(g);
       for ii=1:length(g.eloc_file)
           g.eloc_file(ii).badchan = 0;
       end
+      update_trial_rejections(g);
       draw_data([],[],gcf,0,[],g);
       
   case 'rejection'
@@ -3964,7 +3964,7 @@ function draw_matrix(g)
 % --- get EEG data
 EEG = g.EEG;
 % --- make axis for plot
-ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.13 ],'units','normalized','tag','picture','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
+ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.125 ],'units','normalized','tag','picture','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
 hold on; % not sure if necessary
 
 % --- making empty matrix
@@ -4043,7 +4043,9 @@ end
 
     %% plots image
     imagesc(plot_matrix);
-
+    axis tight;
+    xticks(ax_pic,EEG.trials);
+    yticks(ax_pic,size(g.eloc_file,2));
     %% defining colors and axis
             % 1st,     2nd,   3rd,   4th,   5th
             % darkblue, black, yellow, green, red
@@ -4053,9 +4055,14 @@ end
     clim('manual'); % makes color limits manual,
     clim(ax_pic,[-10,20]); % fixes color patterns so that alwasy plots the same colors
     
-    axis tight; % makes axis tight to bounderies, filling full space
+     % makes axis tight to bounderies, filling full space
     %lim = clim %for debugging
-    set(findobj(gcf,'tag','headmap'),'String','Data Matrix');
+    
+    title = get(findobj(gcf,'tag','headmap'),'String');
+    if strcmp(title,'Data Matrix')
+         set(findobj(gcf,'tag','headmap'),'String','Data Matrix');
+    end
+    
 
 
 
