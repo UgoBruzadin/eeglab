@@ -7,7 +7,7 @@ function rec = plotfft(EEG,files,jpgindex)
 % end
 W_MAIN = findobj('Tag','EEGLAB');
 
-axisPie = uipanel(W_MAIN, 'Position',[.9 .05 .1 .35],'Tag','PieChart',Visible='on',BackgroundColor=W_MAIN.Color,BorderType='none');
+axisPie = uipanel(W_MAIN, 'Position',[.9 .05 .09 .30],'Tag','PieChart',Visible='on',BackgroundColor=W_MAIN.Color,BorderType='none');
 
 % % Create a new axis on the panel
 pieAxis = axes(axisPie, 'Tag','pie_chart','Position', [0 0 1 1],Visible='on');
