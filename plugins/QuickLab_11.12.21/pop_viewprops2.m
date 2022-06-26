@@ -63,7 +63,7 @@ if nargin < 3
     else
         chanorcomp = [1:EEG.nbchan];
     end
-    spec_opt = [2:55];
+    spec_opt = [2:40];
     erp_opt = {};
     
 %     
@@ -291,7 +291,9 @@ for ri = chanorcomp
     else
         set( button, 'backgroundcolor', COLACC, 'string', int2str(ri));
     end
-    %drawnow;
+%     if ~rem(ri,30) % plots 30 at a time, still slower tahn just waiting to plot all.
+%         drawnow;
+%     end
     count = count +1;
 end;
 drawnow;
