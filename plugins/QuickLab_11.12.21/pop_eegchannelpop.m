@@ -84,8 +84,9 @@ for i = chancomps
         absurd_periods = find(absurd_times); %maybe square .^2 sum data, make std 
         %[ipt,res] = findchangepts(tempdata,"Statistic",'std',"MaxNumChanges",2); %,"MinThreshold",options(2),"MinDistance",options(3));
         
-
-        absurd_epochs = floor(1+absurd_periods/EEG.pnts); % all epochs ids with abnormal values
+        %--- bug fix: adding 1 complete integer crashed the code if the
+        %last point of the data was also a problem. 0.9999 is a temp fix.
+        absurd_epochs = floor(0.999999999+absurd_periods/EEG.pnts); % all epochs ids with abnormal values
         
         unique_abs_epoch = unique(absurd_epochs); % all unique epochs with abnormal values
         
@@ -103,9 +104,10 @@ for i = chancomps
                 intervalA = (e*EEG.pnts);
 
                 intervalB = intervalA-EEG.pnts+1;
-
-                new_times = find(absurd_times(intervalB:intervalA));
-
+                A = sum(absurd_times(intervalB:intervalA));
+                if A > 0
+                    new_times = find(absurd_times(intervalB:intervalA));
+                end
                 seq_values = diff(new_times)==1;
                 
                 seq_values_sum = sum(seq_values);
