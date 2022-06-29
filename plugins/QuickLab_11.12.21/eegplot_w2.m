@@ -1543,11 +1543,13 @@ else
         set(dis,'BackgroundColor',[1 0.5 0.5]);
         set(dis,'string','Rejecting Mode');
         set(figh,'Color',[.9 .7 .7])
+        set(findobj(gcf,'Style','Text'),'BackgroundColor',[.9 .7 .7])
     else
         g.wincolor = [0.7 1 0.9];
         set(dis,'BackgroundColor',[0.5 1 0.5]);
         set(dis,'string','Interpolating Mode');
         set(figh,'Color',[.93 .96 1])
+        set(findobj(gcf,'Style','Text'),'BackgroundColor',[.93 .96 1])
     end
     
     draw_data([],[],gcf,0,[],g);
