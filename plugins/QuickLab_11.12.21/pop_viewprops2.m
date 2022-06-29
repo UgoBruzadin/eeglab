@@ -146,7 +146,7 @@ end;
 column = ceil(sqrt( length(chanorcomp) ))+5;
 rows = ceil(length(chanorcomp)/column);
 if ~exist('fig','var')
-    figure('name', [ 'View ' fastif(typecomp,'channels','components') ' properties - pop_viewprops2() (dataset: ' EEG.setname ')'], 'tag', currentfigtag, ...
+    figure('name', [ 'View ' fastif(typecomp,'channels','components') ' properties - pop_viewprops2() (dataset: ' EEG.filename ')'], 'tag', currentfigtag, ...
         'numbertitle', 'off', 'color', BACKCOLOR);
     set(gcf,'MenuBar', 'none');
     pos = get(gcf,'Position');
