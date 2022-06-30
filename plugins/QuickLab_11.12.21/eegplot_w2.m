@@ -1515,6 +1515,8 @@ else
   case 'fft'
     g = get(gcf,'UserData');
     EEG = g.EEG;
+    tmpcolor = g.color;
+    draw_data2(gcf,[],[],tmpcolor)
     %figure; spy(g.winrej)
     %interpolation_plot(g)
     %draw_matrix(gcf,g);
@@ -1917,6 +1919,65 @@ else
   
 end
 
+% NEW FUNCTION: FAST PLOTTING ONE CHANNEL OR ONE PART AT A TIME.
+
+function draw_data2(figh,g,channel,winrej,tmpcolor)
+%tic
+ax1 = findobj('tag','eegaxis','parent',figh);
+
+data = get(ax1,'UserData');
+
+%meandata = zeros(1,g.chans);
+
+if g.trialstag ~= -1 % time in second or in trials
+        multiplier = g.trialstag;
+else
+        multiplier = g.srate;
+end
+
+switch lower(g.submean) % subtract the mean ?
+    case 'on'
+        if ~isempty(g.data2)
+            meandata = nan_mean(g.data2(:,lowlim:highlim)');
+        else
+            meandata = nan_mean(data(:,lowlim:highlim)');
+        end
+    otherwise, meandata = zeros(1,g.chans);
+end
+
+oldspacing = g.spacing;
+
+% plot data
+% ---------
+hold(ax1,'on')
+
+lowlim = round(g.time*multiplier+1);
+highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
+
+% fixes the channel order
+channel = abs(channel - g.chans - 1);
+% --- plotting individual bad region or area
+if isempty(winrej)
+
+    tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,channel,lowlim,highlim);
+    plot(ax1,tmp_plot_data_y', 'color', tmpcolor, 'clipping','on');
+
+else
+
+    winrej = g.winrej( (g.winrej(:,1) >= lowlim) & (g.winrej(:,1) <= highlim) | ...
+        (g.winrej(:,2) >= lowlim & g.winrej(:,2) <= highlim) | ...
+        (g.winrej(:,1) <= lowlim & g.winrej(:,2) >= highlim),:);
+
+    abscmin = max(1,round(winrej(1,1)-lowlim));
+    abscmax = round(winrej(1,2)-lowlim);
+    maxXlim = get(gca, 'xlim');
+
+    plot(ax1,abscmin+1:abscmax+1,data(g.chans-channel+1,abscmin+lowlim:abscmax+lowlim) ...
+        -meandata(g.chans-channel+1)+channel*g.spacing + (g.dispchans+1)*(oldspacing-g.spacing)/2 +g.elecoffset*(oldspacing-g.spacing), 'color',tmpcolor,'clipping','on')
+
+end
+
+
 % Redraw EEG and change position
 % ---------------------------------
 function draw_data(varargin)
@@ -1926,7 +1987,7 @@ function draw_data(varargin)
         %figure(figh);
     else
         figh = gcf;
-    end;
+    end
     if strcmp(get(figh,'tag'),'dialog')
         figh = get(figh,'UserData');
     end
@@ -1935,41 +1996,41 @@ function draw_data(varargin)
         p1 = varargin{4};
         if ~isnumeric(p1)
             p1 = 0;
-        end;
+        end
     else
         p1 = 0;
-    end;
+    end
     
     if nargin >= 5 % Children Object
         p2 = varargin{5};
     else
         p2 = [];
-    end;
+    end
     
     g = [];
     if nargin >= 6
         g = varargin{6};
-    end;
+    end
     if isempty(g)
         g = get(figh,'UserData');
-    end;
+    end
     if ~isfield(g,'trialstag')
         return;
-    end;
+    end
     
     ax1 = [];
     if nargin >= 7
         ax1 = varargin{7};
-    end;
+    end
     if isempty(ax1)
         ax1 = findobj('tag','eegaxis','parent',figh); % axes handle
-    end;
+    end
     
     if nargin >= 8
         custom_command = varargin{8};
     else
         custom_command = '';
-    end;
+    end
     
     % compare versions once, because it slows down drawing
     verLessThan_matlab_9 = ismatlab && verLessThan('matlab','9.0.0');
@@ -1982,16 +2043,16 @@ function draw_data(varargin)
         EPosition_new = str2num(get(EPosition,'string'));
         if ~isempty(EPosition_new)
             g.time = EPosition_new;
-        end;
+        end
         if g.trialstag(1) ~= -1
             g.time = g.time - 1;
-        end;
+        end
         g.spacing = str2num(get(ESpacing,'string'));
-    end;
+    end
     
     if ~isempty(custom_command)
         try eval(custom_command); catch, end;
-    end;
+    end
     
     switch p1
         case 1
@@ -2018,7 +2079,7 @@ function draw_data(varargin)
         multiplier = g.trialstag;
     else
         multiplier = g.srate;
-    end;
+    end
     
     % Update edit box
     % ---------------
@@ -2027,7 +2088,7 @@ function draw_data(varargin)
         set(EPosition,'string',num2str(g.time)); 
     else 
         set(EPosition,'string',num2str(g.time+1)); 
-    end; 
+    end
     set(figh, 'userdata', g);
 
     lowlim = round(g.time*multiplier+1);
@@ -2045,11 +2106,11 @@ function draw_data(varargin)
                 meandata = nan_mean(data(:,lowlim:highlim)');
             end
         otherwise, meandata = zeros(1,g.chans);
-    end;
+    end
     
     if strcmpi(g.plotdata2, 'off')
         cla(ax1)
-    end;
+    end
     
     oldspacing = g.spacing;
     if g.envelope
@@ -2063,7 +2124,7 @@ function draw_data(varargin)
     if ~isfield(g.eloc_file, 'display')
         for ii=1:length(g.eloc_file)
             g.eloc_file(ii).display = 1;
-        end;
+        end
     end
     
     chans_list_bad=[];
@@ -2078,19 +2139,19 @@ function draw_data(varargin)
             if ~isfield(g.eloc_file, 'badchan')
                 for ii=1:length(g.eloc_file)
                     g.eloc_file(ii).badchan = 0;
-                end;
+                end
             end
 
         chans_list_bad=g.chans-find([g.eloc_file.badchan])+1;
         chans_list_good=setdiff(1:g.chans,chans_list_bad);
         chans_list_good2=find([g.eloc_file.display]);
-        end;
-    end;
+        end
+    end
     
     % plot channels whose "badchan" field is set to 1.
     % Bad channels are plotted first so that they appear behind the good
     % channels in the eegplot_w2 figure window.
-    
+
     %THIS IS THE PLOT FUNCTION FOR CHANGING THE COLOR OF THE CHANNEL UGO
     % attempting to print the selected areas UGO LEFT HERE
     if ~isempty(g.winrej)
@@ -2101,67 +2162,15 @@ function draw_data(varargin)
         % --- MAKE NEW LIMITS
         highlim2 = highlim;
         lowlim2 = lowlim;
-        % --- LOOPS FOR ALL SELECTED REGIONS IN WINREJ IN REVERSE ORDER
-        %tic
-        %if g.trialstag(1) == -1
-%         for j=size(g.winrej,1):-1:1
-%             % --- IF REGION IS WITHIN NEW WINDOWS
-%             if (g.winrej(j,1) >= lowlim && g.winrej(j,1) <= highlim) || ...
-%                (g.winrej(j,2) >= lowlim && g.winrej(j,2) <= highlim)
-%                 % --- CAPTURES THE NEW LOW LIMIT
-%                 lowlim2 = g.winrej(j,1);
-%                 % --- GETS A NEW LIST OF BAD ELECTRODES WITHIN THE REJ REGION
-%                 list_bad_chans = find(g.winrej(j,6:end)==1);
-%                 
-%                 if g.winrej(j,2) < highlim
-%                     highlim2 = g.winrej(j,2);
-%                     tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,list_bad_chans,lowlim,highlim2);
-%                     plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');
-%                 else
-%                     highlim2 = highlim;
-%                     tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,list_bad_chans,lowlim,highlim2);
-%                     plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');
-%                 end
-%                 
-%                 %tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,list_bad_chans,lowlim,lowlim2);
-%                 %plot(ax1,tmp_plot_data_y', 'color', g.color{1}, 'clipping','on');
-%             elseif g.winrej(j,1) < lowlim && g.winrej(j,2) > highlim
-%                 list_bad_chans = find(g.winrej(j,6:end)==1);
-%                 chans_list_bad = [chans_list_bad,list_bad_chans];
-%                 %chans_list_good = setdiff(1:g.chans,chans_list_bad);
-%                 tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,list_bad_chans,lowlim,highlim);
-%                 plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');
-%             else
-%                 %tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,chans_list_good2,lowlim,highlim);
-%                 %plot(ax1,tmp_plot_data_y', 'color', g.color{1}, 'clipping','on');
-%             end
-%         end
-%       end
-        %toc
         
         tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,chans_list_bad,lowlim,highlim);
         plot(ax1,tmp_plot_data_y', 'color', [1 0 0], 'clipping','on');
         chans_list_bad = [chans_list_bad,list_bad_chans];
         % plot the blue parts
         tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,chans_list_bad,lowlim,highlim2);
-        %plot(ax1,tmp_plot_data_y', 'color', [ .85 .85 .85 ], 'clipping','on');
-        %plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');
-%         for i = chans_list_bad
-%             line_params = ...
-%                 {1,mean(i*g.spacing + (g.dispchans+1)*(oldspacing-g.spacing)/2 +g.elecoffset*(oldspacing-g.spacing),2),...
-%                 'Marker','<','MarkerEdgeColor','r','MarkerFaceColor','r','MarkerSize',6,...
-%                 'clipping','off','userdata',g.chans-i+1,'ButtonDownFcn',{@MarkChannel,figh,g.chans-i+1}};
-%             if verLessThan_matlab_9
-%                 line(line_params{:})
-%             else
-%                 line(ax1,line_params{:});
-%             end;
-%         end
     else
-        %tic
-        tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,chans_list_bad,lowlim,highlim);
-        plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');  
-        %toc
+         tmp_plot_data_y = plotChannel(oldspacing,meandata,data,g,chans_list_bad,lowlim,highlim);
+         plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');  
     end
     
     %NORMAL PLOT RED LINE 
@@ -2178,24 +2187,8 @@ function draw_data(varargin)
                 + (g.dispchans+1)*(oldspacing-g.spacing)/2 ...
                 + g.elecoffset*(oldspacing-g.spacing);
         end
-        %THIS IS THE PLOT FUNCTION FOR CHANGING THE COLOR OF THE CHANNEL UGO
-        %plot(ax1,tmp_plot_data_y', 'color', [ 1 0 0 ], 'clipping','on');
-        %%REMOVED
-        
-        %plot(ax1,tmp_plot_data_y', 'color', [ .85 .85 .85 ], 'clipping','on');
-%         for i = chans_list_bad
-%             line_params = ...
-%                 {1,mean(i*g.spacing + (g.dispchans+1)*(oldspacing-g.spacing)/2 +g.elecoffset*(oldspacing-g.spacing),2),...
-%                 'Marker','<','MarkerEdgeColor','r','MarkerFaceColor','r','MarkerSize',6,...
-%                 'clipping','off','userdata',g.chans-i+1,'ButtonDownFcn',{@MarkChannel,figh,g.chans-i+1}};
-%             if verLessThan_matlab_9
-%                 line(line_params{:})
-%             else
-%                 line(ax1,line_params{:});
-%             end;
-%         end
-    end;
-    
+
+    end
     % REPLOT channels adjusting for channel errors 
     % SOMETHING IS OFF ABOUT THIS CODE?! INVESTIGATE IMMEDIATLY
     if ~isempty(chans_list_good)
@@ -2209,7 +2202,7 @@ function draw_data(varargin)
             %tmpcolor = [ 1 0 0 ];
         else
             plot_at_once=0; % in this case only mode "0" allowed
-        end;
+        end
         switch plot_at_once
             case 1
                 tmp_plot_data_x=1:tmp_plot_data_x_N;
@@ -2217,7 +2210,7 @@ function draw_data(varargin)
             case 2
                 tmp_plot_data_x= repmat([1:tmp_plot_data_x_N NaN],1,chans_list_good_N) ;
                 tmp_plot_data_y= nan(1, chans_list_good_N*(tmp_plot_data_x_N+1));
-        end;
+        end
         for ii = 1:chans_list_good_N
             i=chans_list_good(ii);
             tmp_plot_data_y_i=data(g.chans-i+1,lowlim:highlim) ...
@@ -2232,64 +2225,37 @@ function draw_data(varargin)
                     tmp_plot_data_y(ii,tmp_plot_data_x)=tmp_plot_data_y_i;
                 case 2
                     tmp_plot_data_y(1,(ii-1)*(tmp_plot_data_x_N+1)+[1:tmp_plot_data_x_N])=tmp_plot_data_y_i;
-            end;
-        end;
+            end
+        end
         switch plot_at_once
             case 1
                 plot(ax1,tmp_plot_data_y', 'color', tmpcolor, 'clipping','on');
                 %plot(ax1,tmp_plot_data_x,tmp_plot_data_y, 'color', tmpcolor, 'clipping','on');
             case 2
                 plot(ax1,tmp_plot_data_x,tmp_plot_data_y, 'color', tmpcolor, 'clipping','on');
-        end;
-%         if (isfield(g, 'eloc_file') && isstruct(g.eloc_file)) && ~isempty(g.command)
-%             for i = chans_list_good
-%                 line(ax1,1,mean(i*g.spacing + (g.dispchans+1)*(oldspacing-g.spacing)/2 +g.elecoffset*(oldspacing-g.spacing),2),...
-%                     'Marker','>','MarkerEdgeColor','g','MarkerFaceColor','g','MarkerSize',6,'clipping','off','userdata',g.chans-i+1,'ButtonDownFcn',{@MarkChannel,figh,g.chans-i+1});
-%             end;
-%         end;
-    end;
+        end
+    end
     
     % draw selected channels
     % ------------------------
     if ~isempty(g.winrej) && size(g.winrej,2) > 2
-    	for tpmi = 1:size(g.winrej,1) % scan rows
-            if (g.winrej(tpmi,1) >= lowlim && g.winrej(tpmi,1) <= highlim) || ...
-               (g.winrej(tpmi,2) >= lowlim && g.winrej(tpmi,2) <= highlim) || ...
-               (g.winrej(tpmi,1) <= lowlim && g.winrej(tpmi,2) >= highlim)
-                
-                abscmin = max(1,round(g.winrej(tpmi,1)-lowlim));
-                abscmax = round(g.winrej(tpmi,2)-lowlim);
-                maxXlim = get(gca, 'xlim');
-                % found a quick solution.... abscmax didn't let me draw the
-                % red lines at first, so I sorta removed it. Now I have to
-                % keep it, so i left it as a try error.
-                try
-                    % removed this fix as it was crashing my matrix plot!
-%                     if maxXlim(2) >= 2 %SUPER BUG can't fix it?!
-%                         abscmax = min(abscmax, round(maxXlim(2)-1));
-%                     end
-                    for i = 1:g.chans
-                        if g.winrej(tpmi,g.chans-i+1+5)
-                            plot(ax1,abscmin+1:abscmax+1,data(g.chans-i+1,abscmin+lowlim:abscmax+lowlim) ...
-                                -meandata(g.chans-i+1)+i*g.spacing + (g.dispchans+1)*(oldspacing-g.spacing)/2 +g.elecoffset*(oldspacing-g.spacing), 'color','r','clipping','on')
-                        end
-                    end
-                catch
-                    % for some reason, abscmax is weird. I fixed it by
-                    % taking -1 out of it, but still unsure how to fix it.
-                    % the bug is that it does not display the red channels at the last
-                    % few epochs!
-                    abscmax = abscmax-1;
-                    for i = 1:g.chans
-                        if g.winrej(tpmi,g.chans-i+1+5)
-                            plot(ax1,abscmin+1:abscmax+1,data(g.chans-i+1,abscmin+lowlim:abscmax+lowlim) ...
-                                -meandata(g.chans-i+1)+i*g.spacing + (g.dispchans+1)*(oldspacing-g.spacing)/2 +g.elecoffset*(oldspacing-g.spacing), 'color','r','clipping','on')
-                        end
-                    end
-                end
+        winrej = g.winrej( (g.winrej(:,1) >= lowlim) & (g.winrej(:,1) <= highlim) | ...
+            (g.winrej(:,2) >= lowlim & g.winrej(:,2) <= highlim) | ...
+            (g.winrej(:,1) <= lowlim & g.winrej(:,2) >= highlim),:);
+
+        for tpmi = 1:size(winrej,1) % scan rows
+
+            abscmin = max(1,round(winrej(tpmi,1)-lowlim));
+            abscmax = round(winrej(tpmi,2)-lowlim);
+            maxXlim = get(gca, 'xlim');
+            chanrej = find(winrej(tpmi,6:end));
+            chanrej = abs(chanrej - g.chans - 1);
+            for i = chanrej
+                plot(ax1,abscmin+1:abscmax+1,data(g.chans-i+1,abscmin+lowlim:abscmax+lowlim) ...
+                    -meandata(g.chans-i+1)+i*g.spacing + (g.dispchans+1)*(oldspacing-g.spacing)/2 +g.elecoffset*(oldspacing-g.spacing), 'color','r','clipping','on')
             end
-    	end;
-    end;
+        end
+    end
     g.spacing = oldspacing;
     set(ax1, 'Xlim', [1 g.winlength*multiplier+1]);
 
@@ -2299,7 +2265,7 @@ function draw_data(varargin)
     if g.children ~= 0
         draw_data([],[],g.children,p1,p2);
         figure(figh);
-    end;
+    end
 
      % draw second data if necessary
      if ~isempty(g.data2)
@@ -2315,7 +2281,7 @@ function draw_data(varargin)
          set(figh, 'userdata', g);
      else 
          draw_background([],[],figh,g);
-     end;
+     end
 
 %draw_matrix(g)
 
@@ -2329,15 +2295,15 @@ if nargin >= 3
     fig = varargin{3};
 else
     fig = gcf;
-end;
+end
 if nargin >= 4
     g = varargin{4};
 else
     g = get(fig,'UserData');  % Data (Note: this could also be global);
-end;
+end
 if ~isfield(g,'trialstag')
     return;
-end;
+end
 
 ax0 = findobj('tag','backeeg','parent',fig); % axes handle
 ax1 = findobj('tag','eegaxis','parent',fig); % axes handle
@@ -2348,7 +2314,7 @@ verLessThan_matlab_9 = ismatlab && verLessThan('matlab','9.0.0');
 % Plot data and update axes
 if verLessThan_matlab_9
     axes(ax0); % changing axes very slows down drawing
-end;
+end
 cla(ax0);
 hold(ax0,'on');
 % plot rejected windows
@@ -2356,7 +2322,7 @@ if g.trialstag ~= -1
     multiplier = g.trialstag;
 else
     multiplier = g.srate;
-end;
+end
 
 % draw rejection windows
 % ----------------------
@@ -2407,7 +2373,7 @@ if ~isempty(g.winrej) && g.winstatus
                 tmpcols  = g.winrej(tpmi,3:5);
             else
                 tmpcols  = g.wincolor;
-            end;
+            end
             winrej=[g.winrej(tpmi,1)-lowlim g.winrej(tpmi,2)-lowlim ...
                    g.winrej(tpmi,2)-lowlim g.winrej(tpmi,1)-lowlim];
             patch_params={winrej, [0 0 1 1], tmpcols, 'EdgeColor', tmpcols};
@@ -2415,10 +2381,10 @@ if ~isempty(g.winrej) && g.winstatus
                 patch(patch_params{:});
             else
                 patch(ax0, patch_params{:});
-            end;
-        end;
+            end
+        end
 %    end;
-end;
+end
 
 % plot tags
 % ---------
@@ -2444,7 +2410,7 @@ if strcmpi(g.plotevent, 'on')
     AXES_POSITION = [0.05 0.03 0.865 1-(MAXEVENTSTRING-4)/100];
 else % JavierLC
     AXES_POSITION = [0.05 0.03 0.865 0.94];
-end;
+end
 
 if ~isempty(g.events)
       if ischar(g.events(1).type)
@@ -2453,10 +2419,10 @@ if ~isempty(g.events)
       else
           eventlist=arrayfun(@(x) num2str(g.events(x).type), 1:length(g.events),'UniformOutput',false);
           evnt_groups=arrayfun(@(x) num2str(g.eventtypes(x)), 1:length(g.eventtypes),'UniformOutput',false);
-      end;
+      end
 else
     eventlist={};
-end;
+end
 if strcmpi(g.plotevent, 'on') || ismember('boundary',eventlist)
     % find event to plot
     % ------------------
@@ -2465,13 +2431,13 @@ if strcmpi(g.plotevent, 'on') || ismember('boundary',eventlist)
         event2plot2 = find ( g.eventlatencyend >= lowlim & g.eventlatencyend <= highlim );
         event2plot3 = find ( g.eventlatencies  <  lowlim & g.eventlatencyend >  highlim );
         event2plot  = union_bc(union(event2plot, event2plot2), event2plot3);
-    end;
+    end
     [event2plot_ut,~,event2plot_uti]=unique_bc(eventlist(event2plot));
     if ~strcmpi(g.plotevent, 'on')
         event2plot=event2plot(find(ismember(eventlist(event2plot),{'boundary'})));
         event2plot_ut=eventlist(event2plot);
         event2plot_uti=ones(1,length(event2plot));
-    end;
+    end
     for evnt_group_idx_tmp=1:length(event2plot_ut)
         %Just repeat for the first one
         if evnt_group_idx_tmp == 1
@@ -2495,13 +2461,13 @@ if strcmpi(g.plotevent, 'on') || ismember('boundary',eventlist)
         
         if ~strcmpi(g.plotevent, 'on')
             break;
-        end;
+        end
         % schtefan: add Event types text above event latency line
         % -------------------------------------------------------
         evntxt = strrep(evnt_group,'_','-');
         if length(evntxt)>MAXEVENTSTRING
             evntxt = [ evntxt(1:MAXEVENTSTRING-1) '...' ]; % truncate
-        end;
+        end
         for index = 1:length(event2plot_activ)
             tmplat1=tmplat(index);
             try
@@ -2513,9 +2479,9 @@ if strcmpi(g.plotevent, 'on') || ismember('boundary',eventlist)
                     text(text_prop{:});
                 else
                     text(ax0, text_prop{:});
-                end;
+                end
             catch
-            end;
+            end
             
             % draw duration is not 0
             % ----------------------
@@ -2532,12 +2498,12 @@ if strcmpi(g.plotevent, 'on') || ismember('boundary',eventlist)
                         patch(patch_params{:});
                     else
                         patch(ax0, patch_params{:});
-                    end;
-                end;
-            end;
-        end;
-    end;
-end;
+                    end
+                end
+            end
+        end
+    end
+end
 
 if g.trialstag(1) ~= -1
     
@@ -2547,7 +2513,7 @@ if g.trialstag(1) ~= -1
     tmpind = find(mod(tmptag-1, g.trialstag) == 0);
     for index = tmpind
         plot(ax0, [tmptag(index)-lowlim-1 tmptag(index)-lowlim-1], [0 1], 'b--');
-    end;
+    end
     alltag = tmptag(tmpind);
     
     % compute Xticks
@@ -2562,7 +2528,7 @@ if g.trialstag(1) ~= -1
         alltag = [alltag(1)-g.trialstag alltag alltag(end)+g.trialstag]; % add border trial limits % NEEDED to add -1 to g.trialstag to correct for display problems  UGO
     else
         alltag = [ floor(lowlim/g.trialstag)*g.trialstag ceil(highlim/g.trialstag)*g.trialstag ]+1;
-    end;
+    end
     
     nbdiv = 20/g.winlength; % approximative number of divisions
     divpossible = [ 100000./[1 2 4 5] 10000./[1 2 4 5] 1000./[1 2 4 5] 100./[1 2 4 5 10 20]]; % possible increments
@@ -2573,13 +2539,13 @@ if g.trialstag(1) ~= -1
     % in the absicia of the data epochs
     if g.limits(2) < 0, tagzerooffset  = (g.limits(2)-g.limits(1))/1000*g.srate+1;
     else                tagzerooffset  = -g.limits(1)/1000*g.srate;
-    end;
+    end
     if tagzerooffset < 0, tagzerooffset = 0; end;
     
     for i=1:length(alltag)-1
         if ~isempty(tagpos) && tagpos(end)-alltag(i)<2*incrementpoint/3
             tagpos  = tagpos(1:end-1);
-        end;
+        end
         if ~isempty(g.freqlimits)
             tagpos  = [ tagpos linspace(alltag(i),alltag(i+1)-1, nbdiv) ];
         else
@@ -2587,10 +2553,10 @@ if g.trialstag(1) ~= -1
                 tmptagpos = [alltag(i)+tagzerooffset:-incrementpoint:alltag(i)];
             else
                 tmptagpos = [];
-            end;
+            end
             tagpos  = [ tagpos [tmptagpos(end:-1:2) alltag(i)+tagzerooffset:incrementpoint:(alltag(i+1)-1)]];
-        end;
-    end;
+        end
+    end
     
     % find corresponding epochs
     % -------------------------
@@ -2608,7 +2574,7 @@ if g.trialstag(1) ~= -1
     DEFAULT_GRID_SPACING = 10^ceil(log10(g.winlength)-1);
     if g.winlength / DEFAULT_GRID_SPACING < 2
         DEFAULT_GRID_SPACING = DEFAULT_GRID_SPACING / 2;
-    end;
+    end
     set(ax0,'XTickLabel', [],'YTickLabel', [],...
         'Xlim', [0 g.winlength*multiplier],...
         'XTick',[], 'YTick',[], ...
@@ -2622,11 +2588,11 @@ if g.trialstag(1) ~= -1
         XTickStart = multiplier*(XTickStartSec-g.time) + 1;
         set(ax1,'XTick', [XTickStart:(multiplier*DEFAULT_GRID_SPACING):(g.winlength*multiplier+1)]);
         set(ax1,'XTickLabel', num2str((XTickStartSec:DEFAULT_GRID_SPACING:g.time+g.winlength)'));
-    end;
-end;
+    end
+end
 if verLessThan_matlab_9
     axes(ax1); % changing axes very slows down drawing
-end;
+end
 
 %draw_matrix(g);
 
@@ -2641,14 +2607,14 @@ function change_eeg_window_length(~,~,fig,p1)
                 g.winlength = g.winlength * 0.8 ;
             else                
                 g.winlength = max(1, g.winlength - 1) ;
-            end;
+            end
         case 2
             if g.trialstag==-1
                 g.winlength = g.winlength * 1.25 ;
             else                
                 g.winlength = g.winlength + 1 ;
-            end;
-    end;
+            end
+    end
 	%set(fig, 'UserData', g);
 	draw_data([],[],fig,0,[],g);
 
@@ -2659,7 +2625,7 @@ function change_scale(varargin)
         fig = varargin{3};
     else
         fig = gcf;
-    end;
+    end
 %     if strcmp(get(fig,'tag'),'dialog')
 %         fig = get(fig,'UserData');
 %     end
@@ -2668,10 +2634,10 @@ function change_scale(varargin)
         p1 = varargin{4};
         if ~isnumeric(p1)
             p1 = 0;
-        end;
+        end
     else
         p1 = 0;
-    end;
+    end
         
     if nargin >= 5
         ax1 = varargin{5};
@@ -2682,7 +2648,7 @@ function change_scale(varargin)
     g = get(fig,'UserData');
     if ~isfield(g,'trialstag')
         return;
-    end;
+    end
     data = get(ax1, 'userdata');
     ESpacing = findobj('tag','ESpacing','parent',fig);   % ui handle
     EPosition = findobj('tag','EPosition','parent',fig); % ui handle
@@ -2690,11 +2656,11 @@ function change_scale(varargin)
         g.time = str2num(get(EPosition,'string'));  
     else 
         g.time = str2num(get(EPosition,'string'))-1;   
-    end;        
+    end
     g.spacing = str2num(get(ESpacing,'string'));
     if isempty(g.spacing)
         g.spacing=0;
-    end;
+    end
     switch p1
         case 1
             g.spacing = g.spacing * 1.25;
@@ -2704,15 +2670,15 @@ function change_scale(varargin)
     if ismember(p1, [1 2])
         spacing_deka=10^(floor(log10(g.spacing))-1);
         g.spacing = spacing_deka*round(g.spacing/spacing_deka);
-    end;
+    end
     if round(g.spacing*100) == 0
         if g.spacing == 0
             g=optim_scale(data,g);
         else
             maxindex = min(10000, g.frames);
             g.spacing = 0.01*max(max(data(:,1:maxindex),[],2),[],1)-min(min(data(:,1:maxindex),[],2),[],1);  % Set g.spacingto max/min data
-        end;
-    end;
+        end
+    end
 
     % update edit box
     % ---------------
@@ -2753,23 +2719,23 @@ if ismember(SelectionType, {'normal', 'alt'})
         else
             lowlim  = round(g.time*g.srate+1);
             highlim = round(g.winlength*g.srate);
-        end;
+        end
         if (tmppos(1) >= 0) && (tmppos(1) <= highlim)
             if isempty(g.winrej)
                 Allwin=0;
             else
                 Allwin = (g.winrej(:,1) < lowlim+tmppos(1)) & (g.winrej(:,2) > lowlim+tmppos(1));
-            end;
+            end
             if strcmp(SelectionType,'alt') || (any(Allwin) && g.setelectrode)
                 ax2 = findobj('tag','eegaxis','parent',fig);
                 tmppos = get(ax2, 'currentpoint');
                 tmpelec = g.chans + 1 - round(tmppos(1,2) / g.spacing);
                 tmpelec = min(max(tmpelec, 1), g.chans);
-            end;
+            end
             if strcmp(SelectionType,'alt')
                 if ~isempty(tmpelec)
                     MarkChannel([],[],fig,tmpelec,tmppos);
-                end;
+                end
             else
                 if any(Allwin) % remove the mark or select electrode if necessary
                     lowlim = find(Allwin==1);
@@ -3121,59 +3087,48 @@ if isfield(g, 'eloc_file')
     if channel_index ~= 0
     % badchan is a dummy variable which makes sure only channels selected
     % for complete rejection and added to g.eloc_file.badchan 
-    badchan = 0;
-    changed = 0;
-    % if winrej for this channel is empty
-    if ~isempty(g.winrej)
-        % LOOPS FOR EVERY STRETCH OF REJECTION
-        for k=1:size(g.winrej,1)
-            % CHECKS FOR MOUSE POSITION WITHIN A REJECTION STRETCH
-            if tmpval >= g.winrej(k,1) && tmpval <= g.winrej(k,2)
-                % MAKE SURE CHANNEL ISNT ALREADY REJECTED
-                if ~g.eloc_file(channel_index).badchan && ~changed
-                    % ADDS THE CHANNEL TO THE REJECTION WINDOW
-                    
-                    % this beautiful code uses operators; selects only
-                    % lines which match the tmpval in col 1 and 2, then
-                    % changes the channel index to 0 or 1; 
-                    % this is a workaround the problem of having a
-                    % disorganized g.winrej; still working on it.
-                    if sum(g.winrej(tmpval >= g.winrej(:,1) & tmpval <= g.winrej(:,2),5+channel_index)) > 0
-                       g.winrej(tmpval >= g.winrej(:,1) & tmpval <= g.winrej(:,2),5+channel_index) = 0;
-                       changed = 1;
-                    else
-                       g.winrej(tmpval >= g.winrej(:,1) & tmpval <= g.winrej(:,2),5+channel_index) = 1;
-                       changed = 1;
-                    end
-                    %g.winrej(k,5+channel_index) = 1-g.winrej(k,5+channel_index);
-                    %g.winrej(tmpval >= g.winrej(:,1) & tmpval <= g.winrej(:,2),5+channel_index)
+    % new FAST code
+    % --- Creates empty variables
+    rejection_indexes = [];
+    winrej = [];
+    tmpcolor = g.color{1};
 
-                end
-                % REDUCED BADCHAN TO MAKE SURE CHANNEL WONT BE MARKED FOR COMPLETE REJECTION 
-                badchan = badchan + 1;
-            else
-                %badchan = badchan - 1;
+    % if winrej for this channel is empty
+
+    if ~isempty(g.winrej)
+        % Checks for click within a rejection window
+
+        rejection_indexes = tmpval >= g.winrej(:,1) & tmpval <= g.winrej(:,2); % get epoch index(es), if any
+
+        % CHECKS FOR MOUSE POSITION WITHIN A REJECTION STRETCH
+        if any(rejection_indexes)
+            epoch_id = find(rejection_indexes); %get selected epoch number
+            winrej = g.winrej(epoch_id,:); % get winrej
+            winrej(channel_index+6) = 1 - winrej(channel_index+6); % changes the number from 1 to 0 or vice-versa
+            g.winrej(epoch_id,:) = winrej; % alters the original winrej
+            if winrej(channel_index+6) == 1
+                tmpcolor = [1 0 0]; % makes color red if channel is rejected
+            end
+        else % no rejection was previously there, so rejects the epoch
+            g.eloc_file(channel_index).badchan = 1-g.eloc_file(channel_index).badchan; % changes the number from 1 to 0 or vice-versa
+
+            if g.eloc_file(channel_index).badchan == 1
+                tmpcolor = [1 0 0]; % makes color red if channel is rejected
             end
         end
-    else
-        badchan = 0;
-    end
-    if ~badchan
-        % only marks or unmark channels if and only if click was outside marked stretches
-        g.eloc_file(channel_index).badchan = 1-g.eloc_file(channel_index).badchan;
-    end
-    end
     
+    end
     % removes all repetitive marks
-    %g.winrej = unique(g.winrej,'rows');
-    g.winred = merge_trials(g.winrej);
+    %g.winrej = merge_trials(g.winrej);
 
+    % new FAST code
     set(fig,'UserData',g);
-
-    draw_data([],[],fig,0,[],g); % draws data
-
-    draw_matrix(g); % draws matrix
     
+    %draw_data([],[],fig,0,[],g); % draws data
+    
+    draw_data2(gcf,g,channel_index,winrej,tmpcolor)
+    draw_matrix(g); % draws matrix
+    end
 end;
 
 function MarkChannel2(~,~,fig,channel_index) %MarkChannel original for BACKUP!
