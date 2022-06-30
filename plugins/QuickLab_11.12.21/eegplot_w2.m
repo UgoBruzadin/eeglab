@@ -1935,6 +1935,9 @@ else
         multiplier = g.srate;
 end
 
+lowlim = round(g.time*multiplier+1);
+highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
+
 switch lower(g.submean) % subtract the mean ?
     case 'on'
         if ~isempty(g.data2)
@@ -1951,9 +1954,6 @@ oldspacing = g.spacing;
 % ---------
 hold(ax1,'on')
 
-lowlim = round(g.time*multiplier+1);
-highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
-
 % fixes the channel order
 channel = abs(channel - g.chans - 1);
 % --- plotting individual bad region or area
@@ -1964,12 +1964,12 @@ if isempty(winrej)
 
 else
 
-    winrej = g.winrej( (g.winrej(:,1) >= lowlim) & (g.winrej(:,1) <= highlim) | ...
-        (g.winrej(:,2) >= lowlim & g.winrej(:,2) <= highlim) | ...
-        (g.winrej(:,1) <= lowlim & g.winrej(:,2) >= highlim),:);
+    winrej2 = winrej( (winrej(:,1) >= lowlim) & (winrej(:,1) <= highlim) | ...
+        (winrej(:,2) >= lowlim & winrej(:,2) <= highlim) | ...
+        (winrej(:,1) <= lowlim & winrej(:,2) >= highlim),:);
 
-    abscmin = max(1,round(winrej(1,1)-lowlim));
-    abscmax = round(winrej(1,2)-lowlim);
+    abscmin = max(1,round(winrej2(1,1)-lowlim));
+    abscmax = round(winrej2(1,2)-lowlim);
     maxXlim = get(gca, 'xlim');
 
     plot(ax1,abscmin+1:abscmax+1,data(g.chans-channel+1,abscmin+lowlim:abscmax+lowlim) ...
@@ -2764,6 +2764,7 @@ if ismember(SelectionType, {'normal', 'alt'})
                     end;
                 end;
                 set(fig,'UserData', g);
+                draw_data([],[],fig,0,[],g);
                 draw_background([],[],fig,g); % redraw background
             end;
         end;
@@ -2813,6 +2814,7 @@ g.winrej = sortrows(g.winrej,'ascend');
 update_trial_rejections(g)
 
 set(fig,'UserData', g);
+
 draw_background([],[],fig,g);
 
 if strcmp(g.mocap,'on')
@@ -3104,20 +3106,24 @@ if isfield(g, 'eloc_file')
         if any(rejection_indexes)
             epoch_id = find(rejection_indexes); %get selected epoch number
             winrej = g.winrej(epoch_id,:); % get winrej
-            winrej(channel_index+6) = 1 - winrej(channel_index+6); % changes the number from 1 to 0 or vice-versa
+            winrej(channel_index+5) = 1 - winrej(channel_index+5); % changes the number from 1 to 0 or vice-versa
             g.winrej(epoch_id,:) = winrej; % alters the original winrej
-            if winrej(channel_index+6) == 1
-                tmpcolor = [1 0 0]; % makes color red if channel is rejected
-            end
-        else % no rejection was previously there, so rejects the epoch
-            g.eloc_file(channel_index).badchan = 1-g.eloc_file(channel_index).badchan; % changes the number from 1 to 0 or vice-versa
-
-            if g.eloc_file(channel_index).badchan == 1
+            if winrej(channel_index+5) == 1
                 tmpcolor = [1 0 0]; % makes color red if channel is rejected
             end
         end
-    
     end
+
+    if ~any(rejection_indexes)
+        % no rejection was previously there, so rejects the epoch
+        g.eloc_file(channel_index).badchan = 1-g.eloc_file(channel_index).badchan; % changes the number from 1 to 0 or vice-versa
+
+        if g.eloc_file(channel_index).badchan == 1
+            tmpcolor = [1 0 0]; % makes color red if channel is rejected
+        end
+    end
+    
+    
     % removes all repetitive marks
     %g.winrej = merge_trials(g.winrej);
 
@@ -3439,8 +3445,14 @@ EEG = g.EEG;
         datapos = min(datapos, g.frames);
         
         colormap("default")
-        ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.13 ],'units','normalized','tag','picture','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
+        ax_pic = findobj('tag','picture');
 
+        if isempty(ax_pic)
+            ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.13 ],'units','normalized','tag','topo','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
+        else
+            delete(ax_pic);
+            ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.13 ],'units','normalized','tag','topo','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
+        end
         % get color
         BackColor = get(fig,'Color');
 
@@ -3449,30 +3461,31 @@ EEG = g.EEG;
         %topoplot(data(:,datapos), g.eloc_file);
         if ~isempty(g.winrej)
             % LOOPS FOR EVERY STRETCH OF REJECTION
-            for k=1:size(g.winrej,1)
-
+            %for k=1:size(g.winrej,1)
+            print_id = datapos >= g.winrej(:,1) & datapos <= g.winrej(:,2);
                 % CHECKS FOR MOUSE POSITION WITHIN A REJECTION STRETCH
-                if datapos >= g.winrej(k,1) && datapos <= g.winrej(k,2)
+                if any(print_id)
+                    rej_part = find(print_id);
                     % Calculates the averageb for that stretch
                     switch button
                         case 'v'
-                        EpochAverage = var(EEG.data(:,g.winrej(k,1):g.winrej(k,2)),0,2);
+                        EpochAverage = var(EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2)),0,2);
                         set(findobj(gcf,'Tag','headmap'),'String','Variance');
 
                         case 'b'
-                        EpochAverage = std((EEG.data(:,g.winrej(k,1):g.winrej(k,2))),0,2);
+                        EpochAverage = std((EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),0,2);
                         set(findobj(gcf,'Tag','headmap'),'String','Std. Dev.');
                         
                         case 'n'
-                        EpochAverage = mean(abs(EEG.data(:,g.winrej(k,1):g.winrej(k,2))),2);
+                        EpochAverage = mean(abs(EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),2);
                         set(findobj(gcf,'Tag','headmap'),'String','Abs. Mean');
                         
                         case 'm'
-                        EpochAverage = mean(log10(abs(EEG.data(:,g.winrej(k,1):g.winrej(k,2)))),2);
+                        EpochAverage = mean(log10(abs(EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2)))),2);
                         set(findobj(gcf,'Tag','headmap'),'String','log Mean');
 
                         case 'c'
-                        EpochAverage = mean(exp(EEG.data(:,g.winrej(k,1):g.winrej(k,2))),2);
+                        EpochAverage = mean(exp(EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),2);
                         set(findobj(gcf,'Tag','headmap'),'String','exp Mean');
                     end
                     MeanDeviation = mean(EpochAverage);
@@ -3480,57 +3493,30 @@ EEG = g.EEG;
                     % PLOTS AVERAGE OF THAT STRETCH
                     colormap("default")
                     topoplot(EpochAverage, EEG.chanlocs(:));
+                    %set(topo,'tag','topo');
                     % This makes sure it only prints once
                     Printed = 1;
-                    break;
+                    %break;
                 end
-            end
+            %end
             if ~Printed
                 % if no prints have been done, then there's no matching
                 % rejected areas, therefore prints normal topoplot for that
                 % column
                 %
+                colormap("default")
                 topoplot(EEG.data(:,datapos), EEG.chanlocs(:));
+                %set(topo,'tag','topo');
             end
         else
+            colormap("default")
             topoplot(EEG.data(:,datapos), EEG.chanlocs(:));
+            set(topo,'tag','topo');
         end
-
+        
         % set background color back to whatever it was before.
         set(fig,'Color',BackColor);
     end
-%else
-    %     ax1 = findobj('tag','backeeg','parent',fig);
-    %     tmppos = get(ax1, 'currentpoint');
-    %ax1 = findobj('tag','eegaxis','parent',fig); % axes handle
-    %tmppos = get(ax1, 'currentpoint');
-    % plot vertical line
-    %yl = ylim(ax1);
-    %plot(ax1, [ tmppos tmppos ], yl, 'color', [0.8 0.8 0.8]);
-%     if g.trialstag ~= -1 % time in second or in trials
-%         multiplier = g.trialstag;
-%     else
-%         multiplier = g.srate;
-%     end;
-%     lowlim = round(g.time*multiplier+1);
-%     highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
-%     % makes sure click is in valid position
-% 
-%     if g.trialstag ~= -1
-%         point_is_valid=tmppos(1) >= 0 && tmppos(1) < g.winlength*g.trialstag;
-%     else
-%         point_is_valid=tmppos(1) >= 0 && tmppos(1) <= highlim;
-%     end;
-%     if point_is_valid
-%         tmpelec = g.chans + 1 - round(tmppos(1,2) / g.spacing);
-%         tmpelec = min(max(tmpelec, 1), g.chans);
-% 
-%         %labls = get(ax1, 'YtickLabel');
-%         %component = str2num(labls(tmpelec+1,:));
-% 
-%         pop_prop_extended2(EEG, 0, tmpelec,'NaN',{'freqrange', [2 55]});
-%     end
-%end
 
 
 function plot_topoplot_old(fig)
@@ -3975,8 +3961,15 @@ function g = detect_channelpop(g,max_num_changes,min_threshold)
 function draw_matrix(g)
 % --- get EEG data
 EEG = g.EEG;
+First = 0;
+
 % --- make axis for plot
+ax_pic = findobj('tag','picture');
+if isempty(ax_pic)
+First = 1;
 ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.125 ],'units','normalized','tag','picture','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
+
+end
 hold on; % not sure if necessary
 
 % --- making empty matrix
@@ -4054,7 +4047,9 @@ if ~isempty(bad_chans)
 end
 
     %% plots image
-    imagesc(plot_matrix);
+    if First
+    matrix_pic = imagesc(ax_pic,plot_matrix);
+    set(matrix_pic,'tag','matrix')
     axis tight;
     xticks(ax_pic,EEG.trials);
     yticks(ax_pic,size(g.eloc_file,2));
@@ -4074,7 +4069,10 @@ end
     if strcmp(title,'Data Matrix')
          set(findobj(gcf,'tag','headmap'),'String','Data Matrix');
     end
-    
+    else
+        matrix_pic = findobj('tag','matrix');
+        set(matrix_pic,'CData',plot_matrix);
+    end
 
 
 
