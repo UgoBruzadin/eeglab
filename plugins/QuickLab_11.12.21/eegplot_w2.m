@@ -2743,33 +2743,34 @@ if ismember(SelectionType, {'normal', 'alt'})
                         g.winrej(lowlim,tmpelec+5) = ~g.winrej(lowlim,tmpelec+5); % set the electrode
                     else  % remove mark
                         g.winrej(lowlim,:) = [];
-                    end;
+                        draw_data([],[],fig,0,[],g);
+                    end
                 else
                     if g.trialstag ~= -1 % find nearest trials boundaries if epoched data
                         alltrialtag = [0:g.trialstag:g.frames]; % NEEDED FIXING, ADDED + 1 to count for trialstag variance
                         I1 = find(alltrialtag < (tmppos(1)+lowlim) );
                         if ~isempty(I1) && I1(end) ~= length(alltrialtag)
                             g.winrej = [g.winrej' [alltrialtag(I1(end))+1 (alltrialtag(I1(end)+1)) g.wincolor zeros(1,g.chans)]']';
-                        end;
+                        end
                     else
                         g.incallback = 1;  % set this variable for callback for continuous data
                         if size(g.winrej,2) < 5
                             g.winrej(:,3:5) = repmat(g.wincolor, [size(g.winrej,1) 1]);
-                        end;
+                        end
                         if size(g.winrej,2) < 5+g.chans
                             g.winrej(:,6:(5+g.chans)) = zeros(size(g.winrej,1),g.chans);
-                        end;
+                        end
                         tmppos_x=mouse_near_boundary_correction(tmppos(1)+lowlim,g);
                              g.winrej = [g.winrej' [tmppos_x tmppos_x g.wincolor zeros(1,g.chans)]']';
-                    end;
-                end;
+                    end
+                end
                 set(fig,'UserData', g);
-                draw_data([],[],fig,0,[],g);
+                %draw_data([],[],fig,0,[],g);
                 draw_background([],[],fig,g); % redraw background
-            end;
-        end;
-    end;
-end;
+            end
+        end
+    end
+end
 
 % release mouse button
 % ---------------------------------
@@ -2785,7 +2786,7 @@ if ~isempty(g.winrej)'
     else
         if g.winrej(end,1) > g.winrej(end,2) % reverse values if necessary
             g.winrej(end, 1:2) = [g.winrej(end,2) g.winrej(end,1)];
-        end;
+        end
         g.winrej(end,1) = max(1, g.winrej(end,1));
         g.winrej(end,2) = min(g.frames, g.winrej(end,2));
         if g.trialstag == -1 % find nearest trials boundaries if necessary
@@ -2802,12 +2803,12 @@ if ~isempty(g.winrej)'
                     I2 = find((g.winrej(end,1) <= g.winrej(1:end-1,1)) & (g.winrej(end,2) >= g.winrej(1:end-1,1)) );
                     if ~isempty(I2)
                         g.winrej(I2,:) = []; % remove if empty match
-                    end;
-                end;
-            end;
-        end;
-    end;
-end;
+                    end
+                end
+            end
+        end
+    end
+end
 
 g.winrej = sortrows(g.winrej,'ascend');
 
@@ -2820,7 +2821,7 @@ draw_background([],[],fig,g);
 if strcmp(g.mocap,'on')
     show_mocap_for_eegplot(g.winrej); 
     g.winrej = g.winrej(end,:); 
-end; % nima
+end % nima
 
 
 % Function to show the value and electrode at mouse position
@@ -3965,10 +3966,10 @@ First = 0;
 
 % --- make axis for plot
 ax_pic = findobj('tag','picture');
-if isempty(ax_pic)
-First = 1;
-ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.125 ],'units','normalized','tag','picture','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
 
+if isempty(ax_pic)
+    First = 1;
+    ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.125 ],'units','normalized','tag','picture','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
 end
 hold on; % not sure if necessary
 
