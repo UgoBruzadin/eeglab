@@ -15,22 +15,26 @@ totalFilesInFolder = length(allStartedFiles);
 AllFilesFolder = dir('*.set');
 AllFilesFoldersName = [AllFilesFolder.name];
 
+final_files = dir('*bssICA.set');
 
 
-totalstarted = 0;
+%totalstarted = 0;
+% 
+% for i = 1:totalFilesInFolder
+%     
+%     LocationOfFileStrings = strfind(AllFilesFoldersName,allStartedFiles(i).name(1:end-4));
+%     %LocationOfFileStrings = contains(AllFilesFoldersName,strcat(allStartedFiles(i).name(1:end-4),'*','bssICA*.set'));
+%     NumberOfCountedFiles = length(LocationOfFileStrings);
+%     
+%     if NumberOfCountedFiles > 1
+%         totalstarted = totalstarted + 1;
+%     end
+% 
+% end
 
-for i = 1:totalFilesInFolder
-    
-    LocationOfFileStrings = strfind(AllFilesFoldersName,allStartedFiles(i).name(1:end-4));
-    NumberOfCountedFiles = length(LocationOfFileStrings);
-    
-    if NumberOfCountedFiles > 1
-        totalstarted = totalstarted + 1;
-    end
+totalstarted = size(final_files,1);
+totalleft = totalFilesInFolder-totalstarted; 
 
-end
-
-totalleft = totalFilesInFolder-totalstarted;
 % total
 % totalstarted
 % totalstarted/total*100
