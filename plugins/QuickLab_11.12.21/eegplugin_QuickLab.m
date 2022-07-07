@@ -47,9 +47,11 @@ uimenu( plotmenu, 'label', 'Component Scroll++ for Interpolation', 'callback', .
 % uimenu( plotmenu, 'label', 'Frequency Scroll++ for Interpolation', 'callback', ...
 %     ['com = pop_eegplot_w2(EEG, 1, 2, 1, 3);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
-
 uimenu( plotmenu, 'label', 'Quick IClabel & Viewprops+ plot', 'callback', ...
     ['[EEG,com] = quick_IClabel(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+
+uimenu( plotmenu, 'label', 'Quick ERP Viewprops+ plot', 'callback', ...
+    ['com = pop_viewprops_erp(EEG,0,1:size(EEG.icawinv,2),{''freqrange'',[2 55]});[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( plotmenu, 'label', 'Quick Plot Channel Spectra default', 'callback', ...
     ['[~, com] = quick_spectra(EEG,40,2);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
@@ -108,7 +110,7 @@ uimenu( dipfitmenu, 'label', strcat('PCA ',num2str(d),' & DipFit'), 'callback', 
 end
 
 uimenu( pcamenu, 'label', 'ICA no plot', 'callback', ...
-    ['[EEG,com] = quick_PCA(EEG,[],[],0);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,com] = quick_PCA(EEG,[],[],0);EEG = quick_eegsave(EEG,''ICA'');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu( pcamenu, 'label', 'ICA', 'callback', ...
     ['[EEG,com] = quick_PCA(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
