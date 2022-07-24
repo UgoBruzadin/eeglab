@@ -204,16 +204,16 @@ for ri = chanorcomp
         end;
         ha = axes('Units','Normalized', 'Position',[X Y sizewx sizewy-.5].*s+q,'Tag',strcat('H',int2str(ri)));
         if typecomp
-            to = pop_erpimage_ql(EEG,0, [ri],[[projchan]],'',10,1,{},[],'' ,'yerplabel','','erp','on','cbar','off');%,'topo', { EEG.icawinv(:,[ri]) EEG.chanlocs EEG.chaninfo } );
+            to = pop_erpimage_ql(EEG,0, [ri],[[projchan]],'',10,1,{},[],'' ,'yerplabel','','erp','on','cbar','off'); %,'topo', { EEG.icawinv(:,[ri]) EEG.chanlocs EEG.chaninfo } );
 %             to = topoplot( ri, EEG.chanlocs, 'chaninfo', EEG.chaninfo, ...
 %                 'electrodes','off', 'style', 'blank', 'emarkersize1chan', 12);
         else
             if plotelec
-                to = pop_erpimage_ql(EEG,0, [ri],[[projchan]],'',10,1,{},[],'' ,'yerplabel','','erp','on','cbar','off');%,'topo', { EEG.icawinv(:,[ri]) EEG.chanlocs EEG.chaninfo } );
+                to = pop_erpimage_ql(EEG,0, [ri],[[projchan]],'',10,1,{},[],'' ,'yerplabel','','erp','on','cbar','off'); %,'topo', { EEG.icawinv(:,[ri]) EEG.chanlocs EEG.chaninfo } );
 %                 to = topoplot( EEG.icawinv(:,ri), EEG.chanlocs, 'verbose', ...
 %                     'off', 'style' , 'fill', 'chaninfo', EEG.chaninfo, 'numcontour', 8);
             else
-                to = pop_erpimage_ql(EEG,0, [ri],[[projchan]],'',10,1,{},[],'' ,'yerplabel','','erp','on','cbar','off');%,'topo', { EEG.icawinv(:,[ri]) EEG.chanlocs EEG.chaninfo } );
+                to = pop_erpimage_ql(EEG,0, [ri],[[projchan]],'',10,1,{},[],'' ,'yerplabel','','erp','on','cbar','off'); %,'topo', { EEG.icawinv(:,[ri]) EEG.chanlocs EEG.chaninfo } );
 %                 to = topoplot( EEG.icawinv(:,ri), EEG.chanlocs, 'verbose', ...
 %                     'off', 'style' , 'fill','electrodes','off', 'chaninfo', EEG.chaninfo, 'numcontour', 8);
             end;
@@ -222,7 +222,7 @@ for ri = chanorcomp
                 classifiers = fieldnames(EEG.etc.ic_classification);
                 if ~isempty(classifiers)
                     if ~exist('classifier_name', 'var') || isempty(classifier_name)
-                        if any(strcmpi(classifiers, 'ICLabel'));
+                        if any(strcmpi(classifiers, 'ICLabel'))
                             classifier_name = 'ICLabel';
                         else
                             classifier_name = classifiers{1};
@@ -238,7 +238,7 @@ for ri = chanorcomp
                     t = title(sprintf('%s : %.1f%%', ...
                         EEG.etc.ic_classification.(classifier_name).classes{classind}, ...
                         prob*100));
-                    set(t, 'Position', get(t, 'Position') .* [1 -.1 1])
+                    set(t, 'Position', get(t, 'Position') .* [1 -.1 1]);
                 end
             end
         end
