@@ -15,30 +15,34 @@ totalFilesInFolder = length(allStartedFiles);
 AllFilesFolder = dir('*.set');
 AllFilesFoldersName = [AllFilesFolder.name];
 
+% finalized files
 final_files = dir('*bssICA.set');
+% preprocessed files & filnalized files
+%final_files = dir('*ICA.set');
 
+totalstarted = 0;
 
-%totalstarted = 0;
-% 
-% for i = 1:totalFilesInFolder
-%     
-%     LocationOfFileStrings = strfind(AllFilesFoldersName,allStartedFiles(i).name(1:end-4));
-%     %LocationOfFileStrings = contains(AllFilesFoldersName,strcat(allStartedFiles(i).name(1:end-4),'*','bssICA*.set'));
-%     NumberOfCountedFiles = length(LocationOfFileStrings);
-%     
-%     if NumberOfCountedFiles > 1
-%         totalstarted = totalstarted + 1;
-%     end
-% 
-% end
+for i = 1:totalFilesInFolder
+    
+    LocationOfFileStrings = strfind(AllFilesFoldersName,allStartedFiles(i).name(1:end-4));
+    %LocationOfFileStrings = contains(AllFilesFoldersName,strcat(allStartedFiles(i).name(1:end-4),'*','bssICA*.set'));
+    NumberOfCountedFiles = length(LocationOfFileStrings);
+    
+    if NumberOfCountedFiles > 1
+        totalstarted = totalstarted + 1;
+    end
 
-totalstarted = size(final_files,1);
-totalleft = totalFilesInFolder-totalstarted; 
+end
+
+totalstarted = totalstarted - size(final_files,1);
+totalfinished = size(final_files,1);
+totalleft = totalFilesInFolder-totalstarted-totalfinished; 
 
 % total
 % totalstarted
 % totalstarted/total*100
 
-pie(axis,[totalleft,totalstarted],{num2str(totalleft),num2str(totalstarted)})
+pie(axis,[totalleft,totalstarted,totalfinished],{num2str(totalleft),num2str(totalstarted),num2str(totalfinished)})
+%pie(axis,[totalleft,totalstarted],{num2str(totalleft),num2str(totalstarted)})
 
 % pie([total-totalstarted,totalstarted])
