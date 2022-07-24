@@ -1315,8 +1315,11 @@ loadpostcommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex 
 % filelist
 loadfilecommand = ['cd(EEG.filepath);EEG = pop_loadset( files(get(findobj(''tag'',''LoadFileList''),''value'')).name, pwd);eeglab redraw;rec = plotfft(EEG,files,findex);'];
 
+if ~exist("EEG")
+    EEG = [];
+end
 % ?, win0, PATH, win1, val2/win2, val3/win3, val4/win4 , val5/win5 , val6/win6, val7/win7, val8/win8, val9/win9
-geometry = { [1] [1] [1] [1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [1 1 1 1 0.3 0.3 3 1] [1] };
+geometry = { [1] [1] [1] [1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [1 1 1 1 0.3 0.3 0.3 0.3 3 1] [1] };
 listui = { { 'style', 'text', 'string', 'Parameters of the current set', 'tag', 'win0' } { } ...
            { 'style', 'text', 'tag', 'win1', 'string', ' ', 'userdata', 'datinfo' } ...
            { 'style', 'text', 'tag', 'PATH', 'string', ' ', 'userdata', 'datinfo' } ...
@@ -1346,11 +1349,28 @@ listui = { { 'style', 'text', 'string', 'Parameters of the current set', 'tag', 
            { 'style', 'pushbutton', 'tag', 'SAVEASBUTTON', 'string', 'Save (+)', 'callback', savecommand } ...
            { 'style', 'edit', 'tag', 'SAVETEXT', 'string', 'New'} ...
            {'style', 'pushbutton', 'tag', 'LoadDir', 'string', 'Load Folder', 'callback', loaddircommand } ...
-           {'style', 'pushbutton', 'tag', 'LoadPre', 'string', '<-', 'callback', loadprecommand } ...
-           {'style', 'pushbutton', 'tag', 'LoadPost', 'string', '->', 'callback', loadpostcommand } ...
+           {'style', 'pushbutton', 'tag', 'LoadPre', 'string', '<<', 'callback', loadprecommand } ...
+           {'style', 'pushbutton', 'tag', 'LoadPre', 'string', '<', 'callback', loadprecommand } ...
+           {'style', 'pushbutton', 'tag', 'LoadPost', 'string', '>', 'callback', loadpostcommand } ...
+           {'style', 'pushbutton', 'tag', 'LoadPost', 'string', '>>', 'callback', loadpostcommand } ...
            {'style', 'popupmenu', 'tag', 'LoadFileList', 'string', '', 'callback', loadfilecommand } ...
            {} {}};
        
+% TRY 1
+%            {'style', 'pushbutton', 'tag', 'LoadDir', 'string', 'Load Folder', 'callback', loaddircommand } ...
+%            {'style', 'pushbutton', 'tag', 'LoadPre', 'string', '<<', 'callback', {'@load_dir,''pre2'',''EEG'''} } ...
+%            {'style', 'pushbutton', 'tag', 'LoadPre', 'string', '<', 'callback', {@load_dir,'pre'} } ...
+%            {'style', 'pushbutton', 'tag', 'LoadPost', 'string', '>', 'callback', {@load_dir,'post'} } ...
+%            {'style', 'pushbutton', 'tag', 'LoadPost', 'string', '>>', 'callback', {@load_dir,'post2'} } ...
+%            {'style', 'popupmenu', 'tag', 'LoadFileList', 'string', '', 'callback', loadfilecommand } ...
+% SAVED BACKUP
+%            {'style', 'pushbutton', 'tag', 'LoadDir', 'string', 'Load Folder', 'callback', loaddircommand } ...
+%            {'style', 'pushbutton', 'tag', 'LoadPre', 'string', '<<', 'callback', loadprecommand } ...
+%            {'style', 'pushbutton', 'tag', 'LoadPre', 'string', '<', 'callback', loadprecommand } ...
+%            {'style', 'pushbutton', 'tag', 'LoadPost', 'string', '>', 'callback', loadpostcommand } ...
+%            {'style', 'pushbutton', 'tag', 'LoadPost', 'string', '>>', 'callback', loadpostcommand } ...
+%            {'style', 'popupmenu', 'tag', 'LoadFileList', 'string', '', 'callback', loadfilecommand } ...
+
 supergui(gcf, geometry, [], listui{:});
 geometry = { [1] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1 0.01] [1] };
 listui = { { } ...
@@ -1394,6 +1414,76 @@ set(W_MAIN, 'visible', 'on');
 % CountDownDotLoc(leftAxis);
 
 return;
+
+% protoype
+function load_dir(src,evt,type,EEG)
+
+if ~isempty(EEG)
+    cd(EEG.filepath)
+
+files = dir('.set');
+files2 = files;
+
+A = dir('*EP63.set');
+B = dir('*EP60.set');
+rawfiles = cat(1,A,B);
+
+filecount = [1];
+
+set(findobj('tag','LoadFileList'),'string',{files(1:end).name},'value',find(strcmp({files.name}, EEG.filename)));
+
+switch type
+    case 'pre2'
+        findex = find(strcmp({rawfiles.name}, strcat(EEG.filename(1:strfind(EEG.filename,'EP6')+3),'.set')));
+        if findex > 1
+            findex = findex - 1;
+            EEG = pop_loadset( rawfiles(findex).name, pwd);
+        end
+        files2 = rawfiles;
+
+    case 'pre'
+        findex = find(strcmp({files.name}, EEG.filename));
+        if findex > 1
+            findex = findex - 1;
+        end
+    case 'post'
+        findex = find(strcmp({files.name}, EEG.filename));
+        if findex < length(rawfiles)
+            findex = findex + 1;
+        end
+
+    case 'post2'
+        findex = find(strcmp({rawfiles.name}, strcat(EEG.filename(1:strfind(EEG.filename,'EP6')+3),'.set')));
+        if findex < length(rawfiles)
+            findex = findex + 1;
+        end
+        files2 = rawfiles; % change to load 
+
+    case 'loadfile'
+        cd(EEG.filepath);
+        EEG = pop_loadset( files(get(findobj('tag','LoadFileList'),'value')).name, pwd);
+end
+
+EEG = pop_loadset( files2(findex).name, pwd);
+eeglab redraw
+rec = plotfft(EEG,files,findex)
+
+%          
+% loaddircommand = ['findex = [1];cd(EEG.filepath);filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));set(findobj(''tag'',''LoadFileList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));rec = plotfft(EEG,files,findex);'];
+% 
+% loadprecommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex > 1, findex = findex - 1;, EEG = pop_loadset( files(findex).name, pwd); eeglab redraw, end; rec = plotfft(EEG,files,findex);'];
+% % move right
+% loadpostcommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex < length(files), findex = findex + 1;, EEG = pop_loadset( files(findex).name, pwd); eeglab redraw, end; rec = plotfft(EEG,files,findex);'];
+% % filelist
+% loadfilecommand = ['cd(EEG.filepath);EEG = pop_loadset( files(get(findobj(''tag'',''LoadFileList''),''value'')).name, pwd);eeglab redraw;rec = plotfft(EEG,files,findex);'];
+
+
+%'findex = find(strcmp({files.name}, EEG.filename));if findex < length(files), findex = findex + 1;, EEG = pop_loadset( files(findex).name, pwd); eeglab redraw, end; rec = plotfft(EEG,files,findex);']
+end
+
+
+
+
 
 % eeglab(''redraw'')() - Update EEGLAB menus based on values of global variables.
 %
