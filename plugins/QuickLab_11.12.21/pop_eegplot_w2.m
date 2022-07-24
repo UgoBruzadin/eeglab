@@ -92,25 +92,25 @@ function com = pop_eegplot_w2( EEG, isComponents, superpose, reject, isEpoched, 
 com = '';
 if ~exist('topcommand','var')
     topcommand = [];
-end;
+end
 if nargin < 1
 	help pop_eegplot_w;
 	return;
-end;	
+end
 if nargin < 2
 	isComponents = 1;
-end;	
+end
 if nargin < 3
 	superpose = 0;
-end;
+end
 if nargin < 4
 	reject = 1;
-end;
+end
 if isComponents ~= 1
 	if isempty( EEG.icasphere )
 		disp('Error: you must run ICA first'); return;
-	end;
-end;
+    end
+end
 
 %% --- get UI help, deprecated but left behind just in case
 if nargin < 3 && EEG.trials > 1
@@ -125,18 +125,18 @@ if nargin < 3 && EEG.trials > 1
                        fastif(isComponents==0, 'Manual component rejection -- pop_eegplot_w()', ...
 								'Reject epochs by visual inspection -- pop_eegplot_w()'));
 	size_result  = size( result );
-	if size_result(1) == 0 return; end;
+	if size_result(1) == 0 return; end
    
-   if result{1}, superpose=1; end;
-   if ~result{2}, reject=0; end;
+   if result{1}, superpose=1; end
+   if ~result{2}, reject=0; end
 
-end;
+end
 
 %% --- get data, if components or data
 if isComponents == 1
      elecrange = [1:EEG.nbchan];
 else elecrange = [1:size(EEG.icaweights,1)];
-end;
+end
 
 %% --- setting save & final editing command
 if reject
@@ -149,7 +149,7 @@ if reject
     else
         com1 = [ com1 ...
             'EEG.comprej = TMPREJ; [EEGTMP LASTCOM1] = eeg_eegrej2(EEGTMP,TMPREJ,2,TMPREJCHN); ' ]; %modified for eegrej2
-    end;
+    end
     com1 = [ com1 ...
          '  if ~isempty(LASTCOM1),' ...
          '     EEGTMP = eegh(strrep(LASTCOM1,''EEGTMP'',''EEG''), EEGTMP); ' ...
@@ -160,14 +160,14 @@ if reject
         com3 = 'EEGTMP=EEG;EEG.chanrej = TMPREJ;[EEGTMP LASTCOM1] = eeg_eegrej2(EEGTMP,TMPREJ,1,TMPREJCHN); ' ; %modified for eegrej2
     else
         com3 = 'EEGTMP=EEG;EEG.comprej = TMPREJ;[EEGTMP LASTCOM1] = eeg_eegrej2(EEGTMP,TMPREJ,2,TMPREJCHN); ' ; %modified for eegrej2
-    end;
+    end
+
     % Created for Save & Close Command
     if isComponents == 1
         com5 = 'LASTCOM1='''';EEG.chanrej = TMPREJ;EEG.mybadchan = TMPREJCHN;EEGTMP=EEG;' ; %modified for eegrej2 #Ugo 
     else
         com5 = 'LASTCOM1='''';EEG.comprej = TMPREJ;EEG.mybadcomp = TMPREJCHN;EEGTMP=EEG;' ; %modified for eegrej2#Ugo 
-    end;
-    
+    end
     
     % Call from Darbeliai pop_nuoseklus_apdorojimas ?
 %     CallFromDarbeliai=0;
@@ -192,14 +192,14 @@ if reject
         '     EEGTMP = eegh(strrep(LASTCOM1,''EEGTMP'',''EEG''), EEGTMP);' ...
         'end;' ...
         'if ~isempty(LASTCOM1)' ... 'if or(~isempty(LASTCOM1),~isempty(LASTCOM1))' ... 
-        '  EEG = EEGTMP;ALLEEG = ALLEEG;'...%CHANGE TO CHANGE SAVED DATA%'  [ALLEEG EEG CURRENTSET tmpcom] = pop_newset(ALLEEG, EEGTMP' newset_param ');' ... 
+        '  EEG = EEGTMP;'...%CHANGE TO CHANGE SAVED DATA%'  [ALLEEG EEG CURRENTSET tmpcom] = pop_newset(ALLEEG, EEGTMP' newset_param ');' ... 
         ''...%'  if ~isempty(tmpcom),' ...
         ''...%'     eegh(tmpcom); ' ...
         ''...%'     eeglab(''redraw''); ' ...
         ''...%'  end; ' ...
         'end; ' ...
         'clear EEGTMP TMPREJ TMPREJCHN LASTCOM1;eeglab redraw;' ];
-end;
+end
 
 % if EEG.trials > 1
 %     if icacomp == 1 
@@ -342,9 +342,9 @@ end;
                                      'stretches to unmark. When done,press "REJECT" to', ...
                                      'excise marked stretches (Note: Leaves rejection', ...
                                      'boundary markers in the event table).'), 'Warning', 'Cancel', 'Continue', 'Continue');
-            if strcmpi(res, 'Cancel'), return; end;
-        end;
-    end;
+            if strcmpi(res, 'Cancel'), return; end
+        end
+    end
     eegplotoptions = { 'events', EEG.event };
 % end;
 
