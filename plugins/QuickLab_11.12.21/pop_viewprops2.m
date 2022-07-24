@@ -244,8 +244,8 @@ for ri = chanorcomp
         if ~strcmp(get(gcf, 'tag'), currentfigtag)
             figure(findobj('tag', currentfigtag));
         end
-        %alterations by Ugo 2021, original commented
-        %button = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized', 'Position',...
+        % alterations by Ugo 2021, original commented
+        % button = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized', 'Position',...
         %    [X Y+sizewy sizewx/3 sizewy*0.18].*s+q, 'tag', ['comp' num2str(ri)]);
         
         % make the buttons smaller
@@ -276,7 +276,7 @@ for ri = chanorcomp
         %% --- plots checkboxes # Added by Ugo Nunes Jun/2021
         checktag = int2str(ri);
         
-        %checkcom = ['pop_viewprops2_checkbox(' int2str(ri) ' )'];
+        % checkcom = ['pop_viewprops2_checkbox(' int2str(ri) ' )'];
         checkcom = {@checkbox,int2str(ri)};
 
         check = uicontrol(gcf, 'Style', 'checkbox','Units','Normalized','Tag',int2str(ri), 'Value',EEG.reject.gcompreject(ri),'Position',...
@@ -300,7 +300,7 @@ for ri = chanorcomp
 end
 drawnow;
 toc
-% CANCEL button
+%% CANCEL button
 % -------------
 cancel  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.9 0.7 0.7], 'string', 'Cancel', 'Units','Normalized','Position',[-10 -10 10 6].*s+q, 'callback', 'close(gcf);');
 
@@ -310,7 +310,7 @@ commandPlot = ['pop_eegplot_w2(EEG, 2, 2, 1, 1);'];
         
 plotComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.7 0.9 0.7], 'string', 'Plot Component Scroll', 'Units','Normalized','Position',[30 -10 15 6].*s+q, 'callback', commandPlot');
 
-% SAVE CORRMAP button
+%% SAVE CORRMAP button
 % -------------
 commandSave = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbox''), ''value'');'...
         'A = fliplr([tmpstatus{:}]);'...
@@ -320,7 +320,7 @@ commandSave = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbox
         
 saveComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.7 0.9 0.7], 'string', 'Save CorrMaps', 'Units','Normalized','Position',[45 -10 15 6].*s+q, 'callback', commandSave');
 
-% Reject and run N-1 PCA button
+%% Reject and run N-1 PCA button
 % -------------
 
 commandN1PCA = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbox''), ''value'');'...
@@ -333,7 +333,7 @@ commandN1PCA = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbo
     
 rjandpca  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'Reject & N-1 PCA', 'Units','Normalized', 'Position', [65 -10 15 6].*s+q, 'callback', commandN1PCA);
 
-% Just Reject & Remove button
+%% Just Reject & Remove button
 % --------- 
 commandReject = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbox''), ''value'');'...
         'A = fliplr([tmpstatus{:}]);'...
@@ -350,7 +350,7 @@ commandReject = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkb
  rej  = uicontrol(gcf, 'Style', 'pushbutton', 'string', 'Remove Components', 'backgroundcolor', GUIBUTTONCOLOR, 'Units','Normalized', 'Position',[80 -10 15 6].*s+q);
  set( rej, 'callback', commandReject);
 
-% Just Reject button
+%% Just Reject button
 % --------- 
   	commandSelect = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbox''), ''value'');'...
         'A = fliplr([tmpstatus{:}]);'...
@@ -369,7 +369,7 @@ commandReject = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkb
  ok  = uicontrol(gcf, 'Style', 'pushbutton', 'string', 'Add Comps to Rej list', 'backgroundcolor', GUIBUTTONCOLOR, 'Units','Normalized', 'Position',[95 -10 15 6].*s+q);
  set( ok, 'callback', commandSelect);
  
-% CLEAR ALL button
+%% CLEAR ALL button
 % -------------
 commandClear = {@selectall,0};
         
@@ -389,6 +389,22 @@ com = sprintf('pop_viewprops2( %s, %d, %s, %s, %s, %d, ''%s'' )', ...
 end
 
 %% The following 2 functions were added by Ugo Bruzadin Nunes for the QuickLab EEGLAB plugin, Summer 2022
+
+% Copyright (C) Ugo Bruzadin Nunes
+%
+% This program is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation; either version 2 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program; if not, write to the Free Software
+% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 function selectall(src,evt,value)
     
