@@ -387,7 +387,7 @@ if popup
 	% ---------
     channel = eeg_decodechan(EEG.chanlocs, res.chan);
 	titleplot    = res.title;
-	if isfield(res, 'projchan'), 
+	if isfield(res, 'projchan')
         if ~isempty(res.projchan)
             if strcmpi(res.projchan(1),'''')
                  projchan = eval( [ '{' res.projchan '}' ]);
@@ -399,12 +399,12 @@ if popup
         else
             projchan = []; 
         end
-    else, 
+    else
         projchan = []; 
     end
     opt = [];
 	if ~isempty(res.others)
-        try,
+        try
             tmpcell = eval( [ '{' res.others '}' ] );
             opt = struct( tmpcell{:} );
         catch, error('Additional options ("More options") requires ''key'', ''val'' arguments');
@@ -421,8 +421,9 @@ if popup
             if ~isfield(EEG, 'chaninfo'), EEG.chaninfo = []; end
 			if typeplot == 0
 				     opt.topo = [ ' { mean(EEG.icawinv(:,[' int2str(channel) ']),2) EEG.chanlocs EEG.chaninfo } '];
-			else     opt.topo = [ ' { [' int2str(channel) '] EEG.chanlocs EEG.chaninfo } '];
-			end;	
+            else     
+                opt.topo = [ ' { [' int2str(channel) '] EEG.chanlocs EEG.chaninfo } '];
+            end
 		end
 	end
 	
@@ -694,7 +695,7 @@ popcom = sprintf('figure; pop_erpimage(EEG,%d, [%s],[%s],''%s'',%d,%d,{%s},[%s],
 com = sprintf('%s erpimage_ql( %s, %s, linspace(EEG.xmin*1000, EEG.xmax*1000, EEG.pnts), ''%s'', %d, %d %s);', outstr, tmpsig, events, titleplot, smooth, decimate, options);
 disp('Command executed by pop_erpimage:');
 disp(' '); disp(com); disp(' ');
-eval(com)
+eval(com);
 
 if popup
 	varargout{1} = popcom; % [10 '% Call: ' com];
