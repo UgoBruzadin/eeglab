@@ -836,11 +836,10 @@ end
 u(27) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
 	'Position', posbut(43,:), ...
-	'Tag','Data',...
+	'Tag','SaveTagICA',...
     'BackgroundColor',[.5 1 0.5],...
-	'string','Plot AVG FFT',...
+	'string','Accept, Tag & Save',...
 	'Callback', fft );
-
 
 %% channel or epoch, rejection or interpolation buttons #Ugo
 
@@ -1118,6 +1117,7 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
   end;
 
  acceptandsavecommand = [savecommand acceptcommand];
+ 
         
   if ~isempty(g.events)
       u(17) = uicontrol('Parent',figh, ...
@@ -1141,7 +1141,7 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
   m(7) = uimenu('Parent',figh,'Label','Figure');
   m(8) = uimenu('Parent',m(7),'Label','Print');
   uimenu('Parent',m(7),'Label','Edit figure', 'Callback', 'eegplot_w2(''noui'');');
-  uimenu('Parent',m(7),'Label','Accept and close', 'Callback', acceptandsavecommand );
+  uimenu('Parent',m(7),'Label','Accept and close','Tag','AcceptAndSave', 'Callback', acceptandsavecommand );
   uimenu('Parent',m(7),'Label','Cancel and close', 'Callback','delete(gcbf)')
   
   % Portrait %%%%%%%%
@@ -1496,6 +1496,8 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
   % set button colors #Ugo
   h = findobj(gcf, 'tag', 'Rejection');
   set(h, 'backgroundcolor', [0.5 1 0.5]);
+  h = findobj(gcf, 'tag', 'SaveTagICA');
+  set(h, 'backgroundcolor', [1 1 0]);
   h = findobj(gcf, 'tag', 'Display');
   set(h, 'backgroundcolor', modecolor);
   h = findobj(gcf, 'tag', 'eegslider');
@@ -1515,8 +1517,13 @@ else
   case 'fft'
     g = get(gcf,'UserData');
     EEG = g.EEG;
-    tmpcolor = g.color;
-    draw_data2(gcf,[],[],tmpcolor)
+    EEG.save = 1;
+    eval(get(findobj(gcf,'tag','AcceptAndSave'),'Callback'));
+      
+      %     g = get(gcf,'UserData');
+%     EEG = g.EEG;
+%     tmpcolor = g.color;
+%     draw_data2(gcf,[],[],tmpcolor)
     %figure; spy(g.winrej)
     %interpolation_plot(g)
     %draw_matrix(gcf,g);
@@ -3215,6 +3222,9 @@ else
     fig = gcf;
 end;
 g = get(fig,'UserData');
+
+ax1 = findobj('tag','backeeg','parent',fig);
+
 modifiers = get(fig,'currentModifier');
 switch evnt.Key
     case 'pageup'
@@ -3255,6 +3265,7 @@ switch evnt.Key
     case {'z'} % VARIANCE
         %plot_topoplot_CHANNEL(fig,evnt.Key)
     	MarkChannel3(fig)
+
     case {'v'} % VARIANCE
         plot_topoplot_CHANNEL(fig,evnt.Key)
 
@@ -3270,6 +3281,14 @@ switch evnt.Key
     case {'c'} % EXPONENTIAL
         plot_topoplot_CHANNEL(fig,evnt.Key)
 
+    case {'s'} % CHANGE REJECTION MODE
+        eegplot_w2('rejection')
+
+    case {'a'} % GO BACK 
+        draw_data([],[],fig,1,[],[])
+
+    case {'d'} % GO FORWARD
+        draw_data([],[],fig,4,[],[])
 end
 if nargin > 3
     mouse_motion([],[],varargin{:})
