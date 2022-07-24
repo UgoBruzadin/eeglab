@@ -118,6 +118,9 @@ else
 end
 end
 
+EEG.suffix = '';
+
+
 % handle regions from eegplot
 % ---------------------------
 % MODIFIED BY UGO TO INTERPOLATE SELECTED CHANNELS OR COMPONENTS
@@ -222,6 +225,12 @@ if ~isempty(list_of_chans_or_comps)
     if isempty(divisors)
         % get channel or component
         compOrChan = str2num(list_of_chans_or_comps);
+        suf = replace(num2str(list_of_chans_or_comps),'  ','-');
+        try suf = replace(num2str(list_of_chans_or_comps),'--','-'); catch; end
+        try suf = replace(num2str(list_of_chans_or_comps),'--','-'); catch; end
+        try suf = replace(num2str(list_of_chans_or_comps),'--','-'); catch; end
+        try suf = replace(num2str(list_of_chans_or_comps),'--','-'); catch; end
+        
         % interpolate component or channel for the selected intervals
         if chanorcomp == 1
             EEGinterp = pop_interp(EEGcumulative, [compOrChan], 'spherical');
@@ -231,6 +240,7 @@ if ~isempty(list_of_chans_or_comps)
                 EEGmod.data(compOrChan,regions_for_interp(i,1):regions_for_interp(i,2)) = EEGinterp.data(compOrChan,regions_for_interp(i,1):regions_for_interp(i,2));
                 
             end
+            EEGmod.suffix = strcat(EEGmod.suffix,strcat('pChIn',suf));
             EEGcumulative = EEGmod;
         else
             EEGinterp = pop_subcomp(EEGcumulative, [compOrChan]);
@@ -240,6 +250,8 @@ if ~isempty(list_of_chans_or_comps)
                 EEGmod.icaact = EEGinterp.icaact;
                 %EEGmod.icaact(compOrChan,regions_for_interp(i,1):regions_for_interp(i,2)) = EEGinterp.icaact(compOrChan,regions_for_interp(i,1):regions_for_interp(i,2));
             end
+            
+            EEGmod.suffix = strcat(EEGmod.suffix,strcat('pCmIn',suf));
             EEGcumulative = EEGmod;
         end
         
@@ -277,6 +289,14 @@ if ~isempty(list_of_chans_or_comps)
             end
             EEGcumulative = EEGmod;
         end
+        list_of_chans_or_comps2 = list_of_chans_or_comps;
+        try list_of_chans_or_comps2 = replace(list_of_chans_or_comps,divisors,'-'); catch; end
+        
+        if chanorcomp == 1
+            EEGcumulative.suffix = strcat(EEGcumulative.suffix,strcat('mpChIn'));
+        else
+            EEGcumulative.suffix = strcat(EEGcumulative.suffix,strcat('mpCmIn'));
+        end
     end
     % not using text,only clicks, useText    
 end % end partial interpolations
@@ -285,15 +305,25 @@ end % end partial interpolations
 EEGmod2 = EEGcumulative;
 
 if ~isempty(chansorcomps4removal)
+    % editing suffix 
+    chansorcomps4removalstr = chansorcomps4removal;
+    try replace(chansorcomps4removalstr,divisors,'-'); catch; end
+    suf = replace(num2str(chansorcomps4removalstr),' ','-');
+        try suf = replace(num2str(list_of_chans_or_comps),'--','-'); catch; end
+        try suf = replace(num2str(list_of_chans_or_comps),'--','-'); catch; end
+        try suf = replace(num2str(list_of_chans_or_comps),'--','-'); catch; end
+        try suf = replace(num2str(list_of_chans_or_comps),'--','-'); catch; end
     if isstring(chansorcomps4removal)
         chansorcomps4removal = str2num(chansorcomps4removal);
     end
     if chanorcomp == 1
         fprintf(strcat('Interpolating channels(s) _', num2str(chansorcomps4removal),'\r' ));
         EEGmod2 = pop_interp(EEGcumulative, [chansorcomps4removal], 'spherical');
+        EEGmod2.suffix = strcat(EEGmod2.suffix,strcat('ChIn',suf));
     else
         fprintf(strcat('Removing components(s) _', num2str(chansorcomps4removal),'\r' ));
         EEGmod2 = pop_subcomp(EEGcumulative, [chansorcomps4removal]);
+        EEGmod2.suffix = strcat(EEGmod2.suffix,strcat('CmIn',suf));
     end
 end
 
@@ -336,10 +366,31 @@ if ~isempty(regions_for_rej)
             rejected_epochs = [rejected_epochs, floor(regions_for_rej(i,1)/EEG.pnts)+1];
         end
         [EEGOUT,com] = pop_rejepoch( EEGOUT, rejected_epochs,0);
+        EEGOUT.suffix = strcat(EEGOUT.suffix,strcat('TrRj',num2str(size(regions_for_rej,1))));
     else
         [EEGOUT,com] = eeg_eegrej( EEGOUT, regions_for_rej );
+        EEGOUT.suffix = strcat(EEGOUT.suffix,strcat('TrRj',num2str(size(regions_for_rej,1))));
     end
 end
+
+%% --- Save file
+if isfield(EEGOUT,'save')
+    if EEGOUT.save == 1
+        EEGOUT.save = 0;
+        EEG = pop_saveset(EEGOUT, 'filename', [strcat( EEGOUT.filename(1:end-4),EEGOUT.suffix,'.set')],'filepath',EEGOUT.filepath);
+        
+        [EEG,com] = quick_PCA(EEG,[],[],0);
+        EEG = quick_eegsave(EEG,'ICA');
+        %[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);
+        %eeglab redraw;
+        eval(get(findobj('tag','LoadDir'),'Callback'));
+        eeglab redraw;
+        %eval(get(findobj('tag','LoadPost'),'Callback'));
+    end
+end
+
+
+%% Function library
 
 
 function res = issameevent(evt1, evt2)
