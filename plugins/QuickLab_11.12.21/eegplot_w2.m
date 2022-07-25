@@ -594,6 +594,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   
 % positions of buttons
 %                  bottom  left    width    heigth
+% numbers go from 1 and end at 47 (need to be reorganized)
   posbut(22,:) = [ 0.92    0.98    0.080    defaultsizes(1) ]; % stack channels(same offset)  
   posbut(21,:) = [ 0.92    0.96    0.080    defaultsizes(1) ]; % normalize
   posbut(17,:) = [ 0.92    0.94    0.080    defaultsizes(1) ]; % events types
@@ -608,14 +609,21 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   posbut(8,:) =  [ 0.92    0.82    0.080    defaultsizes(1) ]; % g.time   
     
   posbut(5,:) =  [ 0.92    0.80    0.080    defaultsizes(1) ]; % Eposition .52
-  posbut(1,:) =  [ 0.92    0.78    0.020    defaultsizes(1) ]; % <<  
-  posbut(2,:) =  [ 0.94    0.78    0.020    defaultsizes(1) ]; % <  
-  posbut(3,:) =  [ 0.96    0.78    0.020    defaultsizes(1) ]; % >
-  posbut(4,:) =  [ 0.98    0.78    0.020    defaultsizes(1) ]; % >>  
-  posbut(23,:) = [ 0.92    0.76    0.080    defaultsizes(1) ]; % Espacing/scale tag
-  posbut(6,:) =  [ 0.92    0.74    0.080    defaultsizes(1) ]; % Espacing/scale  
-  posbut(10,:) = [ 0.96    0.72    0.020    defaultsizes(1) ]; % +  
-  posbut(11,:) = [ 0.94    0.72    0.020    defaultsizes(1) ]; % -  
+   posbut(46,:) =  [ 0.92    0.78    0.010    defaultsizes(1) ]; % |<<  % NEW UGO
+  posbut(1,:) =  [ 0.93    0.78    0.015    defaultsizes(1) ]; % <<  
+  posbut(2,:) =  [ 0.945    0.78    0.015    defaultsizes(1) ]; % <  
+  posbut(3,:) =  [ 0.96    0.78    0.015    defaultsizes(1) ]; % >
+  posbut(4,:) =  [ 0.975    0.78    0.015    defaultsizes(1) ]; % >>  
+   posbut(47,:) =  [ 0.99    0.78    0.010    defaultsizes(1) ]; % >>|  % NEW UGO
+
+  posbut(23,:) = [ 0.92    0.76    0.040    defaultsizes(1) ]; % Espacing/scale tag
+  posbut(6,:) =  [ 0.92    0.74    0.040    defaultsizes(1) ]; % Espacing/scale  
+
+   posbut(48,:) = [ 0.96    0.76    0.040    defaultsizes(1) ]; % NumChan tag % NEW UGO
+   posbut(49,:) = [ 0.96    0.74    0.040    defaultsizes(1) ]; % NumChan % NEW UGO
+
+  posbut(10,:) = [ 0.94    0.72    0.020    defaultsizes(1) ]; % +  
+  posbut(11,:) = [ 0.92    0.72    0.020    defaultsizes(1) ]; % -  
   
   posbut(20,:) = [ 0.005   0.02    0.010    0.96 ]; % slider  
   
@@ -648,12 +656,15 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
 
   posbut(42,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % store marks #Ugo
   
-  posbut(44,:) = [ 0.92    0.11    0.080    defaultsizes(2) ]; % save file button #Ugo
+  posbut(44,:) = [ 0.92    0.11    0.080    defaultsizes(2) ]; % store changes in file button #Ugo
   
-  posbut(43,:) = [ 0.92    0.11    0.080    defaultsizes(2) ]; % UNUSED
+  posbut(43,:) = [ 0.92    0.11    0.080    defaultsizes(2) ]; % run custom function (RUN, TAG AND SAVE)
+  
+  % NEW: testing running BSS
+  posbut(45,:) = [ 0.92    0.06    0.080    defaultsizes(1) ]; % RUN BSS
 
-  posbut(13,:) = [ 0.92    0.08    0.080    defaultsizes(1) ]; % cancel/close
-  posbut(12,:) = [ 0.92    0.03    0.080    defaultsizes(4) ]; % accept/close
+  posbut(13,:) = [ 0.92    0.04    0.080    defaultsizes(1) ]; % cancel/close
+  posbut(12,:) = [ 0.92    0.02    0.080    defaultsizes(1) ]; % accept/close
   
 
 %% Channel rejection callbacks
@@ -698,16 +709,20 @@ fft = ['eegplot_w2(''fft'')'];
 
 %% TBT part modified from pop_TBT() scripts
 if isstruct(EEG)
-    g.tbtmethods = ['Abnormal values|'...
+    g.tbtmethods = ['Detect Flatline|' ...
+        'Abnormal values|'...
         'Abnormal trends|'...
         'Improbable data|'...
         'Abnormal distributions|'...
         'Abnormal spectra|'...
         'Max-Min Threshold|'...
-        'Detect Flatline|'...
         'Detect Channel Pops'];
     
     g.tbtoptions = {...
+        ['5, 20'],...
+        ['fl duration, max jitter'],...
+        '';...
+        ...
         ['-500 , 500 ,' num2str(EEG.xmin) ' , ' num2str(EEG.xmax)],...
         'lowthresh, upthresh, starttime, endtime',...
         'pop_eegthresh';...
@@ -731,10 +746,6 @@ if isstruct(EEG)
         ['[1:' num2str(EEG.nbchan) '],[' num2str([EEG.xmin EEG.xmax]*1000) '],100,' num2str([EEG.xmax - EEG.xmin]*1000) ',1,0'],...
         'chRange,timeRange,minmaxThresh,winSize,stepSize,maW',...
         'pop_eegmaxmin';...
-        ...
-        ['5, 20'],...
-        ['fl duration, max jitter'],...
-        '';...
         ...
         ['{5, 8, 100, 2, [],''mean''}'],...
         ['SumWindow, StdRej, max rej win, Chancomps, type'],...
@@ -897,7 +908,15 @@ u(26)= uicontrol('Parent',figh, ...
 	'string','plot Data Difference',...
     'Callback', plotdiffcom );
 
-%% Five move buttons: << < text > >> 
+%% Five move buttons: |< << < text > >> >|
+% NEW: GOES TO THE BEGGINING % UGO
+  u(46) = uicontrol('Parent',figh, ...
+	'Units', 'normalized', ...
+	'Position', posbut(46,:), ...
+	'Tag','Pushbutton0',...
+	'string','|<',...
+    'FontSize',8,...
+	'Callback',{@draw_data,figh,0,[],[],ax1});
 
   u(1) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -934,9 +953,28 @@ u(26)= uicontrol('Parent',figh, ...
     'FontSize',8,...
 	'Callback',{@draw_data,figh,4,[],[],ax1});
 
-%% Text edit fields: ESpacing
+  % NEW GO TO THE END #UGO
+  u(47) = uicontrol('Parent',figh, ...
+	'Units', 'normalized', ...
+	'Position',posbut(47,:), ...
+	'Tag','Pushbutton4',...
+	'string','>|',...
+    'FontSize',8,...
+	'Callback',{@draw_data,figh,7,[],[],ax1});
 
-  u(6) = uicontrol('Parent',figh, ...
+%% Text edit fields: NumChans
+
+  u(49) = uicontrol('Parent',figh, ...
+	'Units', 'normalized', ...
+	'BackgroundColor',[1 1 1], ...
+	'Position', posbut(49,:), ...
+	'Style','edit', ...
+	'Tag','NumChan',...
+	'string',num2str(g.chans),...
+	'Callback', 'eegplot_w2(''winelec_text'')' );
+
+  %% Text edit fields: ESpacing
+    u(6) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
 	'BackgroundColor',[1 1 1], ...
 	'Position', posbut(6,:), ...
@@ -997,6 +1035,15 @@ u(26)= uicontrol('Parent',figh, ...
 	'FontSize',8,...
 	'Tag','thescale',...
 	'string','Scale');
+
+    u(48)= uicontrol('Parent',figh, ...
+	'Units', 'normalized', ...
+	'BackgroundColor',DEFAULT_FIG_COLOR, ...
+	'Position', posbut(48,:), ...
+	'Style','text', ...
+	'FontSize',8,...
+	'Tag','NumChansTag',...
+	'string','Chan Display');
 
 %% Values of time/value and freq/power in GUI
   if g.isfreq
@@ -1644,6 +1691,29 @@ else
    
    return;
    
+  case 'winelec_text'  % change channel window size
+                  % get new window length with dialog box
+                  % -------------------------------------
+   fig = gcf;
+   g = get(gcf,'UserData');
+   
+   g.dispchans = str2num(get(findobj('tag','NumChan'),'String'));
+   if g.dispchans<0 || g.dispchans>g.chans
+       g.dispchans = g.chans;
+   end;
+
+   set(gcf, 'UserData', g);
+   
+   eegplot_w2('updateslider', fig);
+   eegplot_w2('drawp',0);	
+   eegplot_w2('scaleeye', [], fig);
+   %MarkChannel([],[],fig,0,0);
+   %Fixing UGO
+   %set(gcf,'UserData',g);
+   %draw_data([],[],fig,0,[],g);
+   
+   return;
+
    case 'emaxstring'  % change events' string length  ;  JavierLC
       % get dialog box
       % -------------------------------------
@@ -2062,6 +2132,8 @@ function draw_data(varargin)
     end
     
     switch p1
+        case 0 
+        g.time = 0;
         case 1
         g.time = g.time-g.winlength;     % << subtract one window length
         case 2
@@ -2080,6 +2152,14 @@ function draw_data(varargin)
             end
         case 6
         g.time = g.time;
+        case 7 
+            tmpEEG = g.EEG;
+            epoch = abs(tmpEEG.xmin - tmpEEG.xmax);
+        if g.trialstag(1) ~= -1
+            g.time = epoch*tmpEEG.trials;
+        else
+            g.time = tmpEEG.xmax;
+        end
     end
     
     if g.trialstag ~= -1 % time in second or in trials
@@ -3226,8 +3306,8 @@ g = get(fig,'UserData');
 ax1 = findobj('tag','backeeg','parent',fig);
 
 modifiers = get(fig,'currentModifier');
-switch evnt.Key
-    case 'pageup'
+  switch evnt.Key
+    case 'pageup' 
         draw_data([],[],fig,1,[],g);
     case 'leftarrow'
         draw_data([],[],fig,2,[],g);
@@ -3259,10 +3339,11 @@ switch evnt.Key
         end;
     case {'insert'} %CHANGED UGO
         eegplot_w2('window');
+
     case {'tab'}
         eegplot_w2('winelec');
 
-    case {'z'} % VARIANCE
+    case {'z'} % MARK FULL CHANNEL FOR INTERPOLATION, REGARDLESS OF EPOCH STATUS
         %plot_topoplot_CHANNEL(fig,evnt.Key)
     	MarkChannel3(fig)
 
@@ -3289,6 +3370,13 @@ switch evnt.Key
 
     case {'d'} % GO FORWARD
         draw_data([],[],fig,4,[],[])
+
+    case {'w'} % GO FORWARD
+        eegplot_w2('TBT')
+
+     case {'f'}% TAG AND SAVE
+        eegplot_w2('fft')
+
 end
 if nargin > 3
     mouse_motion([],[],varargin{:})
@@ -3656,30 +3744,32 @@ function plot_topoplot_old(fig)
         pctbadtrial = findobj('tag', 'TBT%');
         
         switch method(1).Value
+
             case 1
-                comrej  = ['EEG = pop_eegthresh(EEG, ' icacomp ',' chancomps ',' options(1).String ', 1, 0);'];
-                chosen_func    = 'rejthreshE';
-            case 2
-                comrej  = ['[EEG, comrej] = pop_rejtrend(EEG, ' icacomp ', ' chancomps ',' options(1).String ', 1, 0,0);'];
-                chosen_func    = 'rejconstE';
-            case 3
-                comrej  = ['[EEG, ~,~,~,comrej] = pop_jointprob(EEG, ' icacomp ', ' chancomps ',' options(1).String ', 1, 0, 0);'];
-                chosen_func    = 'rejjpE';
-            case 4
-                comrej  = ['[EEG, ~,~,~,comrej] = pop_rejkurt(EEG, ' icacomp ', ' chancomps ',' options(1).String ', 1, 0, 0);'];
-                chosen_func    = 'rejkurtE';
-            case 5
-                comrej  = ['[EEG, ~, comrej]    = pop_rejspec(EEG, ' icacomp ',' options(1).String , ',''elecrange'',' chancomps ');'];
-                chosen_func    = 'rejfreqE';
-            case 6
-                comrej  = ['[EEG, comrej]    = pop_eegmaxmin(EEG,' options(1).String ');'];
-                chosen_func    = 'rejmaxminE';
-                ica = ''; %rejmaxminE doesn't have options for ICA
-            case 7
                 opt = options(1).String;
                 g = detect_flatline(g);
                 update_trial_rejections(g);
                 return;
+            case 2
+                comrej  = ['EEG = pop_eegthresh(EEG, ' icacomp ',' chancomps ',' options(1).String ', 1, 0);'];
+                chosen_func    = 'rejthreshE';
+            case 3
+                comrej  = ['[EEG, comrej] = pop_rejtrend(EEG, ' icacomp ', ' chancomps ',' options(1).String ', 1, 0,0);'];
+                chosen_func    = 'rejconstE';
+            case 4
+                comrej  = ['[EEG, ~,~,~,comrej] = pop_jointprob(EEG, ' icacomp ', ' chancomps ',' options(1).String ', 1, 0, 0);'];
+                chosen_func    = 'rejjpE';
+            case 5
+                comrej  = ['[EEG, ~,~,~,comrej] = pop_rejkurt(EEG, ' icacomp ', ' chancomps ',' options(1).String ', 1, 0, 0);'];
+                chosen_func    = 'rejkurtE';
+            case 6
+                comrej  = ['[EEG, ~, comrej]    = pop_rejspec(EEG, ' icacomp ',' options(1).String , ',''elecrange'',' chancomps ');'];
+                chosen_func    = 'rejfreqE';
+            case 7
+                comrej  = ['[EEG, comrej]    = pop_eegmaxmin(EEG,' options(1).String ');'];
+                chosen_func    = 'rejmaxminE';
+                ica = ''; %rejmaxminE doesn't have options for ICA
+
             case 8
                 comrej = ['[EEG,comrej] = pop_eegchannelpop(EEG,' icacomp ',' chancomps ',' options(1).String ');'];
                 chosen_func = 'rejchanpops';
