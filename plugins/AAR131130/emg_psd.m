@@ -122,10 +122,26 @@ end
 % -------------------------------------------------
 p1 = zeros(1,d);
 p2 = zeros(1,d);
-for i = 1:d
-    hpsd = psd(h,X(i,:),'NFFT',NFFT);
-    p1(i) = avgpower(hpsd,[0 femg/(fs/2)*pi])/(femg/(fs/2)*pi);
-    p2(i) = avgpower(hpsd,[femg/(fs/2)*pi pi])/(pi-femg/(fs/2)*pi);
+
+haspar = 1;
+try
+    ver('distcomp');
+catch
+    haspar = 0;
+end
+
+if haspar
+    parfor i = 1:d
+        hpsd = psd(h,X(i,:),'NFFT',NFFT);
+        p1(i) = avgpower(hpsd,[0 femg/(fs/2)*pi])/(femg/(fs/2)*pi);
+        p2(i) = avgpower(hpsd,[femg/(fs/2)*pi pi])/(pi-femg/(fs/2)*pi);
+    end
+else
+    for i = 1:d
+        hpsd = psd(h,X(i,:),'NFFT',NFFT);
+        p1(i) = avgpower(hpsd,[0 femg/(fs/2)*pi])/(femg/(fs/2)*pi);
+        p2(i) = avgpower(hpsd,[femg/(fs/2)*pi pi])/(pi-femg/(fs/2)*pi);
+    end
 end
 
 % detect components that are likely to be EMG-related
