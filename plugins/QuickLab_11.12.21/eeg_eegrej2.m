@@ -118,8 +118,9 @@ else
 end
 end
 
-EEG.suffix = '';
-
+if ~isfield(EEG,'suffix')
+    EEG.suffix = '';
+end
 
 % handle regions from eegplot
 % ---------------------------
