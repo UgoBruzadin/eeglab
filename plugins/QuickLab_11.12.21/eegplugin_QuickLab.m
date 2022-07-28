@@ -36,10 +36,14 @@ com = '';
 plotmenu = uimenu (supermenu, 'label', 'Quick Plots');
 
 uimenu( plotmenu, 'label', 'Channel Scroll++ for Interpolation', 'callback', ...
-    ['com = pop_eegplot_w2(EEG, 1, 2, 1, 1);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['com = pop_eegplot_w3(EEG, 1, 2, 1, 1);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( plotmenu, 'label', 'Component Scroll++ for Interpolation', 'callback', ...
-    ['com = pop_eegplot_w2(EEG, 2, 2, 1, 1);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['com = pop_eegplot_w3(EEG, 2, 2, 1, 1);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+
+uimenu( plotmenu, 'label', 'EXP BOTH Scroll++ for Interpolation', 'callback', ...
+    ['com = pop_eegplot_w3(EEG, 2, 2, 1, 1);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+
 % 
 % uimenu( plotmenu, 'label', 'Frequency Scroll++ for Interpolation', 'callback', ...
 %     ['com = pop_eegplot_w2(EEG, 1, 2, 1, 3);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
@@ -170,6 +174,9 @@ uimenu (bssmenu, 'label', 'Quick BSS 2 epochs', 'callback', ...
 
 uimenu (bssmenu, 'label', 'Quick BSS full file', 'callback', ...
     ['[EEG,com] = quick_bss2(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+
+uimenu (bssmenu, 'label', 'Exp PAR BSS full file', 'callback', ...
+    ['[EEG,com] = quick_par_bss2(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 % 
 % uimenu (bssmenu, 'label', 'BSS+', 'callback', ...
 %     ['[EEG com]  = pop_autobssemgQL(EEG);EEG = eegh(com, EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
