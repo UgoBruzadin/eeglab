@@ -972,7 +972,7 @@ g.currentooptions = g.tbtoptions;
 	'Tag','TBT',...
     'BackgroundColor',[1 .5 0.5],...
 	'string','Apply',...
-	'Callback', @methods );
+	'Callback', ['eegplot_w3(''APPLY'')'] );
 
   %posbut(32
   u(41) = uicontrol('Parent',figh, ...
@@ -1355,8 +1355,8 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
   end
 
  acceptandsavecommand = [savecommand acceptcommand];
- 
-        
+
+
   if ~isempty(g.events)
       u(17) = uicontrol('Parent',figh, ...
                         'Units', 'normalized', ...
@@ -1754,6 +1754,44 @@ else
   try p1 = varargin{1}; p2 = varargin{2}; catch, end;
   switch data
   
+  case 'APPLY'
+    g = get(gcf,'UserData');
+    EEG = g.EEG;
+    g.old = g;
+
+    if g.EEG.plotchannels
+        applycom_ch = 'NEW=EEG;[NEW LASTCOM1] = eeg_eegrej2(NEW,g.winrej,1,find([g.eloc_file.badchan])); ' ; %modified for eegrej2
+        eval(applycom_ch);
+    else
+        applycom_pc = 'NEW=EEG;[NEW LASTCOM1] = eeg_eegrej2(NEW,g.winrej,2,find([g.eloc_file.badchan])); ' ; %modified for eegrej2
+        eval(applycom_pc);
+        g = SWITCH(g);
+        g.EEG.icaact = []; g.EEG.icawinv = []; g.EEG.icasphere = []; g.EEG.icaweights = []; g.EEG.icachansind = [];
+    end
+
+    g.EEG = NEW;
+    g.NEW = NEW;
+    
+    g.data = NEW.data;
+    %GET ICA DATA AS WELL
+
+    % make new eloc_file based on new channels/components
+    g = make_eloc_file(g);
+
+    % make suffix, store the bool of a NEW vs OLD data.
+    g.EEG.suffix = 'NEW';
+    g.isNEW = true;
+    fprintf('NEW dataset');
+   
+    % store and draw data
+    set(gcf,'UserData',g);
+    ax1 = findobj('tag','eegaxis','parent',gcf); % axes handle
+    set(ax1,'UserData',g.data);
+
+    draw_data([],[],gcf,9,[],g);
+    eegplot_w3('winelec_auto');
+
+
   case 'SWITCH'
     g = get(gcf,'UserData');
     g = SWITCH(g);
@@ -1766,7 +1804,7 @@ else
         set(h,'string','Component Data On');
         set(h, 'BackgroundColor', [1 0.5 0.5]);
     end
-    draw_matrix(g)
+    
     %change_scale([],[],gcf,p1);
 
   case 'UNDO'
@@ -1897,7 +1935,8 @@ else
    g.dispchans = g.chans;
 
    set(gcf, 'UserData', g);
-   
+
+   eegplot_w3('setelect');
    eegplot_w3('updateslider', fig);
    eegplot_w3('drawp',0);	
    eegplot_w3('scaleeye', [], fig);
@@ -1975,8 +2014,19 @@ else
   
   case 'setelect'
     % Set channels    
-    eloc_file = p1;
-    axeshand = p2;
+    g = get(gcf,'UserData');
+    if nargin < 3
+        axeshand = findobj('tag','eegaxis','parent',gcf);
+    else 
+        axeshand = p2;
+    end
+    if nargin < 2
+        eloc_file = g.eloc_file;
+    else
+        eloc_file = p1;
+    end
+    
+    
     outvar1 = 1;
     if isempty(eloc_file)
       outvar1 = 0;
@@ -3355,7 +3405,9 @@ g.normed = 1 - g.normed;
 set(hmenu, 'Label', fastif(g.normed,'Denormalize channels','Normalize channels'));
 set(fig,'userdata',g);
 set(ax1,'UserData',data);
+%eegplot_w3('setelect');
 draw_data([],[],fig,0,[],g,ax1);
+
 disp('Done.');
 
 %THIRD MOUSE BUTTON
@@ -4012,6 +4064,7 @@ function plot_topoplot_old(fig)
         end
 
         set(gcf,'UserData',g);
+
 function g = SWITCH(g)
 
     g = get(gcf,'UserData');
@@ -4041,13 +4094,14 @@ function g = SWITCH(g)
         g.chans = EEG.nbchan;
         fprintf('Showing EEG data \r');
     end
-    
+
+    set(gcf,'UserData',g);
     set(ax1,'UserData',g.data);
-    %reprint_main_axis(g,gcf);
+    
     draw_data([],[],gcf,9,[],g);
     
     eegplot_w3('winelec_auto');
-
+    draw_matrix(g);
     %change_scale(ax1,gcf,1);
     
 
@@ -4106,6 +4160,7 @@ function g = UNDO(g)
    options = findobj(gcf,'tag', 'ALLoptions');
    nbadchans = findobj(gcf,'tag', 'TBTnchans');
    pctbadtrial = findobj(gcf,'tag', 'TBT%');
+   mybadcomps = [];
    % run methods
    [NEW] = pop_iclabel(EEG, 'default');
 
@@ -4134,9 +4189,9 @@ function g = UNDO(g)
    g.EEG = NEW;
    g.NEW = NEW;
 
-   if EEG.plotchannels == 1
-       g = SWITCH(g);
-   end
+%    if EEG.plotchannels == 1
+%        g = SWITCH(g);
+%    end
 
    %g.data = NEW.data;
 
@@ -4144,12 +4199,11 @@ function g = UNDO(g)
    %g = make_eloc_file(g);
    mybadcomps = find(NEW.reject.gcompreject);
 
-   if sum(mybadcomps)
+   if ~isempty(mybadcomps)
        for ind = 1:size(mybadcomps)
            g.eloc_file_pc(mybadcomps(ind)).badchan = 1; % marks channels as bad
-           % removes these channels from trial rejections!
-           %winrej(ind,:) = 0;
        end
+       g.eloc_file = g.eloc_file_pc;
    end
 
    % make suffix, store the bool of a NEW vs OLD data.
@@ -4163,6 +4217,8 @@ function g = UNDO(g)
    set(ax1,'UserData',g.data);
 
    draw_data([],[],gcf,9,[],g);
+   draw_matrix(g);
+   eegplot_w3('setelect');
 
 
    function g = QUICKLAB(g)
@@ -4195,7 +4251,7 @@ function g = UNDO(g)
            newcom = [strcat('[NEW] = quick_reref(EEG,', opt, ');')];
            %NEW = quick_reref(EEG);
        case 4
-           newcom = ['[NEW] = quick_HM94(EEG,' opt ');'];
+           newcom = ['[NEW] = quick_HM94(EEG);'];
            %NEW = quick_HM94(EEG);
        case 5 
            newcom = [strcat('[NEW] = quick_epoch(EEG,', opt, ');')];
@@ -4223,6 +4279,7 @@ function g = UNDO(g)
    set(ax1,'UserData',g.data);
 
    draw_data([],[],gcf,9,[],g);
+   eegplot_w3('winelec_auto');
 
     function g = TBT(g)
         % This function was adapted from TBT plugin by 
@@ -4843,9 +4900,10 @@ if ~isempty( EEG.icasphere )
     comprange = [1:size(EEG.icaweights,1)];
 end
 
-% if ~isempty(EEG.chanlocs)
-%     g.eloc_file_ch = EEG.chanlocs(1:elecrange);
-% end
+if ~isempty(EEG.chanlocs)
+    g.eloc_file_ch = EEG.chanlocs(elecrange);
+    
+end
 
 if ~isempty(EEG.icasphere)
     try
@@ -4858,10 +4916,15 @@ if ~isempty(EEG.icasphere)
         tmpcompstruct(index).labels = int2str(comprange(index));
     end
     g.eloc_file_pc = tmpcompstruct;
+    
 end
 
 if EEG.plotchannels == 1
+    g.chans = EEG.nbchan;
     g.eloc_file = g.eloc_file_ch;
 else
+    g.chans = size(EEG.icaweights,1);
     g.eloc_file = g.eloc_file_pc;
 end
+
+
