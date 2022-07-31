@@ -308,45 +308,49 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    try g.srate; 		    catch, g.srate		= 256; 	end
    try g.spacing; 			catch, g.spacing	= 0; 	end
    try g.eloc_file; 		catch, g.eloc_file	= 0; 	end % 0 mean numbered
-      try g.eloc_file1; 		catch, g.eloc_file1	= 0; 	end % 0 mean numbered
-      try g.eloc_file2; 		catch, g.eloc_file2	= 0; 	end % 0 mean numbered
+      try g.eloc_file_ch; 		catch, g.eloc_file_ch	= 0; 	end % 0 mean numbered
+      try g.eloc_file_pc; 		catch, g.eloc_file_pc	= 0; 	end % 0 mean numbered
    try g.winlength; 		catch, g.winlength	= 5; 	end % Number of seconds of EEG displayed
    try g.fullscreen; 	    catch, g.fullscreen = 'on';	end
-   try g.position; 	    catch, g.position	= ORIGINAL_POSITION; g.fullscreen = 'on';	end
+   try g.position; 	        catch, g.position	= ORIGINAL_POSITION; g.fullscreen = 'on';	end
    try g.title; 		    catch, g.title		= ['Scroll activity -- eegplot_w3()']; 	end
    try g.plottitle; 		catch, g.plottitle	= ''; 	end
    try g.trialstag; 		catch, g.trialstag	= -1; 	end
    try g.winrej; 			catch, g.winrej		= []; 	end
+   try g.winrej_pc; 			catch, g.winrej_pc		= []; 	end
+   try g.winrej_ch; 			catch, g.winrej_ch		= []; 	end
    try g.command; 			catch, g.command	= ''; 	end
       try g.command2; 			catch, g.command2	= ''; 	end
    try g.tag; 				catch, g.tag		= 'eegplot_w3'; end
-   try g.xgrid;		    catch, g.xgrid		= 'off'; end
-   try g.ygrid;		    catch, g.ygrid		= 'off'; end
-   try g.color;		    catch, g.color		= 'off'; end
+   try g.xgrid;		        catch, g.xgrid		= 'off'; end
+   try g.ygrid;		        catch, g.ygrid		= 'off'; end
+   try g.color;		        catch, g.color		= 'off'; end
    try g.submean;			catch, g.submean	= 'on'; end
    try g.children;			catch, g.children	= 0; end
    try g.limits;		    catch, g.limits	    = [0 1000*(size(data,2)-1)/g.srate]; end
-   try g.freqs;            catch, g.freqs	    = []; end  % Ramon
+   try g.freqs;             catch, g.freqs	    = []; end  % Ramon
    try g.freqlimits;	    catch, g.freqlimits	= []; end
    try g.dispchans; 		catch, g.dispchans  = size(data,1); end
-   try g.wincolor; 		catch, g.wincolor   = [ 0.7 1 0.9]; end
-   try g.butlabel; 		catch, g.butlabel   = 'Interpolate & Reject'; end
-   try g.colmodif; 		catch, g.colmodif   = { g.wincolor }; end
+   try g.wincolor; 		    catch, g.wincolor   = [ 0.7 1 0.9]; end
+   try g.butlabel; 		    catch, g.butlabel   = 'Interpolate & Reject'; end
+   try g.colmodif; 		    catch, g.colmodif   = { g.wincolor }; end
    try g.scale; 		    catch, g.scale      = 'on'; end
    try g.events; 		    catch, g.events      = []; end
-   try g.ploteventdur;     catch, g.ploteventdur = 'off'; end
-   try g.data2;            catch, g.data2      = []; end
-   try g.plotdata2;        catch, g.plotdata2 = 'off'; end
-   try g.mocap;		    catch, g.mocap		= 'off'; end % nima
+   try g.ploteventdur;      catch, g.ploteventdur = 'off'; end
+   try g.data2;             catch, g.data2      = []; end
+   try g.plotdata2;         catch, g.plotdata2 = 'off'; end
+   try g.mocap;		        catch, g.mocap		= 'off'; end % nima
    try g.selectcommand;     catch, g.selectcommand     = { '' '' '' }; end % { defdowncom defmotioncom defupcom }
    try g.ctrlselectcommand; catch, g.ctrlselectcommand = { '' '' '' }; end % { defctrldowncom defctrlmotioncom defctrlupcom }
-   try g.datastd;          catch, g.datastd = []; end %ozgur
+   try g.datastd;           catch, g.datastd = []; end %ozgur
    try g.normed;            catch, g.normed = 0; end %ozgur
    try g.envelope;          catch, g.envelope = 0; end%ozgur
    try g.maxeventstring;    catch, g.maxeventstring = 10; end % JavierLC
    try g.isfreq;            catch, g.isfreq = 0;    end % Ramon
    try g.savecommand;            catch, g.savecommand = '';    end % Ugo
-       try g.savecommand2;            catch, g.savecommand2 = '';    end % Ugo
+       try g.savecommand2;       catch, g.savecommand2 = '';    end % Ugo
+       try g.matrixpos;           catch, g.matrixpos = [ 0.922   0.25      0.075    0.13 ]; end % Ugo
+       try g.headpos;           catch, g.headpos = [ 0.92    0.25    0.080    0.13 ]; end % Ugo
    
    %% Gets previously stored marks from winrej
    if isstruct(EEG)
@@ -361,10 +365,12 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
            if EEG.plotchannels == 1
                if isfield(EEG,'chanrej')
                    g.winrej = EEG.chanrej;
+                   g.winrej_ch = EEG.chanrej;
                end
            else
                if isfield(EEG,'comprej')
                    g.winrej = EEG.comprej;
+                   g.winrej_pc = EEG.comprej;
                end
            end
        end
@@ -384,11 +390,11 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    gfields = fieldnames(g);
    for index=1:length(gfields)
       switch gfields{index}
-      case {'spacing', 'srate' 'eloc_file' 'eloc_file1' 'eloc_file2' 'winlength' 'fullscreen' 'position' 'title' 'plottitle' ...
-               'trialstag'  'winrej' 'command' 'command2' 'tag' 'xgrid' 'ygrid' 'color' 'colmodif'...
-               'freqs' 'freqlimits' 'submean' 'children' 'limits' 'dispchans' 'wincolor' ...
-               'maxeventstring' 'ploteventdur' 'butlabel' 'scale' 'events' 'data2' 'plotdata2' 'savecommand' 'savecommand2'...
-               'mocap' 'selectcommand' 'ctrlselectcommand' 'datastd' 'normed' 'envelope' 'isfreq' 'EEG' 'tbtmethods' 'tbtoptions'}
+      case { 'EEG' 'winrej' 'winrej_ch' 'winrej_pc' 'srate' 'eloc_file' 'eloc_file_ch' 'eloc_file_pc' 'winlength' 'fullscreen' 'position' 'title' 'plottitle' ...
+               'trialstag' 'tag' 'xgrid' 'ygrid' 'color' 'colmodif' 'spacing' ...
+               'freqs' 'freqlimits' 'submean' 'children' 'limits' 'matrixpos' 'headpos' 'dispchans' 'wincolor' 'currentoptions' ...
+               'maxeventstring' 'ploteventdur' 'butlabel' 'scale' 'events' 'data2' 'plotdata2' 'command'  'command2' 'savecommand' 'savecommand2'...
+               'mocap' 'selectcommand' 'ctrlselectcommand' 'datastd' 'normed' 'envelope' 'isfreq'  'tbtmethods' 'tbtoptions'}
       otherwise, error(['eegplot_w3: unrecognized option: ''' gfields{index} '''' ]);
       end
    end
@@ -499,37 +505,38 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   
   %% set mybadchan field of data
   % ------------ 
-  if isfield(EEG, 'mybadchan')
-      for ch = EEG.mybadchan
-          g.eloc_file1(ch).badchan = 1;
-      end
-  end
-  %else
-  if isfield(EEG, 'mybadcomp')
-      for cp = EEG.mybadcomp
-          g.eloc_file2(cp).badchan = 1;
-      end
-  end
-  % --- still needs work; needs to make sure comps are the same size :/
-
-  if isfield(EEG.reject, 'gcompreject')
-      if sum(EEG.reject.gcompreject)
-          mybadcomp2 = find(EEG.reject.gcompreject);
-          for ind = 1:size(mybadcomp2,2)
-              g.eloc_file2(mybadcomp2(ind)).badchan = 1; % marks component as bad
+  if isstruct(EEG)
+      if isfield(EEG, 'mybadchan')
+          for ch = EEG.mybadchan
+              g.eloc_file_ch(ch).badchan = 1;
           end
       end
-  end
- % --- select 
+      %else
+      if isfield(EEG, 'mybadcomp')
+          for cp = EEG.mybadcomp
+              g.eloc_file_pc(cp).badchan = 1;
+          end
+      end
+      % --- still needs work; needs to make sure comps are the same size :/
 
-  if EEG. plotchannels
-      g.eloc_file = g.eloc_file1;
-      g.chans = size(g.eloc_file1,2);
-  else
-      g.eloc_file = g.eloc_file2;
-      g.chans = size(g.eloc_file2,2);
-  end
+      if isfield(EEG.reject, 'gcompreject')
+          if sum(EEG.reject.gcompreject)
+              mybadcomp2 = find(EEG.reject.gcompreject);
+              for ind = 1:size(mybadcomp2,2)
+                  g.eloc_file_pc(mybadcomp2(ind)).badchan = 1; % marks component as bad
+              end
+          end
+      end
+      % --- select
 
+      if g.EEG.plotchannels
+          g.eloc_file = g.eloc_file_ch;
+          g.chans = size(g.eloc_file_ch,2);
+      else
+          g.eloc_file = g.eloc_file_pc;
+          g.chans = size(g.eloc_file_pc,2);
+      end
+  end
   %% %%%%%%%%%%%%%%%%%%%%%%%%
   %  Prepare figure and axes
   %  %%%%%%%%%%%%%%%%%%%%%%%%  
@@ -610,7 +617,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
 
   defaultsizes = [0.02,0.03,0.04,0.05];
 
-  r = .044;
+  r = .0;
 
 % positions of buttons
 %                  bottom  left    width    heigth
@@ -642,13 +649,16 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    posbut(48,:) = [ 0.96    0.76    0.040    defaultsizes(1) ]; % NumChan tag % NEW UGO
    posbut(49,:) = [ 0.96    0.74    0.040    defaultsizes(1) ]; % NumChan % NEW UGO
 
+  posbut(52,:) = [ 0.96    0.72    0.040    defaultsizes(1) ]; % Reset chan numbers to max auto % NEW UGO
+
   posbut(10,:) = [ 0.94    0.72    0.020    defaultsizes(1) ]; % +  
   posbut(11,:) = [ 0.92    0.72    0.020    defaultsizes(1) ]; % -  
   
   posbut(20,:) = [ 0.005   0.02    0.010    0.96 ]; % slider  
   
   % new TBT options #Ugo
-  posbut(31,:) = [ 0.92    0.65+r    0.080    defaultsizes(1) ]; % TBT tag
+  posbut(25,:) = [ 0.92    0.68+r    0.080    defaultsizes(1) ]; % Title tag
+  posbut(31,:) = [ 0.93    0.66+r    0.060    defaultsizes(1) ]; % List of methods to run in the data
   posbut(33,:) = [ 0.92    0.63+r    0.080    defaultsizes(1) ]; % List of Channel/Epoch Methods, drop box, select from list
   posbut(34,:) = [ 0.92    0.60+r    0.080    defaultsizes(1) ]; % TextBox with options
   posbut(35,:) = [ 0.92    0.57+r    0.080    defaultsizes(2) ]; % TextBox with option hints!
@@ -656,37 +666,35 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   posbut(37,:) = [ 0.96    0.55+r    0.040    defaultsizes(1) ]; % Number of Channels Tag
   posbut(38,:) = [ 0.92    0.53+r    0.040    defaultsizes(1) ]; % Percent of Trials box
   posbut(39,:) = [ 0.96    0.53+r    0.040    defaultsizes(1) ]; % Number of Channels Box
-  posbut(40,:) = [ 0.92    0.51+r    0.080    defaultsizes(1) ]; % Run button % run code from box 1 and 2, add data to winrej, redraw
-  posbut(41,:) = [ 0.92    0.49+r    0.080    defaultsizes(1) ]; % Clear marks button
   
-  posbut(30,:) = [ 0.92    0.47+r    0.080    defaultsizes(1) ]; % Counting marks tag #Ugo
-  posbut(29,:) = [ 0.92    0.45+r    0.080    defaultsizes(1) ]; % Counting marks #Ugo
+  posbut(40,:) = [ 0.92    0.51+r    0.040    defaultsizes(1) ]; % Run button % run code from box 1 and 2, add data to winrej, redraw
+  posbut(32,:) = [ 0.96    0.51+r    0.040    defaultsizes(1) ]; % Apply Rejections;
   
-  posbut(24,:) = [ 0.92    0.41+r    0.080    defaultsizes(1) ]; % Topoplot title
-  posbut(32,:) = [ 0.92    0.38+r    0.080    0.15 ]; % Topoplot
+  posbut(41,:) = [ 0.92    0.49+r    0.040    defaultsizes(1) ]; % Clear marks button
+  posbut(50,:) = [ 0.96    0.49+r    0.040    defaultsizes(1) ]; % UNDO BUTTON
 
-  posbut(26,:) = [ 0.93    0.25    0.080    defaultsizes(1) ]; % Plot data difference #Ugo
+  posbut(30,:) = [ 0.92    0.45+r    0.080    defaultsizes(1) ]; % Counting marks tag #Ugo
+  posbut(29,:) = [ 0.92    0.43+r    0.080    defaultsizes(1) ]; % Counting marks #Ugo
   
-  posbut(27,:) = [ 0.92    0.18    0.080    defaultsizes(2) ]; % Rejecting/Interpolating Mode  
+  posbut(24,:) = [ 0.92    0.38+r    0.080    defaultsizes(1) ]; % Topoplot title
+
+  %this doesnt do anything, just a place so I can remember what the
+  %positions are, if I change up top I'll have to change here.
+  headpos =     [ 0.922   0.25      0.075    0.13 ]; %position of topoplot
+  matrixpos =   [ 0.92    0.25      0.080    0.10 ];  %position of matrix
+
+  % deprecated
+  %posbut(26,:) = [ 0.93    0.25    0.080    defaultsizes(1) ]; % Plot data difference #Ugo
   posbut(28,:) = [ 0.92    0.21    0.080    defaultsizes(2) ]; % Epoched/Continuous Mode
-
-%   %deprecated
-%   posbut(24,:) = [ 0.92    0.15    0.080    defaultsizes(1) ]; % UNUSED
-%   posbut(25,:) = [ 0.92    0.13    0.080    defaultsizes(1) ]; % UNUSED
-
-  posbut(42,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % store marks #Ugo
+  posbut(27,:) = [ 0.92    0.18    0.080    defaultsizes(2) ]; % Rejecting/Interpolating Mode  
+  posbut(51,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % Components/EEG SWITCH FUNCTION
   
   posbut(44,:) = [ 0.92    0.11    0.080    defaultsizes(2) ]; % store changes in file button #Ugo
   
-  posbut(43,:) = [ 0.92    0.11    0.080    defaultsizes(2) ]; % run custom function (RUN, TAG AND SAVE)
+  posbut(43,:) = [ 0.92    0.11    0.080    defaultsizes(2) ]; % RUN, TAG AND SAVE)
   
-  % NEW: testing running BSS
-  posbut(51,:) = [ 0.92    0.085    0.080    defaultsizes(1) ]; % SCRIPTS LIST
-
-  posbut(45,:) = [ 0.92    0.06    0.040    defaultsizes(1) ]; % RUN SCRIPT
-
-  posbut(50,:) = [ 0.96    0.06    0.040    defaultsizes(1) ]; % FLIP BSS
-
+  %posbut(45,:) = [ 0.92    0.06    0.040    defaultsizes(1) ]; % RUN SCRIPT  
+  posbut(42,:) = [ 0.92    0.085    0.080    defaultsizes(2) ]; % store marks #Ugo
   posbut(13,:) = [ 0.92    0.04    0.080    defaultsizes(1) ]; % cancel/close
   posbut(12,:) = [ 0.92    0.02    0.080    defaultsizes(1) ]; % accept/close
   
@@ -726,10 +734,90 @@ displaycomp = ['EEG.plotEp = 1 - EEG.plotEp; eegplot_w3(EEG,varargin)'];
 	'Style','text', ...
     'FontSize',8, ...
 	'Tag','headmap',...
-	'string','Headmap');
+	'string','Data Matrix');
 
 %% TBT part modified from pop_TBT() scripts
 if isstruct(EEG)
+QuickLabDefs;
+
+    g.eegmethods = ['ICA|' ...
+        'BSS EMG|'...
+        'Re-reference|'...
+        'Reduce headmodel to 94|'...
+        'Re-epoch|'...
+        'Select function'];
+
+    g.eegoptions = {...
+        ['[], ''cudaica'', 0'],...
+        ['components, extended, verbose'],...
+        'quick_pca';...
+        ...
+        [''],...
+        'window, windowshift',...
+        'quick_bss2';...
+        ...
+        ['AVG'],...
+        'choose reference(s)',...
+        'quick_reref';...
+        ...
+        '',...
+        'remove surrounding channels',...
+        'quick_HM94';...
+        ...
+        '0.600,2.648',...
+        'time 1, time 2',...
+        'quick_epoch';...
+        ...
+        ['name'],...
+        'write the function you want to run',...
+        '';...
+        };
+
+    g.iclmethods = ['All but Brain and Other|' ...
+        'Brain|'...
+        'Muscle|'...
+        'Eye|'...
+        'Heart|'...
+        'Line noise|'...
+        'Channel noise|'...
+        'Other'];
+
+    g.icloptions = {...
+        [' .8 1 '],...
+        ['min max'],...
+        '';...
+        ...
+        [' .3 0 '],...
+        ['min max'],...
+        '';...
+        ...
+        [' .8 1 '],...
+        ['min max'],...
+        '';...
+        ...
+        [' .8 1 '],...
+        ['min max'],...
+        '';...
+        ...
+        [' .8 1 '],...
+        ['min max'],...
+        '';...
+        ...
+        [' .8 1 '],...
+        ['min max'],...
+        '';...
+        ...
+        [' .8 1 '],...
+        ['min max'],...
+        '';...
+        ...
+        [' .8 1 '],...
+        ['min max'],...
+        '';...
+        ...
+        
+        };
+
     g.tbtmethods = ['Detect Flatline|' ...
         'Abnormal values|'...
         'Abnormal trends|'...
@@ -776,32 +864,54 @@ else
     g.tbtmethods = {'0','0'};
     g.tbtoptions = {'0','0'};
 end
-% TBT tag
+
+g.allmethods = ['TBT|' ...
+        'QUICKLAB|'...
+        'ICLABEL'];
+
+g.currentooptions = g.tbtoptions;
+
+% Choose Methods tag
+  u(25) = uicontrol('Parent',figh, ...
+	'Units', 'normalized', ...
+	'Position', posbut(25,:), ...
+	'Style','text', ...
+    'FontSize',8, ...
+	'Tag','ListTag',...
+    'BackgroundColor',DEFAULT_FIG_COLOR, ...
+	'string','Select Methods');
+
+% Methods tag
   u(32) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
 	'Position', posbut(31,:), ...
-    'BackgroundColor',DEFAULT_FIG_COLOR, ...
-	'Style','text', ...
-    'FontSize',8, ...
-	'Tag','TBTtag',...
-	'string','Trial by Trial Rejection');
+    'BackgroundColor',[1 1 1], ...
+	'Style','popupmenu', ...
+    'HorizontalAlignment', 'center',...
+    'FontSize',10, ...
+	'Tag','ListPopup',...
+	'string',g.allmethods,...
+    'callback',@change_list);
+
 % methods
   u(33) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
 	'BackgroundColor',[1 1 1], ...
 	'Position', posbut(33,:), ...
 	'Style','popupmenu', ...
-	'Tag','TBTmethods',...
+	'Tag','ALLmethods',...
 	'string',g.tbtmethods,...
     'callback',@change_options);
+
 % options
   u(34) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
 	'BackgroundColor',[1 1 1], ...
 	'Position', posbut(34,:), ...
 	'Style','edit', ...
-	'Tag','TBToptions',...
+	'Tag','ALLoptions',...
 	'string',g.tbtoptions{1});
+
 % options hints
   u(35) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -810,7 +920,7 @@ end
 	'Style','text', ...
     'BackgroundColor',DEFAULT_FIG_COLOR, ...
     'FontSize',8,...
-	'Tag','TBThints',...
+	'Tag','ALLhints',...
 	'string',g.tbtoptions{1,2});
 % hint
 % tag
@@ -853,15 +963,24 @@ end
 	'Position', posbut(40,:), ...
 	'Tag','TBT',...
     'BackgroundColor',[1 .5 0.5],...
-	'string','Run Rejection',...
-	'Callback', ['eegplot_w3(''TBT'')'] );
+	'string','Run Script',...
+	'Callback', @methods );
 
+  u(60) = uicontrol('Parent',figh, ...
+	'Units', 'normalized', ...
+	'Position', posbut(32,:), ...
+	'Tag','TBT',...
+    'BackgroundColor',[1 .5 0.5],...
+	'string','Apply',...
+	'Callback', @methods );
+
+  %posbut(32
   u(41) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
 	'Position', posbut(41,:), ...
 	'Tag','ClearMarks',...
     'BackgroundColor',[1 .5 0.5],...
-	'string','Clear All Marks',...
+	'string','Clear Marks',...
 	'Callback', ['eegplot_w3(''ClearMarks'')']);
 
 %% Save, Tag and ICA attempts #Ugo 5/27/2022
@@ -877,34 +996,41 @@ u(43) = uicontrol('Parent',figh, ...
 
 g.scripts = ['BSS|' ...
         'ICA|'...
-        'ICLABEL|'...
         'Reference|'...
         'Epoch|'...
         'Channel Reduction'];
+% 
+% u(45) = uicontrol('Parent',figh, ...
+% 	'Units', 'normalized', ...
+% 	'Position', posbut(51,:), ...
+% 	'Tag','Scripts',...
+%     'BackgroundColor',[1 1 1],...
+% 	'Style','popupmenu', ...
+% 	'string',g.scripts,...
+% 	'Callback', ['eegplot_w3(''BSS'')']);
+
+if g.EEG.plotchannels
+    cmodecolor = [0.5 1 0.5];
+    cmode = 'EEG DATA ON';
+else
+    cmodecolor = [1 0.5 0.5];
+    cmode = 'COMPONENT DATA ON';
+end
 
 u(45) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
 	'Position', posbut(51,:), ...
-	'Tag','Scripts',...
-    'BackgroundColor',[1 1 1],...
-	'Style','popupmenu', ...
-	'string',g.scripts,...
-	'Callback', ['eegplot_w3(''BSS'')']);
-
-u(45) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(45,:), ...
-	'Tag','BSS',...
-    'BackgroundColor',[.7 .7 1],...
-	'string','BSS',...
-	'Callback', ['eegplot_w3(''BSS'')']);
+	'Tag','SWITCH',...
+    'BackgroundColor',cmodecolor,...
+	'string',cmode,...
+	'Callback', ['eegplot_w3(''SWITCH'')']);
 
 u(46) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
 	'Position', posbut(50,:), ...
-	'Tag','BSS',...
+	'Tag','UNDO',...
     'BackgroundColor',[.7 .7 1],...
-	'string','UNDO',...
+	'string','Undo',...
 	'Callback', ['eegplot_w3(''UNDO'')']);
 
 %% channel or epoch, rejection or interpolation buttons #Ugo
@@ -940,6 +1066,7 @@ end
 	'BackgroundColor',DEFAULT_FIG_COLOR, ...
 	'Position', posbut(29,:), ...
     'Style','text', ...
+    'FontSize',8,...
 	'Tag','Count_Trials',...
 	'string','');
 
@@ -948,20 +1075,21 @@ end
 	'BackgroundColor',DEFAULT_FIG_COLOR, ...
 	'Position', posbut(30,:), ...
 	'Style','text', ...
+    'FontSize',8,...
 	'Tag','Count_Channels',...
 	'string','');
 
 %% plot data difference checkbox
 
-u(26)= uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_FIG_COLOR, ...
-	'Position', posbut(26,:), ...
-	'Style','checkbox', ...
-	'FontSize',8,...
-	'Tag','datadiff',...
-	'string','plot Data Difference',...
-    'Callback', plotdiffcom );
+% u(26)= uicontrol('Parent',figh, ...
+% 	'Units', 'normalized', ...
+% 	'BackgroundColor',DEFAULT_FIG_COLOR, ...
+% 	'Position', posbut(26,:), ...
+% 	'Style','checkbox', ...
+% 	'FontSize',8,...
+% 	'Tag','datadiff',...
+% 	'string','plot Data Difference',...
+%     'Callback', plotdiffcom );
 
 %% Five move buttons: |< << < text > >> >|
 % NEW: GOES TO THE BEGGINING % UGO
@@ -1142,6 +1270,14 @@ u(26)= uicontrol('Parent',figh, ...
 	'string','-',...
 	'FontSize',10,...
 	'Callback',{@change_scale,figh,2,ax1});
+  
+  u(61) = uicontrol('Parent',figh, ...
+	'Units', 'normalized', ...
+	'Position',posbut(52,:), ...
+	'Tag','Pushbutton6',...
+	'string','Show all',...
+	'FontSize',10,...
+	'Callback',['eegplot(''winelec_auto'')']);
 
 %% Button for Normalizing data
 u(21) = uicontrol('Parent',figh, ...
@@ -1605,6 +1741,8 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
   h = findobj(gcf, 'tag', 'eegslider');
   set(h, 'backgroundcolor', BUTTON_COLOR);
   set(figh, 'visible', 'on');
+  h = findobj(gcf, 'tag', 'SWITCH');
+  set(h, 'backgroundcolor', cmodecolor);
   
   update_trial_rejections(g)
   
@@ -1618,75 +1756,23 @@ else
   
   case 'SWITCH'
     g = get(gcf,'UserData');
-    EEG = g.EEG;
-    ax1 = findobj('tag','eegaxis','parent',gcf); % axes handle
+    g = SWITCH(g);
 
-    if EEG.plotchannels == 1
-        g.EEG.plotchannels = 0;
-        g.eloc_file = g.eloc_file2;
-        g.data = EEG.icaact;
-        g.chans = size(EEG.icaact,1);
-        fprintf('Showing ICA data \r');
+    h = findobj(gcf, 'tag', 'SWITCH');
+    if g.EEG.plotchannels
+        set(h,'string','EEG data ON');
+        set(h, 'BackGroundColor', [0.5 1 0.5]);
     else
-        g.EEG.plotchannels = 1;
-        g.eloc_file = g.eloc_file1;
-        g.data = EEG.data;
-        g.chans = EEG.nbchan;
-        fprintf('Showing EEG data \r');
+        set(h,'string','Component Data On');
+        set(h, 'BackgroundColor', [1 0.5 0.5]);
     end
-    
-    set(ax1,'UserData',g.data);
-    %reprint_main_axis(g,gcf);
-    draw_data([],[],gcf,9,[],g);
-
-  case 'BSS'
-      % get data
-      g = get(gcf,'UserData');
-      EEG = g.EEG;
-      % set parameters
-      g.EEGpreBSS = EEG;
-      if ~isfield(g,'BSS')
-          g.BSS = [];
-      end
-    
-      % store parameters
-      [BSS,~] = quick_bss2(EEG);
-      g.EEG.suffix = 'BSS';
-      g.isBSS = true;
-      g.BSS = BSS;
-      g.EEG.BSS = BSS;
-      g.data = BSS.data;
-      set(gcf,'UserData',g);
-      print('BSS set')
-      % draw data
-      tt
-      ax1 = findobj('tag','eegaxis','parent',gcf); % axes handle
-      set(ax1,'UserData',g.data);
-      draw_data([],[],gcf,9,[],g);
+    draw_matrix(g)
+    %change_scale([],[],gcf,p1);
 
   case 'UNDO'
-    
+
     g = get(gcf,'UserData');
-    % NEW
-    if isfield(g,'BSS')
-      if g.isBSS
-        EEG = g.EEGpreBSS;
-        g.data = EEG.data;
-        g.isBSS = false;
-        g.EEG.suffix = '';
-        fprintf('Showing EEG without BSS \r');
-      else
-        BSS = g.BSS;
-        g.data = BSS.data;
-        g.isBSS = true;
-        g.EEG.suffix = 'BSS';
-        fprintf('Showing EEG after BSS \r');
-      end
-      set(gcf,'UserData',g);
-      ax1 = findobj('tag','eegaxis','parent',gcf); % axes handle
-      set(ax1,'UserData',g.data);
-      draw_data([],[],gcf,9,[],g);
-    end
+    g = UNDO(g);
 
   case 'saveandtag'
     g = get(gcf,'UserData');
@@ -1706,9 +1792,18 @@ else
   case 'TBT'
       g = get(gcf,'UserData');
       g = TBT(g);
-      draw_data([],[],gcf,0,[],g);
-      
-      
+      draw_data([],[],gcf,9,[],g);
+
+  case 'QUICKLAB'     
+      g = get(gcf,'UserData');
+      g = QUICKLAB(g);
+      draw_data([],[],gcf,9,[],g);
+  
+  case 'ICLABEL'
+      g = get(gcf,'UserData');
+      g = ICLABEL(g);
+      draw_data([],[],gcf,9,[],g);
+
   case 'ClearMarks'
       g = get(gcf,'UserData');
       g.winrej = [];
@@ -1793,6 +1888,20 @@ else
 	eegplot_w3('drawp',0);	
 	return;
     
+  case 'winelec_auto'  % change channel window size
+                  % get new window length with dialog box
+                  % -------------------------------------
+   fig = gcf;
+   g = get(gcf,'UserData');
+   
+   g.dispchans = g.chans;
+
+   set(gcf, 'UserData', g);
+   
+   eegplot_w3('updateslider', fig);
+   eegplot_w3('drawp',0);	
+   eegplot_w3('scaleeye', [], fig);
+
   case 'winelec'  % change channel window size
                   % get new window length with dialog box
                   % -------------------------------------
@@ -3571,7 +3680,7 @@ if EEG.plotchannels == 1
         datapos = max(1, round(tmppos(1)+lowlim));
         datapos = min(datapos, g.frames);
         
-        axes('Parent', fig, 'position',[ 0.92    0.31    0.080    0.10 ],'units','normalized');
+        axes('Parent', fig, 'position',g.headpos,'units','normalized');
 
         % get color
         BackColor = get(fig,'Color');
@@ -3694,10 +3803,10 @@ EEG = g.EEG;
         ax_pic = findobj('tag','picture');
 
         if isempty(ax_pic)
-            ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.13 ],'units','normalized','tag','topo','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
+            ax_pic = axes('Parent', gcf, 'position',g.matrixpos,'units','normalized','tag','topo','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
         else
             delete(ax_pic);
-            ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.13 ],'units','normalized','tag','topo','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
+            ax_pic = axes('Parent', gcf, 'position',g.matrixpos,'units','normalized','tag','topo','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
         end
         % get color
         BackColor = get(fig,'Color');
@@ -3798,7 +3907,7 @@ function plot_topoplot_old(fig)
         data = get(ax1,'UserData');
         datapos = max(1, round(tmppos(1)+lowlim));
         datapos = min(datapos, g.frames);
-        axes('Parent', fig, 'position',[ 0.92    0.31    0.080    0.10 ],'units','normalized');
+        axes('Parent', fig, 'position',g.headpos,'units','normalized');
         % get color
         BackColor = get(fig,'Color');
         
@@ -3849,24 +3958,281 @@ function plot_topoplot_old(fig)
 %         title(sprintf('Latency of %d ms in trial %d', round(latintrial), trial));
 %     end
 
+%% These functions below are brand new, to be used by the new METHODS section
 
+    function change_list(x,y)
+        g = get(gcf,'UserData');
+        list = findobj(gcf,'tag', 'ListPopup');
+
+        choice = list.Value;
+        
+        met = findobj(gcf,'tag', 'ALLmethods');
+        opt = findobj(gcf,'tag', 'ALLoptions');
+        hint = findobj(gcf,'tag', 'ALLhints');
+        switch choice
+            case 1
+                met.String = g.tbtmethods;
+                g.currentooptions = g.tbtoptions;
+            case 2
+                met.String = g.eegmethods;
+                g.currentooptions = g.eegoptions;
+            case 3
+                met.String = g.iclmethods;
+                g.currentooptions = g.icloptions;
+        end
+        met.Value = 1;
+        set(gcf,'UserData',g);
+        change_options(x,y);
+    
     function change_options(x,y)
         g = get(gcf,'UserData');
-        met = findobj('tag', 'TBTmethods');
-        opt = findobj('tag', 'TBToptions');
-        hint = findobj('tag', 'TBThints');
         
-        opt(1).String = g.tbtoptions{met(1).Value};
-        hint(1).String = g.tbtoptions{met(1).Value,2};
+        list = findobj(gcf,'tag', 'ListPopup');
         
-        %set(findobj(gcbf, 'tag', 'TBThints'), 'string',options{met.Value,2});
+        met = findobj(gcf,'tag', 'ALLmethods');
+        opt = findobj(gcf,'tag', 'ALLoptions');
+        hint = findobj(gcf,'tag', 'ALLhints');
+        
+        current = g.currentooptions;
+       
+        opt(1).String = current{met(1).Value};
+        hint(1).String = current{met(1).Value,2};
     
+    function g = methods(x,y)
+        g = get(gcf,'UserData');
+        list = findobj(gcf,'tag', 'ListPopup');
+
+        switch list.Value
+            case 1
+                g = TBT(g);
+            case 2
+                g = QUICKLAB(g);
+            case 3
+                g = ICLABEL(g);
+        end
+
+        set(gcf,'UserData',g);
+function g = SWITCH(g)
+
+    g = get(gcf,'UserData');
+    EEG = g.EEG;
+    ax1 = findobj('tag','eegaxis','parent',gcf); % axes handle
+
+    if EEG.plotchannels == 1
+        g.EEG.plotchannels = 0;
+        g.eloc_file_ch = g.eloc_file;
+        g.eloc_file = g.eloc_file_pc;
+
+        g.winrej_ch = g.winrej;
+        g.winrej = g.winrej_pc;
+
+        g.data = EEG.icaact;
+        g.chans = size(EEG.icaact,1);
+        fprintf('Showing ICA data \r');
+    else
+        g.EEG.plotchannels = 1;
+        g.eloc_file_pc = g.eloc_file;
+        g.eloc_file = g.eloc_file_ch;
+
+        g.winrej_pc = g.winrej;
+        g.winrej = g.winrej_ch;
+
+        g.data = EEG.data;
+        g.chans = EEG.nbchan;
+        fprintf('Showing EEG data \r');
+    end
     
+    set(ax1,'UserData',g.data);
+    %reprint_main_axis(g,gcf);
+    draw_data([],[],gcf,9,[],g);
+    
+    eegplot_w3('winelec_auto');
+
+    %change_scale(ax1,gcf,1);
+    
+
+function g = UNDO(g)
+
+    g = get(gcf,'UserData');
+    EEG = g.EEG;
+    % NEW
+    if isfield(g,'NEW')
+        if g.isNEW
+            g.isNEW = false;
+
+            try g.winrejPRE = g.winrej; catch; end
+            % ELOC IS BUGGY 
+            %g.eloc_file = ;
+            EEG = g.EEGpre;
+            g.data = EEG.data;
+
+            g.EEG.suffix = '';
+            fprintf('Showing EEG without BSS \r');
+        else
+            g.isNEW = true;
+
+            try g.winrej = g.winrejNEW; catch; end
+
+            EEG = g.NEW;
+            g.data = EEG.data;
+            g.isNEW = true;
+            g.EEG.suffix = 'NEW';
+            fprintf('Showing EEG after PROCESS \r');
+        end
+    
+      set(gcf,'UserData',g);
+      ax1 = findobj('tag','eegaxis','parent',gcf); % axes handle
+      set(ax1,'UserData',g.data);
+
+      draw_data([],[],gcf,9,[],g);
+
+   end
+
+   function g = ICLABEL(g)
+
+   g = get(gcf,'UserData');
+   EEG = g.EEG;
+   % set parameters
+   if EEG.plotchannels == 1
+       g = SWITCH(g);
+   end
+
+   g.EEGpre = EEG;
+   if ~isfield(g,'NEW')
+       g.NEW = [];
+   end
+   % get methods
+   method = findobj(gcf,'tag', 'ALLmethods');
+   options = findobj(gcf,'tag', 'ALLoptions');
+   nbadchans = findobj(gcf,'tag', 'TBTnchans');
+   pctbadtrial = findobj(gcf,'tag', 'TBT%');
+   % run methods
+   [NEW] = pop_iclabel(EEG, 'default');
+
+   opt = str2num(options(1).String);
+
+   switch method(1).Value
+       case 1
+           [NEW] = pop_par_icflag(NEW, [NaN NaN;opt(1) opt(2);opt(1) opt(2);opt(1) opt(2);opt(1) opt(2);opt(1) opt(2);NaN NaN]);
+       case 2
+           [NEW] = pop_par_icflag(NEW, [opt(1) opt(2);NaN NaN;NaN NaN;NaN NaN;NaN NaN;NaN NaN;NaN NaN]);
+       case 3
+           [NEW] = pop_par_icflag(NEW, [NaN NaN;opt(1) opt(2);NaN NaN;NaN NaN;NaN NaN;NaN NaN;NaN NaN]);
+       case 4
+           [NEW] = pop_par_icflag(NEW, [NaN NaN;NaN NaN;opt(1) opt(2);NaN NaN;NaN NaN;NaN NaN;NaN NaN]);
+       case 5 
+           [NEW] = pop_par_icflag(NEW, [NaN NaN;NaN NaN;NaN NaN;opt(1) opt(2);NaN NaN;NaN NaN;NaN NaN]);
+       case 6
+           [NEW] = pop_par_icflag(NEW, [NaN NaN;NaN NaN;NaN NaN;NaN NaN;opt(1) opt(2);NaN NaN;NaN NaN]);
+       case 7
+           [NEW] = pop_par_icflag(NEW, [NaN NaN;NaN NaN;NaN NaN;NaN NaN;NaN NaN;opt(1) opt(2);NaN NaN]);
+       case 8
+           [NEW] = pop_par_icflag(NEW, [NaN NaN;NaN NaN;NaN NaN;NaN NaN;NaN NaN;NaN NaN;opt(1) opt(2)]);
+   end
+
+   % store new data in .NEW and .EEG
+   g.EEG = NEW;
+   g.NEW = NEW;
+
+   if EEG.plotchannels == 1
+       g = SWITCH(g);
+   end
+
+   %g.data = NEW.data;
+
+   % make new eloc_file based on new channels/components
+   %g = make_eloc_file(g);
+   mybadcomps = find(NEW.reject.gcompreject);
+
+   if sum(mybadcomps)
+       for ind = 1:size(mybadcomps)
+           g.eloc_file_pc(mybadcomps(ind)).badchan = 1; % marks channels as bad
+           % removes these channels from trial rejections!
+           %winrej(ind,:) = 0;
+       end
+   end
+
+   % make suffix, store the bool of a NEW vs OLD data.
+   g.EEG.suffix = 'IcL';
+   g.isNEW = true;
+   fprintf('NEW dataset');
+  
+   % store and draw data
+   set(gcf,'UserData',g);
+   ax1 = findobj('tag','eegaxis','parent',gcf); % axes handle
+   set(ax1,'UserData',g.data);
+
+   draw_data([],[],gcf,9,[],g);
+
+
+   function g = QUICKLAB(g)
+
+   g = get(gcf,'UserData');
+   EEG = g.EEG;
+   % set parameters
+   g.EEGpre = EEG;
+   if ~isfield(g,'NEW')
+       g.NEW = [];
+   end
+   % get methods
+   method = findobj(gcf,'tag', 'ALLmethods');
+   options = findobj(gcf,'tag', 'ALLoptions');
+   nbadchans = findobj(gcf,'tag', 'TBTnchans');
+   pctbadtrial = findobj(gcf,'tag', 'TBT%');
+   opt = options.String;
+   if isempty(opt)
+       opt = '[]';
+   end
+   % run methods
+   switch method(1).Value
+       case 1
+           newcom = ['[NEW] = quick_PCA(EEG,' opt ');'];
+           %NEW = quick_PCA(EEG,[],'cudaica',0);
+       case 2
+           newcom = [strcat('[NEW] = quick_bss2(EEG,', opt, ');')];
+           %NEW = quick_bss2(EEG);
+       case 3
+           newcom = [strcat('[NEW] = quick_reref(EEG,', opt, ');')];
+           %NEW = quick_reref(EEG);
+       case 4
+           newcom = ['[NEW] = quick_HM94(EEG,' opt ');'];
+           %NEW = quick_HM94(EEG);
+       case 5 
+           newcom = [strcat('[NEW] = quick_epoch(EEG,', opt, ');')];
+           %NEW = quick_epoch(EEG,0.600,2.648);
+   end
+
+   eval(newcom);
+   % store new data in .NEW and .EEG
+   g.EEG = NEW;
+   g.NEW = NEW;
+   g.data = NEW.data;
+   %GET ICA DATA AS WELL
+
+   % make new eloc_file based on new channels/components
+   g = make_eloc_file(g);
+
+   % make suffix, store the bool of a NEW vs OLD data.
+   g.EEG.suffix = 'NEW';
+   g.isNEW = true;
+   fprintf('NEW dataset');
+  
+   % store and draw data
+   set(gcf,'UserData',g);
+   ax1 = findobj('tag','eegaxis','parent',gcf); % axes handle
+   set(ax1,'UserData',g.data);
+
+   draw_data([],[],gcf,9,[],g);
+
     function g = TBT(g)
         % This function was adapted from TBT plugin by 
         g = get(gcf,'UserData');
         EEG = g.EEG;
-        
+
+        % storing old data
+        g.EEGpre = EEG;
+        g.winrejPRE = g.winrej;
+
         if EEG.plotchannels ~= 1
             icacomp = '0';
             chancomps = '1:size(EEG.icaact,1)';
@@ -3876,10 +4242,10 @@ function plot_topoplot_old(fig)
             chancomps = '1:EEG.nbchan';
             ica = ''; 
         end
-        method = findobj('tag', 'TBTmethods');
-        options = findobj('tag', 'TBToptions');
-        nbadchans = findobj('tag', 'TBTnchans');
-        pctbadtrial = findobj('tag', 'TBT%');
+        method = findobj(gcf,'tag', 'ALLmethods');
+        options = findobj(gcf,'tag', 'ALLoptions');
+        nbadchans = findobj(gcf,'tag', 'TBTnchans');
+        pctbadtrial = findobj(gcf,'tag', 'TBT%');
         
         switch method(1).Value
 
@@ -3907,7 +4273,6 @@ function plot_topoplot_old(fig)
                 comrej  = ['[EEG, comrej]    = pop_eegmaxmin(EEG,' options(1).String ');'];
                 chosen_func    = 'rejmaxminE';
                 ica = ''; %rejmaxminE doesn't have options for ICA
-
             case 8
                 comrej = ['[EEG,comrej] = pop_eegchannelpop(EEG,' icacomp ',' chancomps ',' options(1).String ');'];
                 chosen_func = 'rejchanpops';
@@ -4000,18 +4365,17 @@ function plot_topoplot_old(fig)
              %catch
             g.winrej = [g.winrej;mark];
              %end
-            % removes all repetitive marks
-            
+
+            % --- Updating and organizing winrej
             g.winrej = unique(g.winrej,'rows');
-
             g.winrej = sortrows(g.winrej,'ascend');
-
             g.winrej = merge_trials(g.winrej); 
-            
+            % --- storing new winrej
+            g.winrejNEW = g.winrej;
             update_trial_rejections(g);
            
         end
-
+       
 
 function update_trial_rejections(g)
 %% this function updates the tags for trial rejection and partial interpolations
@@ -4221,12 +4585,17 @@ ax_pic = findobj('tag','picture');
 
 if isempty(ax_pic)
     First = 1;
-    ax_pic = axes('Parent', gcf, 'position',[ 0.922    0.28    0.075    0.125 ],'units','normalized','tag','picture','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
+    ax_pic = axes('Parent', gcf, 'position',g.matrixpos,'units','normalized','tag','picture','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
 end
 hold on; % not sure if necessary
 
 % --- making empty matrix
-plot_matrix = zeros(size(g.eloc_file,2),EEG.trials);
+%if EEG.plotchannels
+    plot_matrix = zeros(g.chans,EEG.trials);
+%else
+%    plot_matrix = zeros(size(g.eloc_file,1),EEG.trials);
+%end
+
 plot_matrix = plot_matrix - 10;
 
 if ~isempty(g.winrej)
@@ -4290,18 +4659,22 @@ if ~isempty(g.winrej)
     end
 end
 %% Paints bad channels
-            if ~isfield(g.eloc_file, 'badchan')
-                for ii=1:length(g.eloc_file)
-                    g.eloc_file(ii).badchan = 0;
-                end
-            end
-bad_chans = find([g.eloc_file.badchan]); % gets bad channels/components
-if ~isempty(bad_chans)
-    
-    bad_chans = [abs(bad_chans - 1 - size(g.eloc_file,2))]; % flips the array
-    if ~isempty(bad_chans)
-        plot_matrix(bad_chans,:) = 3; % Paints matrix
+if ~isfield(g.eloc_file, 'badchan')
+    for ii=1:length(g.eloc_file)
+        g.eloc_file(ii).badchan = 0;
     end
+end
+bad_chans = find([g.eloc_file.badchan]); % gets bad channels/components
+
+if ~isempty(bad_chans)
+%     if g.EEG.plotchannels
+        bad_chans = [abs(bad_chans - 1 - size(g.eloc_file,2))]; % flips the array
+%     else
+%         %bad_chans = [abs(bad_chans - size(g.eloc_file,2))]; % flips the array
+%     end
+%     if ~isempty(bad_chans)
+        plot_matrix(bad_chans,:) = 3; % Paints matrix
+    %end
 end
 
     %% plots image
@@ -4323,10 +4696,9 @@ end
      % makes axis tight to bounderies, filling full space
     %lim = clim %for debugging
     
-    title = get(findobj(gcf,'tag','headmap'),'String');
-    if strcmp(title,'Data Matrix')
-         set(findobj(gcf,'tag','headmap'),'String','Data Matrix');
-    end
+    %title = get(findobj(gcf,'tag','headmap'),'String');
+    set(findobj(gcf,'tag','headmap'),'String','Data Matrix');
+
     else
         matrix_pic = findobj('tag','matrix');
         set(matrix_pic,'CData',plot_matrix);
@@ -4461,3 +4833,35 @@ ORIGINAL_POSITION = [50 50 800 500];
                    
 MAXEVENTSTRING = g.maxeventstring;
 DEFAULT_AXES_POSITION = [0.05 0.03 0.865 1-(MAXEVENTSTRING-4)/100]; %[0.095 0.35 0.842 0.75-(MAXEVENTSTRING-5)/100];
+
+function g = make_eloc_file(g)
+
+EEG = g.EEG;
+elecrange = [1:EEG.nbchan];
+
+if ~isempty( EEG.icasphere )
+    comprange = [1:size(EEG.icaweights,1)];
+end
+
+% if ~isempty(EEG.chanlocs)
+%     g.eloc_file_ch = EEG.chanlocs(1:elecrange);
+% end
+
+if ~isempty(EEG.icasphere)
+    try
+        gcompreject=EEG.reject.gcompreject;
+    catch
+        gcompreject=zeros(1,size(EEG.icaweights,1));
+    end
+    tmpcompstruct=struct('badchan',num2cell(gcompreject));
+    for index = 1:length(comprange)
+        tmpcompstruct(index).labels = int2str(comprange(index));
+    end
+    g.eloc_file_pc = tmpcompstruct;
+end
+
+if EEG.plotchannels == 1
+    g.eloc_file = g.eloc_file_ch;
+else
+    g.eloc_file = g.eloc_file_pc;
+end
