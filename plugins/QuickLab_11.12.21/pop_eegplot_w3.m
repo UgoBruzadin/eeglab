@@ -219,7 +219,7 @@ end
 
 %% chanlocs for eeg datascroll
 if ~isempty(EEG.chanlocs)
-    eegplotoptions = { eegplotoptions{:}  'eloc_file1', EEG.chanlocs(elecrange) };
+    eegplotoptions = { eegplotoptions{:}  'eloc_file_ch', EEG.chanlocs(elecrange) };
 end
 
 %% chanlocs for ica datascroll
@@ -230,13 +230,10 @@ if ~isempty(EEG.icasphere)
         gcompreject=zeros(1,size(EEG.icaweights,1));
     end
     tmpcompstruct=struct('badchan',num2cell(gcompreject));
-
     for index = 1:length(comprange)
         tmpcompstruct(index).labels = int2str(comprange(index));
     end
-
-    eegplotoptions = { eegplotoptions{:}  'eloc_file2' tmpcompstruct };
-
+    eegplotoptions = { eegplotoptions{:}  'eloc_file_pc' tmpcompstruct };
 end
 
 
