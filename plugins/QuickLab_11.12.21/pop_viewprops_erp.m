@@ -44,7 +44,16 @@
 
 function [com] = pop_viewprops_erp( EEG, typecomp, chanorcomp, spec_opt, erp_opt, scroll_event, classifier_name, fig, erpcom)
 
+projchan = [];
+
 [projchan chanliststr] = pop_chansel( { EEG.chanlocs.labels } );
+
+tmpevent = EEG.event;
+
+[tmps,tmpstr] = pop_chansel(unique({ tmpevent.type }));
+
+%'typetxt',type,'sortingeventfield','type'
+
 
 COLACC = [0.75 1 0.75];
 PLOTPERFIG = size(EEG.icawinv,2);
@@ -204,16 +213,16 @@ for ri = chanorcomp
         end;
         ha = axes('Units','Normalized', 'Position',[X Y sizewx sizewy-.5].*s+q,'Tag',strcat('H',int2str(ri)));
         if typecomp
-            to = pop_erpimage_ql(EEG,0, [ri],[[projchan]],'',10,1,{},[],'' ,'yerplabel','','erp','on','cbar','off'); %,'topo', { EEG.icawinv(:,[ri]) EEG.chanlocs EEG.chaninfo } );
+            to = pop_erpimage_ql(EEG,0, [ri],[[projchan]],'',10,1,{},[],'','yerplabel','erp','on','cbar','off','sortingeventfield','type','typetxt',tmpstr); %,'topo', { EEG.icawinv(:,[ri]) EEG.chanlocs EEG.chaninfo } );
 %             to = topoplot( ri, EEG.chanlocs, 'chaninfo', EEG.chaninfo, ...
 %                 'electrodes','off', 'style', 'blank', 'emarkersize1chan', 12);
         else
             if plotelec
-                to = pop_erpimage_ql(EEG,0, [ri],[[projchan]],'',10,1,{},[],'' ,'yerplabel','','erp','on','cbar','off'); %,'topo', { EEG.icawinv(:,[ri]) EEG.chanlocs EEG.chaninfo } );
+                to = pop_erpimage_ql(EEG,0, [ri],[[projchan]],'',10,1,{},[],'' ,'yerplabel','','erp','on','cbar','off','sortingeventfield','type','typetxt',tmpstr); %,'topo', { EEG.icawinv(:,[ri]) EEG.chanlocs EEG.chaninfo } );
 %                 to = topoplot( EEG.icawinv(:,ri), EEG.chanlocs, 'verbose', ...
 %                     'off', 'style' , 'fill', 'chaninfo', EEG.chaninfo, 'numcontour', 8);
             else
-                to = pop_erpimage_ql(EEG,0, [ri],[[projchan]],'',10,1,{},[],'' ,'yerplabel','','erp','on','cbar','off'); %,'topo', { EEG.icawinv(:,[ri]) EEG.chanlocs EEG.chaninfo } );
+                to = pop_erpimage_ql(EEG,0, [ri],[[projchan]],'',10,1,{},[],'' ,'yerplabel','','erp','on','cbar','off','sortingeventfield','type','typetxt',tmpstr); %,'topo', { EEG.icawinv(:,[ri]) EEG.chanlocs EEG.chaninfo } );
 %                 to = topoplot( EEG.icawinv(:,ri), EEG.chanlocs, 'verbose', ...
 %                     'off', 'style' , 'fill','electrodes','off', 'chaninfo', EEG.chaninfo, 'numcontour', 8);
             end;
