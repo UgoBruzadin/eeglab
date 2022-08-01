@@ -34,7 +34,7 @@ if nargin < 3
     keepref = KEEPREF; 
 end
 
-%options = struct('labels',{'Cz'},'Y',{0},'X',{0},'Z',{8.7919},'sph_theta',{0},'sph_phi',{0},'sph_radius',{0},'theta',{0},'radius',{0},'type',{''},'ref',{'Cz'},'urchan',{[]},'datachan',{0});
+options = struct('labels',{'Cz'},'Y',{0},'X',{0},'Z',{8.7919},'sph_theta',{0},'sph_phi',{0},'sph_radius',{0},'theta',{0},'radius',{0},'type',{''},'ref',{'Cz'},'urchan',{[]},'datachan',{0});
 options = REFLOC; % taken from QuickLabDefs
 
 if nargin < 2 
@@ -46,6 +46,9 @@ if strcmp(channels,'AVG')
 elseif strcmp(channels,'LE')
    [EEG,com] = pop_reref( EEG, LE_REFS, 'keepref', keepref);
 elseif strcmp(channels,'OG')
+   [EEG,com] = pop_reref( EEG, OG_REF, 'keepref', keepref);
+elseif strcmp(channels,'CZ')
+    options = REFLOC;
    [EEG,com] = pop_reref( EEG, OG_REF, 'keepref', keepref);
 else
     %try finding channel names

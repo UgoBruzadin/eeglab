@@ -317,8 +317,8 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    try g.plottitle; 		catch, g.plottitle	= ''; 	end
    try g.trialstag; 		catch, g.trialstag	= -1; 	end
    try g.winrej; 			catch, g.winrej		= []; 	end
-   try g.winrej_pc; 			catch, g.winrej_pc		= []; 	end
-   try g.winrej_ch; 			catch, g.winrej_ch		= []; 	end
+    try g.winrej_pc; 			catch, g.winrej_pc		= []; 	end
+    try g.winrej_ch; 			catch, g.winrej_ch		= []; 	end
    try g.command; 			catch, g.command	= ''; 	end
       try g.command2; 			catch, g.command2	= ''; 	end
    try g.tag; 				catch, g.tag		= 'eegplot_w3'; end
@@ -343,7 +343,11 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    try g.selectcommand;     catch, g.selectcommand     = { '' '' '' }; end % { defdowncom defmotioncom defupcom }
    try g.ctrlselectcommand; catch, g.ctrlselectcommand = { '' '' '' }; end % { defctrldowncom defctrlmotioncom defctrlupcom }
    try g.datastd;           catch, g.datastd = []; end %ozgur
+    try g.datastd_ch;           catch, g.datastd_ch = []; end %ozgur
+    try g.datastd_pc;           catch, g.datastd_pc = []; end %ozgur
    try g.normed;            catch, g.normed = 0; end %ozgur
+   try g.normed_ch;            catch, g.normed_ch = 0; end %ozgur
+   try g.normed_pc;            catch, g.normed_pc = 0; end %ozgur
    try g.envelope;          catch, g.envelope = 0; end%ozgur
    try g.maxeventstring;    catch, g.maxeventstring = 10; end % JavierLC
    try g.isfreq;            catch, g.isfreq = 0;    end % Ramon
@@ -391,10 +395,10 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    for index=1:length(gfields)
       switch gfields{index}
       case { 'EEG' 'winrej' 'winrej_ch' 'winrej_pc' 'srate' 'eloc_file' 'eloc_file_ch' 'eloc_file_pc' 'winlength' 'fullscreen' 'position' 'title' 'plottitle' ...
-               'trialstag' 'tag' 'xgrid' 'ygrid' 'color' 'colmodif' 'spacing' ...
+               'trialstag' 'tag' 'xgrid' 'ygrid' 'color' 'colmodif' 'spacing' 'normed' 'normed_ch' 'normed_pc' 'datastd' 'datastd_ch'  'datastd_pc' ...
                'freqs' 'freqlimits' 'submean' 'children' 'limits' 'matrixpos' 'headpos' 'dispchans' 'wincolor' 'currentoptions' ...
                'maxeventstring' 'ploteventdur' 'butlabel' 'scale' 'events' 'data2' 'plotdata2' 'command'  'command2' 'savecommand' 'savecommand2'...
-               'mocap' 'selectcommand' 'ctrlselectcommand' 'datastd' 'normed' 'envelope' 'isfreq'  'tbtmethods' 'tbtoptions'}
+               'mocap' 'selectcommand' 'ctrlselectcommand' 'envelope' 'isfreq'  'tbtmethods' 'tbtoptions'}
       otherwise, error(['eegplot_w3: unrecognized option: ''' gfields{index} '''' ]);
       end
    end
@@ -689,12 +693,13 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   posbut(27,:) = [ 0.92    0.18    0.080    defaultsizes(2) ]; % Rejecting/Interpolating Mode  
   posbut(51,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % Components/EEG SWITCH FUNCTION
   
-  posbut(44,:) = [ 0.92    0.11    0.080    defaultsizes(2) ]; % store changes in file button #Ugo
+  posbut(43,:) = [ 0.92    0.13    0.080    defaultsizes(1) ]; % RUN, TAG AND SAVE
+
+  posbut(44,:) = [ 0.92    0.105    0.080    defaultsizes(2) ]; % SAVE TEXT EDIT
   
-  posbut(43,:) = [ 0.92    0.11    0.080    defaultsizes(2) ]; % RUN, TAG AND SAVE)
-  
-  %posbut(45,:) = [ 0.92    0.06    0.040    defaultsizes(1) ]; % RUN SCRIPT  
-  posbut(42,:) = [ 0.92    0.085    0.080    defaultsizes(2) ]; % store marks #Ugo
+  posbut(45,:) = [ 0.92     0.8    0.080    defaultsizes(1) ]; % SAVE FILE BUTTON
+
+  posbut(42,:) = [ 0.92    0.06    0.080    defaultsizes(1) ]; % store marks #Ugo
   posbut(13,:) = [ 0.92    0.04    0.080    defaultsizes(1) ]; % cancel/close
   posbut(12,:) = [ 0.92    0.02    0.080    defaultsizes(1) ]; % accept/close
   
@@ -725,6 +730,21 @@ displaycomp = ['EEG.plotEp = 1 - EEG.plotEp; eegplot_w3(EEG,varargin)'];
 % savecommand = ['[EEG] = pop_saveset(EEG, ''filename'', [strcat( EEG.filename(1:end-4),get(findobj(''tag'',''SAVETEXT''),''string''),''.set'')],''filepath'',EEG.filepath);'...
 %      '[ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);' loaddircommand 'eeglab redraw;']; %save set ADDED BY UGO
 % 
+
+  u(50) = uicontrol('Parent',figh, ...
+	'Units', 'normalized', ...
+	'BackgroundColor',[1 1 1], ...
+	'Position', posbut(44,:), ...
+	'Style','edit', ...
+	'Tag','SaveNowText',...
+	'string','');
+
+    u(51) = uicontrol('Parent',figh, ...
+	'Units', 'normalized', ...
+	'Position', posbut(45,:), ...
+	'Tag','SaveNowButton',...
+	'string','Save To File',...
+    'callback', []);
 
 %% heatmap title
   u(24) = uicontrol('Parent',figh, ...
@@ -1277,7 +1297,7 @@ end
 	'Tag','Pushbutton6',...
 	'string','Show all',...
 	'FontSize',10,...
-	'Callback',['eegplot(''winelec_auto'')']);
+	'Callback',['eegplot_w3(''winelec_auto'')']);
 
 %% Button for Normalizing data
 u(21) = uicontrol('Parent',figh, ...
@@ -1334,7 +1354,12 @@ u(22) = uicontrol('Parent',figh, ...
 
 % save button #Ugo
 if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPREJ\n'');';   
-  else tmpsavecom = g.savecommand;
+else 
+    if g.EEG.plotchannels
+        tmpsavecom = g.savecommand;
+    else
+        tmpsavecom = g.savecommand_pc;
+    end
   end
   savecommand = [ 'g = get(gcbf, ''userdata'');' ...               
                     'TMPREJ = g.winrej;' ...
@@ -1591,7 +1616,7 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
   % Zooms %%%%%%%%
  % if ismatlab && verLessThan('matlab','8.4.0')
  %     zm = uimenu('Parent',m(2),'Label','Zoom off/on');
- %     commandzoom = [ 'set(gcbf, ''WindowButtonDownFcn'', [ ''zoom(gcbf,''''down''''); eegplot(''''zoom'''', gcbf, 1);'' ]);' ...
+ %     commandzoom = [ 'set(gcbf, ''WindowButtonDownFcn'', [ ''zoom(gcbf,''''down''''); eegplot_w3(''''zoom'''', gcbf, 1);'' ]);' ...
  %         'tmpg = get(gcbf, ''userdata'');' ...
  %         'clear tmpg tmpstr;'];
  %     uimenu('Parent',zm,'Label','Zoom on', 'callback', commandzoom);
@@ -1974,7 +1999,8 @@ else
    g = get(gcf,'UserData');
    
    g.dispchans = str2num(get(findobj('tag','NumChan'),'String'));
-   if g.dispchans<0 || g.dispchans>g.chans
+
+   if isempty(g.dispchans) || g.dispchans < 0 || g.dispchans > g.chans
        g.dispchans = g.chans;
    end
 
@@ -2168,7 +2194,7 @@ else
       % ------------------------------
       if exist('p2', 'var') == 1
           if ismatlab && verLessThan('matlab','8.4.0')
-              set(gcbf, 'windowbuttondownfcn', [ 'zoom(gcbf,''down''); eegplot(''zoom'', gcbf, 1);' ]);
+              set(gcbf, 'windowbuttondownfcn', [ 'zoom(gcbf,''down''); eegplot_w3(''zoom'', gcbf, 1);' ]);
           else
               warning('FIXME: Zoom not work in MATLAB >= 8.4.0')
           end
@@ -3195,7 +3221,7 @@ set(fig,'UserData', g);
 draw_background([],[],fig,g);
 
 if strcmp(g.mocap,'on')
-    show_mocap_for_eegplot(g.winrej); 
+    show_mocap_for_eegplot_w3(g.winrej); 
     g.winrej = g.winrej(end,:); 
 end % nima
 
@@ -4053,7 +4079,8 @@ function plot_topoplot_old(fig)
     function g = methods(x,y)
         g = get(gcf,'UserData');
         list = findobj(gcf,'tag', 'ListPopup');
-
+        g.old = [];
+        g = g.old;
         switch list.Value
             case 1
                 g = TBT(g);
@@ -4073,23 +4100,39 @@ function g = SWITCH(g)
 
     if EEG.plotchannels == 1
         g.EEG.plotchannels = 0;
+
         g.eloc_file_ch = g.eloc_file;
         g.eloc_file = g.eloc_file_pc;
 
+        g.datastd_ch = g.datastd;
+        g.datastd = g.datastd_pc;
+
+        g.normed_ch = g.normed_ch;
+        g.normed = g.normed_pc;
+
         g.winrej_ch = g.winrej;
         g.winrej = g.winrej_pc;
-
+        
         g.data = EEG.icaact;
         g.chans = size(EEG.icaact,1);
+        g.spacing = 3;
         fprintf('Showing ICA data \r');
     else
         g.EEG.plotchannels = 1;
+
         g.eloc_file_pc = g.eloc_file;
         g.eloc_file = g.eloc_file_ch;
 
+        g.datastd_pc = g.datastd;
+        g.datastd = g.datastd_ch;
+
+        g.normed_pc = g.normed;
+        g.normed = g.normed_ch;
+
         g.winrej_pc = g.winrej;
         g.winrej = g.winrej_ch;
-
+        
+        g.spacing = 30;
         g.data = EEG.data;
         g.chans = EEG.nbchan;
         fprintf('Showing EEG data \r');
@@ -4108,39 +4151,50 @@ function g = SWITCH(g)
 function g = UNDO(g)
 
     g = get(gcf,'UserData');
-    EEG = g.EEG;
+
+    if ~isfield(g,'old')
+        NEWg = g;
+        g = g.old;
+        g.new = NEWg;
+        EEG = g.EEG;
+    elseif isfield(g,'new')
+        g.old = OLDg;
+        g = g.new;
+        g.old = OLDg;
+        EEG = g.EEG;
+    end
     % NEW
-    if isfield(g,'NEW')
-        if g.isNEW
-            g.isNEW = false;
-
-            try g.winrejPRE = g.winrej; catch; end
-            % ELOC IS BUGGY 
-            %g.eloc_file = ;
-            EEG = g.EEGpre;
-            g.data = EEG.data;
-
-            g.EEG.suffix = '';
-            fprintf('Showing EEG without BSS \r');
-        else
-            g.isNEW = true;
-
-            try g.winrej = g.winrejNEW; catch; end
-
-            EEG = g.NEW;
-            g.data = EEG.data;
-            g.isNEW = true;
-            g.EEG.suffix = 'NEW';
-            fprintf('Showing EEG after PROCESS \r');
-        end
+%     if isfield(g,'NEW')
+%         if g.isNEW
+%             g.isNEW = false;
+% 
+%             try g.winrejPRE = g.winrej; catch; end
+%             % ELOC IS BUGGY 
+%             %g.eloc_file = ;
+%             EEG = g.EEGpre;
+%             g.data = EEG.data;
+% 
+%             g.EEG.suffix = '';
+%             fprintf('Showing EEG without BSS \r');
+%         else
+%             g.isNEW = true;
+% 
+%             try g.winrej = g.winrejNEW; catch; end
+% 
+%             EEG = g.NEW;
+%             g.data = EEG.data;
+%             g.isNEW = true;
+%             g.EEG.suffix = 'NEW';
+%             fprintf('Showing EEG after PROCESS \r');
+%         end
     
       set(gcf,'UserData',g);
       ax1 = findobj('tag','eegaxis','parent',gcf); % axes handle
       set(ax1,'UserData',g.data);
 
       draw_data([],[],gcf,9,[],g);
-
-   end
+% 
+%    end
 
    function g = ICLABEL(g)
 
@@ -4209,14 +4263,14 @@ function g = UNDO(g)
    % make suffix, store the bool of a NEW vs OLD data.
    g.EEG.suffix = 'IcL';
    g.isNEW = true;
-   fprintf('NEW dataset');
+   fprintf('Showing Tagged ICLABEL dataset');
   
    % store and draw data
    set(gcf,'UserData',g);
    ax1 = findobj('tag','eegaxis','parent',gcf); % axes handle
-   set(ax1,'UserData',g.data);
+   %set(ax1,'UserData',g);
 
-   draw_data([],[],gcf,9,[],g);
+   draw_data([],[],gcf,0,[],g);
    draw_matrix(g);
    eegplot_w3('setelect');
 

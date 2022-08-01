@@ -33,6 +33,7 @@ end
 if nargin < 2
     time1 = EPOCHLENGTH;
 end
+
 if nargin < 3
     [EEG,com] = eeg_regepochs(EEG,'recurrence',time1);
     EEG = eegh(com, EEG);

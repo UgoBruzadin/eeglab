@@ -88,7 +88,7 @@ EEG.myVariables = {};
 %[EEG] = pop_saveset(EEG, 'filepath',EEG.filepath);
 [EEG] = pop_saveset(EEG, 'filename', [strcat( EEG.filename(1:end-4),'SM','.set')],'filepath',EEG.filepath);
 %[EEG] = eeg_store(EEG); 
-eeglab redraw; %save set ADDED BY UGO
+%eeglab redraw; %save set ADDED BY UGO
 
 %% --- start organizing variables
 com = '';
