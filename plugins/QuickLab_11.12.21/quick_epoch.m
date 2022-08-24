@@ -42,7 +42,8 @@ else
         eventname = EEG.event(2).type;
     end
     [EEG,com] = pop_epoch( EEG, { eventname }, [time1 time2], 'newname', 'Neuroscan EEG data epochs', 'epochinfo', 'yes');
-    %EEG = eegh(com, EEG);
+    EEG.icaact = []; EEG.icawinv = []; EEG.icasphere = []; EEG.icaweights = []; EEG.icachansind = [];
+    
 end
     
 %EEG = pop_par_epoch( EEG, { UniqueEventNames }, [time1 time2], 'newname', 'Neuroscan EEG data epochs', 'epochinfo', 'yes');
