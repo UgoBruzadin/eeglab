@@ -125,7 +125,7 @@ p2 = zeros(1,d);
 
 haspar = 1;
 try
-    ver('distcomp');
+    ver('parallel');
 catch
     haspar = 0;
 end
