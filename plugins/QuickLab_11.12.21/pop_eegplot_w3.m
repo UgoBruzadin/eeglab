@@ -238,7 +238,7 @@ end
 
 
 %% new addition: both channel and component file locations are stores in the file
-if plotchannels
+if plotchannels == 1
     eegplotoptions = { eegplotoptions{:}  'eloc_file', EEG.chanlocs(elecrange) };
 else
     eegplotoptions = { eegplotoptions{:}  'eloc_file' tmpcompstruct };
@@ -247,7 +247,7 @@ end
 if EEG.nbchan > 100
     disp('pop_eegplot_w2() note: Baseline subtraction disabled to speed up display');
     eegplotoptions = { eegplotoptions{:} 'submean' 'off' };
-end;
+end
 
 EEG.plotEp = isEpoched;
 EEG.plotchannels = plotchannels;
@@ -265,7 +265,7 @@ end
 
 %% --- run eegplot_w2!!
     eegplot_w3( EEG, 'srate', EEG.srate, 'title', [ title 'QuickLab Data Editor! -- eegplot_w2(): ' EEG.filename], ...
-             'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command,'savecommand',savecommand, 'command2', command_pc,'savecommand2',savecommand_pc,eegplotoptions{:}, varargin{:});
+             'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command,'savecommand',savecommand, 'command2', command_pc,'savecommand2',savecommand_pc, eegplotoptions{:}, varargin{:});
 
 com = [ com sprintf('pop_eegplot_w2( %s, %d, %d, %d);', inputname(1), plotchannels, superpose, reject) ];
 return;
