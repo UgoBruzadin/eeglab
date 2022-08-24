@@ -5,6 +5,13 @@ if isempty(EEG.data)
     eeglab redraw
 end
 
+EEG.icaact = []; EEG.icaweights = []; EEG.icasphere= []; EEG.icachansind = [];
+
+% 
+% if isempty(EEG.icaact)
+%     EEG.icaact = (EEG.icaweights*EEG.icasphere)*EEG.data(EEG.icachansind,:);
+% end
+
 [EEG,com] = pop_select( EEG,'nochannel',[1 8 14 17 21 25 32 38 43 44 48 49 56 63 64 68 69 73 74 81 82 88 89 94 95 99 107 113 114 119 120 121 125 126 127 128]);
 
 for a=1:EEG.nbchan
