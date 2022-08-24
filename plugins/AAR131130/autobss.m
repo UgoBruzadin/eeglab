@@ -171,10 +171,8 @@ for i = 1:ne
         case 'eog_svf', % singular value fraction
             error('(autobss) criterion eog_svf not working yet. Try fd instead.')
             
-
         case 'eog_joyce', % joyce criterion
             error('(autobss) criterion eog_joyce not working yet. Try eog_fd instead.')
-
 
     end    
 
