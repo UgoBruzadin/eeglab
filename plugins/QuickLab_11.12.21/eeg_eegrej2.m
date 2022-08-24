@@ -83,9 +83,9 @@ end
 
 % --- end of compatibility region
 
-%% --- STORE CURRENT MARKS TO FILE (BETA)
+%% --- STORE CURRENT MARKS TO FILE
 %[EEG] = pop_saveset(EEG, 'filepath',EEG.filepath);
-[EEG] = pop_saveset(EEG, 'filename', [strcat( EEG.filename(1:end-4),'SM','.set')],'filepath',EEG.filepath);
+[EEG] = pop_saveset(EEG, 'filename', [strcat( EEG.filename(1:end-4),'s','.set')],'filepath',EEG.filepath);
 EEG.myVariables = {};
 EEG.filename(1:end-4);
 %[EEG] = eeg_store(EEG); 
@@ -237,7 +237,7 @@ if ~isempty(list_of_chans_or_comps)
                 EEGmod.data(compOrChan,regions_for_interp(i,1):regions_for_interp(i,2)) = EEGinterp.data(compOrChan,regions_for_interp(i,1):regions_for_interp(i,2));
                 
             end
-            EEGmod.suffix = strcat(EEGmod.suffix,strcat('pChIn',suf));
+            EEGmod.suffix = strcat(EEGmod.suffix,strcat('pCI',suf));
             EEGcumulative = EEGmod;
         else
             EEGinterp = pop_subcomp(EEGcumulative, [compOrChan]);
@@ -248,7 +248,7 @@ if ~isempty(list_of_chans_or_comps)
                 %EEGmod.icaact(compOrChan,regions_for_interp(i,1):regions_for_interp(i,2)) = EEGinterp.icaact(compOrChan,regions_for_interp(i,1):regions_for_interp(i,2));
             end
             
-            EEGmod.suffix = strcat(EEGmod.suffix,strcat('pCmIn',suf));
+            EEGmod.suffix = strcat(EEGmod.suffix,strcat('pPI',suf));
             EEGcumulative = EEGmod;
         end
         
@@ -284,6 +284,11 @@ if ~isempty(list_of_chans_or_comps)
                 %EEGmod.icaact(compOrChan,regions_for_interp(j,1):regions_for_interp(j,2),:) = EEGinterp.icaact(compOrChan,regions_for_interp(j,1):regions_for_interp(j,2));
                 %end
             end
+            if chanorcomp == 1
+                EEGmod.suffix = strcat(EEGmod.suffix,strcat('pCI',suf));
+            else
+                EEGmod.suffix = strcat(EEGmod.suffix,strcat('pPI',suf));
+            end
             EEGcumulative = EEGmod;
         end
         % deprecated
@@ -314,11 +319,11 @@ if ~isempty(chansorcomps4removal)
     if chanorcomp == 1
         fprintf(strcat('Interpolating channels(s) _', num2str(chansorcomps4removal),'\r' ));
         EEGmod2 = pop_interp(EEGcumulative, [chansorcomps4removal], 'spherical');
-        EEGmod2.suffix = strcat(EEGmod2.suffix,strcat('ChIn',suf));
+        EEGmod2.suffix = strcat(EEGmod2.suffix,strcat('CI',suf));
     else
         fprintf(strcat('Removing components(s) _', num2str(chansorcomps4removal),'\r' ));
         EEGmod2 = pop_subcomp(EEGcumulative, [chansorcomps4removal]);
-        EEGmod2.suffix = strcat( EEGmod2.suffix,strcat( 'PcRj',num2str( length(chansorcomps4removal))));
+        EEGmod2.suffix = strcat( EEGmod2.suffix,strcat( 'PJ',num2str( length(chansorcomps4removal))));
     end
 end
 
@@ -362,10 +367,10 @@ if ~isempty(regions_for_rej)
             rejected_epochs = [rejected_epochs, floor(regions_for_rej(i,1)/EEG.pnts)+1];
         end
         [EEGOUT,com] = pop_rejepoch( EEGOUT, rejected_epochs,0);
-        EEGOUT.suffix = strcat(EEGOUT.suffix,strcat('TrRj',num2str(size(regions_for_rej,1))));
+        EEGOUT.suffix = strcat(EEGOUT.suffix,strcat('TJ',num2str(size(regions_for_rej,1))));
     else
         [EEGOUT,com] = eeg_eegrej( EEGOUT, regions_for_rej );
-        EEGOUT.suffix = strcat(EEGOUT.suffix,strcat('TrRj',num2str(size(regions_for_rej,1))));
+        EEGOUT.suffix = strcat(EEGOUT.suffix,strcat('TJ',num2str(size(regions_for_rej,1))));
     end
 end
 
