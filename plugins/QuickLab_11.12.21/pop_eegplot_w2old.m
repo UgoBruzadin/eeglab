@@ -140,10 +140,10 @@ if reject
         'if ~isempty(TMPREJCHN); '];
     if icacomp == 1
         com1 = [ com1 ...
-            'EEG.chanrej = TMPREJ;[EEGTMP LASTCOM1] = eeg_eegrej2(EEGTMP,TMPREJ,1,TMPREJCHN); ' ]; %modified for eegrej2
+            'EEG.chanrej = TMPREJ;[EEGTMP LASTCOM1] = eeg_eegrej2old(EEGTMP,TMPREJ,1,TMPREJCHN); ' ]; %modified for eegrej2
     else
         com1 = [ com1 ...
-            'EEG.comprej = TMPREJ; [EEGTMP LASTCOM1] = eeg_eegrej2(EEGTMP,TMPREJ,2,TMPREJCHN); ' ]; %modified for eegrej2
+            'EEG.comprej = TMPREJ; [EEGTMP LASTCOM1] = eeg_eegrej2old(EEGTMP,TMPREJ,2,TMPREJCHN); ' ]; %modified for eegrej2
     end;
     com1 = [ com1 ...
          '  if ~isempty(LASTCOM1),' ...
@@ -152,9 +152,9 @@ if reject
         'else LASTCOM1=''''; ' ...
         'end; ' ];
     if icacomp == 1
-        com3 = 'EEGTMP=EEG;EEG.chanrej = TMPREJ;[EEGTMP LASTCOM1] = eeg_eegrej2(EEGTMP,TMPREJ,1,TMPREJCHN); ' ; %modified for eegrej2
+        com3 = 'EEGTMP=EEG;EEG.chanrej = TMPREJ;[EEGTMP LASTCOM1] = eeg_eegrej2old(EEGTMP,TMPREJ,1,TMPREJCHN); ' ; %modified for eegrej2
     else
-        com3 = 'EEGTMP=EEG;EEG.comprej = TMPREJ;[EEGTMP LASTCOM1] = eeg_eegrej2(EEGTMP,TMPREJ,2,TMPREJCHN); ' ; %modified for eegrej2
+        com3 = 'EEGTMP=EEG;EEG.comprej = TMPREJ;[EEGTMP LASTCOM1] = eeg_eegrej2old(EEGTMP,TMPREJ,2,TMPREJCHN); ' ; %modified for eegrej2
     end;
     % Created for Save & Close Command
     if icacomp == 1
@@ -370,7 +370,7 @@ EEG.plotEp = epoc;
 EEG.plotIc = icacomp;
 
 if epoc ~= 3
-    eegplot_w2( EEG, 'srate', EEG.srate, 'title', [ 'Channel or Component Interpolation! -- eegplot_w2(): ' EEG.setname], ...
+    eegplot_w2old( EEG, 'srate', EEG.srate, 'title', [ 'Channel or Component Interpolation! -- eegplot_w2(): ' EEG.setname], ...
              'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command,'savecommand',savecommand, eegplotoptions{:}, varargin{:});
 else
     eegplot_w2freq( EEG, 'srate', EEG.srate, 'title', [ 'Frequency Interpolation! -- eegplot_w2(): ' EEG.setname], ...
