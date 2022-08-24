@@ -45,17 +45,17 @@ end
 
 if nargin < 3 
     %low = 2;
-    low = SPECTRADEFS(2); % SPECTRADEFS DEFINED INSIDE QuickLabDefs 
+    low = FREQDISPLAYDEFS(2); % SPECTRADEFS DEFINED INSIDE QuickLabDefs 
 end
 
 if nargin < 2
     %high = 55;
-    high = SPECTRADEFS(1); % SPECTRADEFS DEFINED INSIDE QuickLabDefs 
+    high = FREQDISPLAYDEFS(1); % SPECTRADEFS DEFINED INSIDE QuickLabDefs 
 end
 maxWindow = 2^floor(log2(EEG.pnts));
-if maxWindow > SPECTRADEFS(3)
+if maxWindow > FREQDISPLAYDEFS(3)
     %maxWindow = 2048;
-    maxWindow = SPECTRADEFS(3);
+    maxWindow = FREQDISPLAYDEFS(3);
 end
  
 % numberOfHeadmaps = 10;
