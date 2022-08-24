@@ -16,7 +16,8 @@ AllFilesFolder = dir('*.set');
 AllFilesFoldersName = [AllFilesFolder.name];
 
 % finalized files
-final_files = dir('*bssICA.set');
+%final_files = dir('*bssICA.set');
+final_files = dir('*HM9*Ep6*ICA.set');
 % preprocessed files & filnalized files
 %final_files = dir('*ICA.set');
 
