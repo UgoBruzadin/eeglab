@@ -27,21 +27,42 @@ assert(isreal(EEG.icaact), 'Your ICA decomposition must be real to use ICLabel')
 
 %% calc topo
 topo = zeros(32, 32, 1, ncomp);
-
-parfor it = 1:ncomp
-    if ~exist('OCTAVE_VERSION', 'builtin') 
-        [~, temp_topo, plotrad] = ...
-            topoplotFast(EEG.icawinv(:, it), EEG.chanlocs(EEG.icachansind), ...
-            'noplot', 'on');
-    else
-        [~, temp_topo, plotrad] = ...
-            topoplot(EEG.icawinv(:, it), EEG.chanlocs(EEG.icachansind), ...
-            'noplot', 'on', 'gridscale', 32);
-    end
-    temp_topo(isnan(temp_topo)) = 0;
-    topo(:, :, 1, it) = temp_topo / max(abs(temp_topo(:)));
+haspar = 1;
+try
+    ver('parallel');
+catch
+    haspar = 0;
 end
 
+if haspar
+    parfor it = 1:ncomp
+        if ~exist('OCTAVE_VERSION', 'builtin')
+            [~, temp_topo, plotrad] = ...
+                topoplotFast(EEG.icawinv(:, it), EEG.chanlocs(EEG.icachansind), ...
+                'noplot', 'on');
+        else
+            [~, temp_topo, plotrad] = ...
+                topoplot(EEG.icawinv(:, it), EEG.chanlocs(EEG.icachansind), ...
+                'noplot', 'on', 'gridscale', 32);
+        end
+        temp_topo(isnan(temp_topo)) = 0;
+        topo(:, :, 1, it) = temp_topo / max(abs(temp_topo(:)));
+    end
+else
+    for it = 1:ncomp
+        if ~exist('OCTAVE_VERSION', 'builtin')
+            [~, temp_topo, plotrad] = ...
+                topoplotFast(EEG.icawinv(:, it), EEG.chanlocs(EEG.icachansind), ...
+                'noplot', 'on');
+        else
+            [~, temp_topo, plotrad] = ...
+                topoplot(EEG.icawinv(:, it), EEG.chanlocs(EEG.icachansind), ...
+                'noplot', 'on', 'gridscale', 32);
+        end
+        temp_topo(isnan(temp_topo)) = 0;
+        topo(:, :, 1, it) = temp_topo / max(abs(temp_topo(:)));
+    end
+end
 % cast
 topo = single(topo);
     
