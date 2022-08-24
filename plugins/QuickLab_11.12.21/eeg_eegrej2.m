@@ -81,12 +81,13 @@ else
     list_of_chans_or_comps = EEG.myVariables{1};
 end
 
-EEG.myVariables = {};
 % --- end of compatibility region
 
 %% --- STORE CURRENT MARKS TO FILE (BETA)
 %[EEG] = pop_saveset(EEG, 'filepath',EEG.filepath);
 [EEG] = pop_saveset(EEG, 'filename', [strcat( EEG.filename(1:end-4),'SM','.set')],'filepath',EEG.filepath);
+EEG.myVariables = {};
+EEG.filename(1:end-4);
 %[EEG] = eeg_store(EEG); 
 %eeglab redraw; %save set ADDED BY UGO
 
@@ -226,12 +227,7 @@ if ~isempty(list_of_chans_or_comps)
     if isempty(divisors)
         % get channel or component
         compOrChan = str2num(list_of_chans_or_comps);
-        suf = replace(num2str(list_of_chans_or_comps),'  ','-');
-        try suf = replace(num2str(list_of_chans_or_comps),'--','-'); catch; end
-        try suf = replace(num2str(list_of_chans_or_comps),'--','-'); catch; end
-        try suf = replace(num2str(list_of_chans_or_comps),'--','-'); catch; end
-        try suf = replace(num2str(list_of_chans_or_comps),'--','-'); catch; end
-        
+        suf = '';
         % interpolate component or channel for the selected intervals
         if chanorcomp == 1
             EEGinterp = pop_interp(EEGcumulative, [compOrChan], 'spherical');
@@ -290,14 +286,15 @@ if ~isempty(list_of_chans_or_comps)
             end
             EEGcumulative = EEGmod;
         end
-        list_of_chans_or_comps2 = list_of_chans_or_comps;
-        try list_of_chans_or_comps2 = replace(list_of_chans_or_comps,divisors,'-'); catch; end
-        
-        if chanorcomp == 1
-            EEGcumulative.suffix = strcat(EEGcumulative.suffix,strcat('mpChIn'));
-        else
-            EEGcumulative.suffix = strcat(EEGcumulative.suffix,strcat('mpCmIn'));
-        end
+        % deprecated
+%         list_of_chans_or_comps2 = list_of_chans_or_comps;
+%         try list_of_chans_or_comps2 = replace(list_of_chans_or_comps,divisors,'-'); catch; end
+%         
+%         if chanorcomp == 1
+%             EEGcumulative.suffix = strcat(EEGcumulative.suffix,strcat('mpChIn'));
+%         else
+%             EEGcumulative.suffix = strcat(EEGcumulative.suffix,strcat('mpCmIn'));
+%         end
     end
     % not using text,only clicks, useText    
 end % end partial interpolations
@@ -310,10 +307,7 @@ if ~isempty(chansorcomps4removal)
     chansorcomps4removalstr = chansorcomps4removal;
     try replace(chansorcomps4removalstr,divisors,'-'); catch; end
     suf = replace(num2str(chansorcomps4removalstr),' ','-');
-        try suf = replace(num2str(list_of_chans_or_comps),'--','-'); catch; end
-        try suf = replace(num2str(list_of_chans_or_comps),'--','-'); catch; end
-        try suf = replace(num2str(list_of_chans_or_comps),'--','-'); catch; end
-        try suf = replace(num2str(list_of_chans_or_comps),'--','-'); catch; end
+        
     if isstring(chansorcomps4removal)
         chansorcomps4removal = str2num(chansorcomps4removal);
     end
@@ -324,7 +318,7 @@ if ~isempty(chansorcomps4removal)
     else
         fprintf(strcat('Removing components(s) _', num2str(chansorcomps4removal),'\r' ));
         EEGmod2 = pop_subcomp(EEGcumulative, [chansorcomps4removal]);
-        EEGmod2.suffix = strcat(EEGmod2.suffix,strcat('CmIn',suf));
+        EEGmod2.suffix = strcat( EEGmod2.suffix,strcat( 'PcRj',num2str( length(chansorcomps4removal))));
     end
 end
 
@@ -359,6 +353,7 @@ else
     end
 end
 
+
 %% --- Runs data rejection in case of rejection selected.
 if ~isempty(regions_for_rej)
     if size(EEG.data,3) > 1
@@ -374,18 +369,31 @@ if ~isempty(regions_for_rej)
     end
 end
 
+try EEGOUT.suffix = replace(EEGOUT.suffix,'  ','-'); catch; end
+try EEGOUT.suffix = replace(EEGOUT.suffix,'--','-'); catch; end
+try EEGOUT.suffix = replace(EEGOUT.suffix,'--','-'); catch; end
+try EEGOUT.suffix = replace(EEGOUT.suffix,'-',''); catch; end
+try EEGOUT.suffix = replace(EEGOUT.suffix,'-',''); catch; end
+try EEGOUT.suffix = replace(EEGOUT.suffix,';',''); catch; end
+try EEGOUT.suffix = replace(EEGOUT.suffix,';',''); catch; end
+try EEGOUT.suffix = replace(EEGOUT.suffix,';',''); catch; end
+
 %% --- Save file
 if isfield(EEGOUT,'save')
     if EEGOUT.save == 1
         EEGOUT.save = 0;
-        EEG = pop_saveset(EEGOUT, 'filename', [strcat( EEGOUT.filename(1:end-4),EEGOUT.suffix,'.set')],'filepath',EEGOUT.filepath);
-        
-        [EEG,com] = quick_PCA(EEG,[],[],0);
-        EEG = quick_eegsave(EEG,'ICA');
-        %[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);
-        %eeglab redraw;
-        eval(get(findobj('tag','LoadDir'),'Callback'));
-        eeglab redraw;
+        EEGOUT = pop_saveset(EEGOUT, 'filename', [strcat( EEGOUT.filename(1:end-4),EEGOUT.suffix,'.set')],'filepath',EEGOUT.filepath);
+        EEGOUT.filename(1:end-4)
+        if isfield(EEGOUT,'ICA')
+            if EEGOUT.ICA == 1
+            [EEGOUT,com] = quick_PCA(EEGOUT,[],[],0);
+            EEGOUT.ICA = 0;
+            EEGOUT.suffix = [];
+            EEGOUT = quick_eegsave(EEGOUT,'ICA');
+            end
+        end
+%         eval(get(findobj('tag','LoadDir'),'Callback'));
+%         eeglab redraw;
         %eval(get(findobj('tag','LoadPost'),'Callback'));
     end
 end
