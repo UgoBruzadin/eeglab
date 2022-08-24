@@ -204,57 +204,89 @@ tic
 X = zeros(length(chanorcomp),1);
 Y = zeros(length(chanorcomp),1);
 
-parfor ri = chanorcomp
-%% plot the topoplot headmap
-%figure('tag',num2str(ri),Visible='off');
-%figure('tag',num2str(ri));
-figure('tag',strcat('fig',int2str(ri),currentfigtag));
-%ax(ri) = axes('Units','Normalized', 'Position',[X(ri) Y(ri) sizewx sizewy].*s+q,'Tag',strcat('Ax',int2str(ri),currentfigtag));
-ax(ri) = axes('Tag',strcat('Ax',int2str(ri),currentfigtag));
-if typecomp
-    to(ri) = topoplot( ri, EEG.chanlocs, 'chaninfo', EEG.chaninfo, ...
-        'electrodes','off', 'style', 'blank', 'emarkersize1chan', 12);
-else
-    if plotelec
-        to(ri) = topoplot( EEG.icawinv(:,ri), EEG.chanlocs, 'verbose', ...
-            'off', 'style' , 'fill', 'chaninfo', EEG.chaninfo, 'numcontour', 8);
-    else
-        to(ri) = topoplot( EEG.icawinv(:,ri), EEG.chanlocs, 'verbose', ...
-            'off', 'style' , 'fill','electrodes','off', 'chaninfo', EEG.chaninfo, 'numcontour', 8);
-    end
-    
+haspar = 1;
+try
+    ver('parallel');
+catch
+    haspar = 0;
 end
-checkcom = {@checkbox,int2str(ri)};
-set(to(ri),'ButtonDownFcn', checkcom);
-axis square;
 
+if haspar == 1
+    parfor ri = chanorcomp
+        %% plot the topoplot headmap
 
-% NEED TO PLOT ICLABEL
-if plot_labels == 1
-    if ~typecomp && isfield(EEG.etc, 'ic_classification')
-        classifiers = fieldnames(EEG.etc.ic_classification);
-        if ~isempty(classifiers)
-            classifier_name = 'ICLabel';
-%             if ~exist('classifier_name', 'var') || isempty(classifier_name)
-%                 if any(strcmpi(classifiers, 'ICLabel'))
-%                     classifier_name = 'ICLabel';
-%                 else
-%                     classifier_name = classifiers{1};
-%                 end
-%             else
-%                 classifier_name = classifiers{strcmpi(classifiers, classifier_name)};
-%             end
+        figure('tag',strcat('fig',int2str(ri),currentfigtag));
+        ax(ri) = axes('Tag',strcat('Ax',int2str(ri),currentfigtag));
+        if typecomp
+            to(ri) = topoplot( ri, EEG.chanlocs, 'chaninfo', EEG.chaninfo, ...
+                'electrodes','off', 'style', 'blank', 'emarkersize1chan', 12);
+        else
+            if plotelec
+                to(ri) = topoplot( EEG.icawinv(:,ri), EEG.chanlocs, 'verbose', ...
+                    'off', 'style' , 'fill', 'chaninfo', EEG.chaninfo, 'numcontour', 8);
+            else
+                to(ri) = topoplot( EEG.icawinv(:,ri), EEG.chanlocs, 'verbose', ...
+                    'off', 'style' , 'fill','electrodes','off', 'chaninfo', EEG.chaninfo, 'numcontour', 8);
+            end
 
-            [prob, classind] = max(EEG.etc.ic_classification.(classifier_name).classifications(ri, :));
-            t = title(sprintf('%s : %.1f%%', ...
-                EEG.etc.ic_classification.(classifier_name).classes{classind}, ...
-                prob*100));
-            set(t, 'Position', get(t, 'Position') .* [1 -1.2 1])
+        end
+        checkcom = {@checkbox,int2str(ri)};
+        set(to(ri),'ButtonDownFcn', checkcom);
+        axis square;
+
+        % NEED TO PLOT ICLABEL
+        if plot_labels == 1
+            if ~typecomp && isfield(EEG.etc, 'ic_classification')
+                classifiers = fieldnames(EEG.etc.ic_classification);
+                if ~isempty(classifiers)
+                    classifier_name = 'ICLabel';
+                    [prob, classind] = max(EEG.etc.ic_classification.(classifier_name).classifications(ri, :));
+                    t = title(sprintf('%s : %.1f%%', ...
+                        EEG.etc.ic_classification.(classifier_name).classes{classind}, ...
+                        prob*100));
+                    set(t, 'Position', get(t, 'Position') .* [1 -1.2 1])
+                end
+            end
         end
     end
-end
+else
+    for ri = chanorcomp
+        %% plot the topoplot headmap
 
+        figure('tag',strcat('fig',int2str(ri),currentfigtag));
+        ax(ri) = axes('Tag',strcat('Ax',int2str(ri),currentfigtag));
+        if typecomp
+            to(ri) = topoplot( ri, EEG.chanlocs, 'chaninfo', EEG.chaninfo, ...
+                'electrodes','off', 'style', 'blank', 'emarkersize1chan', 12);
+        else
+            if plotelec
+                to(ri) = topoplot( EEG.icawinv(:,ri), EEG.chanlocs, 'verbose', ...
+                    'off', 'style' , 'fill', 'chaninfo', EEG.chaninfo, 'numcontour', 8);
+            else
+                to(ri) = topoplot( EEG.icawinv(:,ri), EEG.chanlocs, 'verbose', ...
+                    'off', 'style' , 'fill','electrodes','off', 'chaninfo', EEG.chaninfo, 'numcontour', 8);
+            end
 
+        end
+        checkcom = {@checkbox,int2str(ri)};
+        set(to(ri),'ButtonDownFcn', checkcom);
+        axis square;
+
+        % NEED TO PLOT ICLABEL
+        if plot_labels == 1
+            if ~typecomp && isfield(EEG.etc, 'ic_classification')
+                classifiers = fieldnames(EEG.etc.ic_classification);
+                if ~isempty(classifiers)
+                    classifier_name = 'ICLabel';
+                    [prob, classind] = max(EEG.etc.ic_classification.(classifier_name).classifications(ri, :));
+                    t = title(sprintf('%s : %.1f%%', ...
+                        EEG.etc.ic_classification.(classifier_name).classes{classind}, ...
+                        prob*100));
+                    set(t, 'Position', get(t, 'Position') .* [1 -1.2 1])
+                end
+            end
+        end
+    end
 end
 
 for ri = chanorcomp
