@@ -38,9 +38,6 @@ plotmenu = uimenu (supermenu, 'label', 'Quick Plots');
 uimenu( plotmenu, 'label', 'Channel & Component Scroll++ for Interpolation', 'callback', ...
     ['com = pop_eegplot_w3(EEG, 1, 2, 1, 1);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
-uimenu( plotmenu, 'label', 'EXP BOTH Scroll++ for Interpolation', 'callback', ...
-    ['com = pop_eegplot_w3(EEG, 2, 2, 1, 1);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
-
 uimenu( plotmenu, 'label', 'OLD Channel Scroll++ for Interpolation', 'callback', ...
     ['com = pop_eegplot_w2old(EEG, 1, 2, 1, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
