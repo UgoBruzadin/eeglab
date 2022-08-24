@@ -451,7 +451,7 @@ switch lower(g.icatype)
         if exist(ICABINARY) ~= 2
             error('Pop_runica(): binary ICA executable not found. Edit icadefs.m file to specify the ICABINARY location');
         end
-        tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
+        tmprank = getrankMin(tmpdata(:,1:min(3000, size(tmpdata,2))));
         if tmprank == size(tmpdata,1) || pca_opt
             [EEG.icaweights,EEG.icasphere] = binica(EEG,tmpdata, 'lrate', 0.001, g.options{:} ); % Added EEG by Ugo Nunes 06/21/2020
         else 
