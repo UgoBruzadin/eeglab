@@ -2549,7 +2549,7 @@ end
 %% %%%%%%%%%%%%%%%%%%%%%%%%% plot horizontal ('horz') lines %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 if ~isempty(horzepochs)
-    if size(horzepochs,1) > 1 && size(horzepochs,1) > 1
+    if size(horzepochs,1) > 1 %&& size(horzepochs,1) > 1
         fprintf('\nerpimage(): horz arg must be a vector\n');
         return
     end
