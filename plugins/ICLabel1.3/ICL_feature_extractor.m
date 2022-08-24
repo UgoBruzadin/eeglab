@@ -27,7 +27,8 @@ assert(isreal(EEG.icaact), 'Your ICA decomposition must be real to use ICLabel')
 
 %% calc topo
 topo = zeros(32, 32, 1, ncomp);
-for it = 1:ncomp
+
+parfor it = 1:ncomp
     if ~exist('OCTAVE_VERSION', 'builtin') 
         [~, temp_topo, plotrad] = ...
             topoplotFast(EEG.icawinv(:, it), EEG.chanlocs(EEG.icachansind), ...
