@@ -30,18 +30,18 @@ if nargin < 3 || isempty(type)
     type = ICATYPE;
 end
 
-if nargin < 4
+if nargin < 4 || isempty(disp)
     disp = 1;
 end
-
-mybadcomps = find(EEG.reject.gcompreject);   %stores the Id of the components to be rejected
+mybadcomps = [];
+try mybadcomps = find(EEG.reject.gcompreject); catch; end   %stores the Id of the components to be rejected
 
 if nargin < 2 || isempty(IC)
     if ~isempty(mybadcomps)
         IC = size(EEG.icawinv,2);
         IC = IC - size(mybadcomps,2);            %stores the number to be the next components analysis
-        fprintf('Rejecting selected components... \r');
-        [EEG,com] = pop_subcomp(EEG, mybadcomps, 0);       % actually removes the flagged components
+        %fprintf('Rejecting selected components... \r');
+        %[EEG,com] = pop_subcomp(EEG, mybadcomps, 0);       % actually removes the flagged components
         EEG = eegh(com, EEG);
     end
     [EEG,com] = pop_par_runica(EEG,'extended', EXTENDED,'icatype',type, 'verbose',VERBOSE);
