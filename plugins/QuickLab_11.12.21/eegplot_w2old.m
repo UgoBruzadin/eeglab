@@ -202,7 +202,7 @@
 %    4 - maxfreq    % empty [] if no gfrequency content
 % 'buttons hold other informations' Eposition for instance hold the current postition
 
-function [outvar1,EEG] = eegplot_w2(EEG, varargin); % p1,p2,p3,p4,p5,p6,p7,p8,p9)
+function [outvar1,EEG] = eegplot_w2old(EEG, varargin); % p1,p2,p3,p4,p5,p6,p7,p8,p9)
 
 if isstruct(EEG)
     if ~isfield(EEG,'plotIc')

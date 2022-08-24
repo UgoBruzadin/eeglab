@@ -47,7 +47,7 @@
 % ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 % THE POSSIBILITY OF SUCH DAMAGE.
 
-function [EEGOUT, com] = eeg_eegrej2( EEG, regions, chanorcomp, tmprej);
+function [EEGOUT, com] = eeg_eegrej2old( EEG, regions, chanorcomp, tmprej);
 
 if nargin < 3
     tmprej = 0;
