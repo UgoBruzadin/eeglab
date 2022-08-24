@@ -42,30 +42,52 @@
 
 % 01-25-02 reformated help & license -ad
 
-function [com] = pop_viewprops2( EEG, typecomp, chanorcomp, spec_opt, erp_opt, scroll_event, classifier_name, fig)
+function [EEG,com] = pop_viewprops2( EEG, typecomp, newcommand, chanorcomp, spec_opt, erp_opt, scroll_event, classifier_name, fig)
 
 COLACC = [0.75 1 0.75];
 PLOTPERFIG = size(EEG.icawinv,2);
 com = '';
+
+QuickLabDefs;
 
 if nargin < 1
     help pop_viewprops2;
     return;
 end
 
-if nargin < 2
+if nargin < 2 || isempty(typecomp)
     typecomp = 1; % default
 end
 
-if nargin < 3
+if nargin < 3 || isempty(newcommand)
+    newcommand = '';
+end
+
+if nargin < 4 || isempty(chanorcomp)
     if typecomp
-        chanorcomp = [1:size(EEG.icawinv,2)];
-    else
         chanorcomp = [1:EEG.nbchan];
+    else
+        chanorcomp = [1:size(EEG.icawinv,2)];
     end
-    spec_opt = [2:40];
+end
+
+if nargin < 5 || isempty(spec_opt)
+    spec_opt = FREQDISPLAYDEFS(1:2);
+    %spec_opt = [2:60];
+% end
+% if nargin < 6 || isempty(erp_opt)
     erp_opt = {};
-    
+end
+
+currentfigtag = ['selcomp' num2str(rand)]; % generate a random figure tag
+% if nargin < 9 %|| isempty(fig)
+%     fig = findobj('tag',currentfigtag);
+%     if isempty(fig)
+%         delete(fig);
+%     end
+% end
+
+
 %     
 %     promptstr    = { fastif(typecomp,'Channel indices to plot:','Component indices to plot:') ...
 %         'Spectral options (see spectopo() help):','Erpimage options (see erpimage() help):' ...
@@ -112,7 +134,7 @@ if nargin < 3
     %         if  ~isempty( strmatch(lower(ButtonName), 'cancel')), return; end;
     %     end;
     
-end
+
 if ~exist('spec_opt', 'var') || ~iscell(spec_opt)
     spec_opt = {}; end
 if ~exist('erp_opt', 'var') || ~iscell(erp_opt)
@@ -122,7 +144,7 @@ if ~exist('scroll_event', 'var')
 if ~exist('classifier_name', 'var')
     classifier_name = ''; end
 fprintf('Drawing figure...\n');
-currentfigtag = ['selcomp' num2str(rand)]; % generate a random figure tag
+
 
 if length(chanorcomp) > PLOTPERFIG
     for index = 1:PLOTPERFIG:length(chanorcomp)
@@ -146,14 +168,14 @@ end
 column = ceil(sqrt( length(chanorcomp) ))+5;
 rows = ceil(length(chanorcomp)/column);
 if ~exist('fig','var')
-    figure('name', [ 'View ' fastif(typecomp,'channels','components') ' properties - pop_viewprops2() (dataset: ' EEG.filename ')'], 'tag', currentfigtag, ...
+    fig = figure('name', [ 'View ' fastif(typecomp,'channels','components') ' properties - pop_viewprops2() (dataset: ' EEG.filename ')'], 'tag', currentfigtag, ...
         'numbertitle', 'off', 'color', BACKCOLOR);
-    set(gcf,'MenuBar', 'none');
+    set(fig,'MenuBar', 'none');
     pos = get(gcf,'Position');
     if ~typecomp && isfield(EEG.etc, 'ic_classification')
-        set(gcf,'Position', [pos(1) 20 800/7*column 600/5*rows*1.2]);
+        set(fig,'Position', [pos(1) 20 800/7*column 600/5*rows*1.2]);
     else
-        set(gcf,'Position', [pos(1) 20 800/7*column 600/5*rows]);
+        set(fig,'Position', [pos(1) 20 800/7*column 600/5*rows]);
     end
     incx = 120;
     incy = 110;
@@ -179,11 +201,13 @@ else
 end
 count = 1;
 tic
+
 for ri = chanorcomp
     if exist('fig','var')
         button = findobj('parent', fig, 'tag', ['comp' num2str(ri)]);
         if isempty(button)
-            error( 'pop_viewprops2(): figure does not contain the component button');
+            button = [];
+            %error( 'pop_viewprops2(): figure does not contain the component button');
         end
     else
         button = [];
@@ -197,7 +221,7 @@ for ri = chanorcomp
         
         %% plot the topoplot headmap
         % -------------
-        if ~strcmp(get(gcf, 'tag'), currentfigtag)
+        if ~strcmp(get(fig, 'tag'), currentfigtag)
             figure(findobj('tag', currentfigtag));
         end
         ha = axes('Units','Normalized', 'Position',[X Y sizewx sizewy].*s+q,'Tag',strcat('H',int2str(ri)));
@@ -302,13 +326,13 @@ drawnow;
 toc
 %% CANCEL button
 % -------------
-cancel  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.9 0.7 0.7], 'string', 'Cancel', 'Units','Normalized','Position',[-10 -10 10 6].*s+q, 'callback', 'close(gcf);');
+cancel  = uicontrol(fig, 'Style', 'pushbutton', 'backgroundcolor', [0.9 0.7 0.7], 'string', 'Cancel', 'Units','Normalized','Position',[-10 -10 10 6].*s+q, 'callback', 'close(gcf);');
 
 % Plot ScrollPlot button
 % -------------
 commandPlot = ['pop_eegplot_w2(EEG, 2, 2, 1, 1);'];
         
-plotComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.7 0.9 0.7], 'string', 'Plot Component Scroll', 'Units','Normalized','Position',[30 -10 15 6].*s+q, 'callback', commandPlot');
+plotComp = uicontrol(fig, 'Style', 'pushbutton', 'backgroundcolor', [0.7 0.9 0.7], 'string', 'Plot Component Scroll', 'Units','Normalized','Position',[30 -10 15 6].*s+q, 'callback', commandPlot');
 
 %% SAVE CORRMAP button
 % -------------
@@ -318,7 +342,7 @@ commandSave = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbox
         'EEG = eegh(com, EEG);'...
         'save_corrmaps(EEG)'];
         
-saveComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.7 0.9 0.7], 'string', 'Save CorrMaps', 'Units','Normalized','Position',[45 -10 15 6].*s+q, 'callback', commandSave');
+saveComp = uicontrol(fig, 'Style', 'pushbutton', 'backgroundcolor', [0.7 0.9 0.7], 'string', 'Save CorrMaps', 'Units','Normalized','Position',[45 -10 15 6].*s+q, 'callback', commandSave');
 
 %% Reject and run N-1 PCA button
 % -------------
@@ -331,7 +355,7 @@ commandN1PCA = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbo
     'IC = size(A,2) - sum(A) - 1;'...
     '[EEG,com] = quick_PCA(EEG,IC)'];
     
-rjandpca  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'Reject & N-1 PCA', 'Units','Normalized', 'Position', [65 -10 15 6].*s+q, 'callback', commandN1PCA);
+rjandpca  = uicontrol(fig, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'Reject & N-1 PCA', 'Units','Normalized', 'Position', [65 -10 15 6].*s+q, 'callback', commandN1PCA);
 
 %% Just Reject & Remove button
 % --------- 
@@ -347,7 +371,7 @@ commandReject = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkb
         'close(gcf);'...
         'eeglab redraw;'];
     
- rej  = uicontrol(gcf, 'Style', 'pushbutton', 'string', 'Remove Components', 'backgroundcolor', GUIBUTTONCOLOR, 'Units','Normalized', 'Position',[80 -10 15 6].*s+q);
+ rej  = uicontrol(fig, 'Style', 'pushbutton', 'string', 'Remove Components', 'backgroundcolor', GUIBUTTONCOLOR, 'Units','Normalized', 'Position',[80 -10 15 6].*s+q);
  set( rej, 'callback', commandReject);
 
 %% Just Reject button
@@ -366,20 +390,27 @@ commandReject = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkb
 % tmpstatus = [];
 % okcommand = ['tmpstatus = get( findobj(''parent'', gcf, ''tag'', ''rejstatus''), ''value'');']
 %     %'EEG.reject.gcompreject(' num2str(chanorcomp) ') = tmpstatus;' ];
- ok  = uicontrol(gcf, 'Style', 'pushbutton', 'string', 'Add Comps to Rej list', 'backgroundcolor', GUIBUTTONCOLOR, 'Units','Normalized', 'Position',[95 -10 15 6].*s+q);
- set( ok, 'callback', commandSelect);
+
+ok  = uicontrol(fig, 'Style', 'pushbutton', 'string', 'Add Comps to Rej list', 'backgroundcolor', GUIBUTTONCOLOR, 'Units','Normalized', 'Position',[95 -10 15 6].*s+q);
+
+ if isempty(newcommand) 
+    set( ok, 'callback', commandSelect);
+else
+    set( ok, 'callback', newcommand);
+    set( ok, 'backgroundcolor', [1 1 0]);
+end
  
 %% CLEAR ALL button
 % -------------
 commandClear = {@selectall,0};
         
-clearComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.9 0.7 0.7], 'string', 'Clear Values', 'Units','Normalized','Position',[0 -10 10 6].*s+q, 'callback', commandClear');
+clearComp = uicontrol(fig, 'Style', 'pushbutton', 'backgroundcolor', [0.9 0.7 0.7], 'string', 'Clear Values', 'Units','Normalized','Position',[0 -10 10 6].*s+q, 'callback', commandClear');
 
 % SELECT ALL button
 % -------------
 commandSelAll = {@selectall,1};
         
-selectAll = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.9 0.7 0.7], 'string', 'Select All', 'Units','Normalized','Position',[10 -10 10 6].*s+q, 'callback', commandSelAll');
+selectAll = uicontrol(fig, 'Style', 'pushbutton', 'backgroundcolor', [0.9 0.7 0.7], 'string', 'Select All', 'Units','Normalized','Position',[10 -10 10 6].*s+q, 'callback', commandSelAll');
 
 %% com for eegh
 
@@ -408,18 +439,19 @@ end
 
 function selectall(src,evt,value)
     
-    
+    %fig = findobj('tag',currentfigtag);
+    fig = gcf;
     % --- click or unclick the tag
     %clickVal = get(findobj(gcf,'Style','checkbox));
     
-    set(findobj(gcf,'Style','checkbox'),'Value', value);
+    set(findobj(fig,'Style','checkbox'),'Value', value);
     
     % --- turn button color red or green
     
     clickVal = abs(value);
     
     % --- get all component buttons
-    all_buttons = findobj(gcf,'Style','pushbutton');
+    all_buttons = findobj(fig,'Style','pushbutton');
     % --- 9 is the number of buttons on the end of the page! If I add more buttons
     % IF I AD MORE BUTTONS 9 NEEDS TO CHANGE!
     
@@ -436,11 +468,12 @@ function selectall(src,evt,value)
 end
 
 function checkbox(src,evt,index)
-
+    %fig = findobj('tag',currentfigtag);
+    fig = gcf;
     % --- click or unclick the tag
-    clickVal = get(findobj(gcf,'Tag',index),'Value');
+    clickVal = get(findobj(fig,'Tag',index),'Value');
     
-    set(findobj(gcf,'Tag',index),'Value', abs(clickVal-1));
+    set(findobj(fig,'Tag',index),'Value', abs(clickVal-1));
     
     % --- turn button color red or green
     
@@ -448,10 +481,10 @@ function checkbox(src,evt,index)
     
     if clickVal == 1
         %set(findobj(gcf,'Style','checkbox'),'BackgroundColor',[1 .5 .5])
-        set(findobj(gcf,'Tag',strcat('comp',index)),'BackgroundColor',[1 .5 .5])
+        set(findobj(fig,'Tag',strcat('comp',index)),'BackgroundColor',[1 .5 .5])
     else
         %set(findobj(gcf,'Style','checkbox'),'BackgroundColor',[.75 1 .75])
-        set(findobj(gcf,'Tag',strcat('comp',index)),'BackgroundColor',[.75 1 .75])
+        set(findobj(fig,'Tag',strcat('comp',index)),'BackgroundColor',[.75 1 .75])
     end
 
 end
