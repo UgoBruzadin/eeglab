@@ -34,7 +34,7 @@ NOTCHFILTER = 60;
 
 %% SPECTOPO DISPLAY DEFAULTS
 % Highest Frequency, Lowest Frequency, Maxwindow
-SPECTRADEFS = [40,2,2048];
+FREQDISPLAYDEFS = [40,2,2048];
 % Specific Expected Frequencies for Topoplot Display 
 SPECTRATOPO = [4 5 6 7 8 9 10 11 12 15 18 20 25 30 36];
 
