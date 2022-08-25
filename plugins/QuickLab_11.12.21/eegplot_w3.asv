@@ -1103,21 +1103,21 @@ u(45) = uicontrol('Parent',figh, ...
 	'string',cmode,...
 	'Callback', ['eegplot_w3(''SWITCH'')']);
 
-u(46) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(50,:), ...
-	'Tag','UNDO',...
-    'BackgroundColor',[.7 .7 1],...
-	'string','Undo',...
-	'Callback', ['eegplot_w3(''UNDO'')']);
-
-u(47) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(53,:), ...
-	'Tag','REDO',...
-    'BackgroundColor',[.7 .7 1],...
-	'string','Redo',...
-	'Callback', ['eegplot_w3(''REDO'')']);
+% u(46) = uicontrol('Parent',figh, ...
+% 	'Units', 'normalized', ...
+% 	'Position', posbut(50,:), ...
+% 	'Tag','UNDO',...
+%     'BackgroundColor',[.7 .7 1],...
+% 	'string','Undo',...
+% 	'Callback', ['eegplot_w3(''UNDO'')']);
+% 
+% u(47) = uicontrol('Parent',figh, ...
+% 	'Units', 'normalized', ...
+% 	'Position', posbut(53,:), ...
+% 	'Tag','REDO',...
+%     'BackgroundColor',[.7 .7 1],...
+% 	'string','Redo',...
+% 	'Callback', ['eegplot_w3(''REDO'')']);
 
 %% channel or epoch, rejection or interpolation buttons #Ugo
 
@@ -1838,6 +1838,8 @@ end
   set(h, 'backgroundcolor', [1 1 0]);
   h = findobj(gcf, 'tag', 'TBT');
   set(h, 'backgroundcolor', [1 1 0]);
+  h = findobj(gcf, 'tag','SaveNowButton');
+  set(h, 'backgroundcolor', [1 1 0]);
   h = findobj(gcf, 'tag', 'SaveTagICA');
   set(h, 'backgroundcolor', [1 1 0]);
   h = findobj(gcf, 'tag', 'Display');
@@ -2414,7 +2416,7 @@ end
   % ------------
   case 'topoplot'
     fig = varargin{1};
-    plot_topoplot(fig);
+    plot_topoplot_CHANNEL(fig);
 %     g = get(fig,'UserData');
 %     if ~isstruct(g.eloc_file) || ~isfield(g.eloc_file, 'theta') || isempty( [ g.eloc_file.theta ])
 %         return;
@@ -3265,7 +3267,7 @@ function mouse_down(varargin)
 fig = varargin{3};
 %get(fig, 'SelectionType') % prints what selection has been done
 if strcmp(get(fig, 'SelectionType'),'extend')
-    eegplot_w3('topoplot', fig);
+    eegplot_w3('topoplot',fig);
     return;
 end
 %show_mocap_timer = timerfind('tag','mocapDisplayTimer'); if ~isempty(show_mocap_timer),  end% nima
@@ -3347,7 +3349,10 @@ fig = varargin{3};
 g = get(fig,'UserData');
 
 %if g.thinking == 1
-
+if strcmp(get(fig, 'SelectionType'),'extend')
+    %eegplot_w3('topoplot',fig);
+    return;
+end
 g.incallback = 0;
 %set(fig,'UserData', g);  % early save in case of bug in the following
 if strcmp(g.mocap,'on'), g.winrej = g.winrej(end,:);end % nima
@@ -4093,27 +4098,25 @@ end
 function plot_topoplot_CHANNEL(fig,button)
 
 if nargin < 2
-    button = {'b'};
+    button = 'b'; %plot average
 end
 
 g = get(fig,'UserData');
 EEG = g.EEG;
 
-%if EEG.plotchannels == 1
-    if ~isstruct(g.eloc_file) || ~isfield(g.eloc_file, 'theta') || isempty( [ g.eloc_file.theta ])
-        g.eloc_file = EEG.chanlocs(:);
-        %return;
-    end
     ax1 = findobj('tag','backeeg','parent',fig);
     tmppos = get(ax1, 'currentpoint');
     ax1 = findobj('tag','eegaxis','parent',fig); % axes handle
-    % plot vertical line
-    %yl = ylim(ax1);
-    %plot(ax1, [ tmppos tmppos ], yl, 'color', [0.8 0.8 0.8]);
+
     if g.trialstag ~= -1 % time in second or in trials
         multiplier = g.trialstag;
     else
         multiplier = g.srate;
+    end
+
+    if ~isstruct(g.eloc_file) || ~isfield(g.eloc_file, 'theta') || isempty( [ g.eloc_file.theta ])
+        g.eloc_file = EEG.chanlocs(:);
+        %return;
     end
     lowlim = round(g.time*multiplier+1);
     highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
@@ -4125,85 +4128,93 @@ EEG = g.EEG;
         point_is_valid=tmppos(1) >= 0 && tmppos(1) <= highlim;
     end
     if point_is_valid
-        data = get(ax1,'UserData');
-        datapos = max(1, round(tmppos(1)+lowlim));
-        datapos = min(datapos, g.frames);
-        
-        colormap("default")
-        ax_pic = findobj('tag','topo');
-        ax_matrix = findobj('tag','figure');
+        if EEG.plotchannels ~= 1
 
-%         if isempty(ax_pic)
-%             ax_pic = axes('Parent', gcf, 'position',g.matrixpos,'units','normalized','tag','topo','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
-%         else
-%             %delete(ax_pic,ax_matrix);
-             ax_pic = axes('Parent', gcf, 'position',g.matrixpos,'units','normalized','tag','topo','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
-%         end
-        % get color
-        BackColor = get(fig,'Color');
-
-        Printed = 0;
-        % plot topo % it changes the background color of the figure to EEGLAB's default
-        %topoplot(data(:,datapos), g.eloc_file);
-        if ~isempty(g.winrej)
-            % LOOPS FOR EVERY STRETCH OF REJECTION
-            %for k=1:size(g.winrej,1)
-            print_id = datapos >= g.winrej(:,1) & datapos <= g.winrej(:,2);
-                % CHECKS FOR MOUSE POSITION WITHIN A REJECTION STRETCH
-                if any(print_id)
-                    rej_part = find(print_id);
-                    % Calculates the averageb for that stretch
-                    switch button
-                        case 'v'
-                        EpochAverage = var(EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2)),0,2);
-                        set(findobj(gcf,'Tag','headmap'),'String','Variance');
-
-                        case 'b'
-                        EpochAverage = std((EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),0,2);
-                        set(findobj(gcf,'Tag','headmap'),'String','Std. Dev.');
-                        
-                        case 'n'
-                        EpochAverage = mean(abs(EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),2);
-                        set(findobj(gcf,'Tag','headmap'),'String','Abs. Mean');
-                        
-                        case 'm'
-                        EpochAverage = mean(log10(abs(EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2)))),2);
-                        set(findobj(gcf,'Tag','headmap'),'String','log Mean');
-
-                        case 'l'
-                        EpochAverage = mean(exp(EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),2);
-                        set(findobj(gcf,'Tag','headmap'),'String','exp Mean');
-                    end
-                    MeanDeviation = mean(EpochAverage);
-                    EpochAverage = EpochAverage - MeanDeviation;
-                    % PLOTS AVERAGE OF THAT STRETCH
-                    colormap("default")
-                    topoplot(EpochAverage, EEG.chanlocs(:));
-                    %set(topo,'tag','topo');
-                    % This makes sure it only prints once
-                    Printed = 1;
-                    %break;
-                end
-            %end
-            if ~Printed
-                % if no prints have been done, then there's no matching
-                % rejected areas, therefore prints normal topoplot for that
-                % column
-                %
-                colormap("default")
-                topoplot(EEG.data(:,datapos), EEG.chanlocs(:));
-                %set(topo,'tag','topo');
-            end
+            tmpelec = g.chans + 1 - round(tmppos(1,2) / g.spacing);
+            tmpelec = min(max(tmpelec, 1), g.chans);
+            pop_prop_extended2(EEG, 0, tmpelec,'NaN',{'freqrange', [2 55]});
         else
-            colormap("default")
-            topoplot(EEG.data(:,datapos), EEG.chanlocs(:));
-            set(topo,'tag','topo');
-        end
-        
-        % set background color back to whatever it was before.
-        set(fig,'Color',BackColor);
-    end
+            if point_is_valid
+                data = get(ax1,'UserData');
+                datapos = max(1, round(tmppos(1)+lowlim));
+                datapos = min(datapos, g.frames);
 
+                colormap("default")
+                ax_pic = findobj('tag','topo');
+                ax_matrix = findobj('tag','figure');
+
+                %         if isempty(ax_pic)
+                %             ax_pic = axes('Parent', gcf, 'position',g.matrixpos,'units','normalized','tag','topo','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
+                %         else
+                %             %delete(ax_pic,ax_matrix);
+                ax_pic = axes('Parent', gcf, 'position',g.matrixpos,'units','normalized','tag','topo','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
+                %         end
+                % get color
+                BackColor = get(fig,'Color');
+
+                Printed = 0;
+                % plot topo % it changes the background color of the figure to EEGLAB's default
+                %topoplot(data(:,datapos), g.eloc_file);
+                if ~isempty(g.winrej)
+                    % LOOPS FOR EVERY STRETCH OF REJECTION
+                    %for k=1:size(g.winrej,1)
+                    print_id = datapos >= g.winrej(:,1) & datapos <= g.winrej(:,2);
+                    % CHECKS FOR MOUSE POSITION WITHIN A REJECTION STRETCH
+                    if any(print_id)
+                        rej_part = find(print_id);
+                        % Calculates the averageb for that stretch
+                        switch button
+                            case 'v'
+                                EpochAverage = var(EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2)),0,2);
+                                set(findobj(gcf,'Tag','headmap'),'String','Variance');
+
+                            case 'b'
+                                EpochAverage = std((EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),0,2);
+                                set(findobj(gcf,'Tag','headmap'),'String','Std. Dev.');
+
+                            case 'n'
+                                EpochAverage = mean(abs(EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),2);
+                                set(findobj(gcf,'Tag','headmap'),'String','Abs. Mean');
+
+                            case 'm'
+                                EpochAverage = mean(log10(abs(EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2)))),2);
+                                set(findobj(gcf,'Tag','headmap'),'String','log Mean');
+
+                            case 'l'
+                                EpochAverage = mean(exp(EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),2);
+                                set(findobj(gcf,'Tag','headmap'),'String','exp Mean');
+                        end
+                        MeanDeviation = mean(EpochAverage);
+                        EpochAverage = EpochAverage - MeanDeviation;
+                        % PLOTS AVERAGE OF THAT STRETCH
+                        colormap("default")
+                        topoplot(EpochAverage, EEG.chanlocs(:));
+                        %set(topo,'tag','topo');
+                        % This makes sure it only prints once
+                        Printed = 1;
+                        %break;
+                    end
+                    %end
+                    if ~Printed
+                        % if no prints have been done, then there's no matching
+                        % rejected areas, therefore prints normal topoplot for that
+                        % column
+                        %
+                        colormap("default")
+                        topoplot(EEG.data(:,datapos), EEG.chanlocs(:));
+                        %set(topo,'tag','topo');
+                    end
+                else
+                    colormap("default")
+                    topoplot(EEG.data(:,datapos), EEG.chanlocs(:));
+                    %set(topo,'tag','topo');
+                end
+
+                % set background color back to whatever it was before.
+                set(fig,'Color',BackColor);
+            end
+        end
+    end
 
 function plot_topoplot_old(fig)
     %fig = varargin{1};
