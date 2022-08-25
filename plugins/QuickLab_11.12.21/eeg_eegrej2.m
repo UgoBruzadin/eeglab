@@ -257,6 +257,7 @@ if ~isempty(list_of_chans_or_comps)
         divisors = cat(2,[0],divisors);
         % this is total number of channels selected
         numOfInts = length(divisors);
+        suf = '';
         % loops the number of channels/comps given and interpolates them
         for j = 1:numOfInts
             % if it's not the final number, collects the channels/components t
@@ -284,13 +285,14 @@ if ~isempty(list_of_chans_or_comps)
                 %EEGmod.icaact(compOrChan,regions_for_interp(j,1):regions_for_interp(j,2),:) = EEGinterp.icaact(compOrChan,regions_for_interp(j,1):regions_for_interp(j,2));
                 %end
             end
+
+            EEGcumulative = EEGmod;
+        end
             if chanorcomp == 1
                 EEGmod.suffix = strcat(EEGmod.suffix,strcat('pCI',suf));
             else
                 EEGmod.suffix = strcat(EEGmod.suffix,strcat('pPI',suf));
             end
-            EEGcumulative = EEGmod;
-        end
         % deprecated
 %         list_of_chans_or_comps2 = list_of_chans_or_comps;
 %         try list_of_chans_or_comps2 = replace(list_of_chans_or_comps,divisors,'-'); catch; end
