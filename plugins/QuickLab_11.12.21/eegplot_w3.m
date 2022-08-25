@@ -1907,12 +1907,12 @@ else
            EEG.chanrej = g.winrej;
            EEG.comprej = g.winrej_pc;
            try EEG.mybadchan = find([g.eloc_file.badchan]);catch; end
-           try EEG.mybadcomp = find([g.eloc_file_pc.badchan]);catch; end
+           try EEG.mybadcomp = find([g.eloc_file_pc.badchan]); EEG.gcompreject = find([g.eloc_file.badchan]);catch; end
        else
            EEG.chanrej = g.winrej_ch;
            EEG.comprej = g.winrej;
            try EEG.mybadchan = find([g.eloc_file_ch.badchan]);catch; end
-           try EEG.mybadcomp = find([g.eloc_file.badchan]);catch; end
+           try EEG.mybadcomp = find([g.eloc_file.badchan]); EEG.gcompreject = find([g.eloc_file.badchan]); catch; end
        end
       
       suffix = get(findobj(gcf,'tag','SaveNowText'),'string');
@@ -3912,15 +3912,15 @@ g = get(fig,'UserData');
         case {'t'} % GO FORWARD
             eegplot_w3('TBT')
 
-        case {'y'}% TAG AND SAVE
-            eegplot_w3('SAVE')
+%         case {'y'}% TAG AND SAVE
+%             eegplot_w3('SAVE')
 
         case {'q'} % GO back to beginning
             draw_data([],[],fig,8,[],[])
 
-        case {'`'}
-            %g = THINKING(g,0);
-            set(gcf,'UserData',g);
+%         case {'`'}
+%             %g = THINKING(g,0);
+%             set(gcf,'UserData',g);
 
         case {'r'}
             normalize_chan([],[],gcf);
