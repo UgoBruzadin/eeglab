@@ -15,7 +15,9 @@ chans = [1 8 14 17 21 25 32 38 43 44 48 49 56 63 64 68 69 73 74 81 82 88 89 94 9
 try [EEG,com] = pop_select( EEG,'nochannel',[1 8 14 17 21 25 32 38 43 44 48 49 56 63 64 68 69 73 74 81 82 88 89 94 95 99 107 113 114 119 120 121 125 126 127 128]);
 catch
 for i = chans
-    try pop_select( EEG,'nochannel',[i]) catch; end
+
+    try pop_select( EEG,'nochannel',[i]);
+    catch; end
 end
 end
 for a=1:EEG.nbchan
