@@ -1865,8 +1865,13 @@ else
     comps = fliplr([tmpstatus{:}]);
     close(gcf);
     %EEG = p1;
+    
     fig = findobj('tag','eegplot_w3');
-    g = get(fig,'UserData'); 
+%     g = get(fig,'UserData'); 
+%     if size(fig,1) > 2
+         g = get(gcf,'UserData');
+%     end
+    
     %[ICL,~] = quick_IClabel(g.EEG); 
     comps = find(comps);
     set(gcf,'UserData',g);
