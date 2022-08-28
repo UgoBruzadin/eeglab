@@ -230,7 +230,7 @@ if haspar == 1
             end
 
         end
-        checkcom = {@checkbox,int2str(ri)};
+        checkcom = {@checkbox,int2str(ri),0};
         set(to(ri),'ButtonDownFcn', checkcom);
         axis square;
 
@@ -268,7 +268,7 @@ else
             end
 
         end
-        checkcom = {@checkbox,int2str(ri)};
+        checkcom = {@checkbox,int2str(ri),0};
         set(to(ri),'ButtonDownFcn', checkcom);
         axis square;
 
@@ -363,7 +363,7 @@ for ri = chanorcomp
         checktag  = int2str(ri);
         
         % checkcom = ['pop_viewprops2_checkbox(' int2str(ri) ' )'];
-        checkcom  = {@checkbox,int2str(ri)};
+        checkcom  = {@checkbox,int2str(ri),1};
 
 %         checktag  = uicontrol(fig, 'Style', 'checkbox','Units','Normalized','Tag',int2str(ri), 'Value',EEG.reject.gcompreject(ri),'Position',...
 %             [X(ri) +sizewx*2/3 Y(ri) +sizewy sizewx/3 sizewy*0.18].*s+q,'Visible','on','Callback',checkcom);  
@@ -529,16 +529,19 @@ function selectall(src,evt,value)
 
 end
 
-function checkbox(src,evt,index)
-
+function checkbox(src,evt,index,clicked_box)
+    if nargin < 3
+        clicked_box = 0;
+    end
     % --- click or unclick the tag
     clickVal = get(findobj(gcf,'Tag',index),'Value');
-    
-    set(findobj(gcf,'Tag',index),'Value', abs(clickVal-1));
+    if clicked_box == 0
+        clickVal = abs(clickVal-1);
+    end
+
+    set(findobj(gcf,'Tag',index),'Value', clickVal);
     
     % --- turn button color red or green
-    
-    clickVal = abs(clickVal-1);
     
     if clickVal == 1
         %set(findobj(gcf,'Style','checkbox'),'BackgroundColor',[1 .5 .5])
