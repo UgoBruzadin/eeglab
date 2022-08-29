@@ -42,18 +42,19 @@ if nargin < 2
     [EEG,com] = pop_reref( EEG, [], 'keepref', keepref);
 else
 if strcmp(channels,'AVG')
-   [EEG,com] = pop_reref( EEG, [], 'keepref', keepref);
+   [EEG,com] = pop_reref( EEG, [], 'refloc',struct('labels',{'Cz'},'Y',{0},'X',{0},'Z',{8.7919},'sph_theta',{0},'sph_phi',{0},'sph_radius',{0},'theta',{0},'radius',{0},'type',{''},'ref',{'Cz'},'urchan',{[]},'datachan',{0}));
+
 elseif strcmp(channels,'LE')
-   [EEG,com] = pop_reref( EEG, LE_REFS, 'keepref', keepref);
+   [EEG,com] = pop_reref( EEG, LE_REFS, 'refloc',struct('labels',{'Cz'},'Y',{0},'X',{0},'Z',{8.7919},'sph_theta',{0},'sph_phi',{0},'sph_radius',{0},'theta',{0},'radius',{0},'type',{''},'ref',{'Cz'},'urchan',{[]},'datachan',{0}));
 elseif strcmp(channels,'OG')
-   [EEG,com] = pop_reref( EEG, OG_REF, 'keepref', keepref);
+   [EEG,com] = pop_reref( EEG, OG_REF,'refloc',struct('labels',{'Cz'},'Y',{0},'X',{0},'Z',{8.7919},'sph_theta',{0},'sph_phi',{0},'sph_radius',{0},'theta',{0},'radius',{0},'type',{''},'ref',{'Cz'},'urchan',{[]},'datachan',{0}));
 elseif strcmp(channels,'CZ')
     options = REFLOC;
    [EEG,com] = pop_reref( EEG, OG_REF, 'keepref', keepref);
 else
     %try finding channel names
     %don't reference otherwise?
-    [EEG,com] = pop_reref( EEG, channels, 'keepref', keepref);
+    [EEG,com] = pop_reref( EEG, channels, 'keepref', keepref, 'refloc',struct('labels',{'Cz'},'Y',{0},'X',{0},'Z',{8.7919},'sph_theta',{0},'sph_phi',{0},'sph_radius',{0},'theta',{0},'radius',{0},'type',{''},'ref',{'Cz'},'urchan',{[]},'datachan',{0}));
 end
 
 end
