@@ -115,15 +115,15 @@
 function varargout = pop_spectopo( EEG, dataflag, timerange, processflag, varargin);
 
 varargout{1} = '';
-if nargin < 2
+if nargin < 1
 	help pop_spectopo;
 	return;
 end;	
 
-if nargin < 3
+if nargin < 2
 	dataflag = 1;
 end
-if nargin < 4
+if nargin < 3
 	processflag = 'EEG';
 end
 
@@ -331,7 +331,6 @@ end
 % plot the data and generate output and history commands
 % ------------------------------------------------------
 
-%try SIGTMP = gpuArray(SIGTMP); catch; end
 popcom = sprintf('figure; pop_spectopo(EEG, %d, [%s], ''%s'' %s);', dataflag, num2str(timerange), processflag, options);
 switch processflag
 	case { 'EEG' 'eeg' }, SIGTMP = reshape(SIGTMP, size(SIGTMP,1), size(SIGTMP,2)*size(SIGTMP,3));
