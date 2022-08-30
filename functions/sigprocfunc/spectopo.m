@@ -540,7 +540,7 @@ end
 if strcmpi(g.plot, 'on')
     mainfig = gca; axis off;
     if ~isempty(g.freq)
-        specaxes = sbplot(3,4,[4.7 12], 'ax', mainfig); 
+        specaxes = sbplot(3,4,[5 12], 'ax', mainfig); 
     end
     
     if isempty(g.weights)
@@ -570,8 +570,8 @@ if strcmpi(g.plot, 'on')
     xl=xlabel('Frequency (Hz)');
     set(xl,'fontsize',AXES_FONTSIZE_L);
     % yl=ylabel('Rel. Power (dB)');
-    %yl=ylabel('Log Power Spectral Density 10*log_{10}(\muV^{2}/Hz)');%yl=ylabel('Power 10*log_{10}(\muV^{2}/Hz)');
-    %set(yl,'fontsize',AXES_FONTSIZE_L);
+    yl=ylabel('Log Power Spectral Density 10*log_{10}(\muV^{2}/Hz)');%yl=ylabel('Power 10*log_{10}(\muV^{2}/Hz)');
+    set(yl,'fontsize',AXES_FONTSIZE_L);
     set(gca,'fontsize',AXES_FONTSIZE_L)
     box off;
 end
@@ -676,7 +676,7 @@ if ~isempty(g.freq) &&  strcmpi(g.plot, 'on')
 	tmpmainpos = get(gca, 'position');
 	headax = zeros(1,length(g.freq));
 	for f=1:length(g.freq)+length(g.icamaps)
-		headax(f) = sbplot(5,(length(g.freq)+length(g.icamaps))/2,f, 'ax', mainfig);
+		headax(f) = sbplot(3,length(g.freq)+length(g.icamaps),f, 'ax', mainfig);
 		axis([-1 1 -1 1]);
 		
 		%axis x coords and use
@@ -684,8 +684,8 @@ if ~isempty(g.freq) &&  strcmpi(g.plot, 'on')
 		allaxcoords(f) = tmppos(1);
 		allaxuse(f)    = 0;
 	end
-	large = sbplot(1,1,1, 'ax', mainfig,'Tag','large');
-	set(findobj('Tag', 'large') ,'InnerPosition',[0.025,0.055036344755971,0.917708333333333,0.865005192107996])
+	large = sbplot(1,1,1, 'ax', mainfig);
+	
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% compute relative positions on plot
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -781,10 +781,9 @@ if ~isempty(g.freq) &&  strcmpi(g.plot, 'on')
 		end
 		set(tl,'fontsize',AXES_FONTSIZE_L);
 		axis square;
-		%drawnow limitrate
+		drawnow
 		myfprintf(g.verbose, '.');
-    end
-    drawnow
+	end
 	myfprintf(g.verbose, '\n');
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -807,7 +806,7 @@ if ~isempty(g.freq) &&  strcmpi(g.plot, 'on')
 			tl=title(int2str(g.icacomps(compnum)));
 			set(tl,'fontsize',16);
 			axis square;
-			%drawnow limitrate
+			drawnow
             try,
                 if strcmpi(g.icamode, 'normal')
                     set(gca, 'userdata', ['text(-0.6, -0.6, ''Rel. Var.: ' sprintf('%6.2f', resvar(g.icacomps(compnum))) ''');'] );
@@ -815,10 +814,10 @@ if ~isempty(g.freq) &&  strcmpi(g.plot, 'on')
                     set(gca, 'userdata', ['text(-0.6, -0.6, ''PVAF: ' sprintf('%6.2f', resvar(g.icacomps(compnum))) ''');'] );
                 end
             catch, end
-			%if realpos(index+1) == max(realpos), plotcolbar(g); end
+			if realpos(index+1) == max(realpos), plotcolbar(g); end
 		end
 	else 
-		%plotcolbar(g);
+		plotcolbar(g);
 	end
 end
 
