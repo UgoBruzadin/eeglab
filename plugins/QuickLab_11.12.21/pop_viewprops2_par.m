@@ -204,14 +204,9 @@ tic
 X = zeros(length(chanorcomp),1);
 Y = zeros(length(chanorcomp),1);
 
-haspar = 1;
-try
-    ver('parallel');
-catch
-    haspar = 0;
-end
-
-if haspar == 1
+haspar = [];
+haspar = ver('parallel');
+if ~isempty(haspar)
     parfor ri = chanorcomp
         %% plot the topoplot headmap
 
