@@ -27,14 +27,11 @@ assert(isreal(EEG.icaact), 'Your ICA decomposition must be real to use ICLabel')
 
 %% calc topo
 topo = zeros(32, 32, 1, ncomp);
-haspar = 1;
-try
-    ver('parallel');
-catch
-    haspar = 0;
-end
 
-if haspar
+haspar = [];
+haspar = ver('parallel');
+
+if ~isempty(haspar)
     parfor it = 1:ncomp
         if ~exist('OCTAVE_VERSION', 'builtin')
             [~, temp_topo, plotrad] = ...
