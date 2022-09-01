@@ -17,11 +17,11 @@ function [EEG,com] = quick_dipfit(EEG,comps,dipoles)
 % You should have received a copy of the GNU General Public License
 % along with this program; if not, write to the Free Software
 
-if nargin < 3
+if nargin < 3 || isempty(dipoles)
     dipoles = 1; 
 end
 
-if nargin < 2
+if nargin < 2 || isempty(comps)
     comps = []; 
 end
 
