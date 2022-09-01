@@ -123,14 +123,9 @@ end
 p1 = zeros(1,d);
 p2 = zeros(1,d);
 
-haspar = 1;
-try
-    ver('parallel');
-catch
-    haspar = 0;
-end
-
-if haspar
+haspar = [];
+haspar = ver('parallel');
+if ~isempty(haspar)
     parfor i = 1:d
         hpsd = psd(h,X(i,:),'NFFT',NFFT);
         p1(i) = avgpower(hpsd,[0 femg/(fs/2)*pi])/(femg/(fs/2)*pi);
