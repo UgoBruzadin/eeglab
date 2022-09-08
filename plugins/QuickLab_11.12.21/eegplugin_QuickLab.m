@@ -51,6 +51,10 @@ uimenu( plotmenu, 'label', 'OLD Component Scroll++ for Interpolation', 'callback
 uimenu( plotmenu, 'label', 'Quick IClabel & Viewprops+ plot', 'callback', ...
     ['[EEG,com] = quick_IClabel(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
+uimenu( plotmenu, 'label', 'NEW Quick ERP Viewprops+ plot(DG)', 'callback', ...
+    ['com = pop_viewprops_erp(EEG,0,1:size(EEG.icawinv,2),{''freqrange'',[2 55]});[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+
+
 uimenu( plotmenu, 'label', 'Quick Plot Channel Spectra - AVG ref', 'callback', ...
     ['[~, com] = quick_spectra(EEG,40,2,''AVG'');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
@@ -64,9 +68,6 @@ uimenu( othermenu, 'label', 'Quick Plot Channel Spectra default', 'callback', ..
 
 uimenu( othermenu, 'label', 'Quick Plot Channel Spectra - LE ref', 'callback', ...
     ['[~, com] = quick_spectra(EEG,40,2,''LE'');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
-
-uimenu( othermenu, 'label', 'Quick ERP Viewprops+ plot', 'callback', ...
-    ['com = pop_viewprops_erp(EEG,0,1:size(EEG.icawinv,2),{''freqrange'',[2 55]});[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 
 uimenu( othermenu, 'label', 'Quick IClabel, DIPFIT & Viewprops+ plot', 'callback', ...
