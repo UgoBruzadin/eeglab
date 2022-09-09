@@ -5266,7 +5266,7 @@ end
         % background, ticks, channels, greens, reds
         mymap = [.5 .5 .8; 0 0 0; 1 1 0; 0 1 0; 1 0 0]; % color map of matrix
         colormap(mymap) % applies new colors
-        clim('manual'); % makes color limits manual,
+        try clim('manual'); catch, caxis('manual'); end% makes color limits manual,
         clim(ax_pic,[-10,20]); % fixes color patterns so that alwasy plots the same colors
 
         % makes axis tight to bounderies, filling full space
