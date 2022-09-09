@@ -7,7 +7,7 @@ fileINPUT = pwd;
 fileOUTPUT = pwd;
 %cd(fileINPUT);
 
-files = dir('*.set');
+files = dir('*DotLoc*.jpg');
 
 %eeglab;
 for i=1:length(files) 
@@ -15,7 +15,8 @@ for i=1:length(files)
     foldersname = files(i).folder;
     filename = files(i).name;
     dotlocnum = filename(14);
-    nfilter = filename(34:35);
+    nfilter = [];
+    try nfilter = filename(34:35); catch, end
     BE = strfind(filename,'BE');
     EP = strfind(filename,'EP');
     Tr = strfind(filename,'Tr');
@@ -31,8 +32,12 @@ for i=1:length(files)
     Hm = strfind(filename,'Hm');
     New = strfind(filename,'New');
 
+    if ~isempty(nfilter)
+        newfilename = [strcat(foldersname,'\',filename(1:6),'DL',dotlocnum,'_HA255N',nfilter,'T',filename(EP+2:end))];
+    else
+        newfilename = [strcat(foldersname,'\',filename(1:6),'DL',dotlocnum,'_HA255N')];
+    end
     
-    newfilename = [strcat(foldersname,'\',filename(1:6),'DL',dotlocnum,'_HA255N',nfilter,'T',filename(EP+2:end))];
     filename = strcat(foldersname, files(i).name);
     movefile(files(i).name, newfilename);
     %system("rename" +  filename + newfilename ); % didn't work
