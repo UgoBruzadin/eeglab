@@ -543,7 +543,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
       if isstruct(g.eloc_file) && length(g.eloc_file) > size(data,1)
           g.eloc_file(end) = []; % common reference channel location
       end;
-      eegplot_w2('setelect', g.eloc_file, ax1);
+      eegplot_w2old('setelect', g.eloc_file, ax1);
   end;
   
   % Retrieving bad chans and comps! #Ugo #Savecommand #mybadcomp #mybadchan
@@ -656,9 +656,9 @@ chaninterp2 = ['EEG.myVariables{3} = get(findobj(gcf, ''Tag'', ''Removal''),''st
 % select text or mouse clicks
 %gettextcom = ['EEG.myVariables{4} = get(findobj(gcf, ''Tag'', ''UseText''),''Value'')'];
 
-displayep = ['eegplot_w2(''redraw'')'];
-togglerej = ['eegplot_w2(''rejection'')'];
-displaycomp = ['EEG.plotEp = 1 - EEG.plotEp; eegplot_w2(EEG,varargin)'];
+displayep = ['eegplot_w2old(''redraw'')'];
+togglerej = ['eegplot_w2old(''rejection'')'];
+displaycomp = ['EEG.plotEp = 1 - EEG.plotEp; eegplot_w2old(EEG,varargin)'];
 
 %     function selection(src,event)
 %         val = c.Value;
@@ -789,7 +789,7 @@ end
 	'Tag','TBT',...
     'BackgroundColor',[1 .5 0.5],...
 	'string','Run Rejection',...
-	'Callback', ['eegplot_w2(''TBT'')'] );
+	'Callback', ['eegplot_w2old(''TBT'')'] );
 
   u(41) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -797,7 +797,7 @@ end
 	'Tag','ClearMarks',...
     'BackgroundColor',[1 .5 0.5],...
 	'string','Clear All Marks',...
-	'Callback', ['eegplot_w2(''ClearMarks'')'] );
+	'Callback', ['eegplot_w2old(''ClearMarks'')'] );
 
 % channel or epoch, rejection or interpolation buttons #Ugo
 
@@ -1012,7 +1012,7 @@ cb_envelope = ['g = get(gcbf,''userdata'');'...
     'set(gcbf,''userdata'',g);'...
     'set(gcbo,''string'',fastif(g.envelope,''Spread'',''Stack''));' ...
     'set(hmenu, ''Label'', fastif(g.envelope,''Spread channels'',''Stack channels''));' ...
-    'eegplot_w2(''drawp'',0);clear g;'];
+    'eegplot_w2old(''drawp'',0);clear g;'];
 
 % Button to plot envelope of data
 u(22) = uicontrol('Parent',figh, ...
@@ -1078,7 +1078,7 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
       u(17) = uicontrol('Parent',figh, ...
                         'Units', 'normalized', ...
                         'Position',posbut(17,:), ...
-                        'string', 'Events', 'callback', 'eegplot_w2(''drawlegend'', gcbf)');
+                        'string', 'Events', 'callback', 'eegplot_w2old(''drawlegend'', gcbf)');
   end;
 
   for i = 1: length(u) % Matlab 2014b compatibility
@@ -1095,7 +1095,7 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
 
   m(7) = uimenu('Parent',figh,'Label','Figure');
   m(8) = uimenu('Parent',m(7),'Label','Print');
-  uimenu('Parent',m(7),'Label','Edit figure', 'Callback', 'eegplot_w2(''noui'');');
+  uimenu('Parent',m(7),'Label','Edit figure', 'Callback', 'eegplot_w2old(''noui'');');
   uimenu('Parent',m(7),'Label','Accept and close', 'Callback', acceptcommand );
   uimenu('Parent',m(7),'Label','Cancel and close', 'Callback','delete(gcbf)')
   
@@ -1153,7 +1153,7 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
             'end;' ...
             'g.winstatus = ~g.winstatus;' ...
             'set(gcbf, ''userdata'', g);' ...
-            'eegplot_w2(''drawb''); clear g;'] )
+            'eegplot_w2old(''drawb''); clear g;'] )
 
 	% color %%%%%%%%%%%%%%%%%%%%%%%%%%
     if isunix % for some reasons, does not work under Windows
@@ -1180,7 +1180,7 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
               'end;' ...
               'g.ploteventdur = ~g.ploteventdur;' ...
               'set(gcbf, ''userdata'', g);' ...
-              'eegplot_w2(''drawb''); clear g;'] )
+              'eegplot_w2old(''drawb''); clear g;'] )
   end;
 
   % X grid %%%%%%%%%%%%
@@ -1245,18 +1245,18 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
               '  g.submean =''on'';' ...
               'end;' ...
               'set(gcbf, ''userdata'', g);' ...
-              'eegplot_w2(''drawp'', 0); clear g;'];
+              'eegplot_w2old(''drawp'', 0); clear g;'];
   uimenu('Parent',m(1),'Label',fastif(strcmp(g.submean, 'on'), ...
          'Do not remove DC offset','Remove DC offset'), 'Callback',cb)
 
   % Scale Eye %%%%%%%%%
   timestring = ['[OBJ1,FIG1] = gcbo;',...
-	        'eegplot_w2(''scaleeye'',OBJ1,FIG1);',...
+	        'eegplot_w2old(''scaleeye'',OBJ1,FIG1);',...
 		'clear OBJ1 FIG1;'];
   m(7) = uimenu('Parent',m(1),'Label','Show scale','Callback',timestring);
   
   % Title %%%%%%%%%%%%
-  uimenu('Parent',m(1),'Label','Title','Callback','eegplot_w2(''title'')')
+  uimenu('Parent',m(1),'Label','Title','Callback','eegplot_w2old(''title'')')
   
   % Stack/Spread %%%%%%%%%%%%%%%
   cb =       ['g = get(gcbf, ''userdata'');' ...
@@ -1271,7 +1271,7 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
               '  set(hbutton, ''String'', ''Stack'');' ...
               'end;' ...
               'set(gcbf, ''userdata'', g);' ...
-              'eegplot_w2(''drawp'', 0); clear g;'];
+              'eegplot_w2old(''drawp'', 0); clear g;'];
   uimenu('Parent',m(1),'Label',fastif(g.envelope == 0, ...
          'Stack channels','Spread channels'), 'Callback',cb, 'Tag', 'Envelope_menu')
      
@@ -1286,11 +1286,11 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
   
   % Window %%%%%%%%%%%%
   uimenu('Parent',m(2),'Label','Time range to display',...
-      'Callback','eegplot_w2(''window'')')
+      'Callback','eegplot_w2old(''window'')')
   
   % Electrode window %%%%%%%%
   uimenu('Parent',m(2),'Label','Number of channels to display',...
-      'Callback','eegplot_w2(''winelec'')')
+      'Callback','eegplot_w2old(''winelec'')')
   
   % Electrodes %%%%%%%%
   m(6) = uimenu('Parent',m(2),'Label','Channel labels');
@@ -1303,7 +1303,7 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
 		'clear FIGH AXESH YTICK;'];
   uimenu('Parent',m(6),'Label','Show number','Callback',timestring)
   uimenu('Parent',m(6),'Label','Load .loc(s) file',...
-      'Callback','eegplot_w2(''loadelect'');')
+      'Callback','eegplot_w2old(''loadelect'');')
   
   % Zooms %%%%%%%%
  % if ismatlab && verLessThan('matlab','8.4.0')
@@ -1322,14 +1322,14 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
  %      uimenu('Parent',m(2),'Label','Zoom off/on', 'callback', 'warning(''FIXME: Zoom not work in MATLAB >= 8.4.0'')');
  % end
       
-  uimenu('Parent',figh,'Label', 'Help', 'callback', 'pophelp(''eegplot_w2'');');
+  uimenu('Parent',figh,'Label', 'Help', 'callback', 'pophelp(''eegplot_w2old'');');
 
   % Events %%%%%%%%
   ev = uimenu('Parent',m(2),'Label','Events');
   comeventmaxstring   = [ 'tmpg = get(gcbf, ''userdata'');' ...
                 'tmpg.plotevent = ''on'';' ...
-                'set(gcbf, ''userdata'', tmpg); clear tmpg; eegplot_w2(''emaxstring'');']; % JavierLC      
-  comeventleg  = [ 'eegplot_w2(''drawlegend'', gcbf);'];
+                'set(gcbf, ''userdata'', tmpg); clear tmpg; eegplot_w2old(''emaxstring'');']; % JavierLC      
+  comeventleg  = [ 'eegplot_w2old(''drawlegend'', gcbf);'];
     
   uimenu('Parent',ev,'Label','Events on'    , 'callback', {@draw_data,figh,0,[],[],ax1,'g.plotevent = ''on'';'},  'enable', fastif(isempty(g.events), 'off', 'on'));
   uimenu('Parent',ev,'Label','Events off'   , 'callback', {@draw_data,figh,0,[],[],ax1,'g.plotevent = ''off'';'}, 'enable', fastif(isempty(g.events), 'off', 'on'));
@@ -1434,16 +1434,16 @@ if isempty(g.command) tmpsavecom = 'fprintf(''Rejections saved in variable TMPRE
   else
       set(m(7),'checked','off');
   end 
-  eegplot_w2('scaleeye', [], gcf);
+  eegplot_w2old('scaleeye', [], gcf);
   if strcmp(lower(g.scale), 'off')
-	  eegplot_w2('scaleeye', 'off', gcf);
+	  eegplot_w2old('scaleeye', 'off', gcf);
   end;
   
-  eegplot_w2('drawp', 0);
+  eegplot_w2old('drawp', 0);
   if g.dispchans ~= g.chans
-  	   eegplot_w2('zoom', gcf);
+  	   eegplot_w2old('zoom', gcf);
   end;  
-  eegplot_w2('scaleeye', [], gcf);
+  eegplot_w2old('scaleeye', [], gcf);
   
   h = findobj(gcf, 'style', 'pushbutton');
   set(h, 'backgroundcolor', BUTTON_COLOR);
@@ -1551,7 +1551,7 @@ else
 
 	g.winlength = eval(result{1}); 
 	set(gcf, 'UserData', g);
-	eegplot_w2('drawp',0);	
+	eegplot_w2old('drawp',0);	
 	return;
     
   case 'winelec'  % change channel window size
@@ -1570,9 +1570,9 @@ else
    end;
    set(gcf, 'UserData', g);
    
-   eegplot_w2('updateslider', fig);
-   eegplot_w2('drawp',0);	
-   eegplot_w2('scaleeye', [], fig);
+   eegplot_w2old('updateslider', fig);
+   eegplot_w2old('drawp',0);	
+   eegplot_w2old('scaleeye', [], fig);
    %MarkChannel([],[],fig,0,0);
    %Fixing UGO
    %set(gcf,'UserData',g);
@@ -1588,7 +1588,7 @@ else
       if size(result,1) == 0 return; end;                  
       g.maxeventstring = eval(result{1});
       set(gcf, 'UserData', g);
-      eegplot_w2('drawb');
+      eegplot_w2old('drawb');
       return;
       
   case 'loadelect' % load channels
@@ -1599,7 +1599,7 @@ else
 	end;
 
 	AXH0 = findobj('tag','eegaxis','parent',gcf);
-	eegplot_w2('setelect',[ inputpath inputname ],AXH0);
+	eegplot_w2old('setelect',[ inputpath inputname ],AXH0);
 	return;
   
   case 'setelect'
@@ -1687,9 +1687,9 @@ else
     
   case 'noui'
       if ~isempty(varargin)
-          eegplot_w2( varargin{:} ); fig = gcf;
+          eegplot_w2old( varargin{:} ); fig = gcf;
       else 
-          fig = findobj('tag', 'eegplot_w2');
+          fig = findobj('tag', 'eegplot_w2old');
       end;
       set(fig, 'menubar', 'figure');
       
@@ -1739,9 +1739,9 @@ else
       g.dispchans  = round(1000*(tmpylim(2)-tmpylim(1))/g.spacing)/1000;      
       
       set(fig,'UserData', g);
-      eegplot_w2('updateslider', fig);
-      eegplot_w2('drawp', 0);
-      eegplot_w2('scaleeye', [], fig);
+      eegplot_w2old('updateslider', fig);
+      eegplot_w2old('drawp', 0);
+      eegplot_w2old('scaleeye', [], fig);
 
       % reactivate zoom if 3 arguments
       % ------------------------------
@@ -1777,7 +1777,7 @@ else
          g.elecoffset = g.chans-g.dispchans;
       end;
       set(fig,'UserData', g);
-	  eegplot_w2('scaleeye', [], fig);
+	  eegplot_w2old('scaleeye', [], fig);
    
    case 'drawlegend'
       fig = varargin{1};
@@ -1857,7 +1857,7 @@ else
   case 'defdowncom'
       mouse_down([],[],varargin{1}); % Just for compatibility with original eegplot()
    otherwise
-      error(['Error - invalid eegplot_w2() parameter: ',data])
+      error(['Error - invalid eegplot_w2old() parameter: ',data])
   end
   
 end
@@ -2663,7 +2663,7 @@ function mouse_down(varargin)
 fig = varargin{3};
 %get(fig, 'SelectionType') % prints what selection has been done
 if strcmp(get(fig, 'SelectionType'),'extend')
-    eegplot_w2('topoplot', fig);
+    eegplot_w2old('topoplot', fig);
     return;
 end;
 %show_mocap_timer = timerfind('tag','mocapDisplayTimer'); if ~isempty(show_mocap_timer),  end; % nima
@@ -2782,7 +2782,7 @@ end; % nima
 % Function to show the value and electrode at mouse position
 function mouse_motion(varargin)
 fig = varargin{3};
-%eegplot_w2('topoplot', fig);
+%eegplot_w2old('topoplot', fig);
 % --- idea: make plot component headmap if mouse changes component?
 ax0 = varargin{4};
 tmppos = get(ax0, 'currentpoint');
@@ -3153,9 +3153,9 @@ switch evnt.Key
             change_scale([],[],fig,2);
         end;
     case {'insert'} %CHANGED UGO
-        eegplot_w2('window');
+        eegplot_w2old('window');
     case {'tab'}
-        eegplot_w2('winelec');
+        eegplot_w2old('winelec');
     case {'v'}
         draw_data([],[],fig,0,[],[],[],...
             'if strcmp(g.plotevent,''on''); g.plotevent = ''off''; else g.plotevent = ''on''; end;');
