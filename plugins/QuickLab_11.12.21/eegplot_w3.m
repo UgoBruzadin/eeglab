@@ -4358,8 +4358,10 @@ function plot_topoplot_old(fig)
                 g = TBT(g);
             case 2
                 g = QUICKLAB(g);
+                g = make_eloc_file(g);
             case 3
                 g = ICLABEL(g);
+                g = make_eloc_file(g);
         end
         
         %g = THINKING(g,0);
@@ -4368,7 +4370,7 @@ function plot_topoplot_old(fig)
 %         g.old{end+1} = g;
 %         g.gnumber = length(g.old);
 
-        g = make_eloc_file(g);
+        %g = make_eloc_file(g);
         set(gcf,'UserData',g);
         eegplot_w3('setelect');
         eegplot_w3('winelec_auto');
