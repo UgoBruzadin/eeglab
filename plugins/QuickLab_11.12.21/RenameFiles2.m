@@ -18,21 +18,23 @@ for i=1:length(files)
     nfilter = filename(34:35);
     BE = strfind(filename,'BE');
     EP = strfind(filename,'EP');
-    Tr = strfind(filename,'Tr');
-    Ep = strfind(filename,'Ep');
-    SM = strfind(filename,'SM');
-    ICA = strfind(filename,'ICA');
-    BSS = strfind(filename,'BSS');
-    Cm = strfind(filename,'Cm');
-    Cp = strfind(filename,'Cp');
-    Ch = strfind(filename,'Ch');
-    In = strfind(filename,'In');
-    Rj = strfind(filename,'Rj');
-    Hm = strfind(filename,'Hm');
-    New = strfind(filename,'New');
 
     
     newfilename = [strcat(foldersname,'\',filename(1:6),'DL',dotlocnum,'_HA255N',nfilter,'T',filename(EP+2:end))];
+
+    Tr = strfind(newfilename,'Tr');
+    Ep = strfind(newfilename,'Ep');
+    SM = strfind(newfilename,'SM');
+    ICA = strfind(newfilename,'ICA');
+    BSS = strfind(newfilename,'BSS');
+    Cm = strfind(newfilename,'Cm');
+    Cp = strfind(newfilename,'Cp');
+    Ch = strfind(newfilename,'Ch');
+    In = strfind(newfilename,'In');
+    Rj = strfind(newfilename,'Rj');
+    Hm = strfind(newfilename,'Hm');
+    New = strfind(newfilename,'New');
+    
     filename = strcat(foldersname, files(i).name);
     movefile(files(i).name, newfilename);
     %system("rename" +  filename + newfilename ); % didn't work
