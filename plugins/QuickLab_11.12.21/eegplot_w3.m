@@ -1964,7 +1964,7 @@ else
 %    egplot_w3('updateslider', gcf);
 %    eegplot_w3('drawp',0);	
 %    eegplot_w3('scaleeye', [], gcf);
-    ax2 = findobj('tag','eegaxis','parent',fig);
+    ax2 = findobj('tag','eegaxis','parent',gcf);
     change_scale([],[],gcf,4,ax2);
 
   case 'UNDO'
