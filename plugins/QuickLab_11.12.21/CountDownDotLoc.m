@@ -7,8 +7,8 @@ end
 
 %axis = axes(axis, 'Tag','pie_chart','Position', [0 0 1 1]);
 
-Ep63 = dir('*EP63.set');
-Ep60 = dir('*EP60.set');
+Ep63 = dir('*T63.set');
+Ep60 = dir('*T60.set');
 allStartedFiles = cat(1,Ep63,Ep60);
 totalFilesInFolder = length(allStartedFiles);
 
