@@ -34,10 +34,12 @@ if nargin < 3
     keepref = KEEPREF; 
 end
 
+
+
 options = struct('labels',{'Cz'},'Y',{0},'X',{0},'Z',{8.7919},'sph_theta',{0},'sph_phi',{0},'sph_radius',{0},'theta',{0},'radius',{0},'type',{''},'ref',{'Cz'},'urchan',{[]},'datachan',{0});
 %options = REFLOC; % taken from QuickLabDefs
 
-if nargin < 2 
+if nargin < 2 || isempty(channels)
 % EEG = pop_reref( EEG, [],'keepref','on');
     [EEG,com] = pop_reref( EEG, [], 'keepref', keepref);
 else
