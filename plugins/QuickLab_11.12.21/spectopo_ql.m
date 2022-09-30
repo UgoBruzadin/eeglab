@@ -579,6 +579,8 @@ g.freqs = freqs;
 % --- creates an invisible object that contains the g data in UserData
 fig = uicontrol(gcf, 'Style', 'text', 'UserData', g, 'Tag', 'Data', Visible='off');
 
+currentfigtag = ['spectra' num2str(floor(rand*1000))]; % generate a random figure tag
+set(gcf,'tag', currentfigtag);
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % plot spectrum of each channel
@@ -606,7 +608,7 @@ if strcmpi(g.plot, 'on')
 %                 ,...
 %                 'set(findobj(''Tag'',''channel''),''String'',' int2str(index) ');...' ,...
 %                 'power,frequency = getPlotPoint(' index ')'];
-
+            
             pl(index)=plot(freqs(1:maxfreqidx),specdata(index,1:maxfreqidx)', ...
                            'color', tmpcol, 'Tag',num2str(index),'ButtonDownFcn', dispallcom,Visible='on'); hold on;
         end
@@ -747,6 +749,7 @@ if ~isempty(g.freq) &&  strcmpi(g.plot, 'on')
 		tmppos = get(headax(f), 'position');
 		allaxcoords(f) = tmppos(1);
 		allaxuse(f)    = 0;
+        axis off;
 	end
 	large = sbplot(1,1,1, 'ax', mainfig,'Tag','large');
 	set(findobj(gcf,'Tag', 'large') ,'InnerPosition',[0.025,0.055036344755971,0.917708333333333,0.865005192107996]);
@@ -798,62 +801,145 @@ if ~isempty(g.freq) &&  strcmpi(g.plot, 'on')
 		axis off;
 	end
 	
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% plot selected channel head using topoplot()
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	myfprintf(g.verbose, 'Plotting scalp distributions: ')
-	for f=1:length(g.freq)
-		axes(headax(realpos(f)));
-        
-  		topodata = eegspecdB(:,freqidx(f))-nan_mean(eegspecdB(:,freqidx(f)));
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % plot selected channel head using topoplot()
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    myfprintf(g.verbose, 'Plotting scalp distributions: ')
 
-		if isnan(g.limits(5)),     
-			maplimits = 'absmax';
-		else                       
-			maplimits = [g.limits(5) g.limits(6)];
-		end
-        
-		%
-		% If 1 channel in g.plotchan
-		%
 
-        if ~isempty(g.plotchan) && g.plotchan ~= 0 
-			% if ~isempty(varargin) % if there are extra topoplot() flags
-			%	topoplot(g.plotchan,g.chanlocs,'electrodes','off', ...
-			%			 'style', 'blank', 'emarkersize1chan', 10, varargin{:});
-			% else
-				topoplot(g.plotchan,g.chanlocs,'electrodes','off', ...
-						 'style', 'blank', 'emarkersize1chan', 10);
-			% end
-			if isstruct(g.chanlocs)
-				tl=title(g.chanlocs(g.plotchan).labels);
-			else
-				tl=title([ 'c' int2str(g.plotchan)]);
-			end
-            
-		else % plot all channels in g.plotchans 
-
-            if isempty(g.mapframes) || g.mapframes(1) == 0
-                g.mapframes = 1:size(eegspecdB,1); % default to plotting all chans
-            end
-			if ~isempty(varargin)
-				topoplot(topodata(g.mapframes),g.chanlocs2,'maplimits',maplimits, varargin{:}); 
-			else
-				topoplot(topodata(g.mapframes),g.chanlocs2,'maplimits',maplimits); 
-			end
-			if f<length(g.freq)
-				tl=title([num2str(freqs(freqidx(f)), '%3.1f')]);
-			else
-				tl=title([num2str(freqs(freqidx(f)), '%3.1f') ' Hz']);
-			end
-		end
-		set(tl,'fontsize',AXES_FONTSIZE_L);
-		axis square;
-		%drawnow limitrate
-		myfprintf(g.verbose, '.');
+    if isempty(g.mapframes) || g.mapframes(1) == 0
+        g.mapframes = 1:size(eegspecdB,1); % default to plotting all chans
     end
-    drawnow
-	myfprintf(g.verbose, '\n');
+    
+
+    % beggining Ugo mods to speed up plot
+    % I plot all headmaps separately, then copy them on the main figure
+    % plots 2x as fast my PC, probably faster in other computers.
+if isnan(g.limits(5))
+    maplimits = 'absmax';
+else
+    maplimits = [g.limits(5) g.limits(6)];
+end
+
+topodata = eegspecdB(:,freqidx)-nan_mean(eegspecdB(:,freqidx));
+tic
+haspar = [];
+haspar = ver('parallel');
+if ~isempty(haspar)
+    parfor f=1:length(g.freq)
+        freqs;
+        headax;
+        maplimits;
+        %AXES_FONTSIZE_L;
+        newfig(f) = figure('tag',strcat('fig',int2str(f),currentfigtag),Visible='off');
+
+        ax(f) = axes('Tag',strcat('Ax',int2str(f),currentfigtag));
+        %,'Position',get(headax(realpos(f)),'position')
+        topodata2 = topodata;
+        %axes(headax(realpos(f)));
+        
+        if ~isempty(g.plotchan) && g.plotchan ~= 0 % If 1 channel in g.plotchan
+            % if ~isempty(varargin) % if there are extra topoplot() flags
+            %	topoplot(g.plotchan,g.chanlocs,'electrodes','off', ...
+            %			 'style', 'blank', 'emarkersize1chan', 10, varargin{:});
+            % else
+            to(f) = topoplot(g.plotchan,g.chanlocs,'electrodes','off', ...
+                'style', 'blank', 'emarkersize1chan', 10);
+            % end
+            if isstruct(g.chanlocs)
+                tl(f)=title(g.chanlocs(g.plotchan).labels);
+            else
+                tl(f)=title([ 'c' int2str(g.plotchan)]);
+            end
+        else % plot all channels in g.plotchans
+            %topodata2 = eegspecdB(:,freqidx(f))-nan_mean(eegspecdB(:,freqidx(f)));
+            %topodata2 = topodata(:,f);
+            if ~isempty(varargin)
+                to(f) = topoplot(topodata2(g.mapframes,f),g.chanlocs2,'maplimits',maplimits, varargin{:});
+            else
+                to(f) = topoplot(topodata2(g.mapframes,f),g.chanlocs2,'maplimits',maplimits);
+            end
+            if f<length(g.freq)
+                tl(f)=title([num2str(freqs(freqidx(f)), '%3.1f')],'fontsize',13);
+            else
+                tl(f)=title([num2str(freqs(freqidx(f)), '%3.1f') ' Hz'],'fontsize',13);
+            end
+        end
+        hold on;
+        %set(tl,'fontsize',AXES_FONTSIZE_L);
+        axis square;
+        axis off;
+        %drawnow limitrate
+        %myfprintf(g.verbose, '.');
+    end
+else
+    for f=1:length(g.freq)
+        freqs;
+        headax;
+        maplimits;
+        %AXES_FONTSIZE_L;
+        newfig(f) = figure('tag',strcat('fig',int2str(f),currentfigtag),Visible='off');
+
+        ax(f) = axes('Tag',strcat('Ax',int2str(f),currentfigtag));
+        %,'Position',get(headax(realpos(f)),'position')
+        topodata2 = topodata;
+        %axes(headax(realpos(f)));
+        
+        if ~isempty(g.plotchan) && g.plotchan ~= 0 % If 1 channel in g.plotchan
+            % if ~isempty(varargin) % if there are extra topoplot() flags
+            %	topoplot(g.plotchan,g.chanlocs,'electrodes','off', ...
+            %			 'style', 'blank', 'emarkersize1chan', 10, varargin{:});
+            % else
+            to(f) = topoplot(g.plotchan,g.chanlocs,'electrodes','off', ...
+                'style', 'blank', 'emarkersize1chan', 10);
+            % end
+            if isstruct(g.chanlocs)
+                tl(f)=title(g.chanlocs(g.plotchan).labels);
+            else
+                tl(f)=title([ 'c' int2str(g.plotchan)]);
+            end
+        else % plot all channels in g.plotchans
+            %topodata2 = eegspecdB(:,freqidx(f))-nan_mean(eegspecdB(:,freqidx(f)));
+            %topodata2 = topodata(:,f);
+            if ~isempty(varargin)
+                to(f) = topoplot(topodata2(g.mapframes,f),g.chanlocs2,'maplimits',maplimits, varargin{:});
+            else
+                to(f) = topoplot(topodata2(g.mapframes,f),g.chanlocs2,'maplimits',maplimits);
+            end
+            if f<length(g.freq)
+                tl(f)=title([num2str(freqs(freqidx(f)), '%3.1f')],'fontsize',13);
+            else
+                tl(f)=title([num2str(freqs(freqidx(f)), '%3.1f') ' Hz'],'fontsize',13);
+            end
+        end
+        hold on;
+        %set(tl,'fontsize',AXES_FONTSIZE_L);
+        axis square;
+        axis off;
+        %drawnow limitrate
+        %myfprintf(g.verbose, '.');
+    end
+end
+
+for f=1:length(g.freq)
+    
+    %count = count +1;
+
+    fig = findobj('tag', currentfigtag);
+
+    headplot = ax(f);
+    cmap = colormap(headplot);
+    children = ax(f).Children;
+    newtopo(f) = copyobj(headplot,fig,'legacy');
+
+    %rec(ri) = rectangle(fig,'Position',[X(ri) Y(ri) sizewx sizewy].*s+q);
+    set(newtopo(f),'Units','Normalized', 'Position',get(headax(realpos(f)),'position'),'colormap',cmap)
+    delete(headplot);
+    close(newfig(f));
+end
+    toc
+    %drawnow
+	%myfprintf(g.verbose, '\n');
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% plot independent components
