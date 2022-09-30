@@ -210,7 +210,7 @@ if ~isempty(haspar)
     parfor ri = chanorcomp
         %% plot the topoplot headmap
 
-        figure('tag',strcat('fig',int2str(ri),currentfigtag));
+        figure('tag',strcat('fig',int2str(ri),currentfigtag),Visible='off');
         ax(ri) = axes('Tag',strcat('Ax',int2str(ri),currentfigtag));
         if typecomp
             to(ri) = topoplot( ri, EEG.chanlocs, 'chaninfo', EEG.chaninfo, ...
@@ -248,7 +248,7 @@ else
     for ri = chanorcomp
         %% plot the topoplot headmap
 
-        figure('tag',strcat('fig',int2str(ri),currentfigtag));
+        figure('tag',strcat('fig',int2str(ri),currentfigtag),Visible='off');
         ax(ri) = axes('Tag',strcat('Ax',int2str(ri),currentfigtag));
         if typecomp
             to(ri) = topoplot( ri, EEG.chanlocs, 'chaninfo', EEG.chaninfo, ...
@@ -300,6 +300,9 @@ for ri = chanorcomp
     %rec(ri) = rectangle(fig,'Position',[X(ri) Y(ri) sizewx sizewy].*s+q);
     set(newtopo(ri),'Units','Normalized', 'Position',[X(ri) Y(ri) sizewx sizewy].*s+q,'colormap',cmap)
     delete(headplot);
+    newfig = findobj('tag',strcat('fig',int2str(ri),currentfigtag));
+    close(newfig);
+    %close(headplot);
 
 end
 
