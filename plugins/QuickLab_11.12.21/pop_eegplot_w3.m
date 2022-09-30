@@ -86,7 +86,7 @@
 % 2017-01-24 allow select channels/components for rejection -mb
 % 2021-11-14 altered for channel/component interpolation -ubn
 
-function com = pop_eegplot_w3( EEG, plotchannels, superpose, reject, isEpoched, topcommand, varargin)
+function [EEG,com] = pop_eegplot_w3( EEG, plotchannels, superpose, reject, isEpoched, topcommand, varargin)
 
 %% ---  setting defaults
 com = '';
@@ -245,7 +245,7 @@ else
 end
 
 if EEG.nbchan > 100
-    disp('pop_eegplot_w2() note: Baseline subtraction disabled to speed up display');
+    disp('pop_eegplot_w3() note: Baseline subtraction disabled to speed up display');
     eegplotoptions = { eegplotoptions{:} 'submean' 'off' };
 end
 
@@ -263,9 +263,9 @@ else
     end
 end
 
-%% --- run eegplot_w2!!
-    eegplot_w3( EEG, 'srate', EEG.srate, 'title', [ title 'QuickLab Data Editor! -- eegplot_w2(): ' EEG.filename], ...
+%% --- run eegplot_w3!!
+[~,EEG] = eegplot_w3( EEG, 'srate', EEG.srate, 'title', [ title 'QuickLab Data Editor! -- eegplot_w3(): ' EEG.filename], ...
              'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command,'savecommand',savecommand, 'command2', command_pc,'savecommand2',savecommand_pc, eegplotoptions{:}, varargin{:});
 
-com = [ com sprintf('pop_eegplot_w2( %s, %d, %d, %d);', inputname(1), plotchannels, superpose, reject) ];
+com = [ com sprintf('pop_eegplot_w3( %s, %d, %d, %d);', inputname(1), plotchannels, superpose, reject) ];
 return;
