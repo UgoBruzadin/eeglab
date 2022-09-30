@@ -579,8 +579,6 @@ g.freqs = freqs;
 % --- creates an invisible object that contains the g data in UserData
 fig = uicontrol(gcf, 'Style', 'text', 'UserData', g, 'Tag', 'Data', Visible='off');
 
-currentfigtag = ['topo' num2str(floor(rand*1000))]; % generate a random figure tag
-set(gcf,'tag', currentfigtag);
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % plot spectrum of each channel
@@ -608,7 +606,7 @@ if strcmpi(g.plot, 'on')
 %                 ,...
 %                 'set(findobj(''Tag'',''channel''),''String'',' int2str(index) ');...' ,...
 %                 'power,frequency = getPlotPoint(' index ')'];
-            
+
             pl(index)=plot(freqs(1:maxfreqidx),specdata(index,1:maxfreqidx)', ...
                            'color', tmpcol, 'Tag',num2str(index),'ButtonDownFcn', dispallcom,Visible='on'); hold on;
         end
