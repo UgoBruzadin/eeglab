@@ -46,7 +46,7 @@
 % ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 % THE POSSIBILITY OF SUCH DAMAGE.
 
-function [EEG, com] = eeg_eegrej2( EEG, regions, channels, chanorcomp);
+function [EEG, com] = eeg_eegrej3( EEG, regions, channels, chanorcomp);
 
 com = '';
 if nargin < 2
