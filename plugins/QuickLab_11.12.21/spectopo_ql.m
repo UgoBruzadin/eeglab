@@ -811,12 +811,10 @@ if ~isempty(g.freq) &&  strcmpi(g.plot, 'on')
         g.mapframes = 1:size(eegspecdB,1); % default to plotting all chans
     end
     
-%     for f=1:length(g.freq)
-% 
-%         figure('tag',strcat('fig',int2str(f),currentfigtag),Visible='off');
-%         ax(f) = axes('Tag',strcat('Ax',int2str(f),currentfigtag,'Position',get(headax(realpos(f)),'position')));
-%     end
 
+    % beggining Ugo mods to speed up plot
+    % I plot all headmaps separately, then copy them on the main figure
+    % plots 2x as fast my PC, probably faster in other computers.
 if isnan(g.limits(5))
     maplimits = 'absmax';
 else
@@ -937,7 +935,7 @@ for f=1:length(g.freq)
     %rec(ri) = rectangle(fig,'Position',[X(ri) Y(ri) sizewx sizewy].*s+q);
     set(newtopo(f),'Units','Normalized', 'Position',get(headax(realpos(f)),'position'),'colormap',cmap)
     delete(headplot);
-    close(findobj('tag',strcat('fig',int2str(f),currentfigtag)));
+    close(newfig(f));
 end
     toc
     %drawnow
