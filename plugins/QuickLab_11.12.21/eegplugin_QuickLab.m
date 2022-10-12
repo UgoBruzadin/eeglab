@@ -302,6 +302,8 @@ uimenu( parmenu, 'label', 'Parallel DipFit 2 Dipoles', 'callback', ...
 % end
 %%%% START MENU ADD-ONS
 
+quick_eeghack();
+
 %%% Create Commands for buttons
 
 %%% Modify ICA numbers, Filename, and add a folder line, and
