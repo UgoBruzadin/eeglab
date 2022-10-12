@@ -302,7 +302,7 @@ uimenu( parmenu, 'label', 'Parallel DipFit 2 Dipoles', 'callback', ...
 % end
 %%%% START MENU ADD-ONS
 
-quick_eeghack();
+%quick_eeghack();
 
 %%% Create Commands for buttons
 
