@@ -3331,9 +3331,16 @@ function change_scale(varargin)
 % ---------------------------------
 function mouse_down(varargin)
 fig = varargin{3};
+g = get(fig,'UserData');
 %get(fig, 'SelectionType') % prints what selection has been done
 if strcmp(get(fig, 'SelectionType'),'extend')
-    eegplot_w3('topoplot', fig);
+    if g.EEG.plotchannels
+        plot_topoplot_CHANNEL(fig,{'v'})
+    else
+        eegplot_w3('topoplot', fig);
+    end
+    
+    
     return;
 end
 %show_mocap_timer = timerfind('tag','mocapDisplayTimer'); if ~isempty(show_mocap_timer),  end% nima
