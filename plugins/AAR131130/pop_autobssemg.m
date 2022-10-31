@@ -117,7 +117,7 @@ else
 end
 selectcrit = {};
 for index = 1:length(allcrits)
-    if exist([allcrits{index}],'file') && exist([allcrits{index}],'file'),
+    if exist([allcrits{index}],'file') %&& exist([allcrits{index}],'file'),
         selectcrit = {selectcrit{:} allcrits{index}};
     end
 end
