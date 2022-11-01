@@ -376,7 +376,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    
    try g.backcolor; 		catch, g.backcolor  = [0.93 .96 1]; end
    try g.color;		        catch, g.color		= 'off'; end
-   try g.wincolor; 		    catch, g.wincolor   = [.7 1 .9]; end
+   try g.wincolor; 		    catch, g.wincolor   = DEFAULT_PLOT_INTERP; end
 
    try g.submean;			catch, g.submean	= 'on'; end
    try g.children;			catch, g.children	= 0; end
@@ -662,7 +662,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
       'YTickLabel', YLabels,...
       'XTickLabel',num2str((0:DEFAULT_GRID_SPACING:g.winlength)'),...
       'TickLength',[.005 .005],...
-      'Color',DEFAULT_PLOT_BACKGROUND,...
+      'Color','none',...
       'XColor',DEFAULT_AXIS_COLOR,...
       'YColor',DEFAULT_AXIS_COLOR,...
       'FontSize',8);
@@ -2956,7 +2956,7 @@ function draw_data(varargin)
 % Draw background
 % ---------------------------------
 function draw_background(varargin)
-
+QuickLabDefs
 if nargin >= 3
     fig = varargin{3};
 else
@@ -2992,8 +2992,11 @@ end
 
 % draw rejection windows
 % ----------------------
+
 lowlim = round(g.time*multiplier+1);
+
 highlim = round(min((g.time+g.winlength)*multiplier+1));
+
 %displaymenu = findobj('tag','displaymenu','parent',gcf);
 if ~isempty(g.winrej) && g.winstatus
 %     if g.trialstag ~= -1 % epoched data
@@ -3029,27 +3032,122 @@ if ~isempty(g.winrej) && g.winstatus
 %             end;
 %         end;
 %    else
-        event2plot1 = find ( g.winrej(:,1) >= lowlim & g.winrej(:,1) <= highlim );
-        event2plot2 = find ( g.winrej(:,2) >= lowlim & g.winrej(:,2) <= highlim );
-        event2plot3 = find ( g.winrej(:,1) <  lowlim & g.winrej(:,2) >  highlim );
+
+        %patch(ax0,[0 0 1 1],DEFAULT_FIG_COLOR);
+
+        event2plot1 = find ( g.winrej(:,1) >= lowlim & g.winrej(:,1) <= highlim ); % start events
+        event2plot2 = find ( g.winrej(:,2) >= lowlim & g.winrej(:,2) <= highlim ); % end events
+        event2plot3 = find ( g.winrej(:,1) <  lowlim & g.winrej(:,2) >  highlim ); % in between events
         event2plot  = union_bc(union(event2plot1, event2plot2), event2plot3);
-        
-        for tpmi = event2plot(:)'
-            if size(g.winrej,2) > 2
-                tmpcols  = g.winrej(tpmi,3:5);
-            else
-                tmpcols  = g.wincolor;
-            end
-            winrej=[g.winrej(tpmi,1)-lowlim g.winrej(tpmi,2)-lowlim ...
-                   g.winrej(tpmi,2)-lowlim g.winrej(tpmi,1)-lowlim];
-            patch_params={winrej, [0 0 1 1], tmpcols, 'EdgeColor', tmpcols};
+        total_winrej = g.winrej(event2plot,:);
+
+if g.trialstag ~= -1
+    alltrialtag = [0:g.trialstag:g.frames]; 
+else
+
+end
+nowinrej = [];
+lowlim2 = lowlim;
+highlim2 = highlim;
+
+%#COLORS2022
+%for tpmi = 1:(g.time+g.winlength)
+
+    for tpmi = event2plot(:)'
+        %if tpmi == event2plot
+        if size(g.winrej,2) > 2
+            tmpcols  = g.winrej(tpmi,3:5);
+        else
+            tmpcols  = g.wincolor;
+        end
+
+        winrej=[g.winrej(tpmi,1)-lowlim g.winrej(tpmi,2)-lowlim ...
+            g.winrej(tpmi,2)-lowlim g.winrej(tpmi,1)-lowlim];
+
+        patch_params={winrej, [0 0 1 1], tmpcols,'EdgeColor', tmpcols};
+
+        if verLessThan_matlab_9
+            patch(patch_params{:});
+        else
+            patch(ax0, patch_params{:});
+        end
+    end
+    count = 0;
+    if size(event2plot,1) > 0
+        % 3 ifs: for spaces before, after, and in-between events
+        %BEFORE
+        if min(total_winrej(:,1)) > lowlim
+            nowinrej = [ 0 min(total_winrej(:,1))-lowlim ...
+                min(total_winrej(:,1))-lowlim 0];
+            patch_params = {nowinrej, [0 0 1 1], DEFAULT_PLOT_BACKGROUND, 'EdgeColor',DEFAULT_PLOT_BACKGROUND};
             if verLessThan_matlab_9
                 patch(patch_params{:});
             else
                 patch(ax0, patch_params{:});
             end
+            count = count + 1;
         end
-%    end;
+        %AFTER
+        if max(total_winrej(:,2)) < highlim
+            nowinrej = unique(nowinrej,'rows');
+            nowinrej = sortrows(nowinrej,'ascend');
+            nowinrej = [ max(total_winrej(:,2))-lowlim highlim-lowlim...
+                highlim-lowlim max(total_winrej(:,2))-lowlim];
+            patch_params={nowinrej, [0 0 1 1], DEFAULT_PLOT_BACKGROUND, 'EdgeColor',DEFAULT_PLOT_BACKGROUND};
+            if verLessThan_matlab_9
+                patch(patch_params{:});
+            else
+                patch(ax0, patch_params{:});
+            end
+            count = count + 1;
+        end
+        if size(event2plot,1) > 1
+            for i = 1:size(event2plot,1)-1
+                
+                if max(total_winrej(:,2))-lowlim < highlim
+                    %reorganize total_winrej in order
+                    total_winrej = unique(total_winrej,'rows');
+                    total_winrej = sortrows(total_winrej,'ascend');
+                    %nowinrej = merge_trials(nowinrej); 
+                    nowinrej = [ total_winrej(i,2)-lowlim total_winrej((i+1),1)-lowlim...
+                        total_winrej((i+1),1)-lowlim total_winrej((i),2)-lowlim];
+                    patch_params={nowinrej, [0 0 1 1], DEFAULT_PLOT_BACKGROUND, 'EdgeColor',DEFAULT_PLOT_BACKGROUND};
+                    if verLessThan_matlab_9
+                        patch(patch_params{:});
+                    else
+                        patch(ax0, patch_params{:});
+                    end
+                end
+            end
+            count = count + 1;
+        end
+%         if count == 0
+% 
+%             nowinrej = [0 highlim ...
+%                 highlim 0];
+% 
+%             patch_params={nowinrej, [0 0 1 1], DEFAULT_PLOT_BACKGROUND, 'EdgeColor',DEFAULT_PLOT_BACKGROUND};
+% 
+%             if verLessThan_matlab_9
+%                 patch(patch_params{:});
+%             else
+%                 patch(ax0, patch_params{:});
+%             end
+%         end
+    end
+    
+
+else
+%         nowinrej = [0 highlim ...
+%         highlim 0];
+% 
+%         patch_params={nowinrej, [0 0 1 1], DEFAULT_PLOT_BACKGROUND, 'EdgeColor',DEFAULT_PLOT_BACKGROUND};
+% 
+%         if verLessThan_matlab_9
+%             patch(patch_params{:});
+%         else
+%             patch(ax0, patch_params{:});
+%         end
 end
 
 % plot tags
@@ -3434,7 +3532,7 @@ if ismember(SelectionType, {'normal', 'alt'})
                         end
                     else
                         if g.trialstag ~= -1 % find nearest trials boundaries if epoched data
-                            alltrialtag = [0:g.trialstag:g.frames]; % NEEDED FIXING, ADDED + 1 to count for trialstag variance
+                            alltrialtag = [0:g.trialstag:g.frames]; 
                             I1 = find(alltrialtag < (tmppos(1)+lowlim) );
                             if ~isempty(I1) && I1(end) ~= length(alltrialtag)
                                 g.winrej = [g.winrej' [alltrialtag(I1(end))+1 (alltrialtag(I1(end)+1)) g.wincolor zeros(1,g.chans)]']';
@@ -3453,7 +3551,7 @@ if ismember(SelectionType, {'normal', 'alt'})
                     end
                     set(fig,'UserData', g);
                     %draw_data([],[],fig,0,[],g);
-                    draw_background([],[],fig,g); % redraw background
+                    %draw_background([],[],fig,g); % redraw background
                 end
             else
                 %g = TYPING(g,1);
