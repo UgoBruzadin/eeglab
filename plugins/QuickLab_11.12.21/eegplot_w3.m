@@ -3121,33 +3121,33 @@ highlim2 = highlim;
             end
             count = count + 1;
         end
-%         if count == 0
-% 
-%             nowinrej = [0 highlim ...
-%                 highlim 0];
-% 
-%             patch_params={nowinrej, [0 0 1 1], DEFAULT_PLOT_BACKGROUND, 'EdgeColor',DEFAULT_PLOT_BACKGROUND};
-% 
-%             if verLessThan_matlab_9
-%                 patch(patch_params{:});
-%             else
-%                 patch(ax0, patch_params{:});
-%             end
-%         end
+        if count == 0
+
+            nowinrej = [0 highlim ...
+                highlim 0];
+
+            patch_params={nowinrej, [0 0 1 1], DEFAULT_PLOT_BACKGROUND, 'EdgeColor',DEFAULT_PLOT_BACKGROUND};
+
+            if verLessThan_matlab_9
+                patch(patch_params{:});
+            else
+                patch(ax0, patch_params{:});
+            end
+        end
     end
     
 
 else
-%         nowinrej = [0 highlim ...
-%         highlim 0];
-% 
-%         patch_params={nowinrej, [0 0 1 1], DEFAULT_PLOT_BACKGROUND, 'EdgeColor',DEFAULT_PLOT_BACKGROUND};
-% 
-%         if verLessThan_matlab_9
-%             patch(patch_params{:});
-%         else
-%             patch(ax0, patch_params{:});
-%         end
+        nowinrej = [0 highlim ...
+        highlim 0];
+
+        patch_params={nowinrej, [0 0 1 1], DEFAULT_PLOT_BACKGROUND, 'EdgeColor',DEFAULT_PLOT_BACKGROUND};
+
+        if verLessThan_matlab_9
+            patch(patch_params{:});
+        else
+            patch(ax0, patch_params{:});
+        end
 end
 
 % plot tags
@@ -3939,7 +3939,7 @@ if isfield(g, 'eloc_file')
     % --- Creates empty variables
     rejection_indexes = [];
     winrej = [];
-    tmpcolor = g.color{1};
+    tmpcolor = DEFAULT_PLOT_LINES;
 
     % if winrej for this channel is empty
 
