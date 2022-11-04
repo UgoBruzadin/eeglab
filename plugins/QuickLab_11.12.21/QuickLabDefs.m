@@ -20,48 +20,19 @@
 % You should have received a copy of the GNU General Public License
 % along with this program; if not, write to the Free Software
 %% COLOR DEFAULTS
-BUTTONCOLOR = [0.9 0.9 0.9];
-BACKGROUNDCOLOR = [.66 .76 1];
 
-DEFAULT_FIG_COLOR = [0.1 0.1 0.2]; % blue interpolation backgroun
-DEFAULT_FIG_COLOR2 = [0.6 0.1 0.2]; % red rejecting background
-BUTTON_COLOR = [0.2 0.2 0.2];
-DEFAULT_ON_COLOR = [0.5 1 0.5]; % green color
-DEFAULT_OFF_COLOR = [1 0.5 0.5]; % red color
-DEFAULT_SPECIAL_COLOR = [1 1 0];
-DEFAULT_AXIS_COLOR = 'w';         % X-axis, Y-axis Color, text Color
+COLOR_MODE = 'DarkMode';
+%COLOR_MODE = 'Default';
 
-DEFAULT_PLOT_BACKGROUND = [0 0 0.1];
-DEFAULT_PLOT_INTERP = [0 1 0];
-DEFAULT_PLOT_REJ = [1 0 0];
-
-DEFAULT_PLOT_LINES = [.8 .8 .3]; %darkblue
-DEFAULT_PLOT_SELECTED = [1 0 0]; %red
-
-% NORMAL
-
-DEFAULT_FIG_COLOR = [0.93 .96 1]; % blue interpolation backgroun
-DEFAULT_FIG_COLOR2 = [0.6 0.1 0.2]; % red rejecting background
-BUTTON_COLOR = [0.8 0.8 0.8];
-DEFAULT_ON_COLOR = [0.5 1 0.5]; % green color
-DEFAULT_OFF_COLOR = [1 0.5 0.5]; % red color
-DEFAULT_SPECIAL_COLOR = [1 1 0];
-DEFAULT_AXIS_COLOR = 'k';         % X-axis, Y-axis Color, text Color
-
-DEFAULT_PLOT_BACKGROUND = [1 1 1];
-DEFAULT_PLOT_INTERP = [0 1 0];
-DEFAULT_PLOT_REJ = [1 0 0];
-
-DEFAULT_PLOT_LINES = [0 0 .4]; %darkblue
-DEFAULT_PLOT_SELECTED = [1 0 0]; %red
-
-%% FILTER DEFAULTS
-HIGHPASS = 2;
-LOWPASS = 55;
-NOTCHFILTER = 60;
+c = clock;
+if c(4) >= 18 || c(4) < 5
+    COLOR_MODE = 'DarkMode';
+else
+    COLOR_MODE = 'Default';
+end
+quick_colormode;
 
 %% EEGPLOTW2 DEFAULTS
-
 
 
 %% SPECTOPO DISPLAY DEFAULTS
