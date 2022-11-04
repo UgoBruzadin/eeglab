@@ -1,0 +1,75 @@
+%function [varargout] = quick_colormode(mode)
+%QuickLabDefs;
+try
+    mode = COLOR_MODE;
+catch
+    mode = 'Default';
+end
+
+switch mode
+    case 'Default'
+
+        BACKCOLOR           = [.93 .96 1];    % EEGLAB Background figure color
+        BACKEEGLABCOLOR     = [.66 .76 1];    % EEGLAB main window background
+        GUIBUTTONCOLOR      = BACKEEGLABCOLOR;% Buttons colors in figures
+        GUIPOPBUTTONCOLOR   = BACKCOLOR;      % Buttons colors in GUI windows
+        GUIBACKCOLOR        = BACKEEGLABCOLOR;% EEGLAB GUI background color <---------
+        GUITEXTCOLOR        = [0 0 0.4];      % GUI foreground color for text
+        PLUGINMENUCOLOR     = [.5 0 .5];      % plugin menu color
+
+        DEFAULT_FIG_COLOR = [0.93 .96 1]; % blue interpolation backgroun
+        DEFAULT_FIG_COLOR2 = [1 .5 .5]; % red rejecting background
+
+        %buttons
+        BUTTON_COLOR = [0.4 0.8 0.9];
+        DEFAULT_ON_COLOR = [0.5 1 0.5]; % green color
+        DEFAULT_OFF_COLOR = [1 .5 .5]; % red color
+        DEFAULT_SPECIAL_COLOR = [1 1 0];
+        DEFAULT_SPECIAL_TEXT = [0 0 0];
+
+        %text and axes
+        DEFAULT_AXIS_COLOR = 'k';         % X-axis, Y-axis Color, text Color
+        DEFAULT_TRIAL_DIVISION = 'b--';
+        DEFAULT_PLOT_LINES = [0 0 .4]; %darkblue
+        DEFAULT_PLOT_SELECTED = [1 0 0]; %red
+
+        DEFAULT_PLOT_BACKGROUND = [1 1 1];
+        DEFAULT_PLOT_INTERP = [.7 1 .9];
+        DEFAULT_PLOT_REJ = [1 .8 .8];
+
+    case 'DarkMode'
+
+        DEFAULT_FIG_COLOR = [0.1 0.1 0.2]; % blue interpolation backgroun
+        DEFAULT_FIG_COLOR2 = [0.4 0.1 0.2]; % red rejecting background
+        BUTTON_COLOR = [0.2 0.2 0.6];
+        DEFAULT_ON_COLOR = [0.2 .6 0.2]; % green color
+        DEFAULT_OFF_COLOR = [.6 0.2 0.2]; % red color
+        DEFAULT_SPECIAL_COLOR = [1 1 0];
+        DEFAULT_SPECIAL_TEXT = [0 0 0];
+
+        DEFAULT_AXIS_COLOR = [.92 .90 .71];         % X-axis, Y-axis Color, text Color
+        DEFAULT_PLOT_COLOR = { [1 1 1], [1 1 1]};
+        DEFAULT_TRIAL_DIVISION = 'y--';
+
+        %DEFAULT_PLOT_BACKGROUND = [36 41 46]/256; weird gray
+        DEFAULT_PLOT_BACKGROUND = [0.1 0.1 0.2];
+        DEFAULT_PLOT_INTERP = [17 58 27]/256;
+        DEFAULT_PLOT_REJ = [69 12 15]/256;
+
+        % DEFAULT_PLOT_LINES = [.9 .9 .7]; %dark yellow
+        % DEFAULT_PLOT_LINES = [.82 .79 .95]; %nice blue
+        DEFAULT_PLOT_LINES = [.92 .90 .71]; %great yellow!
+        DEFAULT_EVENT_LINES = [.92 .75 .77]; %great yellow!
+        DEFAULT_PLOT_SELECTED = [1 .2 .3]; %red
+
+        BACKCOLOR           = DEFAULT_FIG_COLOR;    % EEGLAB Background figure color
+        BACKEEGLABCOLOR     = [0.2 0.2 0.6];    % EEGLAB main window background
+        GUIBUTTONCOLOR      = BACKEEGLABCOLOR;% Buttons colors in figures
+        GUIPOPBUTTONCOLOR   = BACKCOLOR;      % Buttons colors in GUI windows
+        GUIBACKCOLOR        = BACKEEGLABCOLOR;% EEGLAB GUI background color <---------
+        GUITEXTCOLOR        = [.92 .90 .71];      % GUI foreground color for text
+        PLUGINMENUCOLOR     = [.5 0 .5];      % plugin menu color
+
+        BACKGROUNDCOLOR = [0.1 0.1 0.2];
+        BACKCOLOR = BACKGROUNDCOLOR;
+end
