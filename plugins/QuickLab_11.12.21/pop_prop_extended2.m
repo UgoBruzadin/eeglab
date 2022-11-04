@@ -137,18 +137,21 @@ if chanorcomp < 1 || chanorcomp > EEG.nbchan % should test for > number of compo
 end;   
 
 % initiialize figure
-try 
+%try 
     icadefs;
-catch
-    BACKCOLOR = [0.9300 0.9600 1.0000];
-end
+    QuickLabDefs;
+    BACKGROUNDCOLOR = DEFAULT_FIG_COLOR;
+%catch
+    %BACKCOLOR = BACKGROUNDCOLOR;
+%end
+
 if typecomp
     basename = ['Channel ' EEG.chanlocs(chanorcomp).labels ];
 else
     basename = ['IC' int2str(chanorcomp) ];
 end
 fh = figure('name', [basename ' - pop_prop_extended2()'],...
-    'color', BACKCOLOR,...
+    'Color', BACKGROUNDCOLOR,...
     'numbertitle', 'off',...
     'PaperPositionMode','auto',...
     'Visible', 'off', ...
@@ -275,11 +278,11 @@ eeglab_options;
 if EEG.trials > 1 % epoched data
     axis(herp, 'off')
     EEG.times = linspace(EEG.xmin, EEG.xmax, EEG.pnts);
-    if EEG.trials < 6
-        ei_smooth = 1;
-    else
-        ei_smooth = 1;
-    end
+%     if EEG.trials < 6
+%         ei_smooth = 1;
+%     else
+         ei_smooth = 1;
+%     end
 
     if typecomp == 1 % plot channel
          offset = nan_mean(EEG.data(chanorcomp,:));
@@ -502,8 +505,22 @@ catch
 end
 % final figure adjustments
 rotate3d(fh, 'off');
-set(fh, 'color', BACKCOLOR, 'visible', 'on')
 
+set(fh, 'color', DEFAULT_FIG_COLOR, 'visible', 'on')
+textsandlines = findobj(fh,'type','Text'|'Line');
+allaxes = findobj(fh,'type','Axes');
+
+set(textsandlines,'color',DEFAULT_PLOT_LINES)
+
+for i = 1:size(allaxes,1)
+    try allaxes(i).Color = DEFAULT_FIG_COLOR; catch; end
+    allaxes(i).XColor = DEFAULT_PLOT_LINES;
+    allaxes(i).YColor = DEFAULT_PLOT_LINES;
+    child = allaxes(i).Children;
+    allchildren = findobj(child,'type','Text'|'Line');
+    try child.Color = DEFAULT_PLOT_LINES; catch; end
+    try allchildren.Color = DEFAULT_PLOT_LINES; catch; end
+end
 
 % display buttons
 % ---------------
