@@ -49,6 +49,7 @@ PLOTPERFIG = size(EEG.icawinv,2);
 com = '';
 
 QuickLabDefs;
+%COLACC = DEFAULT_FIG_COLOR;
 
 if nargin < 1
     help pop_viewprops2;
@@ -150,6 +151,7 @@ end
 
 try
     icadefs;
+    QuickLabDefs;
 catch
     BACKCOLOR = [0.8 0.8 0.8];
 end
