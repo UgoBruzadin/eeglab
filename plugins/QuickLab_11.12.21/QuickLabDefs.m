@@ -24,13 +24,14 @@
 COLOR_MODE = 'DarkMode';
 %COLOR_MODE = 'Default';
 
-c = clock;
-if c(4) >= 18 || c(4) < 5
+c = clock; %loads clock
+if c(4) >= 18 || c(4) < 5 % If after 6 PM and before 5 AM, changes color scheme to dark mode
     COLOR_MODE = 'DarkMode';
 else
     COLOR_MODE = 'Default';
 end
-quick_colormode;
+
+quick_colormode; % loads colorscheme from quick_colormode
 
 %% EEGPLOTW2 DEFAULTS
 
