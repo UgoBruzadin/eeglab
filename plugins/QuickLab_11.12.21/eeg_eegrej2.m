@@ -153,7 +153,7 @@ rejcounter = 0;
 if ~isempty(regions) % if regions are not empty
     for i=1:size(regions,1) % for the size of regions selected
        %if IS ~RED~            AND NOT ~GREEN~ OR ~WHITE~ 
-        if regions(i,3) == [1] && regions(i,4) ~= [1]       % check for red color (3) and not of interpolation
+        if regions(i,3) > regions(i,4) && regions(i,4) ~= [1]       % check for red color (3) and not of interpolation
             regions_for_interp(i-rejcounter,:) = [];        % removes from interpolation
             rejcounter = rejcounter + 1;                    % adds a counter for number of regions to reject
             regions_for_rej(rejcounter,:) = regions(i,:);   % adds region to rejection
