@@ -1202,10 +1202,10 @@ u(45) = uicontrol('Parent',figh, ...
 	'Callback', togglerej );
 
 if g.trialstag == -1
-    modecolor = DEFAULT_ON_COLOR;
+    modecolor = DEFAULT_OFF_COLOR;
     mode = 'Epoch OFF';
 else
-    modecolor = DEFAULT_OFF_COLOR;
+    modecolor = DEFAULT_ON_COLOR;
     mode = 'Epoched ON';
 end
 
@@ -1908,15 +1908,15 @@ end
   h = findobj(gcf, 'type','UICONTROL');
   set(h, 'ForegroundColor', DEFAULT_AXIS_COLOR);
   h = findobj(gcf, 'tag', 'Rejection');
-  set(h, 'backgroundcolor', [0.5 1 0.5]);
+  set(h, 'backgroundcolor', DEFAULT_ON_COLOR);
   h = findobj(gcf, 'tag', 'APPLY');
-  set(h, 'backgroundcolor', [1 1 0], 'foregroundcolor',[0 0 0]);
+  set(h, 'backgroundcolor', DEFAULT_SPECIAL_COLOR, 'foregroundcolor',DEFAULT_SPECIAL_TEXT);
   h = findobj(gcf, 'tag', 'TBT');
-  set(h, 'backgroundcolor', [1 1 0], 'foregroundcolor',[0 0 0]);
+  set(h, 'backgroundcolor', DEFAULT_SPECIAL_COLOR, 'foregroundcolor',DEFAULT_SPECIAL_TEXT);
   h = findobj(gcf, 'tag','SaveNowButton');
-  set(h, 'backgroundcolor', [1 1 0], 'foregroundcolor',[0 0 0]);
+  set(h, 'backgroundcolor', DEFAULT_SPECIAL_COLOR, 'foregroundcolor',DEFAULT_SPECIAL_TEXT);
   h = findobj(gcf, 'tag', 'SaveTagICA');
-  set(h, 'backgroundcolor', [1 1 0], 'foregroundcolor',[0 0 0]);
+  set(h, 'backgroundcolor', DEFAULT_SPECIAL_COLOR, 'foregroundcolor',DEFAULT_SPECIAL_TEXT);
   h = findobj(gcf, 'tag', 'Display');
   set(h, 'backgroundcolor', modecolor);
   h = findobj(gcf, 'tag', 'eegslider');
@@ -2027,10 +2027,10 @@ else
     if ~isempty(g.EEG.icaact)
         if g.EEG.plotchannels
             set(h,'string','EEG data ON');
-            set(h, 'BackGroundColor', [0.5 1 0.5]);
+            set(h, 'BackGroundColor', DEFAULT_ON_COLOR);
         else
-            set(h,'string','Component Data On');
-            set(h, 'BackgroundColor', [1 0.5 0.5]);
+            set(h,'string','Component Data ON');
+            set(h, 'BackgroundColor', DEFAULT_OFF_COLOR);
         end
     end
     %change_scale([],[],gcf,p1)
@@ -2131,7 +2131,7 @@ else
         g.winlength =  g.winlength / epoch;
         g.time = g.time * epoch;
         
-        set(dis,'BackgroundColor',[1 0.5 0.5]); %make display red
+        set(dis,'BackgroundColor',DEFAULT_ON_COLOR); %make display red
         set(dis,'string','Epoched ON');
         
         draw_data([],[],gcf,5,[],g);
@@ -2140,7 +2140,7 @@ else
         g.winlength = g.winlength * epoch;
         
         g.time = g.time * epoch;
-        set(dis,'BackgroundColor',[0.5 1 0.5]); %make display green
+        set(dis,'BackgroundColor',DEFAULT_OFF_COLOR); %make display green
         set(dis,'string','Epoched OFF');
 
         draw_data([],[],gcf,5,[],g);
@@ -2915,7 +2915,7 @@ function draw_data(varargin)
             chanrej = abs(chanrej - g.chans - 1);
             for i = chanrej
                 plot(ax1,abscmin+1:abscmax+1,data(g.chans-i+1,abscmin+lowlim:abscmax+lowlim) ...
-                    -meandata(g.chans-i+1)+i*g.spacing + (g.dispchans+1)*(oldspacing-g.spacing)/2 +g.elecoffset*(oldspacing-g.spacing), 'color','r','clipping','on')
+                    -meandata(g.chans-i+1)+i*g.spacing + (g.dispchans+1)*(oldspacing-g.spacing)/2 +g.elecoffset*(oldspacing-g.spacing), 'color',DEFAULT_PLOT_SELECTED,'clipping','on')
             end
         end
     end
@@ -3265,7 +3265,7 @@ if g.trialstag(1) ~= -1
     tmptag = [lowlim:highlim];
     tmpind = find(mod(tmptag-1, g.trialstag) == 0);
     for index = tmpind
-        plot(ax0, [tmptag(index)-lowlim-1 tmptag(index)-lowlim-1], [0 1], DEFAULT_TRIAL_DIVISION);
+        plot(ax0, [tmptag(index)-lowlim-1 tmptag(index)-lowlim-1], [0 1], DEFAULT_TRIAL_DIVISION); % #COLORS2022
     end
     alltag = tmptag(tmpind);
     
@@ -4393,6 +4393,13 @@ EEG = g.EEG;
                         case 'l'
                         EpochAverage = mean(exp(EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),2);
                         set(findobj(gcf,'Tag','headmap'),'String','exp Mean');
+
+                        case 'h'
+                        EpochAverage = std((EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),0,2);
+                        EpochAverage2 = std((EEG.data(:,:)),0,2);
+                        EpochAverage2 - EpochAverage;
+                        set(findobj(gcf,'Tag','headmap'),'String','Std. Dev.');
+                            
                     end
                     MeanDeviation = mean(EpochAverage);
                     EpochAverage = EpochAverage - MeanDeviation;
