@@ -21,11 +21,21 @@
 % along with this program; if not, write to the Free Software
 %% COLOR DEFAULTS
 
-COLOR_MODE = 'DarkMode';
+COLOR_MODE = 'Default';
+
+% darkmode = readtext('IsDarkmodeOn.txt');
+% if iscell(darkmode)
+%     darkmode = darkmode{:};
+% end
+% 
+% if darkmode == "YES"
+%     COLOR_MODE = 'DarkMode';
+% end
+
 %COLOR_MODE = 'Default';
 
 c = clock; %loads clock
-if c(4) >= 18 || c(4) < 5 % If after 6 PM and before 5 AM, changes color scheme to dark mode
+if c(4) >= 17 || c(4) < 5 % If after 6 PM and before 5 AM, changes color scheme to dark mode
     COLOR_MODE = 'DarkMode';
 else
     COLOR_MODE = 'Default';
