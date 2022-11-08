@@ -240,4 +240,4 @@ SC  =  ['binica.sc'];           % Master .sc script file for binica.m
                                 % in its path of script directories.
                                 % Copy to pwd to alter ICA defaults
 
-QuickLabDefs;
+try QuickLabDefs; catch; end
