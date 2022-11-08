@@ -187,9 +187,9 @@ if ~typecomp && isfield(EEG.etc, 'ic_classification') && ~isempty(classifier_nam
     barh(EEG.etc.ic_classification.(classifier_name).classifications(chanorcomp, end:-1:1), 'y')
     axis(labelax, [-xoffset, 1, 1 - yoffset, nclass + yoffset])
     set(labelax, 'YTickLabel', EEG.etc.ic_classification.(classifier_name).classes(end:-1:1), ...
-        'XGrid', 'on', 'XTick', 0:0.5:1)
+        'XGrid', 'on', 'XTick', 0:0.5:1,'XColor',DEFAULT_AXIS_COLOR,'YColor',DEFAULT_AXIS_COLOR)
     xlabel 'Probability'
-    title(classifier_name)
+    title(classifier_name,'Color',DEFAULT_PLOT_TEXT)
 
     for it = 1:nclass
        text(0.5, it, sprintf('%.1f%%', EEG.etc.ic_classification.(classifier_name).classifications(chanorcomp, end - it + 1) * 100), ...
@@ -203,24 +203,30 @@ else
 end
     
 % plot time series
-% datax = axes('Parent', fh, 'position',,'units','normalized');
+% datax = axes('Parent', fh, 'position','units','normalized');
 try
-datax = axes('Parent', fh, 'Position',scroll_position,'units','normalized');
+datax = axes('Parent', fh, 'Position',scroll_position,'units','normalized','Color',DEFAULT_PLOT_BACKGROUND,'YColor',DEFAULT_AXIS_COLOR,'XColor',DEFAULT_AXIS_COLOR);
 scrollax = uicontrol('Parent', fh, 'Style', 'Slider', ...
-    'Units', 'Normalized', 'Position', [scroll_position(1) 0.6389 scroll_position(3) 0.025]);
+    'Units', 'Normalized', 'Position', [scroll_position(1) 0.6389 scroll_position(3) 0.025]); % Color of background of line plot
 if ~scroll_event
     EEG.event = []; end
 if typecomp
-    scrollplot2(EEG.times, single(EEG.data(chanorcomp, :, :)), 5, EEG.event, fh, datax, scrollax);
-    tstitle_h = title('Channel Time Series', 'fontsize', 14, 'FontWeight', 'Normal');
+    datascroll = scrollplot2(EEG.times, single(EEG.data(chanorcomp, :, :)), 5, EEG.event, fh, datax, scrollax);
+    tstitle_h = title('Channel Time Series', 'fontsize', 14, 'FontWeight', 'Normal','Color',DEFAULT_FONT_COLOR);
 else
-    scrollplot2(EEG.times, single(icaacttmp), 5, EEG.event, fh, datax, scrollax);
-    tstitle_h = title(['Scrolling IC' int2str(chanorcomp) ' Activity'], 'fontsize', 14, 'FontWeight', 'Normal');
+    datascroll = scrollplot2(EEG.times, single(icaacttmp), 5, EEG.event, fh, datax, scrollax);
+    tstitle_h = title(['Scrolling IC' int2str(chanorcomp) ' Activity'], 'fontsize', 14, 'FontWeight', 'Normal','Color',DEFAULT_FONT_COLOR);
 end
-set(tstitle_h,'FontSize',14, 'Position', get(tstitle_h, 'Position'), 'units', 'normalized');
-set(datax,'FontSize',12);
-xlabel(datax,'Time (ms)','fontsize', 14);
-ylabel(datax,'uV');
+
+datascroll.Tag = 'DataScroll';
+datascroll.YColor = DEFAULT_AXIS_COLOR;
+datascroll.XColor = DEFAULT_AXIS_COLOR;
+
+
+set(tstitle_h,'FontSize',14, 'Position', get(tstitle_h, 'Position'), 'units', 'normalized','Color',DEFAULT_FONT_COLOR);
+set(datax,'FontSize',12,'Color',DEFAULT_PLOT_BACKGROUND);
+xlabel(datax,'Time (ms)','fontsize', 14,'Color',DEFAULT_PLOT_TEXT);
+ylabel(datax,'uV','Color',DEFAULT_PLOT_TEXT);
 catch
 end
 % plot scalp map
@@ -228,11 +234,11 @@ axes('Parent', fh, 'position',[0.0143 0.6331 0.3121 0.3267],'units','normalized'
 if typecomp
     topoplot( chanorcomp, EEG.chanlocs, 'chaninfo', EEG.chaninfo, ...
              'electrodes','off', 'style', 'blank', 'emarkersize1chan', 12); axis square;
-    title(['Channel ' EEG.chanlocs(chanorcomp).labels], 'fontsize', 14, 'FontWeight', 'Normal');
+    title(['Channel ' EEG.chanlocs(chanorcomp).labels], 'fontsize', 14, 'FontWeight', 'Normal','Color',DEFAULT_FONT_COLOR);
 else
     topoplot(EEG.icawinv(:,chanorcomp), EEG.chanlocs, ...
         'chaninfo', EEG.chaninfo, 'electrodes','on'); axis square;
-    title(['IC' num2str(chanorcomp)], 'fontsize', 14, 'FontWeight', 'Normal');
+    title(['IC' num2str(chanorcomp)], 'fontsize', 14, 'FontWeight', 'Normal','Color',DEFAULT_FONT_COLOR);
 end
 
 % plot pvaf
@@ -257,7 +263,7 @@ if ~typecomp
     pvaf = num2str(pvafval, '%3.1f');
 
     text(0.5, -0.12, {['{% scalp data var. accounted for}: ' pvaf '%']}, ...
-        'fontsize', 13,'Units','Normalized', 'HorizontalAlignment', 'center');
+        'fontsize', 13,'Units','Normalized', 'HorizontalAlignment', 'center','Color',DEFAULT_AXIS_COLOR);
 end
 
 % % plot labels
@@ -273,7 +279,7 @@ end
 
 % plot erpimage
 try
-herp = axes('Parent', fh, 'position',[0.0643 0.1102 0.2421 0.3850],'units','normalized');
+herp = axes('Parent', fh, 'position',[0.0643 0.1102 0.2421 0.3850],'units','normalized','Color',DEFAULT_AXIS_COLOR,'YColor',DEFAULT_AXIS_COLOR,'XColor',DEFAULT_AXIS_COLOR);
 eeglab_options;
 if EEG.trials > 1 % epoched data
     axis(herp, 'off')
@@ -297,8 +303,10 @@ if EEG.trials > 1 % epoched data
          [t1,t2,t3,t4,axhndls] = erpimage( icaacttmp-offset, ones(1,EEG.trials)*10000, EEG.times*1000, ...
                        '', ei_smooth, 1, 'caxis', 2/3, 'cbar','erp','erp_vltg_ticks',era_limits, erp_opt{:});   
     end;
-    title(['Epoched IC' int2str(chanorcomp) ' Activity'], 'fontsize', 14, 'FontWeight', 'Normal');
-    lab = text(1.27, .95,'RMS uV per scalp channel');
+    axhndls{1}.XColor = DEFAULT_AXIS_COLOR;axhndls{2}.XColor = DEFAULT_AXIS_COLOR;axhndls{3}.XColor = DEFAULT_AXIS_COLOR;
+    axhndls{1}.YColor = DEFAULT_AXIS_COLOR;axhndls{2}.YColor = DEFAULT_AXIS_COLOR;axhndls{3}.YColor = DEFAULT_AXIS_COLOR;
+    title(['Epoched IC' int2str(chanorcomp) ' Activity'], 'fontsize', 14, 'FontWeight', 'Normal','Color',DEFAULT_FONT_COLOR);
+    lab = text(1.27, .95,'RMS uV per scalp channel','Color',DEFAULT_FONT_COLOR);
     
 else % continuoous data
     ERPIMAGELINES = 200; % show 200-line erpimage
@@ -313,7 +321,6 @@ else % continuoous data
             ei_smooth = 3;
         end
             
-        
         erpimageframes = floor(size(EEG.data,2)/ERPIMAGELINES);
         erpimageframestot = erpimageframes*ERPIMAGELINES;
         eegtimes = linspace(0, erpimageframes-1, length(erpimageframes));
@@ -330,15 +337,17 @@ else % continuoous data
         end
         
         try 
-            ylabel(axhndls{1}, 'Data');
+            ylabel(axhndls{1}, 'Data','Color',DEFAULT_FONT_COLOR);
         catch
-            ylabel(axhndls(1), 'Data');
+            ylabel(axhndls(1), 'Data','Color',DEFAULT_FONT_COLOR);
         end
-        title('Continuous Data', 'fontsize', 14, 'FontWeight', 'Normal');
-        lab = text(1.27, .85,'RMS uV per scalp channel');
+        axhndls{1}.XColor = DEFAULT_AXIS_COLOR;axhndls{2}.XColor = DEFAULT_AXIS_COLOR;axhndls{3}.XColor = DEFAULT_AXIS_COLOR;
+        axhndls{1}.yColor = DEFAULT_AXIS_COLOR;axhndls{2}.YColor = DEFAULT_AXIS_COLOR;axhndls{3}.YColor = DEFAULT_AXIS_COLOR;
+        title('Continuous Data', 'fontsize', 14, 'FontWeight', 'Normal','Color',DEFAULT_FONT_COLOR);
+        lab = text(1.27, .85,'RMS uV per scalp channel','Color',DEFAULT_FONT_COLOR);
     else
         axis off;
-        text(0.1, 0.3, [ 'No erpimage plotted' 10 'for small continuous data']);
+        text(0.1, 0.3, [ 'No erpimage plotted' 10 'for small continuous data'],'Color',DEFAULT_FONT_COLOR);
     end
 end
 catch
@@ -363,26 +372,26 @@ if exist('axhndls', 'var')
             'Fontsize', 12)
         if ~isnan(axhndls(3))
             set(axhndls(3), 'FontSize', 12)
-            set(get(axhndls(3), 'Xlabel'), 'FontSize', 14)
+            set(get(axhndls(3), 'Xlabel'), 'FontSize', 14,'Color',DEFAULT_AXIS_COLOR)
         else
-            set(get(axhndls(1), 'Xlabel'), 'FontSize', 14)
+            set(get(axhndls(1), 'Xlabel'), 'FontSize', 14,'Color',DEFAULT_AXIS_COLOR)
         end
     end
-    set(lab, 'rotation', -90, 'FontSize', 12)
+    try set(lab, 'rotation', -90, 'FontSize', 12); catch; end
 end
 
 % plot spectrum
 try
-    hfreq = axes('Parent', fh, 'position', [0.5765 0.1109 0.3587 0.4336], 'units', 'normalized');
+    hfreq = axes('Parent', fh, 'position', [0.5765 0.1109 0.3587 0.4336], 'units', 'normalized','XColor',DEFAULT_AXIS_COLOR,'YColor',DEFAULT_AXIS_COLOR);
     if typecomp
         spectopo_ql( EEG.data(chanorcomp,:), EEG.pnts, EEG.srate, spec_opt{:} );
-        title(hfreq,'Channel Activity Power Spectrum','units','normalized', 'fontsize', 14, 'FontWeight', 'Normal');
+        title(hfreq,'Channel Activity Power Spectrum','units','normalized', 'fontsize', 14, 'FontWeight', 'Normal','Color',DEFAULT_AXIS_COLOR);
     else
         spectopo_ql( icaacttmp(1, :), EEG.pnts, EEG.srate, 'mapnorm', EEG.icawinv(:,chanorcomp), spec_opt{:} );
-        title(hfreq,['IC' int2str(chanorcomp) ' Activity Power Spectrum'],'units','normalized', 'fontsize', 14, 'FontWeight', 'Normal');
+        title(hfreq,['IC' int2str(chanorcomp) ' Activity Power Spectrum'],'units','normalized', 'fontsize', 14, 'FontWeight', 'Normal','Color',DEFAULT_AXIS_COLOR);
     end
-	set(get(hfreq, 'ylabel'), 'string', 'Power 10*log_{10}(uV^2/Hz)', 'fontsize', 14); 
-	set(get(hfreq, 'xlabel'), 'string', 'Frequency (Hz)', 'fontsize', 14, 'fontweight', 'normal'); 
+	set(get(hfreq, 'ylabel'), 'string', 'Power 10*log_{10}(uV^2/Hz)', 'fontsize', 14,'Color',DEFAULT_AXIS_COLOR); 
+	set(get(hfreq, 'xlabel'), 'string', 'Frequency (Hz)', 'fontsize', 14, 'fontweight', 'normal','Color',DEFAULT_AXIS_COLOR); 
 	set(hfreq, 'fontsize', 14, 'fontweight', 'normal');
     xlims = xlim;
     hfreqline = findobj(hfreq, 'type', 'line');
@@ -491,9 +500,9 @@ for it_dipfit_version = dipfit_order
                     / norm(EEG.dipfit.model(chanorcomp).momxyz(2,:));
                 if dmr<1
                     dmr = 1/dmr; end
-                text(-50,-173,{['RV: ' rv '%']; ['DMR:' num2str(dmr,'%.1f')]})
-            else
-                text(-50,-163,['RV: ' rv '%'])
+                text(-50,-173,{['RV: ' rv '%']; ['DMR:' num2str(dmr,'%.1f')]},'Color',DEFAULT_AXIS_COLOR)
+            elseBACKCOLOR
+                text(-50,-163,['RV: ' rv '%'],'Color',DEFAULT_AXIS_COLOR)
             end
             
             % exit loop over dipfit versions
@@ -506,21 +515,28 @@ end
 % final figure adjustments
 rotate3d(fh, 'off');
 
-set(fh, 'color', DEFAULT_FIG_COLOR, 'visible', 'on')
-textsandlines = findobj(fh,'type','Text'|'Line');
-allaxes = findobj(fh,'type','Axes');
-
-set(textsandlines,'color',DEFAULT_PLOT_LINES)
-
-for i = 1:size(allaxes,1)
-    try allaxes(i).Color = DEFAULT_FIG_COLOR; catch; end
-    allaxes(i).XColor = DEFAULT_PLOT_LINES;
-    allaxes(i).YColor = DEFAULT_PLOT_LINES;
-    child = allaxes(i).Children;
-    allchildren = findobj(child,'type','Text'|'Line');
-    try child.Color = DEFAULT_PLOT_LINES; catch; end
-    try allchildren.Color = DEFAULT_PLOT_LINES; catch; end
-end
+% set(fh, 'color', DEFAULT_FIG_COLOR, 'visible', 'on')
+% textsandlines = findobj(fh,'type','Text'|'Line');
+% allaxes = findobj(fh,'type','Axes');
+% 
+% set(textsandlines,'color',DEFAULT_PLOT_LINES)
+% 
+% for i = 1:size(allaxes,1)
+%     if i == 1 || i == 7 || i == 8
+%         try allaxes(i).Color = DEFAULT_PLOT_BACKGROUND; catch; end
+%     else
+%         try allaxes(i).Color = BACKCOLOR; catch; end
+%     end
+% 
+%     allaxes(i).XColor = DEFAULT_PLOT_LINES;
+%     allaxes(i).YColor = DEFAULT_PLOT_LINES;
+%     child = allaxes(i).Children;
+%     allchildren = findobj(child,'type','Text'|'Line');
+% 
+%     try child.Color = DEFAULT_PLOT_LINES; catch; end
+% 
+%     try allchildren.Color = DEFAULT_PLOT_LINES; catch; end
+% end
 
 % display buttons
 % ---------------
