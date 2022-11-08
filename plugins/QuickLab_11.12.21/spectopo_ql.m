@@ -555,17 +555,17 @@ end
 %set(gcf, 'WindowButtonMotionFcn', @mouse_motion);
 
 % --- Title for Frequency
-freq_text = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'power_text', 'Position', [.93 .38 .05 .05],'String','Freq');
+freq_text = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'power_text', 'Position', [.93 .38 .05 .05],'String','Freq','BackgroundColor','none','ForegroundColor',DEFAULT_FONT_COLOR);
 % --- Text Display for Frequency
-freq = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'freq', 'Position', [.93 .33 .05 .05],'String','freq');
+freq = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'freq', 'Position', [.93 .33 .05 .05],'String','freq','BackgroundColor','none','ForegroundColor',DEFAULT_FONT_COLOR);
 % --- Title for Channel Number
-channel_text = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'channel_text', 'Position', [.93 .28 .05 .05],'String','Chan');
+channel_text = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'channel_text', 'Position', [.93 .28 .05 .05],'String','Chan','BackgroundColor','none','ForegroundColor',DEFAULT_FONT_COLOR);
 % --- Text Display for Channel Number
-channel = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'channel', 'Position', [.93 .23 .05 .05],'String','channel');
+channel = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'channel', 'Position', [.93 .23 .05 .05],'String','channel','BackgroundColor','none','ForegroundColor',DEFAULT_FONT_COLOR);
 % --- Title for Power
-power_text = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'power_text', 'Position', [.93 .18 .05 .05],'String','Power');
+power_text = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'power_text', 'Position', [.93 .18 .05 .05],'String','Power','BackgroundColor','none','ForegroundColor',DEFAULT_FONT_COLOR);
 % --- Text Display for Power
-power = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'power', 'Position', [.93 .13 .05 .05],'String','power');
+power = uicontrol(gcf,'Style','text','Units','Normalized','Tag', 'power', 'Position', [.93 .13 .05 .05],'String','power','BackgroundColor','none','ForegroundColor',DEFAULT_FONT_COLOR);
 % --- Save button
 save = uicontrol(gcf,'Style', 'pushbutton', 'Units','Normalized','Tag', 'save', 'Position', [.93 .08 .05 .05],'String','Save Figure','BackgroundColor',GUIBUTTONCOLOR);
 
@@ -630,11 +630,11 @@ if strcmpi(g.plot, 'on')
         axis([freqs(minfreqidx) freqs(maxfreqidx) reallimits(1) reallimits(2)]);
     catch, disp('Could not adjust axis'); end
     xl=xlabel('Frequency (Hz)');
-    set(xl,'fontsize',AXES_FONTSIZE_L);
+    set(xl,'fontsize',AXES_FONTSIZE_L,'color',DEFAULT_AXIS_COLOR);
     % yl=ylabel('Rel. Power (dB)');
     yl=ylabel('Log Power Spectral Density 10*log_{10}(\muV^{2}/Hz)');%yl=ylabel('Power 10*log_{10}(\muV^{2}/Hz)');
-    set(yl,'fontsize',AXES_FONTSIZE_L);
-    set(gca,'fontsize',AXES_FONTSIZE_L)
+    set(yl,'fontsize',AXES_FONTSIZE_L,'Color',DEFAULT_AXIS_COLOR);
+    set(gca,'fontsize',AXES_FONTSIZE_L,'Color',DEFAULT_PLOT_BACKGROUND,'YColor',DEFAULT_AXIS_COLOR,'XColor',DEFAULT_AXIS_COLOR);
     box off;
 end
 
@@ -796,7 +796,7 @@ if ~isempty(g.freq) &&  strcmpi(g.plot, 'on')
 		else
 			colr = colrs{mod((f-2),5)+1};
 		end
-		li(realpos(f)) = plot([from(1) to(1)],[from(2) to(2)],colr,'LineWidth',PLOT_LINEWIDTH_S);
+		li(realpos(f)) = plot([from(1) to(1)],[from(2) to(2)],colr,'LineWidth',PLOT_LINEWIDTH_S,'Color',DEFAULT_PLOT_LINES);
 		axis([0 1 0 1]);
 		axis off;
 	end
@@ -823,6 +823,9 @@ end
 
 topodata = eegspecdB(:,freqidx)-nan_mean(eegspecdB(:,freqidx));
 tic
+
+fontcolor = DEFAULT_FONT_COLOR;
+
 haspar = [];
 haspar = ver('parallel');
 if ~isempty(haspar)
@@ -860,9 +863,9 @@ if ~isempty(haspar)
                 to(f) = topoplot(topodata2(g.mapframes,f),g.chanlocs2,'maplimits',maplimits);
             end
             if f<length(g.freq)
-                tl(f)=title([num2str(freqs(freqidx(f)), '%3.1f')],'fontsize',13);
+                tl(f)=title([num2str(freqs(freqidx(f)), '%3.1f')],'fontsize',13,'Color',fontcolor);
             else
-                tl(f)=title([num2str(freqs(freqidx(f)), '%3.1f') ' Hz'],'fontsize',13);
+                tl(f)=title([num2str(freqs(freqidx(f)), '%3.1f') ' Hz'],'fontsize',13,'Color',fontcolor);
             end
         end
         hold on;
@@ -907,9 +910,9 @@ else
                 to(f) = topoplot(topodata2(g.mapframes,f),g.chanlocs2,'maplimits',maplimits);
             end
             if f<length(g.freq)
-                tl(f)=title([num2str(freqs(freqidx(f)), '%3.1f')],'fontsize',13);
+                tl(f)=title([num2str(freqs(freqidx(f)), '%3.1f')],'fontsize',13,'Color',DEFAULT_FONT_COLOR);
             else
-                tl(f)=title([num2str(freqs(freqidx(f)), '%3.1f') ' Hz'],'fontsize',13);
+                tl(f)=title([num2str(freqs(freqidx(f)), '%3.1f') ' Hz'],'fontsize',13,'Color',DEFAULT_FONT_COLOR);
             end
         end
         hold on;
