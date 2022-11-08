@@ -1202,10 +1202,10 @@ u(45) = uicontrol('Parent',figh, ...
 	'Callback', togglerej );
 
 if g.trialstag == -1
-    modecolor = DEFAULT_ON_COLOR;
+    modecolor = DEFAULT_OFF_COLOR;
     mode = 'Epoch OFF';
 else
-    modecolor = DEFAULT_OFF_COLOR;
+    modecolor = DEFAULT_ON_COLOR;
     mode = 'Epoched ON';
 end
 
@@ -4100,6 +4100,12 @@ g = get(fig,'UserData');
             %plot_topoplot_CHANNEL(fig,evnt.Key)
             MarkChannel3(fig)
 
+        case {'g'} % VARIANCE
+            plot_topoplot_CHANNEL(fig,evnt.Key)
+
+        case {'h'} % VARIANCE
+            plot_topoplot_CHANNEL(fig,evnt.Key)
+
         case {'v'} % VARIANCE
             plot_topoplot_CHANNEL(fig,evnt.Key)
 
@@ -4393,6 +4399,19 @@ EEG = g.EEG;
                         case 'l'
                         EpochAverage = mean(exp(EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),2);
                         set(findobj(gcf,'Tag','headmap'),'String','exp Mean');
+
+                        case 'h'
+                        EpochAverage2 = std((EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),0,2);
+                        FullAverage = std((EEG.data(:,:)),0,2);
+                        EpochAverage = FullAverage - EpochAverage2;
+                        set(findobj(gcf,'Tag','headmap'),'String','Full - Std. Dev.');
+
+                        case 'g'
+                        %EpochAverage2 = std((EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),0,2);
+                        EpochAverage = std((EEG.data(:,:)),0,2)
+                        %EpochAverage = FullAverage - EpochAverage2;
+                        set(findobj(gcf,'Tag','headmap'),'String','Full - Std. Dev.');
+                            
                     end
                     MeanDeviation = mean(EpochAverage);
                     EpochAverage = EpochAverage - MeanDeviation;
