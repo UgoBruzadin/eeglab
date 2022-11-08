@@ -154,6 +154,7 @@ try
     QuickLabDefs;
 catch
     BACKCOLOR = [0.8 0.8 0.8];
+    DEFAULT_FONT_COLOR = [0 0 0];
 end
 
 % set up the figure
@@ -200,17 +201,19 @@ if size(EEG.icawinv, 2) ~= size(EEG.etc.ic_classification.(classifier_name).clas
     plot_labels = 0;
 end
 
-
 count = 1;
 tic
 X = zeros(length(chanorcomp),1);
 Y = zeros(length(chanorcomp),1);
+
+DEFAULT_FONT_COLOR;
 
 haspar = [];
 haspar = ver('parallel');
 if ~isempty(haspar)
     parfor ri = chanorcomp
         %% plot the topoplot headmap
+        %QuickLabDefs;
 
         figure('tag',strcat('fig',int2str(ri),currentfigtag));
         ax(ri) = axes('Tag',strcat('Ax',int2str(ri),currentfigtag));
@@ -241,11 +244,12 @@ if ~isempty(haspar)
                     t = title(sprintf('%s : %.1f%%', ...
                         EEG.etc.ic_classification.(classifier_name).classes{classind}, ...
                         prob*100));
-                    set(t, 'Position', get(t, 'Position') .* [1 -1.2 1])
+                    set(t, 'Position', get(t, 'Position') .* [1 -1.2 1],'Color',DEFAULT_FONT_COLOR);
                 end
             end
         end
     end
+
 else
     for ri = chanorcomp
         %% plot the topoplot headmap
@@ -279,7 +283,7 @@ else
                     t = title(sprintf('%s : %.1f%%', ...
                         EEG.etc.ic_classification.(classifier_name).classes{classind}, ...
                         prob*100));
-                    set(t, 'Position', get(t, 'Position') .* [1 -1.2 1])
+                    set(t, 'Position', get(t, 'Position') .* [1 -1.2 1],'Color',DEFAULT_PLOT_TEXT)
                 end
             end
         end
@@ -366,7 +370,7 @@ for ri = chanorcomp
 %             [X(ri) +sizewx*2/3 Y(ri) +sizewy sizewx/3 sizewy*0.18].*s+q,'Visible','on','Callback',checkcom);  
 
         check = uicontrol(fig, 'Style', 'checkbox','Units','Normalized','Tag',int2str(ri), 'Value',EEG.reject.gcompreject(ri),'Position',...
-            [X+sizewx*2/3 Y+sizewy sizewx/3 sizewy*0.18].*s+q,'Visible','on','Callback',checkcom); 
+            [X+sizewx*2/3 Y+sizewy sizewx/3 sizewy*0.18].*s+q,'Visible','on','Callback',checkcom,'BackgroundColor',BACKCOLOR); 
 
                         % --- edits to the topoplots
         topotag = strcat('T',checktag);
@@ -386,13 +390,13 @@ end
 toc
 %% CANCEL button
 % -------------
-cancel  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.9 0.7 0.7], 'string', 'Cancel', 'Units','Normalized','Position',[-10 -10 10 6].*s+q, 'callback', 'close(gcf);');
+cancel  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', DEFAULT_OFF_COLOR, 'string', 'Cancel', 'Units','Normalized','Position',[-10 -10 10 6].*s+q, 'callback', 'close(gcf);');
 
 % Plot ScrollPlot button
 % -------------
 commandPlot = ['pop_eegplot_w2(EEG, 2, 2, 1, 1);'];
         
-plotComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.7 0.9 0.7], 'string', 'Plot Component Scroll', 'Units','Normalized','Position',[30 -10 15 6].*s+q, 'callback', commandPlot');
+plotComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', DEFAULT_ON_COLOR, 'string', 'Plot Component Scroll', 'Units','Normalized','Position',[30 -10 15 6].*s+q, 'callback', commandPlot');
 
 %% SAVE CORRMAP button
 % -------------
@@ -402,7 +406,7 @@ commandSave = [ 'tmpstatus = get( findobj(''parent'', gcf, ''Style'', ''checkbox
         'EEG = eegh(com, EEG);'...
         'save_corrmaps(EEG)'];
         
-saveComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.7 0.9 0.7], 'string', 'Save CorrMaps', 'Units','Normalized','Position',[45 -10 15 6].*s+q, 'callback', commandSave');
+saveComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', DEFAULT_ON_COLOR, 'string', 'Save CorrMaps', 'Units','Normalized','Position',[45 -10 15 6].*s+q, 'callback', commandSave');
 
 %% Reject and run N-1 PCA button
 % -------------
@@ -464,13 +468,13 @@ end
 % -------------
 commandClear = {@selectall,0};
         
-clearComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.9 0.7 0.7], 'string', 'Clear Values', 'Units','Normalized','Position',[0 -10 10 6].*s+q, 'callback', commandClear');
+clearComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', DEFAULT_OFF_COLOR, 'string', 'Clear Values', 'Units','Normalized','Position',[0 -10 10 6].*s+q, 'callback', commandClear');
 
 % SELECT ALL button
 % -------------
 commandSelAll = {@selectall,1};
         
-selectAll = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', [0.9 0.7 0.7], 'string', 'Select All', 'Units','Normalized','Position',[10 -10 10 6].*s+q, 'callback', commandSelAll');
+selectAll = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', DEFAULT_OFF_COLOR, 'string', 'Select All', 'Units','Normalized','Position',[10 -10 10 6].*s+q, 'callback', commandSelAll');
 
 %% com for eegh
 
