@@ -302,7 +302,7 @@ if EEG.trials > 1 % epoched data
          era_limits = get_era_limits(era);
          [t1,t2,t3,t4,axhndls] = erpimage( icaacttmp-offset, ones(1,EEG.trials)*10000, EEG.times*1000, ...
                        '', ei_smooth, 1, 'caxis', 2/3, 'cbar','erp','erp_vltg_ticks',era_limits, erp_opt{:});   
-    end;
+    end
     axhndls{1}.XColor = DEFAULT_AXIS_COLOR;axhndls{2}.XColor = DEFAULT_AXIS_COLOR;axhndls{3}.XColor = DEFAULT_AXIS_COLOR;
     axhndls{1}.YColor = DEFAULT_AXIS_COLOR;axhndls{2}.YColor = DEFAULT_AXIS_COLOR;axhndls{3}.YColor = DEFAULT_AXIS_COLOR;
     title(['Epoched IC' int2str(chanorcomp) ' Activity'], 'fontsize', 14, 'FontWeight', 'Normal','Color',DEFAULT_FONT_COLOR);
@@ -440,6 +440,7 @@ for it_dipfit_version = dipfit_order
             % axial
             ax(1) = axes('Parent', fh, 'position', [0.41 0.1109 0.1 0.1557], 'units', 'normalized');
             axis equal off
+            % BUG IN THIS NEXT FUNCTION MAKES BACKGROUND BLACK
             dipplot(EEG.dipfit.model(chanorcomp), ...
                 'meshdata', meshdatapath, ...
                 'mri', mripath, ...
@@ -510,8 +511,12 @@ for it_dipfit_version = dipfit_order
         end
     end
 end
+% BUG FOR SOME REASON BACKGROUND GETS BLACK< JUST FIXING IT
+% ERROR IS IN LINE 
+set(fh,'Color',BACKGROUNDCOLOR);
 catch
 end
+
 % final figure adjustments
 rotate3d(fh, 'off');
 
@@ -548,7 +553,13 @@ if isobject(winhandle) || ~isnan(winhandle)
 	COLACC = '[0.75 1 0.75]';
     bottom = 0.005;
     height = 0.04;
-	% CANCEL button
+
+    % plot time frequency button
+    % 
+plotTFcommand = ['figure; pop_newtimef( EEG, 0, 32, [-1000  3092], [3         0.8] , ''topovec'', EEG.icawinv(:,', int2str(chanorcomp), '), ''elocs'', EEG.chanlocs, ''chaninfo'', EEG.chaninfo, ''caption'', ''[ ' strcat('IC ',int2str(chanorcomp))  ']'', ''baseline'',[0], ''plotphase'' , ''off'', ''padratio'', 1, ''winsize'', 250); '];
+h  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'Time-Frequency', 'Units','Normalized','Position',[0.45 bottom 0.12 height], 'callback', plotTFcommand);	
+
+% CANCEL button
 	% -------------
 	%h  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', GUIBUTTONCOLOR, 'string', 'Cancel', 'Units','Normalized','Position',[0.2 bottom 0.1 height], 'callback', 'close(gcf);');
 
