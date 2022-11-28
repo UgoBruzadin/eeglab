@@ -4100,6 +4100,12 @@ g = get(fig,'UserData');
             %plot_topoplot_CHANNEL(fig,evnt.Key)
             MarkChannel3(fig)
 
+        case {'g'} % VARIANCE
+            plot_topoplot_CHANNEL(fig,evnt.Key)
+
+        case {'h'} % VARIANCE
+            plot_topoplot_CHANNEL(fig,evnt.Key)
+
         case {'v'} % VARIANCE
             plot_topoplot_CHANNEL(fig,evnt.Key)
 
@@ -4395,10 +4401,16 @@ EEG = g.EEG;
                         set(findobj(gcf,'Tag','headmap'),'String','exp Mean');
 
                         case 'h'
-                        EpochAverage = std((EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),0,2);
-                        EpochAverage2 = std((EEG.data(:,:)),0,2);
-                        EpochAverage2 - EpochAverage;
-                        set(findobj(gcf,'Tag','headmap'),'String','Std. Dev.');
+                        EpochAverage2 = std((EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),0,2);
+                        FullAverage = std((EEG.data(:,:)),0,2);
+                        EpochAverage = FullAverage - EpochAverage2;
+                        set(findobj(gcf,'Tag','headmap'),'String','Full - Std. Dev.');
+
+                        case 'g'
+                        %EpochAverage2 = std((EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),0,2);
+                        EpochAverage = std((EEG.data(:,:)),0,2)
+                        %EpochAverage = FullAverage - EpochAverage2;
+                        set(findobj(gcf,'Tag','headmap'),'String','Full - Std. Dev.');
                             
                     end
                     MeanDeviation = mean(EpochAverage);
@@ -4906,7 +4918,7 @@ function g = REDO(g)
        case 2
            newcom = ['[EEG,com] = quick_IClabel(g.EEG,[],[],[],[],[''eegplot_w3(''''MERGE_REJECTION'''')'']);'];
        case 3
-           newcom = ['[EEG,com] = quick_IClabel(g.EEG,[],[],[],[],[''eegplot_w3(''''MERGE_REJECTION'''')'']);'];
+           newcom = '[EEG,com] = pop_viewprops3_par(EEG, 0, [], 1:size(EEG.icawinv,2), {''freqrange'',[2 55]},{},{'opts '});';
    end
 
    eval(newcom);
