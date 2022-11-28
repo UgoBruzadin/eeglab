@@ -133,13 +133,15 @@ if nargin < 7
 end
 
 if ~isempty(fig_opts)
-    
+    if iscell(fig_opts{1})
+        fig_opts = fig_opts{:};
+    end
     if fig_opts{1} == 2
         tmpevent = EEG.event;
-        if isempty(fig_opts{2})
+        if size(fig_opts,2) < 2
             [fig_opts{2},chanliststr] = pop_chansel( { EEG.chanlocs.labels } ); % choose channel projection
         end
-        if isempty(fig_opts{3})
+        if size(fig_opts,2) < 3
             [fig_opts{3},tmpstr] = pop_chansel(unique({ tmpevent.type })); % choose event
         end
     end
@@ -254,7 +256,7 @@ if ~isempty(haspar)
                     [A,B,C,D,axhndls]  = pop_erpimage_ql(EEG,0, [ri],[[fig_opts{2}]],'',10,1,{'type'},fig_opts{3},'','yerplabel','erp','on','cbar','off'); %,'topo', { EEG.icawinv(:,[ri]) EEG.chanlocs EEG.chaninfo } );
                     to{ri} = axhndls;
                 case 3
-                    axhndls = quick_erpimage(EEG,1);
+                    axhndls = quick_erpimage(EEG,ri);
                     to{ri} = axhndls; 
             end
         end
@@ -272,18 +274,18 @@ if ~isempty(haspar)
                      [A,B,C,D,axhndls] = pop_erpimage_ql(EEG,0, [ri],[[fig_opts{2}]],'',10,1,{'type'},fig_opts{3},'' ,'yerplabel','','erp','on','cbar','off');
                      to{ri} = axhndls;  
             case 3
-                    axhndls = quick_erpimage(EEG,1);
+                    axhndls = quick_erpimage(EEG,ri);
                     to{ri} = axhndls; 
         end
-%         checkcom = {@checkbox,int2str(ri),0};
-%         switch fig_opts{1}
-%             case 1
-%                 set(to(ri),'ButtonDownFcn', checkcom);
-%             case 2
-%                 set(to{ri},'ButtonDownFcn', checkcom);
-%             case 3
-%                 set(to{ri},'ButtonDownFcn', checkcom);
-%         end
+        checkcom = {@checkbox,int2str(ri),0};
+        switch fig_opts{1}
+            case 1
+                set(to(ri),'ButtonDownFcn', checkcom);
+            case 2
+                set(axhndls{1},'ButtonDownFcn', checkcom);
+            case 3
+                set(axhndls{1},'ButtonDownFcn', checkcom);
+        end
         axis square;
 
         % NEED TO PLOT ICLABEL
@@ -317,7 +319,7 @@ else
                     [A,B,C,D,axhndls] = pop_erpimage_ql(EEG,0, [ri],[[fig_opts{2}]],'',10,1,{'type'},fig_opts{3},'','yerplabel','erp','on','cbar','off'); %,'topo', { EEG.icawinv(:,[ri]) EEG.chanlocs EEG.chaninfo } );
                     to{ri} = axhndls; 
                 case 3
-                    axhndls = quick_erpimage(EEG,1);
+                    axhndls = quick_erpimage(EEG,ri);
                     to{ri} = axhndls; 
             end
         end
@@ -335,12 +337,19 @@ else
                     [A,B,C,D,axhndls] = pop_erpimage_ql(EEG,0, [ri],[[fig_opts{2}]],'',10,1,{'type'},fig_opts{3},'' ,'yerplabel','','erp','on','cbar','off');
                     to{ri} = axhndls;  
             case 3
-                    axhndls = quick_erpimage(EEG,1);
+                    axhndls = quick_erpimage(EEG,ri);
                     to{ri} = axhndls; 
         % end
         end
-%         checkcom = {@checkbox,int2str(ri),0};
-%         set(to(ri),'ButtonDownFcn', checkcom);
+        checkcom = {@checkbox,int2str(ri),0};
+        switch fig_opts{1}
+            case 1
+                set(to(ri),'ButtonDownFcn', checkcom);
+            case 2
+                set(axhndls(1),'ButtonDownFcn', checkcom);
+            case 3
+                set(axhndls(1),'ButtonDownFcn', checkcom);
+        end
         axis square;
 
         % NEED TO PLOT ICLABEL
@@ -399,8 +408,22 @@ for ri = chanorcomp
             set(newERPsum,'Units','Normalized', 'Position',[X(ri) Y(ri) sizewx sizewy*.2].*s+q,'colormap',cmap2);
 
             set(newERP,'ButtonDownFcn', checkcom);
+            
             delete(ERP.Parent);
             
+            if plot_labels == 1
+                if ~typecomp && isfield(EEG.etc, 'ic_classification')
+                    classifiers = fieldnames(EEG.etc.ic_classification);
+                    if ~isempty(classifiers)
+                        classifier_name = 'ICLabel';
+                        [prob, classind] = max(EEG.etc.ic_classification.(classifier_name).classifications(ri, :));
+                        t = title(newERP,sprintf('%s : %.1f%%', ...
+                            EEG.etc.ic_classification.(classifier_name).classes{classind}, ...
+                            prob*100));
+                        set(t, 'Position', get(t, 'Position') .* [1 -1.2 1],'Color',DEFAULT_FONT_COLOR);
+                    end
+                end
+            end
 
         case 3
             axhndls = to(ri); % get fig parent
@@ -413,12 +436,26 @@ for ri = chanorcomp
             cmap2 = colormap(ERPsum);
             newERP = copyobj(ERP,fig,'legacy');
             newERPsum= copyobj(ERPsum,fig,'legacy');
+            
+            set(newERP,'Units','Normalized', 'Position',[X(ri) Y(ri)+sizewy*.3 sizewx sizewy*.7].*s+q,'colormap',cmap);
+            set(newERPsum,'Units','Normalized', 'Position',[X(ri) Y(ri)+sizewy*.1 sizewx sizewy*.2].*s+q,'colormap',cmap2);
 
-            set(newERP,'Units','Normalized', 'Position',[X(ri) Y(ri)+sizewy*.2 sizewx sizewy*.8].*s+q,'colormap',cmap);
-            set(newERPsum,'Units','Normalized', 'Position',[X(ri) Y(ri) sizewx sizewy*.2].*s+q,'colormap',cmap2);
-
-            set(newERP(ri),'ButtonDownFcn', checkcom);
+            set(newERP,'ButtonDownFcn', checkcom);
             delete(ERP.Parent);
+
+            if plot_labels == 1
+                if ~typecomp && isfield(EEG.etc, 'ic_classification')
+                    classifiers = fieldnames(EEG.etc.ic_classification);
+                    if ~isempty(classifiers)
+                        classifier_name = 'ICLabel';
+                        [prob, classind] = max(EEG.etc.ic_classification.(classifier_name).classifications(ri, :));
+                        t = title(newERPsum,sprintf('%s : %.1f%%', ...
+                            EEG.etc.ic_classification.(classifier_name).classes{classind}, ...
+                            prob*100));
+                        set(t, 'Position', get(t, 'Position') .* [1 -1.2 1],'Color',DEFAULT_FONT_COLOR);
+                    end
+                end
+            end
     end
 
 end
