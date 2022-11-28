@@ -187,7 +187,7 @@
 % 03-18-02 added title -ad & sm
 % 04-04-02 added outputs -ad & sm
 
-function varargout = pop_erpimage( EEG, typeplot, channel, projchan, titleplot, smooth, decimate, sortingtype, ...
+function varargout = pop_erpimage_ql( EEG, typeplot, channel, projchan, titleplot, smooth, decimate, sortingtype, ...
             sortingwin, sortingeventfield, varargin)
  
 varargout{1} = '';
@@ -700,7 +700,6 @@ eval(com);
 if popup
 	varargout{1} = popcom; % [10 '% Call: ' com];
 end
-
 return;
 
 % get contextual help
