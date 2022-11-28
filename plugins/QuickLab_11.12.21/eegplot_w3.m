@@ -1010,8 +1010,8 @@ end
         'components, lowpass, highpass',...
         '';...
         ...
-        ['[],[]'],...
-        'reference, project to channel',...
+        ['{2,[],[]}'],...
+        'type, reference, project to channel',...
         '';...
         };
 
@@ -2177,7 +2177,7 @@ else
   case 'winelec_auto'  % change channel window size
                   % get new window length with dialog box
                   % -------------------------------------
-   fig = gcf;
+   fig = findobj('tag','eegplot_w3');
    g = get(gcf,'UserData');
    %g = THINKING(g,1);
    
@@ -2200,7 +2200,7 @@ if ~isempty(eyeaxes)
     set(eyetext,'string',num2str(g.spacing,4))
 end
    eegplot_w3('setelect');
-   eegplot_w3('updateslider', fig);
+   try eegplot_w3('updateslider', fig); catch; end
    eegplot_w3('drawp',0);	
    eegplot_w3('scaleeye', [], fig);
 
@@ -4918,7 +4918,7 @@ function g = REDO(g)
        case 2
            newcom = ['[EEG,com] = quick_IClabel(g.EEG,[],[],[],[],[''eegplot_w3(''''MERGE_REJECTION'''')'']);'];
        case 3
-           newcom = ['[EEG,com] = quick_IClabel(g.EEG,[],[],[],[],[''eegplot_w3(''''MERGE_REJECTION'''')'']);'];
+           newcom = ['[EEG,com] = pop_viewprops3_par(EEG, 0, [], 1:size(EEG.icawinv,2), {''freqrange'',[2 55]},{},{' , opt ,'});'];
    end
 
    eval(newcom);
