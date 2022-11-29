@@ -4918,7 +4918,7 @@ function g = REDO(g)
        case 2
            newcom = ['[EEG,com] = quick_IClabel(g.EEG,[],[],[],[],[''eegplot_w3(''''MERGE_REJECTION'''')'']);'];
        case 3
-           newcom = ['[EEG,com] = pop_viewprops3_par(EEG, 0, [], 1:size(EEG.icawinv,2), {''freqrange'',[2 55]},{},{' , opt ,'});'];
+           newcom = ['[EEG,com] = pop_viewprops3_par(EEG, 0, [], 1:size(EEG.icawinv,2), {''freqrange'',[2 55]},{},' , opt ,');'];
    end
 
    eval(newcom);
