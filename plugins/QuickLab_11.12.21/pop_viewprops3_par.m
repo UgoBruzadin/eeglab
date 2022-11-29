@@ -79,7 +79,6 @@ if nargin < 5 || isempty(spec_opt)
 % if nargin < 6 || isempty(erp_opt)
     erp_opt = {};
 
-
 %     
 %     promptstr    = { fastif(typecomp,'Channel indices to plot:','Component indices to plot:') ...
 %         'Spectral options (see spectopo() help):','Erpimage options (see erpimage() help):' ...
@@ -93,6 +92,7 @@ if nargin < 5 || isempty(spec_opt)
 %     
 %     % labels when available
      if ~typecomp && isfield(EEG.etc, 'ic_classification')
+         
          classifiers = fieldnames(EEG.etc.ic_classification);
          if ~isempty(classifiers)
              iclabel_ind = find(strcmpi(classifiers, 'ICLabel'));
@@ -131,7 +131,9 @@ end
 if nargin < 7
     fig_opts = {1}; % planning for 1 for headmaps, 2 for ERP, 3 for freq, 4 for dipfit
 end
-
+if isempty(fig_opts)
+    fig_opts = {1};
+end
 if ~isempty(fig_opts)
     if iscell(fig_opts{1})
         fig_opts = fig_opts{:};
@@ -160,7 +162,7 @@ currentfigtag = ['topo' num2str(floor(rand*1000))]; % generate a random figure t
 
 if length(chanorcomp) > PLOTPERFIG
     for index = 1:PLOTPERFIG:length(chanorcomp)
-        pop_viewprops2(EEG, typecomp, chanorcomp(index:min(length(chanorcomp),index+PLOTPERFIG-1)), ...
+        pop_viewprops3_par(EEG, typecomp, chanorcomp(index:min(length(chanorcomp),index+PLOTPERFIG-1)), ...
             spec_opt, erp_opt, scroll_event, classifier_name);
     end
     com = sprintf('pop_viewprops2( %s, %d, %s, %s, %s, %d, ''%s'' )', ...
@@ -245,7 +247,7 @@ if ~isempty(haspar)
     parfor ri = chanorcomp
         %% plot the topoplot headmap
         %QuickLabDefs;
-        figure('tag',strcat('fig',int2str(ri),currentfigtag));
+        figure('tag',strcat('fig',int2str(ri),currentfigtag),Visible='off');
         ax(ri) = axes('Tag',strcat('Ax',int2str(ri),currentfigtag));
         if typecomp
             switch fig_opts{1}
@@ -307,7 +309,7 @@ else
     for ri = chanorcomp
         %% plot the topoplot headmap
 
-        figure('tag',strcat('fig',int2str(ri),currentfigtag));
+        figure('tag',strcat('fig',int2str(ri),currentfigtag),Visible='off');
         ax(ri) = axes('Tag',strcat('Ax',int2str(ri),currentfigtag));
         
         if typecomp
@@ -404,11 +406,11 @@ for ri = chanorcomp
             newERP = copyobj(ERP,fig,'legacy');
             newERPsum= copyobj(ERPsum,fig,'legacy');
 
-            set(newERP,'Units','Normalized', 'Position',[X(ri) Y(ri)+sizewy*.2 sizewx sizewy*.8].*s+q,'colormap',cmap);
-            set(newERPsum,'Units','Normalized', 'Position',[X(ri) Y(ri) sizewx sizewy*.2].*s+q,'colormap',cmap2);
+            set(newERP,'Units','Normalized', 'Position',[X(ri) Y(ri)+sizewy*.3 sizewx sizewy*.7].*s+q,'colormap',cmap);
+            set(newERPsum,'Units','Normalized', 'Position',[X(ri) Y(ri)+sizewy*.1 sizewx sizewy*.2].*s+q,'colormap',cmap2);
 
             set(newERP,'ButtonDownFcn', checkcom);
-            
+
             delete(ERP.Parent);
             
             if plot_labels == 1
@@ -417,7 +419,7 @@ for ri = chanorcomp
                     if ~isempty(classifiers)
                         classifier_name = 'ICLabel';
                         [prob, classind] = max(EEG.etc.ic_classification.(classifier_name).classifications(ri, :));
-                        t = title(newERP,sprintf('%s : %.1f%%', ...
+                        t = title(newERPsum,sprintf('%s : %.1f%%', ...
                             EEG.etc.ic_classification.(classifier_name).classes{classind}, ...
                             prob*100));
                         set(t, 'Position', get(t, 'Position') .* [1 -1.2 1],'Color',DEFAULT_FONT_COLOR);
@@ -629,7 +631,7 @@ selectAll = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', DEFAULT_OFF
 
 %% com for eegh
 
-com = sprintf('pop_viewprops2( %s, %d, %s, %s, %s, %d, ''%s'' )', ...
+com = sprintf('pop_viewprops3_par( %s, %d, %s, %s, %s, %d, ''%s'' )', ...
     inputname(1), typecomp, hlp_tostring(chanorcomp), hlp_tostring(spec_opt), ...
     hlp_tostring(erp_opt), scroll_event, classifier_name);
 end
