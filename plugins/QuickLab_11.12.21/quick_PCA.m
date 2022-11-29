@@ -59,6 +59,9 @@ else
     [EEG,com] = pop_par_runica(EEG,'extended', EXTENDED,'icatype',type,'pca',IC, 'verbose',VERBOSE);
     EEG = eegh(com, EEG);
 end
+
+[EEG,com] = pop_iclabel(EEG,ICLABELDEFS(1));
+
 if disp
     [EEG,com] = quick_IClabel(EEG);
     %com = pop_eegplot_w2(EEG, 2, 2, 1, 1);
