@@ -1,4 +1,4 @@
-function [EEG,com] = quick_IClabel(EEG,minfreq,maxfreq,type,df,newcommand,fig_opts)
+function [EEG,com] = quick_IClabel(EEG,minfreq,maxfreq,type,df,newcommand,fig_opts,display)
 % [EEG,com] = quick_IClabel(EEG,minfreq,maxfreq,type) 
 %
 % Author: Ugo Bruzadin Nunes
@@ -16,6 +16,10 @@ function [EEG,com] = quick_IClabel(EEG,minfreq,maxfreq,type,df,newcommand,fig_op
 %
 % You should have received a copy of the GNU General Public License
 % along with this program; if not, write to the Free Software
+if nargin < 8
+    display = 1;
+end
+
 if nargin < 7
     fig_opts = {};
 end
@@ -58,7 +62,9 @@ end
 %     'A = fliplr([tmpstatus{:}]);'...
 %     'EEG.reject.gcompreject( num2str(chanorcomp(1)):num2str(chanorcomp(end))) = A;']
 
-[EEG,com] = pop_viewprops3_par(EEG, 0, newcommand, 1:size(EEG.icawinv,2), {'freqrange',[minfreq maxfreq]},{},fig_opts);
+if display == 1
+    [EEG,com] = pop_viewprops3_par(EEG, 0, newcommand, 1:size(EEG.icawinv,2), {'freqrange',[minfreq maxfreq]},{},fig_opts);
+end
 
 EEG = eegh(com, EEG);
 
