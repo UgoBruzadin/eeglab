@@ -759,9 +759,15 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
  
   % deprecated
   %posbut(26,:) = [ 0.93    0.25    0.080    defaultsizes(1) ]; % Plot data difference #Ugo
-  posbut(28,:) = [ 0.92    0.21    0.080    defaultsizes(2) ]; % Epoched/Continuous Mode
-  posbut(27,:) = [ 0.92    0.18    0.080    defaultsizes(2) ]; % Rejecting/Interpolating Mode  
-  posbut(51,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % Components/EEG SWITCH FUNCTION
+% original = works
+   %posbut(28,:) = [ 0.92    0.21    0.080    defaultsizes(2) ]; % Epoched/Continuous Mode
+   %posbut(27,:) = [ 0.92    0.18    0.080    defaultsizes(2) ]; % Rejecting/Interpolating Mode  
+   %posbut(51,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % Components/EEG SWITCH FUNCTION
+
+% rotated
+  posbut(28,:) = [ 0.006    0.63    0.015    0.17 ]; % Epoched/Continuous Mode
+  posbut(27,:) = [ 0.92    0.18    0.080    defaultsizes(2) ]; % Rejecting/Interpolating Mode 
+  posbut(51,:) = [ 0.006    0.80    0.015    0.15 ]; % Components/EEG SWITCH FUNCTION
 
   posbut(43,:) = [ 0.92    0.13    0.080    defaultsizes(1) ]; % RUN, TAG AND SAVE
 
@@ -1161,10 +1167,14 @@ g.scripts = ['BSS|' ...
 
 if g.EEG.plotchannels
     cmodecolor = DEFAULT_ON_COLOR;
-    cmode = 'EEG DATA ON';
+    %cmode = 'EEG DATA ON';
+    cmode = vert_string('SHOW ICA'); 
+    %cmode = ['<html>P<br />L<br />O<br />T<br /> ' ' <br /> I<br />C<br />A</html>'];
 else
     cmodecolor = DEFAULT_OFF_COLOR;
-    cmode = 'COMPONENT DATA ON';
+    %cmode = 'COMPONENT DATA ON';
+    cmode = vert_string('SHOW EEG'); 
+    %cmode = ['<html>P<br />L<br />O<br />T<br /> ' ' <br /> E<br />E<br />G</html>'];
 end
 
 u(45) = uicontrol('Parent',figh, ...
@@ -1173,6 +1183,9 @@ u(45) = uicontrol('Parent',figh, ...
 	'Tag','SWITCH',...
     'BackgroundColor',cmodecolor,...
 	'string',cmode,...
+    'fontsize',8,...
+    'HorizontalAlignment','center',...
+    'FontWeight','bold',...
 	'Callback', ['eegplot_w3(''SWITCH'')']);
 
 % u(46) = uicontrol('Parent',figh, ...
@@ -1203,10 +1216,10 @@ u(45) = uicontrol('Parent',figh, ...
 
 if g.trialstag == -1
     modecolor = DEFAULT_OFF_COLOR;
-    mode = 'Epoch OFF';
+    mode = 'SHOW EPOCH';
 else
     modecolor = DEFAULT_ON_COLOR;
-    mode = 'Epoched ON';
+    mode = vert_string('HIDE EPOCH');
 end
 
  u(28) = uicontrol('Parent',figh, ...
@@ -1215,6 +1228,8 @@ end
 	'Tag','Display',...
     'BackgroundColor',modecolor,...
 	'string',mode,...
+    'FontSize',8,...
+    'FontWeight','bold',...
 	'Callback', displayep );
 
 %% number of marked areas for control #Ugo
@@ -2026,10 +2041,12 @@ else
     h = findobj(gcf, 'tag', 'SWITCH');
     if ~isempty(g.EEG.icaact)
         if g.EEG.plotchannels
-            set(h,'string','EEG data ON');
+            %set(h,'string','EEG data ON');
+            set(h,'string',vert_string('SHOW ICA'));
             set(h, 'BackGroundColor', DEFAULT_ON_COLOR);
         else
-            set(h,'string','Component Data ON');
+            %set(h,'string','Component Data ON');
+            set(h,'string',vert_string('SHOW EEG'));
             set(h, 'BackgroundColor', DEFAULT_OFF_COLOR);
         end
     end
@@ -2132,7 +2149,7 @@ else
         g.time = g.time * epoch;
         
         set(dis,'BackgroundColor',DEFAULT_ON_COLOR); %make display red
-        set(dis,'string','Epoched ON');
+        set(dis,'string',vert_string('HIDE EPOCH'));
         
         draw_data([],[],gcf,5,[],g);
     else
@@ -2141,7 +2158,7 @@ else
         
         g.time = g.time * epoch;
         set(dis,'BackgroundColor',DEFAULT_OFF_COLOR); %make display green
-        set(dis,'string','Epoched OFF');
+        set(dis,'string',vert_string('SHOW EPOCH'));
 
         draw_data([],[],gcf,5,[],g);
     end
@@ -5918,3 +5935,14 @@ end
 %set(gcf, 'UserData', g);
 
 
+function vertstring = vert_string(string)
+
+for i = 1:length(string)
+    if i == 1
+        vertstring = strcat('<html><center>',string(i),'<br />');
+    elseif i > 1 && i < length(string)
+        vertstring = strcat(vertstring,string(i),'<br />');
+    elseif i == length(string)
+        vertstring = strcat(vertstring,string(i),'</center></html>');
+    end
+end
