@@ -680,12 +680,29 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
      %% NEW ADDED FEATURE, COPY THE MENU ITEMS FROM EEGLAB!
      
      eeglab_menus = findobj('tag','EEGLAB');
-
+     %new_menus = {};
      for i = length(eeglab_menus.Children):-1:1
          if sum(strcmp(eeglab_menus.Children(i).Type,'uimenu'))
-             copyobj(eeglab_menus.Children(i),findobj('tag','eegplot_adv'),'legacy');
+             new_menus(i) = copyobj(eeglab_menus.Children(i),findobj('tag','eegplot_adv'),'legacy');
          end
      end
+    
+    allnew_menus = findobj(new_menus);
+
+    precallback = ['g = get(findobj(''tag'',''eegplot_adv''),''Userdata''); EEG = g.EEG;'];
+    postcallback = ['set(findobj(''tag'',''eegplot_adv''),''Userdata'',EEG);'];
+    
+     for j = 1:length(allnew_menus)
+         %if strcmp(allnew_menus.Type,'uimenu')
+            try 
+                if ~isempty(allnew_menus(j).Callback)
+                    allnew_menus(j).Callback = [precallback allnew_menus(j).Callback];
+                end
+            catch; end
+         %end
+     end
+
+
 
   %% Set up uicontrols
   % %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -744,7 +761,6 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   
   posbut(40,:) = [ 0.92    0.51+r    0.040    defaultsizes(1) ]; % Run button % run code from box 1 and 2, add data to winrej, redraw
   
-  
   %posbut(32,:) = [ 0.96    0.51+r    0.040    defaultsizes(1) ]; % Apply Rejections;
   
   posbut(41,:) = [ 0.96    0.51+r    0.040    defaultsizes(1) ]; % Clear marks button
@@ -768,19 +784,24 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   %positions are, if I change up top I'll have to change here.
   headpos =     [ 0.922   0.25      0.075    0.13 ]; %position of topoplot
   matrixpos =   [ 0.92    0.25      0.080    0.10 ];  %position of matrix
-
  
   % deprecated
   %posbut(26,:) = [ 0.93    0.25    0.080    defaultsizes(1) ]; % Plot data difference #Ugo
 % original = works
-   %posbut(28,:) = [ 0.92    0.21    0.080    defaultsizes(2) ]; % Epoched/Continuous Mode
-   %posbut(27,:) = [ 0.92    0.18    0.080    defaultsizes(2) ]; % Rejecting/Interpolating Mode  
-   %posbut(51,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % Components/EEG SWITCH FUNCTION
+%    posbut(51,:) = [ 0.92    0.21    0.080    defaultsizes(2) ]; % Epoched/Continuous Mode
+%    posbut(28,:) = [ 0.92    0.18    0.080    defaultsizes(2) ]; % Rejecting/Interpolating Mode  
+%    posbut(27,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % Components/EEG SWITCH FUNCTION
 
 % rotated
-  posbut(51,:) = [ 0.006    0.80    0.015    0.15 ]; % Components/EEG SWITCH FUNCTION  
-  posbut(28,:) = [ 0.006    0.625    0.015    0.17 ]; % Epoched/Continuous Mode
-  posbut(27,:) = [ 0.006    0.45    0.015    0.17 ]; % Rejecting/Interpolating Mode 
+  posbut(51,:) = [ 0.01    0.80    0.015    0.15 ]; % Components/EEG SWITCH FUNCTION  
+  posbut(28,:) = [ 0.01    0.625    0.015    0.17 ]; % Epoched/Continuous Mode
+  posbut(27,:) = [ 0.01    0.45    0.015    0.17 ]; % Rejecting/Interpolating Mode 
+   
+
+  posbut(57,:) = [ 0.92    0.17    0.080    defaultsizes(1) ]; % Load Folder Button
+  posbut(58,:) = [ 0.92    0.14    0.080    defaultsizes(1) ]; % Folder dropmenu
+
+   %posbut(59,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % Components/EEG SWITCH FUNCTION
 
 
   posbut(43,:) = [ 0.92    0.13    0.080    defaultsizes(1) ]; % RUN, TAG AND SAVE
@@ -790,8 +811,31 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
 
   posbut(42,:) = [ 0.92    0.06    0.080    defaultsizes(1) ]; % store marks #Ugo
   posbut(13,:) = [ 0.92    0.04    0.080    defaultsizes(1) ]; % cancel/close
-  posbut(12,:) = [ 0.92    0.02    0.080    defaultsizes(1) ]; % accept/close
+  posbut(12,:) = [ 0.92    0.02    0.080    defaultsizes(2) ]; % accept/close
   
+%% NEW BUTTONS
+% load directory
+loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
+% filelist
+loadfilecommand = ['try cd(EEG.filepath); catch, end;files = dir(''*.set''); newEEG = pop_loadset(files(get(findobj(''tag'',''FolderList''),''value'')).name, pwd);com = pop_eegplot_adv(newEEG, 1, 2, 1, 1);[ALLEEG newEEG CURRENTSET] = eeg_store(ALLEEG, newEEG, CURRENTSET);'];
+
+u(58) = uicontrol('Parent',figh, ...
+	'Units', 'normalized', ...
+	'Position', posbut(58,:), ...
+    'Style','pushbutton',...
+	'Tag','load_dir',...
+	'string','Load Folder',...
+    'callback',loaddircommand);
+
+u(57) = uicontrol('Parent',figh, ...
+	'Units', 'normalized', ...
+	'Position', posbut(57,:), ...
+    'Style','popupmenu',...
+	'Tag','FolderList',...
+	'string','',...
+    'callback',loadfilecommand);
+
+eval(loaddircommand);
 
 %% Channel rejection callbacks
 % get channels for partial interpolation
@@ -1965,6 +2009,9 @@ end
 else
   try p1 = varargin{1}; p2 = varargin{2}; catch, end;
   switch data
+
+  case 'RESET'
+     g = loadnewfile(EEG);
 
   case 'MERGE_REJECTION'
     tmpstatus = get(findobj('parent', gcf, 'Style', 'checkbox'), 'value');
@@ -5118,6 +5165,7 @@ function g = REDO(g)
    ax1 = findobj('tag','eegaxis','parent',gcf); % axes handle
    set(ax1,'UserData',g.data);
 
+   % ONE OF THESE LOWER FUNCTIONS - PROBABLY WHERE THERE IS A BUG! UGO BUG 12-19-2022
    draw_data([],[],gcf,9,[],g);
    eegplot_adv('setelect');
    eegplot_adv('winelec_auto');
@@ -5750,9 +5798,18 @@ DEFAULT_AXES_POSITION = [0.05 0.03 0.865 1-(MAXEVENTSTRING-4)/100]; %[0.095 0.35
 function g = make_eloc_file(g)
 
 % this function remakes the g based on the current EEG,
-% specifically, eloc_file, events, frames, chans, data,
+% specifically, eloc_file, events, frames, chans, data, etc!
 
 EEG = g.EEG;
+
+% change filename on the figure title.
+fig = findobj('tag','eegplot_adv');
+set(fig,'Name',['Advanced EEG Data Editor by Ugo Bruzadin Nunes -- eegplot_adv(): ',EEG.filename]);
+
+% change folder and file name on the dropmenu
+loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
+eval(loaddircommand);
+
 elecrange = [1:EEG.nbchan];
 
 if ~isempty( EEG.icasphere )
@@ -5963,3 +6020,44 @@ for i = 1:length(string)
         vertstring = strcat(vertstring,string(i),'</center></html>');
     end
 end
+
+
+function g = loadnewfile(EEG)
+   
+   fig = findobj('tag','eegplot_adv');
+   g = get(fig,'UserData');
+
+   g.EEG = EEG;
+
+   if ~isfield(g.EEG,'suffix'); g.EEG.suffix = ''; end
+   
+   %g.NEW = NEW;
+    
+   if g.EEG.plotchannels == 1
+       g.data = EEG.data;
+   else
+       if ~isempty(EEG.icaact)
+           g.data = EEG.icaact;
+       else
+           g = SWITCH(g);
+       end
+   end
+   %GET ICA DATA AS WELL
+
+   % make new eloc_file based on new channels/components
+   g = make_eloc_file(g);
+   %g.winrej = []; g.winrej_pc = []; g.winrej_ch = [];
+
+   % make suffix, store the bool of a NEW vs OLD data.
+   fprintf(strcat('Showing processed dataset after running:', newcom, com, '/r'));
+  
+   % store and draw data
+   set(fig,'UserData',g);
+   ax1 = findobj('tag','eegaxis','parent',fig); % axes handle
+   set(ax1,'UserData',g.data);
+
+   % ONE OF THESE LOWER FUNCTIONS - PROBABLY WHERE THERE IS A BUG! UGO BUG 12-19-2022
+   draw_data([],[],gcf,9,[],g);
+   eegplot_adv('setelect');
+   eegplot_adv('winelec_auto');
+
