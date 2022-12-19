@@ -684,6 +684,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
      for i = length(eeglab_menus.Children):-1:1
          if sum(strcmp(eeglab_menus.Children(i).Type,'uimenu'))
              new_menus(i) = copyobj(eeglab_menus.Children(i),findobj('tag','eegplot_adv'),'legacy');
+             new_menus(i).ForegroundColor = [0 0 .5];
          end
      end
     
@@ -693,9 +694,13 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
     postcallback = ['set(findobj(''tag'',''eegplot_adv''),''Userdata'',EEG);'];
     
      for j = 1:length(allnew_menus)
-         if ~isempty(allnew_menus(j).Callback)
-            allnew_menus(j).Callback = [precallback allnew_menus(j).Callback];
-         end
+         %if strcmp(allnew_menus.Type,'uimenu')
+            try 
+                if ~isempty(allnew_menus(j).Callback)
+                    allnew_menus(j).Callback = [precallback allnew_menus(j).Callback];
+                end
+            catch; end
+         %end
      end
 
 
@@ -788,14 +793,14 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
 %    posbut(28,:) = [ 0.92    0.18    0.080    defaultsizes(2) ]; % Rejecting/Interpolating Mode  
 %    posbut(27,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % Components/EEG SWITCH FUNCTION
 
-% rotated
+% rotated  new vertical buttons
   posbut(51,:) = [ 0.01    0.80    0.015    0.15 ]; % Components/EEG SWITCH FUNCTION  
   posbut(28,:) = [ 0.01    0.625    0.015    0.17 ]; % Epoched/Continuous Mode
   posbut(27,:) = [ 0.01    0.45    0.015    0.17 ]; % Rejecting/Interpolating Mode 
    
 
-  posbut(57,:) = [ 0.92    0.17    0.080    defaultsizes(1) ]; % Load Folder Button
-  posbut(58,:) = [ 0.92    0.14    0.080    defaultsizes(1) ]; % Folder dropmenu
+  posbut(57,:) = [ 0.92    0.17    0.080    defaultsizes(1) ]; % Folder dropmenu
+  posbut(58,:) = [ 0.92    0.21    0.080    defaultsizes(1) ]; % Folder Text/title
 
    %posbut(59,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % Components/EEG SWITCH FUNCTION
 
@@ -805,9 +810,10 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   posbut(44,:) = [ 0.92    0.11    0.080    defaultsizes(1) ]; % SAVE TEXT EDIT
   posbut(45,:) = [ 0.92    0.08    0.080    defaultsizes(1) ]; % SAVE FILE BUTTON
 
-  posbut(42,:) = [ 0.92    0.06    0.080    defaultsizes(1) ]; % store marks #Ugo
-  posbut(13,:) = [ 0.92    0.04    0.080    defaultsizes(1) ]; % cancel/close
-  posbut(12,:) = [ 0.92    0.02    0.080    defaultsizes(2) ]; % accept/close
+  posbut(42,:) = [ 0.92    0.06    0.080    defaultsizes(1) ]; % store marks, transfer to eeglab #Ugo
+  posbut(13,:) = [ 0.92    0.04    0.080    defaultsizes(2) ]; % cancel/close
+
+  %posbut(12,:) = [ 0.92    0.02    0.080    defaultsizes(2) ]; % accept/close
   
 %% NEW BUTTONS
 % load directory
@@ -818,7 +824,7 @@ loadfilecommand = ['try cd(EEG.filepath); catch, end;files = dir(''*.set''); new
 u(58) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
 	'Position', posbut(58,:), ...
-    'Style','pushbutton',...
+    'Style','text',...
 	'Tag','load_dir',...
 	'string','Load Folder',...
     'callback',loaddircommand);
@@ -906,7 +912,7 @@ u(50) = uicontrol('Parent',figh, ...
 	'Position', posbut(45,:), ...
     'Style','pushbutton',...
 	'Tag','SaveNowButton',...
-	'string','+Save To File',...
+	'string','Save File + Text',...
     'callback',['eegplot_adv(''SAVE'')']);
 
 %% heatmap title
@@ -1588,7 +1594,7 @@ end
 	'Position', posbut(42,:), ...
 	'Tag','SaveButton',...
     'BackgroundColor',[.5 1 0.5],...
-	'string','Store Marks to eeglab',...
+	'string','Transfer to EEGLAB',...
 	'Callback', savecommand );
   end
 
@@ -5794,13 +5800,17 @@ DEFAULT_AXES_POSITION = [0.05 0.03 0.865 1-(MAXEVENTSTRING-4)/100]; %[0.095 0.35
 function g = make_eloc_file(g)
 
 % this function remakes the g based on the current EEG,
-% specifically, eloc_file, events, frames, chans, data,
+% specifically, eloc_file, events, frames, chans, data, etc!
 
 EEG = g.EEG;
 
+% change filename on the figure title.
 fig = findobj('tag','eegplot_adv');
+set(fig,'Name',['Advanced EEG Data Editor by Ugo Bruzadin Nunes -- eegplot_adv(): ',EEG.filename]);
 
-set(fig,'Name','Advanced Data Editor')
+% change folder and file name on the dropmenu
+loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
+eval(loaddircommand);
 
 elecrange = [1:EEG.nbchan];
 
