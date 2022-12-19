@@ -691,13 +691,13 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
     allnew_menus = findobj(new_menus);
 
     precallback = ['g = get(findobj(''tag'',''eegplot_adv''),''Userdata''); EEG = g.EEG;'];
-    postcallback = ['set(findobj(''tag'',''eegplot_adv''),''Userdata'',EEG);'];
+    postcallback = ['fig = findobj(''tag'',''eegplot_adv''); g = get(fig,''Userdata''); g.EEG = EEG; set(fig,''Userdata'',g); eegplot_adv(''RESET'')'];
     
      for j = 1:length(allnew_menus)
          %if strcmp(allnew_menus.Type,'uimenu')
             try 
                 if ~isempty(allnew_menus(j).Callback)
-                    allnew_menus(j).Callback = [precallback allnew_menus(j).Callback];
+                    allnew_menus(j).Callback = [precallback allnew_menus(j).Callback postcallback];
                 end
             catch; end
          %end
@@ -710,42 +710,60 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
 
   defaultsizes = [0.02,0.03,0.04,0.05];
 
-  r = .0;
+  r = -.02;
 
 % positions of buttons
 %                  bottom  left    width    heigth
 % numbers go from 1 and end at 47 (need to be reorganized)
-  posbut(22,:) = [ 0.92    0.98    0.080    defaultsizes(1) ]; % stack channels(same offset)  
-  posbut(21,:) = [ 0.92    0.96    0.080    defaultsizes(1) ]; % normalize
-  posbut(17,:) = [ 0.92    0.94    0.080    defaultsizes(1) ]; % events types
+  posbut(22,:) = [ 0.92    0.98    0.040    defaultsizes(1) ]; % stack channels(same offset)  
+  posbut(21,:) = [ 0.92    0.96    0.040    defaultsizes(1) ]; % normalize
+  posbut(17,:) = [ 0.92    0.94    0.040    defaultsizes(1) ]; % events types
   
-  posbut(14,:) = [ 0.92    0.92    0.080    defaultsizes(1) ]; % elec tag
-  posbut(7,:) =  [ 0.92    0.90    0.080    defaultsizes(1) ]; % elec
+  posbut(14,:) = [ 0.92    0.92    0.040    defaultsizes(1) ]; % elec tag
+  posbut(7,:) =  [ 0.92    0.90    0.040    defaultsizes(1) ]; % elec
   
-  posbut(16,:) = [ 0.92    0.88    0.080    defaultsizes(1) ]; % value tag
-  posbut(9,:) =  [ 0.92    0.86    0.080    defaultsizes(1) ]; % value
+  posbut(16,:) = [ 0.92    0.88    0.040    defaultsizes(1) ]; % value tag
+  posbut(9,:) =  [ 0.92    0.86    0.040    defaultsizes(1) ]; % value
   
-  posbut(15,:) = [ 0.92    0.84    0.080    defaultsizes(1) ]; % g.time tag
-  posbut(8,:) =  [ 0.92    0.82    0.080    defaultsizes(1) ]; % g.time   
-    
-  posbut(5,:) =  [ 0.92    0.80    0.080    defaultsizes(1) ]; % Eposition .52
-   posbut(46,:) =  [ 0.92    0.78    0.010    defaultsizes(1) ]; % |<<  % NEW UGO
-  posbut(1,:) =  [ 0.93    0.78    0.015    defaultsizes(1) ]; % <<  
-  posbut(2,:) =  [ 0.945    0.78    0.015    defaultsizes(1) ]; % <  
-  posbut(3,:) =  [ 0.96    0.78    0.015    defaultsizes(1) ]; % >
-  posbut(4,:) =  [ 0.975    0.78    0.015    defaultsizes(1) ]; % >>  
-   posbut(47,:) =  [ 0.99    0.78    0.010    defaultsizes(1) ]; % >>|  % NEW UGO
+  posbut(15,:) = [ 0.92    0.84    0.040    defaultsizes(1) ]; % g.time tag
+  posbut(8,:) =  [ 0.92    0.82    0.040    defaultsizes(1) ]; % g.time   
 
-  posbut(23,:) = [ 0.92    0.76    0.040    defaultsizes(1) ]; % Espacing/scale tag
-  posbut(6,:) =  [ 0.92    0.74    0.040    defaultsizes(1) ]; % Espacing/scale  
+% New file description text (needs to be changed whenver file is modified in
+% make_eloc_file)
 
-   posbut(48,:) = [ 0.96    0.76    0.040    defaultsizes(1) ]; % NumChan tag % NEW UGO
-   posbut(49,:) = [ 0.96    0.74    0.040    defaultsizes(1) ]; % NumChan % NEW UGO
+  posbut(60,:) = [ 0.96    0.98    0.040    defaultsizes(1) ]; % Number of Channels tag
+  posbut(61,:) = [ 0.96    0.96    0.040    defaultsizes(1) ]; % Number of Channels
+  
+  posbut(62,:) = [ 0.96    0.94    0.040    defaultsizes(1) ]; % Frames/Sampling Rate tag
+  posbut(63,:) = [ 0.96    0.92    0.040    defaultsizes(1) ]; % Frames/Sampling Rate
 
-  posbut(52,:) = [ 0.96    0.72    0.040    defaultsizes(1) ]; % Reset chan numbers to max auto % NEW UGO
+  posbut(64,:) = [ 0.96    0.90    0.040    defaultsizes(1) ]; % Epochs/Events tag
+  posbut(65,:) = [ 0.96    0.88    0.040    defaultsizes(1) ]; % Epochs/Events
 
-  posbut(10,:) = [ 0.94    0.72    0.020    defaultsizes(1) ]; % +  
-  posbut(11,:) = [ 0.92    0.72    0.020    defaultsizes(1) ]; % -  
+  posbut(66,:) = [ 0.96    0.86    0.040    defaultsizes(1) ]; % Epoch Start/End tag
+  posbut(67,:) = [ 0.96    0.84    0.040    defaultsizes(1) ]; % Epoch Start/End
+
+  posbut(68,:) = [ 0.96    0.82    0.040    defaultsizes(1) ]; %  ICA weights/rank tag
+  posbut(69,:) = [ 0.96    0.80    0.040    defaultsizes(1) ]; %  ICA weights/rank
+
+  posbut(5,:) =  [ 0.92    0.78    0.080    defaultsizes(1) ]; % Eposition .52
+  posbut(46,:) = [ 0.92    0.76    0.010    defaultsizes(1) ]; % |<<  % NEW UGO
+  posbut(1,:) =  [ 0.93    0.76    0.015    defaultsizes(1) ]; % <<  
+  posbut(2,:) =  [ 0.945   0.76    0.015    defaultsizes(1) ]; % <  
+  posbut(3,:) =  [ 0.96    0.76    0.015    defaultsizes(1) ]; % >
+  posbut(4,:) =  [ 0.975   0.76    0.015    defaultsizes(1) ]; % >>  
+  posbut(47,:) = [ 0.99    0.76    0.010    defaultsizes(1) ]; % >>|  % NEW UGO
+
+  posbut(23,:) = [ 0.92    0.74    0.040    defaultsizes(1) ]; % Espacing/scale tag
+  posbut(6,:) =  [ 0.92    0.72    0.040    defaultsizes(1) ]; % Espacing/scale  
+
+   posbut(48,:) = [ 0.96    0.74    0.040    defaultsizes(1) ]; % NumChan tag % NEW UGO
+   posbut(49,:) = [ 0.96    0.72    0.040    defaultsizes(1) ]; % NumChan % NEW UGO
+
+  posbut(52,:) = [ 0.96    0.70    0.040    defaultsizes(1) ]; % Reset chan numbers to max auto % NEW UGO
+
+  posbut(10,:) = [ 0.94    0.70    0.020    defaultsizes(1) ]; % +  
+  posbut(11,:) = [ 0.92    0.70    0.020    defaultsizes(1) ]; % -  
   
   posbut(20,:) = [ 0.005   0.02    0.010    0.96 ]; % slider  
   
@@ -778,13 +796,12 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
 
   posbut(32,:) = [ 0.92    0.40+r    0.080    defaultsizes(2) ]; % Apply Rejections;
 
-
-  posbut(24,:) = [ 0.92    0.38+r    0.080    defaultsizes(1) ]; % Topoplot title
+  posbut(24,:) = [ 0.92    0.38+r    0.080    defaultsizes(1) ]; % Topoplot tag
 
   %this doesnt do anything, just a place so I can remember what the
   %positions are, if I change up top I'll have to change here.
-  headpos =     [ 0.922   0.25      0.075    0.13 ]; %position of topoplot
-  matrixpos =   [ 0.92    0.25      0.080    0.10 ];  %position of matrix
+  g.headpos =     [ 0.922   0.25+r      0.075    0.13 ]; %position of topoplot
+  g.matrixpos =   [ 0.92    0.25+r      0.080    0.13 ];  %position of matrix
  
   % deprecated
   %posbut(26,:) = [ 0.93    0.25    0.080    defaultsizes(1) ]; % Plot data difference #Ugo
@@ -798,36 +815,80 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   posbut(28,:) = [ 0.01    0.625    0.015    0.17 ]; % Epoched/Continuous Mode
   posbut(27,:) = [ 0.01    0.45    0.015    0.17 ]; % Rejecting/Interpolating Mode 
    
-
   posbut(57,:) = [ 0.92    0.17    0.080    defaultsizes(1) ]; % Folder dropmenu
-  posbut(58,:) = [ 0.92    0.21    0.080    defaultsizes(1) ]; % Folder Text/title
+  posbut(58,:) = [ 0.92    0.19    0.080    defaultsizes(1) ]; % Folder tag
 
    %posbut(59,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % Components/EEG SWITCH FUNCTION
+  
+  %posbut(43,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % RUN, TAG AND SAVE
+  posbut(59,:) = [ 0.92    0.14    0.080    defaultsizes(1) ]; % Save text tag
+  posbut(44,:) = [ 0.92    0.12    0.080    defaultsizes(1) ]; % SAVE TEXT EDIT
+  posbut(45,:) = [ 0.92    0.09    0.080    defaultsizes(2) ]; % SAVE FILE BUTTON
 
-
-  posbut(43,:) = [ 0.92    0.13    0.080    defaultsizes(1) ]; % RUN, TAG AND SAVE
-
-  posbut(44,:) = [ 0.92    0.11    0.080    defaultsizes(1) ]; % SAVE TEXT EDIT
-  posbut(45,:) = [ 0.92    0.08    0.080    defaultsizes(1) ]; % SAVE FILE BUTTON
-
-  posbut(42,:) = [ 0.92    0.06    0.080    defaultsizes(1) ]; % store marks, transfer to eeglab #Ugo
-  posbut(13,:) = [ 0.92    0.04    0.080    defaultsizes(2) ]; % cancel/close
+  posbut(42,:) = [ 0.92    0.06    0.080    defaultsizes(2) ]; % store marks, transfer to eeglab #Ugo
+  posbut(13,:) = [ 0.92    0.03    0.080    defaultsizes(2) ]; % cancel/close
 
   %posbut(12,:) = [ 0.92    0.02    0.080    defaultsizes(2) ]; % accept/close
   
+%% NEW TEXT FOR THE CURRENT EEGLAB FILE
+        
+u(60) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(60,:),'Style','text','FontSize',8,...
+	'Tag','Number of Channels tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','#Chans/Ref');
+
+u(61) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(61,:),'Style','text','FontSize',10,...
+	'Tag','Number of Channels','BackgroundColor',DEFAULT_FIG_COLOR,'string',strcat(num2str(EEG.nbchan),'/',EEG.ref));
+
+u(62) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(62,:),'Style','text','FontSize',8,...
+	'Tag','Frames tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','Frames/Rate');
+
+u(63) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(63,:),'Style','text','FontSize',10,...
+	'Tag','Frames','BackgroundColor',DEFAULT_FIG_COLOR,'string',strcat(num2str(EEG.pnts),'/',num2str(EEG.srate)));
+
+u(64) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(64,:),'Style','text','FontSize',8,...
+	'Tag','Epochs tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','Epochs/Events');
+
+u(65) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(65,:),'Style','text','FontSize',10,...
+	'Tag','Epochs','BackgroundColor',DEFAULT_FIG_COLOR,'string',strcat(num2str(EEG.trials),'/',num2str(size(EEG.event,2))));
+
+u(66) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(66,:),'Style','text','FontSize',8,...
+	'Tag','Epochs time tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','start/end');
+
+u(67) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(67,:),'Style','text','FontSize',10,...
+	'Tag','Epochs time','BackgroundColor',DEFAULT_FIG_COLOR,'string',strcat(num2str(EEG.xmin),'/', num2str(EEG.xmax)));
+
+u(68) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(68,:),'Style','text','FontSize',8,...
+	'Tag','ICA weights tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','ICA/rank');
+
+tmpdata = reshape( EEG.data(1:EEG.nbchan,:,:), EEG.nbchan, EEG.pnts*EEG.trials);
+tmpdata = tmpdata - repmat(mean(tmpdata,2), [1 size(tmpdata,2)]); % zero mean
+tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
+
+u(69) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(69,:),'Style','text','FontSize',8,...
+	'Tag','ICA weights','BackgroundColor',DEFAULT_FIG_COLOR,'string',strcat(num2str(size(EEG.icaact,1)),'/', num2str(tmprank)));
+
 %% NEW BUTTONS
 % load directory
 loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
 % filelist
 loadfilecommand = ['try cd(EEG.filepath); catch, end;files = dir(''*.set''); newEEG = pop_loadset(files(get(findobj(''tag'',''FolderList''),''value'')).name, pwd);com = pop_eegplot_adv(newEEG, 1, 2, 1, 1);[ALLEEG newEEG CURRENTSET] = eeg_store(ALLEEG, newEEG, CURRENTSET);'];
 
+u(59) = uicontrol('Parent',figh, ...
+	'Units', 'normalized', ...
+	'Position', posbut(59,:), ...
+    'Style','text',...
+    'FontSize',8,...
+	'Tag','save_file_title',...
+    'BackgroundColor',DEFAULT_FIG_COLOR, ...
+	'string','Enter text: add to filename');
+
 u(58) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
 	'Position', posbut(58,:), ...
     'Style','text',...
-	'Tag','load_dir',...
-	'string','Load Folder',...
-    'callback',loaddircommand);
+    'FontSize',8,...
+	'Tag','load_dir_title',...
+    'BackgroundColor',DEFAULT_FIG_COLOR, ...
+	'string','Select File to Load');
 
 u(57) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -912,14 +973,14 @@ u(50) = uicontrol('Parent',figh, ...
 	'Position', posbut(45,:), ...
     'Style','pushbutton',...
 	'Tag','SaveNowButton',...
-	'string','Save File + Text',...
+	'string','Save File with Text',...
     'callback',['eegplot_adv(''SAVE'')']);
 
 %% heatmap title
   u(24) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
 	'Position', posbut(24,:), ...
-    'BackgroundColor',DEFAULT_PLOT_BACKGROUND, ...
+    'BackgroundColor',DEFAULT_FIG_COLOR, ...
 	'Style','text', ...
     'FontSize',8, ...
 	'Tag','headmap',...
@@ -1980,26 +2041,26 @@ end
 
   % set button colors #Ugo #COLORS 
 
-  h = findobj(gcf, 'style', 'pushbutton');
+  h = findobj(figh, 'style', 'pushbutton');
   set(h, 'backgroundcolor', BUTTON_COLOR);
-  h = findobj(gcf, 'type','UICONTROL');
+  h = findobj(figh, 'type','UICONTROL');
   set(h, 'ForegroundColor', DEFAULT_AXIS_COLOR);
-  h = findobj(gcf, 'tag', 'Rejection');
+  h = findobj(figh, 'tag', 'Rejection');
   set(h, 'backgroundcolor', DEFAULT_ON_COLOR);
-  h = findobj(gcf, 'tag', 'APPLY');
+  h = findobj(figh, 'tag', 'APPLY');
   set(h, 'backgroundcolor', DEFAULT_SPECIAL_COLOR, 'foregroundcolor',DEFAULT_SPECIAL_TEXT);
-  h = findobj(gcf, 'tag', 'TBT');
+  h = findobj(figh, 'tag', 'TBT');
   set(h, 'backgroundcolor', DEFAULT_SPECIAL_COLOR, 'foregroundcolor',DEFAULT_SPECIAL_TEXT);
-  h = findobj(gcf, 'tag','SaveNowButton');
+  h = findobj(figh, 'tag','SaveNowButton');
   set(h, 'backgroundcolor', DEFAULT_SPECIAL_COLOR, 'foregroundcolor',DEFAULT_SPECIAL_TEXT);
-  h = findobj(gcf, 'tag', 'SaveTagICA');
+  h = findobj(figh, 'tag', 'SaveTagICA');
   set(h, 'backgroundcolor', DEFAULT_SPECIAL_COLOR, 'foregroundcolor',DEFAULT_SPECIAL_TEXT);
-  h = findobj(gcf, 'tag', 'Display');
+  h = findobj(figh, 'tag', 'Display');
   set(h, 'backgroundcolor', modecolor);
-  h = findobj(gcf, 'tag', 'eegslider');
+  h = findobj(figh, 'tag', 'eegslider');
   set(h, 'backgroundcolor', BUTTON_COLOR);
   set(figh, 'visible', 'on');
-  h = findobj(gcf, 'tag', 'SWITCH');
+  h = findobj(figh, 'tag', 'SWITCH');
   set(h, 'backgroundcolor', cmodecolor);
 
   update_trial_rejections(g)
@@ -2010,26 +2071,26 @@ end
 
 else
   try p1 = varargin{1}; p2 = varargin{2}; catch, end;
+  fig = findobj('tag','eegplot_adv');
   switch data
-
   case 'RESET'
-     g = loadnewfile(EEG);
+     g = RESET();
 
   case 'MERGE_REJECTION'
-    tmpstatus = get(findobj('parent', gcf, 'Style', 'checkbox'), 'value');
+    tmpstatus = get(findobj('parent', fig, 'Style', 'checkbox'), 'value');
     comps = fliplr([tmpstatus{:}]);
-    close(gcf);
+    close(fig);
     %EEG = p1;
     
     fig = findobj('tag','eegplot_adv');
 %     g = get(fig,'UserData'); 
 %     if size(fig,1) > 2
-         g = get(gcf,'UserData');
+         g = get(fig,'UserData');
 %     end
     
     %[ICL,~] = quick_IClabel(g.EEG); 
     comps = find(comps);
-    set(gcf,'UserData',g);
+    set(fig,'UserData',g);
     if g.EEG.plotchannels == 1
         g = SWITCH(g);
         g.eloc_file = g.eloc_file_pc;
@@ -2040,10 +2101,10 @@ else
     end
     end
     update_trial_rejections(g);
-    draw_data([],[],gcf,0,[],g);
+    draw_data([],[],fig,0,[],g);
 
       case 'TYPING'
-        g = get(gcf,'UserData'); 
+        g = get(fig,'UserData'); 
         %g = TYPING(g,p1);
 
   case 'mouse_motion'
@@ -2062,7 +2123,7 @@ else
 
   case 'SAVE'
       %fig = findobj('tag','eegplot_adv');
-      g = get(gcf,'UserData'); 
+      g = get(fig,'UserData'); 
       EEG = g.EEG; 
        if EEG.plotchannels == 1
            EEG.chanrej = g.winrej;
@@ -2076,13 +2137,13 @@ else
            try EEG.mybadcomp = find([g.eloc_file.badchan]); EEG.gcompreject = find([g.eloc_file.badchan]); catch; end
        end
       
-      suffix = get(findobj(gcf,'tag','SaveNowText'),'string');
+      suffix = get(findobj(fig,'tag','SaveNowText'),'string');
       EEG.filename(1:end-4)
       [EEG] = pop_saveset(EEG, 'filename', [strcat( EEG.filename(1:end-4),suffix,'.set')],'filepath',EEG.filepath);
 
-      set(findobj(gcf,'tag','SaveNowText'),'String','');
+      set(findobj(fig,'tag','SaveNowText'),'String','');
 
-      eval(get(findobj(gcf,'tag','SaveButton'),'callback'))
+      eval(get(findobj(fig,'tag','SaveButton'),'callback'))
       [g.EEG] = eeg_store([], g.EEG);
       %EEG = pop_loadset(EEG.filename);
       g.EEG = EEG; %save set ADDED BY UGO
@@ -2090,21 +2151,21 @@ else
       set(findobj('tag','eegplot_adv'),'UserData',g);
 
   case 'METHODS'
-    g = get(gcf,'UserData');
+    g = get(fig,'UserData');
     g = methods(g);
 
   case 'APPLY'
-    g = get(gcf,'UserData');
+    g = get(fig,'UserData');
     if g.normed
-        normalize_chan([],[],gcf);
+        normalize_chan([],[],fig);
     end
     g = APPLY(g);
     
   case 'SWITCH'
-    g = get(gcf,'UserData');
+    g = get(fig,'UserData');
     g = SWITCH(g);
 
-    h = findobj(gcf, 'tag', 'SWITCH');
+    h = findobj(fig, 'tag', 'SWITCH');
     if ~isempty(g.EEG.icaact)
         if g.EEG.plotchannels
             %set(h,'string','EEG data ON');
@@ -2116,72 +2177,72 @@ else
             set(h, 'BackgroundColor', DEFAULT_OFF_COLOR);
         end
     end
-    %change_scale([],[],gcf,p1)
-%    eegplot_adv('zoom', gcf);
-%    egplot_w3('updateslider', gcf);
+    %change_scale([],[],fig,p1)
+%    eegplot_adv('zoom', fig);
+%    egplot_w3('updateslider', fig);
 %    eegplot_adv('drawp',0);	
-%    eegplot_adv('scaleeye', [], gcf);
-    ax2 = findobj('tag','eegaxis','parent',gcf);
-    change_scale([],[],gcf,4,ax2);
+%    eegplot_adv('scaleeye', [], fig);
+    ax2 = findobj('tag','eegaxis','parent',fig);
+    change_scale([],[],fig,4,ax2);
 
   case 'UNDO'
 
-    g = get(gcf,'UserData');
+    g = get(fig,'UserData');
     g = UNDO(g);
 
   case 'REDO'
 
-    g = get(gcf,'UserData');
+    g = get(fig,'UserData');
     g = REDO(g);
 
   case 'saveandtag'
-    g = get(gcf,'UserData');
+    g = get(fig,'UserData');
     EEG = g.EEG;
     EEG.save = 1;
     EEG.ICA = 1;
-    eval(get(findobj(gcf,'tag','AcceptAndSave'),'Callback'));
+    eval(get(findobj(fig,'tag','AcceptAndSave'),'Callback'));
       
-      %     g = get(gcf,'UserData');
+      %     g = get(fig,'UserData');
 %     EEG = g.EEG;
 %     tmpcolor = g.color;
-%     draw_data2(gcf,[],[],tmpcolor)
+%     draw_data2(fig,[],[],tmpcolor)
     %figure; spy(g.winrej)
     %interpolation_plot(g)
-    %draw_matrix(gcf,g);
+    %draw_matrix(fig,g);
     %[EEG, ~] = quick_spectra(EEG,40,2,'AVG');
 
   case 'TBT'
-      g = get(gcf,'UserData');
+      g = get(fig,'UserData');
       g = TBT(g);
-      ax2 = findobj('tag','eegaxis','parent',gcf);
-      change_scale([],[],gcf,4,ax2);
+      ax2 = findobj('tag','eegaxis','parent',fig);
+      change_scale([],[],fig,4,ax2);
 
   case 'QUICKLAB'     
-      g = get(gcf,'UserData');
+      g = get(fig,'UserData');
       g = QUICKLAB(g);
-      ax2 = findobj('tag','eegaxis','parent',gcf);
-      change_scale([],[],gcf,4,ax2);
+      ax2 = findobj('tag','eegaxis','parent',fig);
+      change_scale([],[],fig,4,ax2);
   
   case 'ICLABEL'
-      g = get(gcf,'UserData');
-      ax2 = findobj('tag','eegaxis','parent',gcf);
+      g = get(fig,'UserData');
+      ax2 = findobj('tag','eegaxis','parent',fig);
       g = ICLABEL(g);
-      change_scale([],[],gcf,4,ax2);
+      change_scale([],[],fig,4,ax2);
 
   case 'ClearMarks'
-      g = get(gcf,'UserData');
+      g = get(fig,'UserData');
       g.winrej = [];
       for ii=1:length(g.eloc_file)
           g.eloc_file(ii).badchan = 0;
       end
       update_trial_rejections(g);
-      draw_data([],[],gcf,0,[],g);
+      draw_data([],[],fig,0,[],g);
       
   case 'rejection'
-    g = get(gcf,'UserData');
+    g = get(fig,'UserData');
     QuickLabDefs;
-    dis = findobj(gcf,'tag', 'Rejection');
-    figh = findobj(gcf,'tag', g.tag);
+    dis = findobj(fig,'tag', 'Rejection');
+    figh = findobj(fig,'tag', g.tag);
     if g.wincolor == DEFAULT_PLOT_INTERP
         g.wincolor = DEFAULT_PLOT_REJ; % BACKGROUND OF REJECTIONS
 
@@ -2189,7 +2250,7 @@ else
         set(dis,'string',vert_string('REJCT MODE'));
 
         set(figh,'Color',DEFAULT_FIG_COLOR2);
-        set(findobj(gcf,'Style','Text'),'BackgroundColor',DEFAULT_FIG_COLOR2)
+        set(findobj(fig,'Style','Text'),'BackgroundColor',DEFAULT_FIG_COLOR2)
     else
         g.wincolor = DEFAULT_PLOT_INTERP; % BACKGROUND OF INTERPOLATIONS
 
@@ -2197,13 +2258,13 @@ else
         set(dis,'string',vert_string('INTRP MODE'));
 
         set(figh,'Color',DEFAULT_FIG_COLOR); % 
-        set(findobj(gcf,'Style','Text'),'BackgroundColor',DEFAULT_FIG_COLOR)
+        set(findobj(fig,'Style','Text'),'BackgroundColor',DEFAULT_FIG_COLOR)
     end
     
-    draw_data([],[],gcf,0,[],g);
+    draw_data([],[],fig,0,[],g);
       
    case 'redraw'
-    g = get(gcf,'UserData');
+    g = get(fig,'UserData');
     EEG = g.EEG;
     epoch = abs(EEG.xmin - EEG.xmax);
     dis = findobj('tag', 'Display');
@@ -2217,7 +2278,7 @@ else
         set(dis,'BackgroundColor',DEFAULT_ON_COLOR); %make display red
         set(dis,'string',vert_string('HIDE EPOCH'));
         
-        draw_data([],[],gcf,5,[],g);
+        draw_data([],[],fig,5,[],g);
     else
         g.trialstag = -1;
         g.winlength = g.winlength * epoch;
@@ -2226,12 +2287,12 @@ else
         set(dis,'BackgroundColor',DEFAULT_OFF_COLOR); %make display green
         set(dis,'string',vert_string('SHOW EPOCH'));
 
-        draw_data([],[],gcf,5,[],g);
+        draw_data([],[],fig,5,[],g);
     end
       
   case 'drawp'
     % Redraw EEG and change position
-    draw_data([],[],gcf,p1)
+    draw_data([],[],fig,p1)
     
   case 'drawb' 
     % Draw background
@@ -2239,21 +2300,21 @@ else
     
   case 'draws'
     % Redraw EEG and change scale
-    change_scale([],[],gcf,p1)
+    change_scale([],[],fig,p1)
 
   case 'draww'
     % Redraw EEG and change window size
-    change_eeg_window_length([],[],gcf,p1)
+    change_eeg_window_length([],[],fig,p1)
     
   case 'window'  % change window size
     % get new window length with dialog box
     % -------------------------------------
-    g = get(gcf,'UserData');
+    g = get(fig,'UserData');
 	result       = inputdlg2( { fastif(g.trialstag==-1,'New window length (s):', 'Number of epoch(s):') }, 'Change window length', 1,  { num2str(g.winlength) });
 	if size(result,1) == 0 return; end;
 
 	g.winlength = eval(result{1}); 
-	set(gcf, 'UserData', g);
+	set(fig, 'UserData', g);
 	eegplot_adv('drawp',0);	
 	return;
     
@@ -2261,12 +2322,12 @@ else
                   % get new window length with dialog box
                   % -------------------------------------
    fig = findobj('tag','eegplot_adv');
-   g = get(gcf,'UserData');
+   g = get(fig,'UserData');
    %g = THINKING(g,1);
    
    g.dispchans = g.chans;
 
-   set(gcf, 'UserData', g);
+   set(fig, 'UserData', g);
     ax1 = findobj('tag','eegaxis','parent',fig);
     try
     set(ax1,...
@@ -2288,13 +2349,13 @@ end
    eegplot_adv('scaleeye', [], fig);
 
    %g = THINKING(g,0);
-   set(gcf, 'UserData', g);
+   set(fig, 'UserData', g);
 
   case 'winelec'  % change channel window size
                   % get new window length with dialog box
                   % -------------------------------------
-   fig = gcf;
-   g = get(gcf,'UserData');
+   fig = fig;
+   g = get(fig,'UserData');
    %g = THINKING(g,1);
    
    result = inputdlg2( ...
@@ -2305,17 +2366,17 @@ end
    if g.dispchans<0 || g.dispchans>g.chans
        g.dispchans = g.chans;
    end;
-   set(gcf, 'UserData', g);
+   set(fig, 'UserData', g);
    
    eegplot_adv('updateslider', fig);
    eegplot_adv('drawp',0);	
    eegplot_adv('scaleeye', [], fig);
    %g = THINKING(g,0);
-   set(gcf, 'UserData', g);
+   set(fig, 'UserData', g);
 
    %MarkChannel([],[],fig,0,0);
    %Fixing UGO
-   %set(gcf,'UserData',g);
+   %set(fig,'UserData',g);
    %draw_data([],[],fig,0,[],g);
    
    return;
@@ -2323,8 +2384,8 @@ end
   case 'winelec_text'  % change channel window size
                   % get new window length with dialog box
                   % -------------------------------------
-   fig = gcf;
-   g = get(gcf,'UserData');
+   fig = fig;
+   g = get(fig,'UserData');
    
    g.dispchans = str2num(get(findobj('tag','NumChan'),'String'));
 
@@ -2332,14 +2393,14 @@ end
        g.dispchans = g.chans;
    end
 
-   set(gcf, 'UserData', g);
+   set(fig, 'UserData', g);
    
    eegplot_adv('updateslider', fig);
    eegplot_adv('drawp',0);	
    eegplot_adv('scaleeye', [], fig);
    %MarkChannel([],[],fig,0,0);
    %Fixing UGO
-   %set(gcf,'UserData',g);
+   %set(fig,'UserData',g);
    %draw_data([],[],fig,0,[],g);
    
    return;
@@ -2347,11 +2408,11 @@ end
    case 'emaxstring'  % change events' string length  ;  JavierLC
       % get dialog box
       % -------------------------------------
-      g = get(gcf,'UserData');
+      g = get(fig,'UserData');
       result = inputdlg2({ 'Max events'' string length:' } , 'Change events'' string length to display', 1,  { num2str(g.maxeventstring) });
       if size(result,1) == 0 return; end                 
       g.maxeventstring = eval(result{1});
-      set(gcf, 'UserData', g);
+      set(fig, 'UserData', g);
       eegplot_adv('drawb');
       return;
       
@@ -2362,15 +2423,16 @@ end
 		error('no such file');
 	end;
 
-	AXH0 = findobj('tag','eegaxis','parent',gcf);
+	AXH0 = findobj('tag','eegaxis','parent',fig);
 	eegplot_adv('setelect',[ inputpath inputname ],AXH0);
 	return;
   
   case 'setelect'
-    % Set channels    
-    g = get(gcf,'UserData');
+    % Set channels   
+    
+    g = get(fig,'UserData');
     if nargin < 3
-        axeshand = findobj('tag','eegaxis','parent',gcf);
+        axeshand = findobj('tag','eegaxis','parent',fig);
     else 
         axeshand = p2;
     end
@@ -2443,7 +2505,7 @@ end
     end;
 	
 	eyeaxes = findobj('tag','eyeaxes','parent',figh);
-    ax1 = findobj('tag','eegaxis','parent',gcf); % axes handle
+    ax1 = findobj('tag','eegaxis','parent',fig); % axes handle
 	YLim = double(get(ax1, 'ylim'));
     
 	ESpacing = findobj('tag','ESpacing','parent',figh);
@@ -2471,7 +2533,7 @@ end
     
   case 'noui'
       if ~isempty(varargin)
-          eegplot_adv( varargin{:} ); fig = gcf;
+          eegplot_adv( varargin{:} ); fig = fig;
       else 
           fig = findobj('tag', 'eegplot_adv');
       end
@@ -3037,10 +3099,13 @@ function draw_data(varargin)
 % ---------------------------------
 function draw_background(varargin)
 QuickLabDefs
+
+
+
 if nargin >= 3
     fig = varargin{3};
 else
-    fig = gcf;
+    fig = findobj('tag','eegplot_adv');
 end
 if nargin >= 4
     g = varargin{4};
@@ -5917,6 +5982,7 @@ if isempty(g.events)
     g.plotevent      = 'off';
 end
 
+update_file_texts(g)
 
 function g = THINKING(g,stop)
 
@@ -6023,17 +6089,32 @@ for i = 1:length(string)
     end
 end
 
+function tmprank2 = getrank(tmpdata)
+        
+tmprank = rank(tmpdata);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Here: alternate computation of the rank by Sven Hoffman
+%tmprank = rank(tmpdata(:,1:min(3000, size(tmpdata,2)))); old code
+covarianceMatrix = cov(tmpdata', 1);
+[~, D] = eig (covarianceMatrix);
+rankTolerance = 1e-7;
+tmprank2=sum (diag (D) > rankTolerance);
+if tmprank ~= tmprank2
+    %fprintf('Warning: fixing rank computation inconsistency (%d vs %d) most likely because running under Linux 64-bit Matlab\n', tmprank, tmprank2);
+    tmprank2 = min(tmprank, tmprank2);
+end
 
-function g = loadnewfile(EEG)
+
+function g = RESET(p1)
    
    fig = findobj('tag','eegplot_adv');
    g = get(fig,'UserData');
 
-   g.EEG = EEG;
+   %g.EEG = EEG;
 
-   if ~isfield(g.EEG,'suffix'); g.EEG.suffix = ''; end
+   %if ~isfield(g.EEG,'suffix'); g.EEG.suffix = ''; end
    
-   %g.NEW = NEW;
+   EEG = g.EEG;
     
    if g.EEG.plotchannels == 1
        g.data = EEG.data;
@@ -6051,7 +6132,7 @@ function g = loadnewfile(EEG)
    %g.winrej = []; g.winrej_pc = []; g.winrej_ch = [];
 
    % make suffix, store the bool of a NEW vs OLD data.
-   fprintf(strcat('Showing processed dataset after running:', newcom, com, '/r'));
+   %fprintf(strcat('Showing processed dataset after running:', com, '/r'));
   
    % store and draw data
    set(fig,'UserData',g);
@@ -6059,7 +6140,24 @@ function g = loadnewfile(EEG)
    set(ax1,'UserData',g.data);
 
    % ONE OF THESE LOWER FUNCTIONS - PROBABLY WHERE THERE IS A BUG! UGO BUG 12-19-2022
-   draw_data([],[],gcf,9,[],g);
+   %draw_data([],[],fig,9,[],g);
    eegplot_adv('setelect');
    eegplot_adv('winelec_auto');
 
+function update_file_texts(g)
+
+EEG = g.EEG;
+
+set(findobj('Tag','Number of Channels'),'string',strcat(num2str(EEG.nbchan),'/',EEG.ref));
+
+set(findobj('Tag','Frames'),'string',strcat(num2str(EEG.pnts),'/',num2str(EEG.srate)));
+
+set(findobj('Tag','Epochs'),'string',strcat(num2str(EEG.trials),'/',num2str(size(EEG.event,2))));
+
+set(findobj('Tag','Epochs time'),'string',strcat(num2str(EEG.xmin),'/', num2str(EEG.xmax)));
+
+tmpdata = reshape( EEG.data(1:EEG.nbchan,:,:), EEG.nbchan, EEG.pnts*EEG.trials);
+tmpdata = tmpdata - repmat(mean(tmpdata,2), [1 size(tmpdata,2)]); % zero mean
+tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
+
+set(findobj('Tag','ICA weights'),'string',strcat(num2str(size(EEG.icaact,1)),'/', num2str(tmprank)));
