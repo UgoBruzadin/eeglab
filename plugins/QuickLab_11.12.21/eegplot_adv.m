@@ -728,9 +728,25 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   posbut(15,:) = [ 0.92    0.84    0.040    defaultsizes(1) ]; % g.time tag
   posbut(8,:) =  [ 0.92    0.82    0.040    defaultsizes(1) ]; % g.time   
 
+% New file description text (needs to be changed whenver file is modified in
+% make_eloc_file)
 
+  posbut(60,:) = [ 0.96    0.98    0.040    defaultsizes(1) ]; % Number of Channels tag
+  posbut(61,:) = [ 0.96    0.96    0.040    defaultsizes(1) ]; % Number of Channels
+  
+  posbut(62,:) = [ 0.96    0.94    0.040    defaultsizes(1) ]; % Frames/Sampling Rate tag
+  posbut(63,:) = [ 0.96    0.92    0.040    defaultsizes(1) ]; % Frames/Sampling Rate
 
+  posbut(64,:) = [ 0.96    0.90    0.040    defaultsizes(1) ]; % Epochs/Events tag
+  posbut(65,:) = [ 0.96    0.88    0.040    defaultsizes(1) ]; % Epochs/Events
+
+  posbut(66,:) = [ 0.96    0.86    0.040    defaultsizes(1) ]; % Epoch Start/End tag
+  posbut(67,:) = [ 0.96    0.84    0.040    defaultsizes(1) ]; % Epoch Start/End
+
+  posbut(68,:) = [ 0.96    0.82    0.040    defaultsizes(1) ]; %  ICA weights/rank tag
+  posbut(69,:) = [ 0.96    0.82    0.040    defaultsizes(1) ]; %  ICA weights/rank
     
+  
   posbut(5,:) =  [ 0.92    0.80    0.080    defaultsizes(1) ]; % Eposition .52
    posbut(46,:) =  [ 0.92    0.78    0.010    defaultsizes(1) ]; % |<<  % NEW UGO
   posbut(1,:) =  [ 0.93    0.78    0.015    defaultsizes(1) ]; % <<  
@@ -782,7 +798,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   posbut(32,:) = [ 0.92    0.40+r    0.080    defaultsizes(2) ]; % Apply Rejections;
 
 
-  posbut(24,:) = [ 0.92    0.38+r    0.080    defaultsizes(1) ]; % Topoplot title
+  posbut(24,:) = [ 0.92    0.38+r    0.080    defaultsizes(1) ]; % Topoplot tag
 
   %this doesnt do anything, just a place so I can remember what the
   %positions are, if I change up top I'll have to change here.
@@ -803,13 +819,12 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    
 
   posbut(57,:) = [ 0.92    0.18    0.080    defaultsizes(1) ]; % Folder dropmenu
-  posbut(58,:) = [ 0.92    0.205    0.080    defaultsizes(1) ]; % Folder Text/title
+  posbut(58,:) = [ 0.92    0.205    0.080    defaultsizes(1) ]; % Folder tag
 
    %posbut(59,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % Components/EEG SWITCH FUNCTION
-  posbut(59,:) = [ 0.92    0.15    0.080    defaultsizes(1) ]; % Save text title
-
+  
   %posbut(43,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % RUN, TAG AND SAVE
-
+  posbut(59,:) = [ 0.92    0.15    0.080    defaultsizes(1) ]; % Save text tag
   posbut(44,:) = [ 0.92    0.12    0.080    defaultsizes(2) ]; % SAVE TEXT EDIT
   posbut(45,:) = [ 0.92    0.09    0.080    defaultsizes(2) ]; % SAVE FILE BUTTON
 
@@ -818,6 +833,42 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
 
   %posbut(12,:) = [ 0.92    0.02    0.080    defaultsizes(2) ]; % accept/close
   
+%% NEW TEXT FOR THE CURRENT EEGLAB FILE
+        
+u(60) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(60,:),'Style','text','FontSize',8,...
+	'Tag','Number of Channels tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','#Chans/Ref');
+
+u(61) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(61,:),'Style','text','FontSize',8,...
+	'Tag','Number of Channels','BackgroundColor',DEFAULT_FIG_COLOR,'string',strcat(num2str(EEG.nbchan),'/',EEG.ref));
+
+u(62) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(62,:),'Style','text','FontSize',8,...
+	'Tag','Frames tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','Frames/Rate');
+
+u(63) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(63,:),'Style','text','FontSize',8,...
+	'Tag','Frames','BackgroundColor',DEFAULT_FIG_COLOR,'string',strcat(num2str(EEG.pnts),' / ',num2str(EEG.srate)));
+
+u(64) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(64,:),'Style','text','FontSize',8,...
+	'Tag','Epochs tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','Epochs/Events');
+
+u(65) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(65,:),'Style','text','FontSize',8,...
+	'Tag','Epochs','BackgroundColor',DEFAULT_FIG_COLOR,'string',strcat(num2str(EEG.trials),'/',num2str(size(EEG.event,2))));
+
+u(66) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(66,:),'Style','text','FontSize',8,...
+	'Tag','Epochs time tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','start/end');
+
+u(67) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(67,:),'Style','text','FontSize',8,...
+	'Tag','Epochs time','BackgroundColor',DEFAULT_FIG_COLOR,'string',strcat(num2str(EEG.xmin),'/', num2str(EEG.xmax)));
+
+u(68) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(68,:),'Style','text','FontSize',8,...
+	'Tag','ICA weights tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','ICA/rank');
+
+tmpdata = reshape( EEG.data(1:EEG.nbchan,:,:), EEG.nbchan, EEG.pnts*EEG.trials);
+tmpdata = tmpdata - repmat(mean(tmpdata,2), [1 size(tmpdata,2)]); % zero mean
+tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
+
+u(69) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(69,:),'Style','text','FontSize',8,...
+	'Tag','ICA weights','BackgroundColor',DEFAULT_FIG_COLOR,'string',strcat(num2str(size(EEG.icaact,1)),'/', num2str(tmprank)));
+
 %% NEW BUTTONS
 % load directory
 loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
@@ -6034,6 +6085,21 @@ for i = 1:length(string)
     elseif i == length(string)
         vertstring = strcat(vertstring,string(i),'</center></html>');
     end
+end
+
+function tmprank2 = getrank(tmpdata)
+        
+tmprank = rank(tmpdata);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Here: alternate computation of the rank by Sven Hoffman
+%tmprank = rank(tmpdata(:,1:min(3000, size(tmpdata,2)))); old code
+covarianceMatrix = cov(tmpdata', 1);
+[~, D] = eig (covarianceMatrix);
+rankTolerance = 1e-7;
+tmprank2=sum (diag (D) > rankTolerance);
+if tmprank ~= tmprank2
+    %fprintf('Warning: fixing rank computation inconsistency (%d vs %d) most likely because running under Linux 64-bit Matlab\n', tmprank, tmprank2);
+    tmprank2 = min(tmprank, tmprank2);
 end
 
 
