@@ -264,7 +264,7 @@ else
 end
 
 %% --- run eegplot_adv!!
-[~,EEG] = eegplot_adv( EEG, 'srate', EEG.srate, 'title', [ title 'QuickLab Data Editor! -- eegplot_adv(): ' EEG.filename], ...
+[~,EEG] = eegplot_adv( EEG, 'srate', EEG.srate, 'title', [ 'Advanced EEG Data Editor by Ugo Bruzadin Nunes -- eegplot_adv(): ' EEG.filename], ...
              'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command,'savecommand',savecommand, 'command2', command_pc,'savecommand2',savecommand_pc, eegplotoptions{:}, varargin{:});
 
 com = [ com sprintf('pop_eegplot_adv( %s, %d, %d, %d);', inputname(1), plotchannels, superpose, reject) ];
