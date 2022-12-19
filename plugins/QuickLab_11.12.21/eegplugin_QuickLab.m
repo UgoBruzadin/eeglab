@@ -125,17 +125,17 @@ uimenu( pcamenu, 'label', 'N-1 PCA', 'callback', ...
 
 for i=4:35
 uimenu( pcamenu, 'label', strcat('PCA ',num2str(i)), 'callback', ...
-    ['[EEG,com] = quick_PCA(EEG,' num2str(i) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,com] = quick_PCA(EEG,' num2str(i) ',[],0);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 end
 for i=36:2:50
 uimenu( pcamenu, 'label', strcat('PCA ',num2str(i)), 'callback', ...
-    ['[EEG,com] = quick_PCA(EEG,' num2str(i) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,com] = quick_PCA(EEG,' num2str(i) ',[],0);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 end
 
 secondpcamenu = uimenu (pcamenu, 'label', 'MORE PCAs');
 for g=51:75
     uimenu( secondpcamenu, 'label', strcat('PCA ',num2str(g)), 'callback', ...
-        ['[EEG,com] = quick_PCA(EEG,' num2str(g) ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+        ['[EEG,com] = quick_PCA(EEG,' num2str(g) ',[],0);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 end
 % 
 % try
