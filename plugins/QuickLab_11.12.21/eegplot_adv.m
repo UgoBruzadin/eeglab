@@ -684,19 +684,20 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
      for i = length(eeglab_menus.Children):-1:1
          if sum(strcmp(eeglab_menus.Children(i).Type,'uimenu'))
              new_menus(i) = copyobj(eeglab_menus.Children(i),findobj('tag','eegplot_adv'),'legacy');
+             new_menus(i).ForegroundColor = [0 0 .5];
          end
      end
     
     allnew_menus = findobj(new_menus);
 
     precallback = ['g = get(findobj(''tag'',''eegplot_adv''),''Userdata''); EEG = g.EEG;'];
-    postcallback = ['set(findobj(''tag'',''eegplot_adv''),''Userdata'',EEG);'];
+    postcallback = ['set(findobj(''tag'',''eegplot_adv''),''Userdata'',EEG); eegplot_adv(''RESET'')'];
     
      for j = 1:length(allnew_menus)
          %if strcmp(allnew_menus.Type,'uimenu')
             try 
                 if ~isempty(allnew_menus(j).Callback)
-                    allnew_menus(j).Callback = [precallback allnew_menus(j).Callback];
+                    allnew_menus(j).Callback = [precallback allnew_menus(j).Callback postcallback];
                 end
             catch; end
          %end
@@ -714,18 +715,21 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
 % positions of buttons
 %                  bottom  left    width    heigth
 % numbers go from 1 and end at 47 (need to be reorganized)
-  posbut(22,:) = [ 0.92    0.98    0.080    defaultsizes(1) ]; % stack channels(same offset)  
-  posbut(21,:) = [ 0.92    0.96    0.080    defaultsizes(1) ]; % normalize
-  posbut(17,:) = [ 0.92    0.94    0.080    defaultsizes(1) ]; % events types
+  posbut(22,:) = [ 0.92    0.98    0.040    defaultsizes(1) ]; % stack channels(same offset)  
+  posbut(21,:) = [ 0.92    0.96    0.040    defaultsizes(1) ]; % normalize
+  posbut(17,:) = [ 0.92    0.94    0.040    defaultsizes(1) ]; % events types
   
-  posbut(14,:) = [ 0.92    0.92    0.080    defaultsizes(1) ]; % elec tag
-  posbut(7,:) =  [ 0.92    0.90    0.080    defaultsizes(1) ]; % elec
+  posbut(14,:) = [ 0.92    0.92    0.040    defaultsizes(1) ]; % elec tag
+  posbut(7,:) =  [ 0.92    0.90    0.040    defaultsizes(1) ]; % elec
   
-  posbut(16,:) = [ 0.92    0.88    0.080    defaultsizes(1) ]; % value tag
-  posbut(9,:) =  [ 0.92    0.86    0.080    defaultsizes(1) ]; % value
+  posbut(16,:) = [ 0.92    0.88    0.040    defaultsizes(1) ]; % value tag
+  posbut(9,:) =  [ 0.92    0.86    0.040    defaultsizes(1) ]; % value
   
-  posbut(15,:) = [ 0.92    0.84    0.080    defaultsizes(1) ]; % g.time tag
-  posbut(8,:) =  [ 0.92    0.82    0.080    defaultsizes(1) ]; % g.time   
+  posbut(15,:) = [ 0.92    0.84    0.040    defaultsizes(1) ]; % g.time tag
+  posbut(8,:) =  [ 0.92    0.82    0.040    defaultsizes(1) ]; % g.time   
+
+
+
     
   posbut(5,:) =  [ 0.92    0.80    0.080    defaultsizes(1) ]; % Eposition .52
    posbut(46,:) =  [ 0.92    0.78    0.010    defaultsizes(1) ]; % |<<  % NEW UGO
@@ -792,26 +796,27 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
 %    posbut(28,:) = [ 0.92    0.18    0.080    defaultsizes(2) ]; % Rejecting/Interpolating Mode  
 %    posbut(27,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % Components/EEG SWITCH FUNCTION
 
-% rotated
+% rotated  new vertical buttons
   posbut(51,:) = [ 0.01    0.80    0.015    0.15 ]; % Components/EEG SWITCH FUNCTION  
   posbut(28,:) = [ 0.01    0.625    0.015    0.17 ]; % Epoched/Continuous Mode
   posbut(27,:) = [ 0.01    0.45    0.015    0.17 ]; % Rejecting/Interpolating Mode 
    
 
-  posbut(57,:) = [ 0.92    0.17    0.080    defaultsizes(1) ]; % Load Folder Button
-  posbut(58,:) = [ 0.92    0.14    0.080    defaultsizes(1) ]; % Folder dropmenu
+  posbut(57,:) = [ 0.92    0.18    0.080    defaultsizes(1) ]; % Folder dropmenu
+  posbut(58,:) = [ 0.92    0.205    0.080    defaultsizes(1) ]; % Folder Text/title
 
    %posbut(59,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % Components/EEG SWITCH FUNCTION
+  posbut(59,:) = [ 0.92    0.15    0.080    defaultsizes(1) ]; % Save text title
 
+  %posbut(43,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % RUN, TAG AND SAVE
 
-  posbut(43,:) = [ 0.92    0.13    0.080    defaultsizes(1) ]; % RUN, TAG AND SAVE
+  posbut(44,:) = [ 0.92    0.12    0.080    defaultsizes(2) ]; % SAVE TEXT EDIT
+  posbut(45,:) = [ 0.92    0.09    0.080    defaultsizes(2) ]; % SAVE FILE BUTTON
 
-  posbut(44,:) = [ 0.92    0.11    0.080    defaultsizes(1) ]; % SAVE TEXT EDIT
-  posbut(45,:) = [ 0.92    0.08    0.080    defaultsizes(1) ]; % SAVE FILE BUTTON
+  posbut(42,:) = [ 0.92    0.06    0.080    defaultsizes(2) ]; % store marks, transfer to eeglab #Ugo
+  posbut(13,:) = [ 0.92    0.03    0.080    defaultsizes(2) ]; % cancel/close
 
-  posbut(42,:) = [ 0.92    0.06    0.080    defaultsizes(1) ]; % store marks #Ugo
-  posbut(13,:) = [ 0.92    0.04    0.080    defaultsizes(1) ]; % cancel/close
-  posbut(12,:) = [ 0.92    0.02    0.080    defaultsizes(2) ]; % accept/close
+  %posbut(12,:) = [ 0.92    0.02    0.080    defaultsizes(2) ]; % accept/close
   
 %% NEW BUTTONS
 % load directory
@@ -819,13 +824,23 @@ loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1
 % filelist
 loadfilecommand = ['try cd(EEG.filepath); catch, end;files = dir(''*.set''); newEEG = pop_loadset(files(get(findobj(''tag'',''FolderList''),''value'')).name, pwd);com = pop_eegplot_adv(newEEG, 1, 2, 1, 1);[ALLEEG newEEG CURRENTSET] = eeg_store(ALLEEG, newEEG, CURRENTSET);'];
 
+u(59) = uicontrol('Parent',figh, ...
+	'Units', 'normalized', ...
+	'Position', posbut(59,:), ...
+    'Style','text',...
+    'FontSize',8,...
+	'Tag','save_file_title',...
+    'BackgroundColor',DEFAULT_FIG_COLOR, ...
+	'string','Enter text: add to filename');
+
 u(58) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
 	'Position', posbut(58,:), ...
-    'Style','pushbutton',...
-	'Tag','load_dir',...
-	'string','Load Folder',...
-    'callback',loaddircommand);
+    'Style','text',...
+    'FontSize',8,...
+	'Tag','load_dir_title',...
+    'BackgroundColor',DEFAULT_FIG_COLOR, ...
+	'string','Select File to Load');
 
 u(57) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
@@ -910,14 +925,14 @@ u(50) = uicontrol('Parent',figh, ...
 	'Position', posbut(45,:), ...
     'Style','pushbutton',...
 	'Tag','SaveNowButton',...
-	'string','+Save To File',...
+	'string','Save File with Text',...
     'callback',['eegplot_adv(''SAVE'')']);
 
 %% heatmap title
   u(24) = uicontrol('Parent',figh, ...
 	'Units', 'normalized', ...
 	'Position', posbut(24,:), ...
-    'BackgroundColor',DEFAULT_PLOT_BACKGROUND, ...
+    'BackgroundColor',DEFAULT_FIG_COLOR, ...
 	'Style','text', ...
     'FontSize',8, ...
 	'Tag','headmap',...
@@ -1592,7 +1607,7 @@ end
 	'Position', posbut(42,:), ...
 	'Tag','SaveButton',...
     'BackgroundColor',[.5 1 0.5],...
-	'string','Store Marks to eeglab',...
+	'string','Transfer to EEGLAB',...
 	'Callback', savecommand );
   end
 
