@@ -46,6 +46,7 @@ if isempty(EEG.data)
 end
 if isempty(EEG.icawinv)
     fprintf('Error: must first run an ICA or PCA \r');
+    return;
 end
 if isempty(EEG.icaact)
     EEG.icaact = (EEG.icaweights*EEG.icasphere)*EEG.data(EEG.icachansind,:);
