@@ -150,10 +150,10 @@ if reject
 %         'if ~isempty(TMPREJCHN); '];
 %     %if isComponents == 1
 %         com1_ch = [ com1 ...
-%             'EEG.chanrej = TMPREJ;[EEGTMP LASTCOM1] = eeg_eegrej2(EEGTMP,TMPREJ,1,TMPREJCHN); ' ]; %modified for eegrej2
+%             'EEG.chanrej = TMPREJ;[EEGTMP LASTCOM1] = eeg_eegrej_adv(EEGTMP,TMPREJ,1,TMPREJCHN); ' ]; %modified for eegrej2
 %     %else
 %         com1_pc = [ com1 ...
-%             'EEG.comprej = TMPREJ; [EEGTMP LASTCOM1] = eeg_eegrej2(EEGTMP,TMPREJ,2,TMPREJCHN); ' ]; %modified for eegrej2
+%             'EEG.comprej = TMPREJ; [EEGTMP LASTCOM1] = eeg_eegrej_adv(EEGTMP,TMPREJ,2,TMPREJCHN); ' ]; %modified for eegrej2
 %     %end
 %     com1_pc = [ com1_pc ...
 %          '  if ~isempty(LASTCOM1),' ...
@@ -168,9 +168,9 @@ if reject
 %         'else LASTCOM1=''''; ' ...
 %         'end; ' ];
     %if isComponents == 1
-        com3 = 'EEGTMP=EEG;EEG.chanrej = TMPREJ;[EEGTMP LASTCOM1] = eeg_eegrej2(EEGTMP,TMPREJ,1,TMPREJCHN); ' ; %modified for eegrej2
+        com3 = 'EEGTMP=EEG;EEG.chanrej = TMPREJ;[EEGTMP LASTCOM1] = eeg_eegrej_adv(EEGTMP,TMPREJ,1,TMPREJCHN); ' ; %modified for eegrej2
     %else
-        com3_pc = 'EEGTMP=EEG;EEG.comprej = TMPREJ;[EEGTMP LASTCOM1] = eeg_eegrej2(EEGTMP,TMPREJ,2,TMPREJCHN); ' ; %modified for eegrej2
+        com3_pc = 'EEGTMP=EEG;EEG.comprej = TMPREJ;[EEGTMP LASTCOM1] = eeg_eegrej_adv(EEGTMP,TMPREJ,2,TMPREJCHN); ' ; %modified for eegrej2
     %end
 
     % Created for Save & Close Command
