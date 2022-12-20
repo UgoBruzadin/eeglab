@@ -1,16 +1,34 @@
-% eegplot_adv() - Scroll (horizontally and/or vertically) through multichannel data.
+% eegplot_adv() - Advanced Data Editor and Scroll (horizontally and/or vertically) through multichannel data.
 %             Allows vertical scrolling through channels and manual marking 
 %             and unmarking of data stretches or epochs for rejection.
-%    Almost identical to pop_eegplot(), but allow scroll with mouse wheel, 
-%    to remove channels / components (with Shift+click), 
-%    looks better in wide-screen monitor and draw EEG data faster.
+%
+%    Significantly modified from pop_eegplot_w(): 
+%       
+%       - Quickly switch between ICA data and EEG data scroll
+%       - Select parts of channels and components interpolation/removal
+%       - Has imbued Trial by Trial for channel interpolation and epoch removal
+%       - Allow to apply data modifications and observe 
+%       - Shows all rejection and interpolations in the data
+%       - 
+%       - 
+%       - 
+%    ALL eeglab menu options to the data displayed, Allows you to continue
+%    to process file after processing data, allows you to run ICAs/PCAs in
+%    the data, remove parts of components,
+%    looks even better in wide-screen monitor and draw EEG data even faster!
+%    
 %
 % Usage: 
-%           >> eegplot_adv(data, 'key1', value1 ...); % use interface buttons, etc.
+%           >> eegplot_adv(data, 1, 2, 1, 1, 'key1', value1 ...); % use interface buttons, etc.
 %      else
-%           >> eegplot_adv('noui', data, 'key1', value1 ...); % no user interface;
+%           >> eegplot_adv('noui', data, 1, 2, 1, 1, 'key1', value1 ...); % no user interface;
 %                                                         % use for plotting
 % Menu items:
+%
+%    *NEW*: Copies of ALL EEGLAB menu, except they are modified to use the EEG data in
+%    the Adv. Data Editor, and return the EEG data to the Adv. Data Editor.
+%    They are dark blue to differentiate from the original menu items.
+%
 %    "Figure > print" - [menu] Print figure in portrait or landscape.
 %    "Figure > Edit figure" - [menu] Remove menus and buttons and call up the standard
 %                  Matlab figure menu. Select "Tools > Edit" to format the figure
@@ -60,31 +78,109 @@
 %                  given as input). Press "legend" to pop up a legend window for events.
 %
 % Display window interface:
+
 %    "Activity plot" - [main window] This axis displays the channel activities.  For 
 %                  continuous data, the time axis shows time in seconds. For epoched
 %                  data, the axis label indicate time within each epoch.
-%    "Cancel" - [button] Closes the window and cancels any data rejection marks.
-%    "Event types" - [button] pop up a legend window for events.
-%    "<<" - [button] Scroll backwards though time or epochs by one window length.
-%    "<"  - [button] Scroll backwards though time or epochs by 0.2 window length.
-%    "Navigation edit box" - [edit box] Enter a starting time or epoch to jump to.
-%    ">"  - [button] Scroll forward though time or epochs by 0.2 window length.
-%    ">>" - [button] Scroll forward though time or epochs by one window length.
-%    "Chan/Time/Value" - [text] If the mouse is within the activity window, indicates
-%                  which channel, time, and activity value the cursor is closest to.
-%    "Scale edit box" - [edit box] Scales the displayed amplitude in activity units.
-%                  Command line equivalent: 'spacing' 
-%    "+ / -" - [buttons] Use these buttons to +/- the amplitude scale by 10%. 
-%    "Reject" - [button] When pressed, save rejection marks and close the figure. 
-%                  Optional input parameter 'command' is evaluated at that time. 
-%                  NOTE: This button's label can be redefined from the command line
-%                  (see 'butlabel' below). If no processing command is specified
-%                  for the 'command' parameter (below), this button does not appear.
+
+%    *NEW* 
+%    Left click: Select trial for interpolation (green) or removal (red)
+%    Right click: Select channel for interpolation. If withing a selected trial, will only highlight that window
+%    Middle click (shift click): Show topoplot of that area. If within trial, shows average headmap for that trial.
+%                  Keyboard: Z - allows you to select a channel even if there are only selected epochs
+%    "Select Methods" - [popup menu] Select choice of methods to apply to the fata from dropdown menu. 
+%                  Current options are TBT, QUICKLAB, ICLABEL, and PLOTS
+%    "Methods" - [popup menu] a second menu with the list of functions from
+%                  each method list to be applied. 
+%                  TBT - [menu choice] Choose the function to highlighting which
+%                      trials have data that fails to meet a threshold. Current functions are:
+%                      Detect Flatline (from AAR), Abnormal Values, Abnormal Trends, 
+%                      Improbable Data, Abnormal Distributions, Abnormal Spectra, Mix-Max threshold, 
+%                      and Detect Channel Pops (new)
+%                  QUICKLAB - [menu choice] Choose the function to be run on
+%                      the data: Current options: ICA, BSS EMG, Re-reference,
+%                      Reduce headmodel to 94, Reepoch, QuickDotloc, BSS + ICA, DipFit
+%               
+%                  ICLABEL - [menu choice] Choose one of ICLABEL rejection
+%                      functions. Current options: All but brain and other, Brain,
+%                      Muscle, Eye, heart, Line Noise, Channel noise, & Other.
+%                  PLOTS - [menu choice] Choose one choices to plot.
+%                  Spectra+ (FFT), ICLABEL+, and Components ERP
+%    "Options" - [edit box] Write options for the selected functions. text
+%                  below are hints
+%    "% trial 4 rej" - [edit box] threshold percent of trial necessary for the channel to be interpolated
+%    "# chans 4 rej" - [edit box] threshold number of channels necessary for epoched to be selected for rejection
+%    
+%    "RUN" - [button] Runs the function selected from the lists of functions from the list of methods.
+%    "Clear Marks" - [button] Clears any selected of trials or channels for
+%                  this dataset.
+%    "Current Data Marks" - [figure] Shows currently selected epochs,
+%                  channels/components for interpolation or rejection.
+%                  Legend:
+%                      Green bar: epoch selected for partial interpolation.
+%                      Red bar: epoch selected for rejection.
+%                      Yellow bar: Channel/Component selected for interpolation.
+%                      Black dot/bar: Part of channel/component selected for interpolation.
+%    "Chan: 0 + 0 part" - [text] display of current number of total and
+%                  partial channels selected
+%    "Trial: 0 red + 0 green" - [text] display of current number of trials
+%                  selected for rejection (red) and partial interpolation (green)
+%
+%    "Apply Changes" - [button] Interpolates and rejects selected data using function eegrej,
+%    saves file with new name addint new suffixes, replots the new data in
+%    the data editor.
+%    
+%    "FFT(avg) - [button] Plots the averaged FFT (QuickLab version) of the current data (not component)
+%                 using QuickLab Defaults.
+%    "ICLabel" - [button] Runs IClabel (QuickLab version) and plots the components,
+%                allows user to select components for rejection
+%
+%    "SHOW ICA/EEG" - [button] If file has Components run, it shows the component
+%    data instead of the EEG data. If ICA is shown, display EEG data instead.
+%                  Keyboard: W
+%    "HIDE/SHOW EPOCH" - [button] Temporarily removes the epoch display,
+%                  for more precise channel interpolation or data rejection.
+%    "Interpolation/Rejection Mode" - [button] Allow user to switch between rejecting a trial (red background) 
+%                  or selecting a trial for partial interpolation (blue background).
+%                  Keyboard: S
+%
+%    "Select File to Load" - [popup menu] Choose a file from the current folder to load into EEGLAB/Adv. Data Editor
+%    "Enter text to add to filename" - [edit box] text entered to be added to the end of the filename
+%    "Save to File with Text" - [button] When pressed, saves current dataset adding 
+%                  the text entered to the end of the filename.
+%    "Transfer to EEGLAB" - [button] transfer current data file and state to EEGLAB
+
 %    "Stack/Spread" - [button] "Stack" collapses all channels/activations onto the
 %                  middle axis of the plot. "Spread" undoes the operation.
 %    "Norm/Denorm" - [button] "Norm" normalizes each channel separately such that all
 %                  channels have the same standard deviation without changing original 
-%                  data/activations under EEG structure. "Denorm" undoes the operation.  
+%                  data/activations under EEG structure. "Denorm" undoes the operation.
+%    "Event types" - [button] pop up a legend window for events.
+%    NEW "|<" - [button] Scroll backwards to the beggining of the file.
+%       Keyboard: Q
+%    "<<" - [button] Scroll backwards through time or epochs by one window length.
+%       Keyboard: A
+%    "<"  - [button] Scroll backwards through time or epochs by 0.2 window length.
+%    "Navigation edit box" - [edit box] Enter a starting time or epoch to jump to.
+%    ">"  - [button] Scroll forward through time or epochs by 0.2 window length.
+%    ">>" - [button] Scroll forward through time or epochs by one window length.
+%       Keyboard: D
+%    NEW ">|" - [button] Scroll backwards to the end of the file.
+%       Keyboard: E
+%    "Chan/Time/Value" - [text] If the mouse is within the activity window, indicates
+%                  which channel, time, and activity value the cursor is closest to.
+%    "Scale edit box" - [edit box] Scales the displayed amplitude in activity units.
+%                  Command line equivalent: 'spacing' 
+%    "+ / -" - [buttons] Use these buttons to +/- the amplitude scale by 10%.
+%       Keyboard: C / X (it's reversed but intuitive)
+%    Removed the "Cancel" - [button] Closes the window and cancels any data
+%    rejection marks.
+% 
+%     Other Keyboard functions:
+%     V, B, N, M [keyboard press]: Plot topoplot Avg. Exp. for that bin or selected area
+%
+%     
+
 %                 
 % Required command line input:
 %    data        - Input data matrix, either continuous 2-D (channels,timepoints) or 
@@ -156,9 +252,10 @@
 %                    the global workspace (only) when the REJECT button is clicked. 
 %                    The command specified in the 'command' keyword argument can use 
 %                    this variable. (See eegplot2trial() and eegplot2event()). 
+%    EEG          -  EEG data extracted from g.EEG
 %
 % Author: Arnaud Delorme & Colin Humphries, CNL/Salk Institute, SCCN/INC/UCSD, 1998-2001
-% Modified by: Ugo Bruzadin Nunes 2021
+% Completely Modified by: Ugo Bruzadin Nunes 2021
 % Part of the code was copied and altered from the TBT plugin by Mattan S. Ben-Shachar
 %
 % See also: eeg_multieegplot(), eegplot2event(), eegplot2trial(), eeglab()
@@ -409,7 +506,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    try g.savecommand;            catch, g.savecommand = '';    end % Ugo
        try g.savecommand2;       catch, g.savecommand2 = '';    end % Ugo
        try g.matrixpos;           catch, g.matrixpos = [ 0.922   0.25      0.075    0.13 ]; end % Ugo
-       try g.headpos;           catch, g.headpos = [ 0.92    0.25    0.080    0.13 ]; end % Ugo
+       try g.headpos;           catch, g.headpos = [ 0.915    0.25    0.080    0.13 ]; end % Ugo
    
    
    %% continue defaults
@@ -504,7 +601,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    % max event string;  JavierLC
    % ---------------------------------
    MAXEVENTSTRING = g.maxeventstring;
-   DEFAULT_AXES_POSITION = [0.05 0.03 0.865 1-(MAXEVENTSTRING-4)/100]; %[0.095 0.35 0.842 0.75-(MAXEVENTSTRING-5)/100];
+   DEFAULT_AXES_POSITION = [0.045 0.03 0.865 1-(MAXEVENTSTRING-4)/100]; %[0.095 0.35 0.842 0.75-(MAXEVENTSTRING-5)/100];
    
    % convert color to modify into array of float
    % -------------------------------------------
@@ -708,197 +805,186 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   %% Set up uicontrols
   % %%%%%%%%%%%%%%%%%%%%%%%%%
 
-  defaultsizes = [0.02,0.03,0.04,0.05];
+  defaultsizes = [0.02,0.015,0.03,0.04];
 
-  r = -.02;
+  r = -.01;
 
 % positions of buttons
 %                  bottom  left    width    heigth
 % numbers go from 1 and end at 47 (need to be reorganized)
-  posbut(22,:) = [ 0.92    0.98    0.040    defaultsizes(1) ]; % stack channels(same offset)  
-  posbut(21,:) = [ 0.92    0.96    0.040    defaultsizes(1) ]; % normalize
-  posbut(17,:) = [ 0.92    0.94    0.040    defaultsizes(1) ]; % events types
+  posbut(22,:) = [ 0.915    0.98+r    0.040    defaultsizes(1) ]; % stack channels(same offset)  
+  posbut(21,:) = [ 0.915    0.96+r    0.040    defaultsizes(1) ]; % normalize
+  posbut(17,:) = [ 0.915    0.94+r    0.040    defaultsizes(1) ]; % events types
   
-  posbut(14,:) = [ 0.92    0.92    0.040    defaultsizes(1) ]; % elec tag
-  posbut(7,:) =  [ 0.92    0.90    0.040    defaultsizes(1) ]; % elec
+  posbut(14,:) = [ 0.915    0.90+r    0.040    defaultsizes(1) ]; % elec tag
+  posbut(7,:) =  [ 0.915    0.885+r    0.040    defaultsizes(1) ]; % elec
   
-  posbut(16,:) = [ 0.92    0.88    0.040    defaultsizes(1) ]; % value tag
-  posbut(9,:) =  [ 0.92    0.86    0.040    defaultsizes(1) ]; % value
+  posbut(16,:) = [ 0.915    0.86+r    0.040    defaultsizes(1) ]; % value tag
+  posbut(9,:) =  [ 0.915    0.845+r    0.040    defaultsizes(1) ]; % value
   
-  posbut(15,:) = [ 0.92    0.84    0.040    defaultsizes(1) ]; % g.time tag
-  posbut(8,:) =  [ 0.92    0.82    0.040    defaultsizes(1) ]; % g.time   
+  posbut(15,:) = [ 0.915    0.82+r    0.040    defaultsizes(1) ]; % g.time tag
+  posbut(8,:) =  [ 0.915    0.805+r    0.040    defaultsizes(1) ]; % g.time   
 
-% New file description text (needs to be changed whenver file is modified in
-% make_eloc_file)
+%% New file description texts about the file
 
-  posbut(60,:) = [ 0.96    0.98    0.040    defaultsizes(1) ]; % Number of Channels tag
-  posbut(61,:) = [ 0.96    0.96    0.040    defaultsizes(1) ]; % Number of Channels
+  posbut(60,:) = [ 0.955    0.98+r    0.040    defaultsizes(1) ]; % Number of Channels tag
+  posbut(61,:) = [ 0.955    0.965+r    0.040    defaultsizes(1) ]; % Number of Channels
   
-  posbut(62,:) = [ 0.96    0.94    0.040    defaultsizes(1) ]; % Frames/Sampling Rate tag
-  posbut(63,:) = [ 0.96    0.92    0.040    defaultsizes(1) ]; % Frames/Sampling Rate
+  posbut(62,:) = [ 0.955    0.94+r    0.040    defaultsizes(1) ]; % Frames/Sampling Rate tag
+  posbut(63,:) = [ 0.955    0.925+r    0.040    defaultsizes(1) ]; % Frames/Sampling Rate
 
-  posbut(64,:) = [ 0.96    0.90    0.040    defaultsizes(1) ]; % Epochs/Events tag
-  posbut(65,:) = [ 0.96    0.88    0.040    defaultsizes(1) ]; % Epochs/Events
+  posbut(64,:) = [ 0.955    0.90+r    0.040    defaultsizes(1) ]; % Epochs/Events tag
+  posbut(65,:) = [ 0.955    0.885+r    0.040    defaultsizes(1) ]; % Epochs/Events
 
-  posbut(66,:) = [ 0.96    0.86    0.040    defaultsizes(1) ]; % Epoch Start/End tag
-  posbut(67,:) = [ 0.96    0.84    0.040    defaultsizes(1) ]; % Epoch Start/End
+  posbut(66,:) = [ 0.955    0.86+r    0.040    defaultsizes(1) ]; % Epoch Start/End tag
+  posbut(67,:) = [ 0.955    0.845+r    0.040    defaultsizes(1) ]; % Epoch Start/End
 
-  posbut(68,:) = [ 0.96    0.82    0.040    defaultsizes(1) ]; %  ICA weights/rank tag
-  posbut(69,:) = [ 0.96    0.80    0.040    defaultsizes(1) ]; %  ICA weights/rank
+  posbut(68,:) = [ 0.955    0.82+r    0.040    defaultsizes(1) ]; %  ICA weights/rank tag
+  posbut(69,:) = [ 0.955    0.805+r    0.040    defaultsizes(1) ]; %  ICA weights/rank
 
-  posbut(5,:) =  [ 0.92    0.78    0.080    defaultsizes(1) ]; % Eposition .52
-  posbut(46,:) = [ 0.92    0.76    0.010    defaultsizes(1) ]; % |<<  % NEW UGO
-  posbut(1,:) =  [ 0.93    0.76    0.015    defaultsizes(1) ]; % <<  
-  posbut(2,:) =  [ 0.945   0.76    0.015    defaultsizes(1) ]; % <  
-  posbut(3,:) =  [ 0.96    0.76    0.015    defaultsizes(1) ]; % >
-  posbut(4,:) =  [ 0.975   0.76    0.015    defaultsizes(1) ]; % >>  
-  posbut(47,:) = [ 0.99    0.76    0.010    defaultsizes(1) ]; % >>|  % NEW UGO
+%% Epoch editbox, arrows, scale size, number of channels display
 
-  posbut(23,:) = [ 0.92    0.74    0.040    defaultsizes(1) ]; % Espacing/scale tag
-  posbut(6,:) =  [ 0.92    0.72    0.040    defaultsizes(1) ]; % Espacing/scale  
+  posbut(5,:) =  [ 0.915    0.78+r    0.080    defaultsizes(1) ]; % Eposition .52
+  posbut(46,:) = [ 0.915    0.76+r    0.010    defaultsizes(1) ]; % |<<  % NEW UGO
+  posbut(1,:) =  [ 0.925    0.76+r    0.015    defaultsizes(1) ]; % <<  
+  posbut(2,:) =  [ 0.94   0.76+r    0.015    defaultsizes(1) ]; % <  
+  posbut(3,:) =  [ 0.955    0.76+r    0.015    defaultsizes(1) ]; % >
+  posbut(4,:) =  [ 0.970   0.76+r    0.015    defaultsizes(1) ]; % >>  
+  posbut(47,:) = [ 0.985    0.76+r    0.010    defaultsizes(1) ]; % >>|  % NEW UGO
 
-   posbut(48,:) = [ 0.96    0.74    0.040    defaultsizes(1) ]; % NumChan tag % NEW UGO
-   posbut(49,:) = [ 0.96    0.72    0.040    defaultsizes(1) ]; % NumChan % NEW UGO
+  posbut(23,:) = [ 0.915    0.735+r    0.040    defaultsizes(1) ]; % Espacing/scale tag
+  posbut(6,:) =  [ 0.915    0.72+r    0.040    defaultsizes(1) ]; % Espacing/scale  
 
-  posbut(52,:) = [ 0.96    0.70    0.040    defaultsizes(1) ]; % Reset chan numbers to max auto % NEW UGO
+   posbut(48,:) = [ 0.955    0.735+r    0.040    defaultsizes(1) ]; % NumChan tag % NEW UGO
+   posbut(49,:) = [ 0.955    0.72+r    0.040    defaultsizes(1) ]; % NumChan % NEW UGO
 
-  posbut(10,:) = [ 0.94    0.70    0.020    defaultsizes(1) ]; % +  
-  posbut(11,:) = [ 0.92    0.70    0.020    defaultsizes(1) ]; % -  
+  posbut(52,:) = [ 0.955    0.70+r    0.040    defaultsizes(1) ]; % Reset chan numbers to max auto % NEW UGO
+
+  posbut(10,:) = [ 0.935    0.70+r    0.020    defaultsizes(1) ]; % +  
+  posbut(11,:) = [ 0.915    0.70+r    0.020    defaultsizes(1) ]; % -  
   
-  posbut(20,:) = [ 0.005   0.02    0.010    0.96 ]; % slider  
+  posbut(20,:) = [ 0.004   0.02    0.010    0.96 ]; % slider  
   
   % new TBT options #Ugo
-  posbut(25,:) = [ 0.92    0.68+r    0.080    defaultsizes(1) ]; % Title tag
-  posbut(31,:) = [ 0.93    0.66+r    0.060    defaultsizes(1) ]; % List of methods to run in the data
-  posbut(33,:) = [ 0.92    0.63+r    0.080    defaultsizes(1) ]; % List of Channel/Epoch Methods, drop box, select from list
-  posbut(34,:) = [ 0.92    0.60+r    0.080    defaultsizes(1) ]; % TextBox with options
-  posbut(35,:) = [ 0.92    0.57+r    0.080    defaultsizes(2) ]; % TextBox with option hints!
-  posbut(36,:) = [ 0.92    0.55+r    0.040    defaultsizes(1) ]; % Percent of Trials Tag
-  posbut(37,:) = [ 0.96    0.55+r    0.040    defaultsizes(1) ]; % Number of Channels Tag
-  posbut(38,:) = [ 0.92    0.53+r    0.040    defaultsizes(1) ]; % Percent of Trials box
-  posbut(39,:) = [ 0.96    0.53+r    0.040    defaultsizes(1) ]; % Number of Channels Box
+  posbut(25,:) = [ 0.915    0.675+r    0.080    defaultsizes(1) ]; % Title tag
+  posbut(31,:) = [ 0.925    0.66+r    0.060    defaultsizes(1) ]; % List of methods to run in the data
+  posbut(33,:) = [ 0.915    0.63+r    0.080    defaultsizes(1) ]; % List of Channel/Epoch Methods, drop box, select from list
+  posbut(34,:) = [ 0.915    0.60+r    0.080    defaultsizes(1) ]; % TextBox with options
+  posbut(35,:) = [ 0.915    0.58+r    0.080    defaultsizes(2) ]; % TextBox with option hints!
+  posbut(36,:) = [ 0.915    0.55+r    0.040    defaultsizes(1) ]; % Percent of Trials Tag
+  posbut(37,:) = [ 0.955    0.55+r    0.040    defaultsizes(1) ]; % Number of Channels Tag
+  posbut(38,:) = [ 0.915    0.53+r    0.040    defaultsizes(1) ]; % Percent of Trials box
+  posbut(39,:) = [ 0.955    0.53+r    0.040    defaultsizes(1) ]; % Number of Channels Box
   
-  posbut(40,:) = [ 0.92    0.51+r    0.040    defaultsizes(1) ]; % Run button % run code from box 1 and 2, add data to winrej, redraw
+  posbut(40,:) = [ 0.915    0.51+r    0.040    defaultsizes(1) ]; % Run button % run code from box 1 and 2, add data to winrej, redraw
   
   %posbut(32,:) = [ 0.96    0.51+r    0.040    defaultsizes(1) ]; % Apply Rejections;
   
-  posbut(41,:) = [ 0.96    0.51+r    0.040    defaultsizes(1) ]; % Clear marks button
-  posbut(50,:) = [ 0.96    0.49+r    0.020    defaultsizes(1) ]; % UNDO BUTTON
-  posbut(53,:) = [ 0.98    0.49+r    0.020    defaultsizes(1) ]; % REDO BUTTON
-
-  posbut(30,:) = [ 0.92    0.47+r    0.080    defaultsizes(1) ]; % Counting marks tag #Ugo
-  posbut(29,:) = [ 0.92    0.45+r    0.080    defaultsizes(1) ]; % Counting marks #Ugo
-  
-  posbut(54,:) = [ 0.92    0.43+r    0.040    defaultsizes(1) ]; % plot FFT
-  posbut(55,:) = [ 0.96    0.43+r    0.040    defaultsizes(1) ]; % plot ICA headmaps
-  posbut(56,:) = [ 0.92    0.41+r    0.040    defaultsizes(1) ]; % plot AVG FFT
-  
-
-  posbut(32,:) = [ 0.92    0.40+r    0.080    defaultsizes(2) ]; % Apply Rejections;
-
-  posbut(24,:) = [ 0.92    0.38+r    0.080    defaultsizes(1) ]; % Topoplot tag
+  posbut(41,:) = [ 0.955    0.51+r    0.040    defaultsizes(1) ]; % Clear marks button
+  %posbut(50,:) = [ 0.96    0.49+r    0.020    defaultsizes(1) ]; % UNDO BUTTON
+  %posbut(53,:) = [ 0.98    0.49+r    0.020    defaultsizes(1) ]; % REDO BUTTON
+ 
+  posbut(24,:) = [ 0.915    0.48+r    0.080    defaultsizes(1) ]; % Topoplot tag
 
   %this doesnt do anything, just a place so I can remember what the
   %positions are, if I change up top I'll have to change here.
-  g.headpos =     [ 0.922   0.25+r      0.075    0.13 ]; %position of topoplot
-  g.matrixpos =   [ 0.92    0.25+r      0.080    0.13 ];  %position of matrix
+  g.headpos =     [ 0.922   0.35+r      0.075    0.13 ]; %position of topoplot
+  g.matrixpos =   [ 0.915    0.35+r      0.080    0.13 ];  %position of matrix
  
+  posbut(30,:) = [ 0.915    0.32+r    0.080    defaultsizes(1) ]; % Counting marks tag #Ugo
+  posbut(29,:) = [ 0.915    0.30+r    0.080    defaultsizes(1) ]; % Counting marks #Ugo
+
+  posbut(32,:) = [ 0.915    0.28+r    0.080    defaultsizes(1) ]; % Apply Rejections;
   % deprecated
   %posbut(26,:) = [ 0.93    0.25    0.080    defaultsizes(1) ]; % Plot data difference #Ugo
 % original = works
-%    posbut(51,:) = [ 0.92    0.21    0.080    defaultsizes(2) ]; % Epoched/Continuous Mode
-%    posbut(28,:) = [ 0.92    0.18    0.080    defaultsizes(2) ]; % Rejecting/Interpolating Mode  
-%    posbut(27,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % Components/EEG SWITCH FUNCTION
+  
+  posbut(54,:) = [ 0.915    0.25+r    0.040    defaultsizes(1) ]; % plot FFT
+  posbut(55,:) = [ 0.955    0.25+r    0.040    defaultsizes(1) ]; % plot ICA headmaps
+  %posbut(56,:) = [ 0.915    0.43    0.040    defaultsizes(1) ]; % plot AVG FFT
+
+   posbut(51,:) = [ 0.915    0.23+r    0.080    defaultsizes(1) ]; % Epoched/Continuous Mode
+   posbut(28,:) = [ 0.915    0.21+r    0.080    defaultsizes(1) ]; % Rejecting/Interpolating Mode  
+   posbut(27,:) = [ 0.915    0.19+r    0.080    defaultsizes(1) ]; % Components/EEG SWITCH FUNCTION
 
 % rotated  new vertical buttons
-  posbut(51,:) = [ 0.01    0.80    0.015    0.15 ]; % Components/EEG SWITCH FUNCTION  
-  posbut(28,:) = [ 0.01    0.625    0.015    0.17 ]; % Epoched/Continuous Mode
-  posbut(27,:) = [ 0.01    0.45    0.015    0.17 ]; % Rejecting/Interpolating Mode 
+%   posbut(51,:) = [ 0.01    0.80    0.015    0.15 ]; % Components/EEG SWITCH FUNCTION  
+%   posbut(28,:) = [ 0.01    0.625    0.015    0.17 ]; % Epoched/Continuous Mode
+%   posbut(27,:) = [ 0.01    0.45    0.015    0.17 ]; % Rejecting/Interpolating Mode 
    
-  posbut(57,:) = [ 0.92    0.17    0.080    defaultsizes(1) ]; % Folder dropmenu
-  posbut(58,:) = [ 0.92    0.19    0.080    defaultsizes(1) ]; % Folder tag
+  posbut(57,:) = [ 0.915    0.14+r    0.080    defaultsizes(1) ]; % Folder dropmenu
+  posbut(58,:) = [ 0.915    0.16+r    0.080    defaultsizes(1) ]; % Folder tag
 
-   %posbut(59,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % Components/EEG SWITCH FUNCTION
+   %posbut(59,:) = [ 0.915    0.15    0.080    defaultsizes(2) ]; % Components/EEG SWITCH FUNCTION
   
-  %posbut(43,:) = [ 0.92    0.15    0.080    defaultsizes(2) ]; % RUN, TAG AND SAVE
-  posbut(59,:) = [ 0.92    0.14    0.080    defaultsizes(1) ]; % Save text tag
-  posbut(44,:) = [ 0.92    0.12    0.080    defaultsizes(1) ]; % SAVE TEXT EDIT
-  posbut(45,:) = [ 0.92    0.09    0.080    defaultsizes(2) ]; % SAVE FILE BUTTON
+  %posbut(43,:) = [ 0.915    0.15    0.080    defaultsizes(2) ]; % RUN, TAG AND SAVE
+  posbut(59,:) = [ 0.915    0.11+r    0.080    defaultsizes(1) ]; % Save text tag
+  posbut(44,:) = [ 0.915    0.09+r    0.080    defaultsizes(1) ]; % SAVE TEXT EDIT
 
-  posbut(42,:) = [ 0.92    0.06    0.080    defaultsizes(2) ]; % store marks, transfer to eeglab #Ugo
-  posbut(13,:) = [ 0.92    0.03    0.080    defaultsizes(2) ]; % cancel/close
+  posbut(45,:) = [ 0.915    0.06+r    0.080    defaultsizes(1) ]; % SAVE FILE BUTTON
+  posbut(42,:) = [ 0.915    0.04+r    0.080    defaultsizes(1) ]; % store marks, transfer to eeglab #Ugo
+  posbut(13,:) = [ 0.955    0.02+r    0.040    defaultsizes(1) ]; % cancel/close
 
-  %posbut(12,:) = [ 0.92    0.02    0.080    defaultsizes(2) ]; % accept/close
+  %posbut(12,:) = [ 0.915    0.02    0.080    defaultsizes(2) ]; % accept/close
   
 %% NEW TEXT FOR THE CURRENT EEGLAB FILE
         
 u(60) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(60,:),'Style','text','FontSize',8,...
-	'Tag','Number of Channels tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','#Chans/Ref');
+	'Tag','Number of Channels tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','Chans - Ref');
 
 u(61) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(61,:),'Style','text','FontSize',10,...
-	'Tag','Number of Channels','BackgroundColor',DEFAULT_FIG_COLOR,'string',strcat(num2str(EEG.nbchan),'/',EEG.ref));
+	'Tag','Number of Channels','BackgroundColor',DEFAULT_FIG_COLOR,'string',[num2str(EEG.nbchan),' - ',EEG.ref]);
 
 u(62) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(62,:),'Style','text','FontSize',8,...
-	'Tag','Frames tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','Frames/Rate');
+	'Tag','Frames tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','Frames - Rate');
 
 u(63) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(63,:),'Style','text','FontSize',10,...
-	'Tag','Frames','BackgroundColor',DEFAULT_FIG_COLOR,'string',strcat(num2str(EEG.pnts),'/',num2str(EEG.srate)));
+	'Tag','Frames','BackgroundColor',DEFAULT_FIG_COLOR,'string',[num2str(EEG.pnts),' - ',num2str(EEG.srate)]);
 
 u(64) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(64,:),'Style','text','FontSize',8,...
-	'Tag','Epochs tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','Epochs/Events');
+	'Tag','Epochs tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','Epochs-Events');
 
 u(65) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(65,:),'Style','text','FontSize',10,...
-	'Tag','Epochs','BackgroundColor',DEFAULT_FIG_COLOR,'string',strcat(num2str(EEG.trials),'/',num2str(size(EEG.event,2))));
+	'Tag','Epochs','BackgroundColor',DEFAULT_FIG_COLOR,'string',[num2str(EEG.trials),' - ',num2str(size(EEG.event,2))]);
 
 u(66) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(66,:),'Style','text','FontSize',8,...
-	'Tag','Epochs time tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','start/end');
+	'Tag','Epochs time tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','[Start End]');
 
 u(67) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(67,:),'Style','text','FontSize',10,...
-	'Tag','Epochs time','BackgroundColor',DEFAULT_FIG_COLOR,'string',strcat(num2str(EEG.xmin),'/', num2str(EEG.xmax)));
+	'Tag','Epochs time','BackgroundColor',DEFAULT_FIG_COLOR,'string',['[',num2str(EEG.xmin),' ', num2str(EEG.xmax),']']);
 
 u(68) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(68,:),'Style','text','FontSize',8,...
-	'Tag','ICA weights tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','ICA/rank');
+	'Tag','ICA weights tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','ICA - Rank');
 
-tmpdata = reshape( EEG.data(1:EEG.nbchan,:,:), EEG.nbchan, EEG.pnts*EEG.trials);
-tmpdata = tmpdata - repmat(mean(tmpdata,2), [1 size(tmpdata,2)]); % zero mean
-tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
+if ~isempty(EEG.icaact)
+    tmpdata = reshape( EEG.data(1:EEG.nbchan,:,:), EEG.nbchan, EEG.pnts*EEG.trials);
+    tmpdata = tmpdata - repmat(mean(tmpdata,2), [1 size(tmpdata,2)]); % zero mean
+    tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
 
-u(69) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(69,:),'Style','text','FontSize',8,...
-	'Tag','ICA weights','BackgroundColor',DEFAULT_FIG_COLOR,'string',strcat(num2str(size(EEG.icaact,1)),'/', num2str(tmprank)));
+    icatext = [num2str(size(EEG.icaact,1)),' - ', num2str(tmprank)];
+else
+    icatext = 'no';
+end
 
-%% NEW BUTTONS
+u(69) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(69,:),'Style','text','FontSize',10,...
+	'Tag','ICA weights','BackgroundColor',DEFAULT_FIG_COLOR,'string',icatext);
+
+%% NEW BUTTONS SAVE AND LOAD
 % load directory
 loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
 % filelist
 loadfilecommand = ['try cd(EEG.filepath); catch, end;files = dir(''*.set''); newEEG = pop_loadset(files(get(findobj(''tag'',''FolderList''),''value'')).name, pwd);com = pop_eegplot_adv(newEEG, 1, 2, 1, 1);[ALLEEG newEEG CURRENTSET] = eeg_store(ALLEEG, newEEG, CURRENTSET);'];
 
-u(59) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(59,:), ...
-    'Style','text',...
-    'FontSize',8,...
-	'Tag','save_file_title',...
-    'BackgroundColor',DEFAULT_FIG_COLOR, ...
-	'string','Enter text: add to filename');
+u(59) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(59,:),'Style','text','FontSize',8,...
+	'Tag','save_file_title','BackgroundColor',DEFAULT_FIG_COLOR,'string','Enter text to add to filename');
 
-u(58) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(58,:), ...
-    'Style','text',...
-    'FontSize',8,...
-	'Tag','load_dir_title',...
-    'BackgroundColor',DEFAULT_FIG_COLOR, ...
-	'string','Select File to Load');
+u(58) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(58,:),'Style','text','FontSize',8,...
+	'Tag','load_dir_title','BackgroundColor',DEFAULT_FIG_COLOR,'string','Load File From This Folder');
 
-u(57) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(57,:), ...
-    'Style','popupmenu',...
-	'Tag','FolderList',...
-	'string','',...
-    'callback',loadfilecommand);
+u(57) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(57,:),'Style','popupmenu',...
+    'Tag','FolderList','string','',    'callback',loadfilecommand);
 
-eval(loaddircommand);
+eval(loaddircommand); % loads the folder of the file
 
 %% Channel rejection callbacks
 % get channels for partial interpolation
@@ -908,90 +994,40 @@ plotdiffcom = ['EEG.myVariables{2} = get(findobj(gcf, ''Tag'', ''datadiff''),''V
 % get channels for complete interpolation
 chaninterp2 = ['EEG.myVariables{3} = get(findobj(gcf, ''Tag'', ''Removal''),''string'');'];
 
-
 displayep = ['eegplot_adv(''redraw'')'];
 togglerej = ['eegplot_adv(''rejection'')'];
-displaycomp = ['EEG.plotEp = 1 - EEG.plotEp; eegplot_adv(EEG,varargin)'];
+displaycomp = ['EEG.plotEp = 1 - EEG.plotEp; eegplot_adv(EEG,varargin);'];
 
-%     function selection(src,event)
-%         val = c.Value;
-%         str = c.String;
-%         str{val};
-%         disp(['Selection: ' str{val}]);
-%     end
-
-% --- start trial by trial options
+%% --- start trial by trial options
 % 
-%  gettextandsavecommand = ['g = get(gcf,''UserData''); EEG = g.EEG; EEG.reject.gcompreject [EEG] = pop_saveset(EEG, ''filename'', [strcat( EEG.filename(1:end-4),get(findobj(''tag'',''SaveNowText''),''string''),''.set'')],''filepath'',EEG.filepath);'...
-%       '[ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);g.EEG = EEG;']; %save set ADDED BY UGO
 
-u(54) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(54,:), ...
-    'Style','pushbutton',...
-	'Tag','plotFFT',...
-	'string','plot avg FFT',...
-    'callback',['g = get(gcf,''UserData''); quick_spectra(g.EEG,40,2,''AVG'');']);
+u(54) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(54,:),'Style','pushbutton',...
+	'Tag','plotFFT','string','FFT(avg)','callback',['g = get(gcf,''UserData''); quick_spectra(g.EEG,40,2,''AVG'');']);
 
-% newcommand = ['' 'comps = find(EEG.reject.gcompreject);' ,...
-%     ['close(gcf); ' ...
-%     'g = get(findobj(''tag'',''eegplot_adv''),''UserData'');'  ...
-%     'g.eloc_file(comps).badchan = 1;'] ,...
-%     'set(gcf,''UserData'',g);',...
-%     'update_trial_rejections(g);',...
-%     'draw_data([],[],gcf,0,[],g);end' '' ];
-% 
-% newcommand = ['sprintf('''' hello '''');'];
-% 
-% %ICLcommand = ['g = get(gcf,''UserData''); [EEG,~] = quick_IClabel(g.EEG,[],[],[],[],''sprintf(''''hello'''')''); '];
+ICLcommand = ['g = get(gcf,''UserData''); [EEG,com] = quick_IClabel(g.EEG,[],[],[],[],[''eegplot_adv(''''MERGE_REJECTION'''');'']);'];
 
-ICLcommand = ['g = get(gcf,''UserData''); [EEG,com] = quick_IClabel(g.EEG,[],[],[],[],[''eegplot_adv(''''MERGE_REJECTION'''')'']);'];
-%     'comps = find(ICL.reject.gcompreject);' ,...
-%     'g.eloc_file(comps).badchan = 1;' ,...
-%     'set(gcf,''UserData'',g);',...
-%     'update_trial_rejections(g);',...
-%     'draw_data([],[],gcf,0,[],g);end'];
+u(55) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(55,:),'Style','pushbutton',...
+	'Tag','plotICLABEL','string','IClabel','callback',ICLcommand);
 
-u(55) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(55,:), ...
-    'Style','pushbutton',...
-	'Tag','plotICLABEL',...
-	'string','plot ICL',...
-    'callback',ICLcommand);
+u(50) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(44,:),	'Style','edit', ...
+	'Tag','SaveNowText','BackgroundColor',DEFAULT_PLOT_BACKGROUND,'string','');
 
-u(50) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_PLOT_BACKGROUND, ...
-	'Position', posbut(44,:), ...
-	'Style','edit', ...
-	'Tag','SaveNowText',...
-	'string','');
-
-    u(58) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(45,:), ...
-    'Style','pushbutton',...
-	'Tag','SaveNowButton',...
-	'string','Save File with Text',...
-    'callback',['eegplot_adv(''SAVE'')']);
+    u(58) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(45,:),'Style','pushbutton',...
+	'Tag','SaveNowButton','string','Save File with Text','callback',['eegplot_adv(''SAVE'');']);
 
 %% heatmap title
-  u(24) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(24,:), ...
-    'BackgroundColor',DEFAULT_FIG_COLOR, ...
-	'Style','text', ...
-    'FontSize',8, ...
-	'Tag','headmap',...
-	'string','Data Matrix');
+  u(24) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(24,:),'Style','text','FontSize',8, ...
+	'Tag','headmap','BackgroundColor',DEFAULT_FIG_COLOR,'string','Current Data Marks','TooltipString', ...
+    ['Red lines: Rejected epochs',newline,...
+    'Green lines: Epochs selected for partial interpolation',newline,...
+    'Yellow lines: Channels/Components selected for interpolation/rejection',newline,...
+    'Black dots: Parts of channels selected for interpolation or highlighted during rejection']);
 
 %% TBT part modified from pop_TBT() scripts
 if isstruct(EEG)
 QuickLabDefs;
 
-    g.eegmethods = ['ICA|' ...
-        'BSS EMG|'...
+    g.eegmethods = ['ICA|','BSS EMG|',...
         'Re-reference|'...
         'Reduce headmodel to 94|'...
         'Re-epoch|'...
@@ -1150,230 +1186,98 @@ g.allmethods = ['TBT|' ...
 g.currentoptions = g.tbtoptions;
 
 % Choose Methods tag
-  u(25) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(25,:), ...
-	'Style','text', ...
-    'FontSize',8, ...
-	'Tag','ListTag',...
-    'BackgroundColor',DEFAULT_FIG_COLOR, ...
-	'string','Select Methods');
+  u(25) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(25,:),'Style','text','FontSize',8, ...
+	'Tag','ListTag','BackgroundColor',DEFAULT_FIG_COLOR,'string','Select Functions Library');
 
 % Methods tag
-  u(32) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(31,:), ...
-    'BackgroundColor',DEFAULT_PLOT_BACKGROUND, ...
-	'Style','popupmenu', ...
-    'HorizontalAlignment', 'center',...
-    'FontSize',10, ...
-	'Tag','ListPopup',...
-	'string',g.allmethods,...
-    'callback',@change_list);
+  u(32) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(31,:),'Style','popupmenu','HorizontalAlignment', 'center','FontSize',10,...
+    'Tag','ListPopup','BackgroundColor',DEFAULT_PLOT_BACKGROUND,'string',g.allmethods,'callback',@change_list);
 
 % methods
-  u(33) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_PLOT_BACKGROUND, ...
-	'Position', posbut(33,:), ...
-	'Style','popupmenu', ...
-	'Tag','ALLmethods',...
-	'string',g.tbtmethods,...
-    'callback',@change_options);
+  u(33) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(33,:),'Style','popupmenu',...
+	'Tag','ALLmethods','BackgroundColor',DEFAULT_PLOT_BACKGROUND,'string',g.tbtmethods,'callback',@change_options);
 
 % options
-  u(34) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_PLOT_BACKGROUND, ...
-	'Position', posbut(34,:), ...
-	'Style','edit', ...
-	'Tag','ALLoptions',...
-	'string',g.tbtoptions{1});
+  u(34) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(34,:),'Style','edit',...
+	'Tag','ALLoptions','BackgroundColor',DEFAULT_PLOT_BACKGROUND,'string',g.tbtoptions{1});
 
 % options hints
-  u(35) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(35,:), ...
-	'Style','text', ...
-    'BackgroundColor',DEFAULT_FIG_COLOR, ...
-    'FontSize',8,...
-	'Tag','ALLhints',...
-	'string',g.tbtoptions{1,2});
+  u(35) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(35,:),'Style','text','FontSize',8,...
+    'Tag','ALLhints','BackgroundColor',DEFAULT_FIG_COLOR,'string',g.tbtoptions{1,2});
 % hint
+
 % tag
-  u(36) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_FIG_COLOR, ...
-    'FontSize',8,...
-	'Position', posbut(36,:), ...
-	'Style','text', ...
-	'Tag','TBT%tag',...
-	'string','% trials 4 rej');
+  u(36) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(36,:),'Style','text','FontSize',8,...
+	'Tag','TBT%tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','% trials 4 rej');
 
-  u(37) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_FIG_COLOR, ...
-    'FontSize',8,...
-	'Position', posbut(37,:), ...
-	'Style','text', ...
-	'Tag','TBTnchanstag',...
-	'string','#chans 4 rej');
+  u(37) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(37,:),'Style','text','FontSize',8,...
+	'Tag','TBTnchanstag','BackgroundColor',DEFAULT_FIG_COLOR,	'string','#chans 4 rej');
 
-  u(38) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_PLOT_BACKGROUND, ...
-	'Position', posbut(38,:), ...
-	'Style','edit', ...
-	'Tag','TBT%',...
-	'string','60');
+  u(38) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(38,:),'Style','edit',...
+	'Tag','TBT%','BackgroundColor',DEFAULT_PLOT_BACKGROUND,'string','60');
 
-  u(39) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_PLOT_BACKGROUND, ...
-	'Position', posbut(39,:), ...
-	'Style','edit', ...
-	'Tag','TBTnchans',...
-	'string','10');
+  u(39) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(39,:), 'Style','edit',...
+	'Tag','TBTnchans','BackgroundColor',DEFAULT_PLOT_BACKGROUND, 'string','10');	
 
-  u(40) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(40,:), ...
-	'Tag','TBT',...
-    'BackgroundColor',DEFAULT_OFF_COLOR,...
-	'string','Run',...
-	'Callback', 'eegplot_adv(''METHODS'')' );
+  u(40) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(40,:), ...
+    'Tag','TBT','BackgroundColor',DEFAULT_OFF_COLOR,'string','Run','Callback', 'eegplot_adv(''METHODS'');' );
 
-  u(60) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(32,:), ...
-	'Tag','APPLY',...
-    'BackgroundColor',DEFAULT_OFF_COLOR,...
-	'string','Apply Changes',...
-	'Callback', ['eegplot_adv(''APPLY'')'] );
+  u(60) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(32,:), ...
+	'Tag','APPLY','BackgroundColor',DEFAULT_OFF_COLOR,'string','Apply Changes',	'Callback', ['eegplot_adv(''APPLY'');'] );
 
   %posbut(32
-  u(41) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(41,:), ...
-	'Tag','ClearMarks',...
-    'BackgroundColor',DEFAULT_OFF_COLOR,...
-	'string','Clear Marks',...
-	'Callback', ['eegplot_adv(''ClearMarks'')']);
+  u(41) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(41,:),...
+	'Tag','ClearMarks','BackgroundColor',DEFAULT_OFF_COLOR,'string','Clear Marks','Callback', ['eegplot_adv(''ClearMarks'');']);
 
 %% Save, Tag and ICA attempts #Ugo 5/27/2022
-% u(43) = uicontrol('Parent',figh, ...
-% 	'Units', 'normalized', ...
-% 	'Position', posbut(43,:), ...
-% 	'Tag','SaveTagICA',...
-%     'BackgroundColor',[.5 1 0.5],...
-% 	'string','Tag, Save & ICA',...
-% 	'Callback', ['eegplot_adv(''saveandtag'')'] );
-
-%% bss attempts #Ugo 6/25/2022
+% u(43) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(43,:),
+% 	'Tag','SaveTagICA', 'BackgroundColor',[.5 1 0.5],'string','Tag, Save & ICA','Callback', ['eegplot_adv(''saveandtag'')'] );
 
 g.scripts = ['BSS|' ...
         'ICA|'...
         'Reference|'...
         'Epoch|'...
         'Channel Reduction'];
-% 
-% u(45) = uicontrol('Parent',figh, ...
-% 	'Units', 'normalized', ...
-% 	'Position', posbut(51,:), ...
-% 	'Tag','Scripts',...
-%     'BackgroundColor',DEFAULT_PLOT_BACKGROUND,...
-% 	'Style','popupmenu', ...
-% 	'string',g.scripts,...
-% 	'Callback', ['eegplot_adv(''BSS'')']);
 
 if g.EEG.plotchannels
     cmodecolor = DEFAULT_ON_COLOR;
-    %cmode = 'EEG DATA ON';
-    cmode = vert_string('SHOW ICA'); 
-    %cmode = ['<html>P<br />L<br />O<br />T<br /> ' ' <br /> I<br />C<br />A</html>'];
+    cmode = 'Show ICA'; 
 else
     cmodecolor = DEFAULT_OFF_COLOR;
-    %cmode = 'COMPONENT DATA ON';
-    cmode = vert_string('SHOW EEG'); 
-    %cmode = ['<html>P<br />L<br />O<br />T<br /> ' ' <br /> E<br />E<br />G</html>'];
+    cmode = 'Show EEG'; 
 end
 
-u(45) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(51,:), ...
-	'Tag','SWITCH',...
-    'BackgroundColor',cmodecolor,...
-	'string',cmode,...
-    'fontsize',8,...
-    'HorizontalAlignment','center',...
-    'FontWeight','bold',...
-	'Callback', ['eegplot_adv(''SWITCH'')']);
+u(45) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(51,:),...
+	'Tag','SWITCH','BackgroundColor',cmodecolor,'string',cmode,'Callback', ['eegplot_adv(''SWITCH'')']);
 
-% u(46) = uicontrol('Parent',figh, ...
-% 	'Units', 'normalized', ...
-% 	'Position', posbut(50,:), ...
-% 	'Tag','UNDO',...
-%     'BackgroundColor',[.7 .7 1],...
-% 	'string','Undo',...
-% 	'Callback', ['eegplot_adv(''UNDO'')']);
+% u(46) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(50,:), ...
+% 	'Tag','UNDO', 'BackgroundColor',[.7 .7 1],'string','Undo','Callback', ['eegplot_adv(''UNDO'')']);
 % 
-% u(47) = uicontrol('Parent',figh, ...
-% 	'Units', 'normalized', ...
-% 	'Position', posbut(53,:), ...
-% 	'Tag','REDO',...
-%     'BackgroundColor',[.7 .7 1],...
-% 	'string','Redo',...
-% 	'Callback', ['eegplot_adv(''REDO'')']);
+% u(47) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(53,:),'Tag','REDO','BackgroundColor',[.7 .7 1],'string','Redo','Callback', ['eegplot_adv(''REDO'')']);
 
 %% channel or epoch, rejection or interpolation buttons #Ugo
 
- u(27) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(27,:), ...
-	'Tag','Rejection',...
-    'BackgroundColor',DEFAULT_ON_COLOR,...
-	'string',vert_string('INTERP MODE'),...
-    'FontSize',8,...
-    'FontWeight','bold',...
-	'Callback', togglerej );
+ u(27) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(27,:),...
+	'Tag','Rejection','BackgroundColor',DEFAULT_ON_COLOR,'string','Interpolation Mode','Callback', togglerej);
 
 if g.trialstag == -1
     modecolor = DEFAULT_OFF_COLOR;
-    mode = 'SHOW EPOCH';
+    mode = 'Show Epoch';
 else
     modecolor = DEFAULT_ON_COLOR;
-    mode = vert_string('HIDE EPOCH');
+    mode = 'Hide Epoch';
 end
 
- u(28) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(28,:), ...
-	'Tag','Display',...
-    'BackgroundColor',modecolor,...
-	'string',mode,...
-    'FontSize',8,...
-    'FontWeight','bold',...
-	'Callback', displayep );
+ u(28) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(28,:),...
+	'Tag','Display', 'BackgroundColor',modecolor,'string',mode,'Callback', displayep );
 
 %% number of marked areas for control #Ugo
 
-  u(29) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_FIG_COLOR, ...
-	'Position', posbut(29,:), ...
-    'Style','text', ...
-    'FontSize',8,...
-	'Tag','Count_Trials',...
-	'string','');
+  u(29) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(29,:),'Style','text','FontSize',8,...
+	'Tag','Count_Trials','BackgroundColor',DEFAULT_FIG_COLOR,'string','');
 
-  u(30) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_FIG_COLOR, ...
-	'Position', posbut(30,:), ...
-	'Style','text', ...
-    'FontSize',8,...
-	'Tag','Count_Channels',...
-	'string','');
+  u(30) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(30,:),'Style','text','FontSize',8,...
+	'Tag','Count_Channels','BackgroundColor',DEFAULT_FIG_COLOR,'string','');
 
 %% plot data difference checkbox
 
@@ -1389,142 +1293,30 @@ end
 
 %% Five move buttons: |< << < text > >> >|
 % NEW: GOES TO THE BEGGINING % UGO
-  u(46) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(46,:), ...
-	'Tag','Pushbutton0',...
-	'string','|<',...
-    'FontSize',8,...
-	'Callback',{@draw_data,figh,8,[],[],ax1});
+  u(46) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(46,:),'FontSize',8,...
+	'Tag','Pushbutton0','string','|<','Callback',{@draw_data,figh,8,[],[],ax1});
 
-  u(1) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(1,:), ...
-	'Tag','Pushbutton1',...
-	'string','<<',...
-    'FontSize',8,...
-	'Callback',{@draw_data,figh,1,[],[],ax1});
-  u(2) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(2,:), ...
-	'Tag','Pushbutton2',...
-	'string','<',...
-	'Callback',{@draw_data,figh,2,[],[],ax1});
-  u(5) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_PLOT_BACKGROUND, ...
-	'Position', posbut(5,:), ...
-	'Style','edit', ...
-	'Tag','EPosition',...
-	'string', fastif(g.trialstag(1) == -1, '0', '1'),...
-	'Callback', {@draw_data,figh,0,[],[],ax1});
-  u(3) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position',posbut(3,:), ...
-	'Tag','Pushbutton3',...
-	'string','>',...
-	'Callback',{@draw_data,figh,3,[],[],ax1});
-  u(4) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position',posbut(4,:), ...
-	'Tag','Pushbutton4',...
-	'string','>>',...
-    'FontSize',8,...
-	'Callback',{@draw_data,figh,4,[],[],ax1});
+  u(1) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(1,:),'FontSize',8,...
+	'Tag','Pushbutton1','string','<<','Callback',{@draw_data,figh,1,[],[],ax1});
+
+  u(2) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(2,:), ...
+	'Tag','Pushbutton2','string','<','Callback',{@draw_data,figh,2,[],[],ax1});
+
+  u(5) = uicontrol('Parent',figh,'Units', 'normalized',	'Position', posbut(5,:),'Style','edit',...
+	'Tag','EPosition','BackgroundColor',DEFAULT_PLOT_BACKGROUND,'string', fastif(g.trialstag(1) == -1, '0', '1'),'Callback', {@draw_data,figh,0,[],[],ax1});
+
+  u(3) = uicontrol('Parent',figh,'Units', 'normalized','Position',posbut(3,:), ...
+	'Tag','Pushbutton3','string','>','Callback',{@draw_data,figh,3,[],[],ax1});
+
+  u(4) = uicontrol('Parent',figh,'Units', 'normalized','Position',posbut(4,:),'FontSize',8, ...
+	'Tag','Pushbutton4','string','>>','Callback',{@draw_data,figh,4,[],[],ax1});
 
   % NEW GO TO THE END #UGO
-  u(47) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position',posbut(47,:), ...
-	'Tag','Pushbutton4',...
-	'string','>|',...
-    'FontSize',8,...
-	'Callback',{@draw_data,figh,7,[],[],ax1});
-
-%% Text edit fields: NumChans
-
-  u(49) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_PLOT_BACKGROUND, ...
-	'Position', posbut(49,:), ...
-	'Style','edit', ...
-	'Tag','NumChan',...
-	'string',num2str(g.chans),...
-	'Callback', 'eegplot_adv(''winelec_text'')' );
-
-  %% Text edit fields: ESpacing
-    u(6) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_PLOT_BACKGROUND, ...
-	'Position', posbut(6,:), ...
-	'Style','edit', ...
-	'Tag','ESpacing',...
-	'string',num2str(g.spacing),...
-	'Callback', {@change_scale,figh,0,ax1} );
-
-%% Slider for vertical motion
-  u(20) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(20,:), ...
-   'Style','slider', ...
-   'visible', 'off', ...
-   'sliderstep', [0.9 1], ...
-   'Tag','eegslider', ...
-   'callback',{@draw_data,figh,0,[],[],ax1,'g.elecoffset = get(gcbo, ''value'')*(g.chans-g.dispchans);'}, ...
-   'value', 0);
+  u(47) = uicontrol('Parent',figh,'Units', 'normalized','Position',posbut(47,:), 'FontSize',8,...
+	'Tag','Pushbutton4','string','>|','Callback',{@draw_data,figh,7,[],[],ax1});
 
 %% Channels, position, value and tag
-
-  u(9) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_FIG_COLOR, ...
-	'Position', posbut(7,:), ...
-	'Style','text', ...
-	'Tag','Eelec',...
-	'string',' ');
-  u(10) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_FIG_COLOR, ...
-	'Position', posbut(8,:), ...
-	'Style','text', ...
-	'Tag','Etime',...
-	'string','0.00');
-  u(11) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_FIG_COLOR, ...
-	'Position',posbut(9,:), ...
-	'Style','text', ...
-	'Tag','Evalue',...
-	'string','0.00');
-
-  u(14)= uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_FIG_COLOR, ...
-	'Position', posbut(14,:), ...
-	'Style','text', ...
-	'FontSize',8,...
-	'Tag','Eelecname',...
-	'string','Chan/Comp');
-
-  u(23)= uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_FIG_COLOR, ...
-	'Position', posbut(23,:), ...
-	'Style','text', ...
-	'FontSize',8,...
-	'Tag','thescale',...
-	'string','Scale');
-
-    u(48)= uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_FIG_COLOR, ...
-	'Position', posbut(48,:), ...
-	'Style','text', ...
-	'FontSize',8,...
-	'Tag','NumChansTag',...
-	'string','Chan Display');
-
-%% Values of time/value and freq/power in GUI
+% Values of time/value and freq/power in GUI
   if g.isfreq
       u15_string =  'Freq';
       u16_string  = 'Power';
@@ -1533,54 +1325,60 @@ end
       u16_string  = 'Value';
   end
       
-  u(15) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_FIG_COLOR, ...
-	'Position', posbut(15,:), ...
-	'Style','text', ...
-	'FontSize',8,...
-	'Tag','Etimename',...
-	'string',u15_string);
+  u(48)= uicontrol('Parent',figh,'Units','normalized','Position', posbut(48,:),'Style','text','FontSize',8,...
+	'Tag','NumChansTag','BackgroundColor',DEFAULT_FIG_COLOR,'string','Chan Display');
 
-  u(16) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'BackgroundColor',DEFAULT_FIG_COLOR, ...
-	'Position',posbut(16,:), ...
-	'Style','text', ...
-	'FontSize',8,...
-	'Tag','Evaluename',...
-	'string',u16_string);
+  u(23)= uicontrol('Parent',figh,'Units','normalized','Position', posbut(23,:),'Style','text','FontSize',8,...
+	'Tag','thescale','BackgroundColor',DEFAULT_FIG_COLOR,'string','Scale');
+
+  u(15) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(15,:),'Style','text','FontSize',8,...
+	'Tag','Etimename','BackgroundColor',DEFAULT_FIG_COLOR,'string',u15_string);
+
+  u(16) = uicontrol('Parent',figh,'Units', 'normalized','Position',posbut(16,:),'Style','text','FontSize',8,...
+	'Tag','Evaluename','BackgroundColor',DEFAULT_FIG_COLOR,'string',u16_string);
+
+  u(14) = uicontrol('Parent',figh,'Units','normalized','Position', posbut(14,:),'Style','text','FontSize',8,...
+	'Tag','Eelecname','BackgroundColor',DEFAULT_FIG_COLOR,'string','Chan/Comp');
+
+  u(09) = uicontrol('Parent',figh,'Units','normalized','Position', posbut(7,:),'Style','text','FontSize',10, ...
+	'Tag','Eelec','string',' ','BackgroundColor',DEFAULT_FIG_COLOR);
+
+  u(10) = uicontrol('Parent',figh,'Units','normalized','Position', posbut(8,:),'Style','text','FontSize',10,...
+	'Tag','Etime','BackgroundColor',DEFAULT_FIG_COLOR,'string','0.00');
+
+  u(11) = uicontrol('Parent',figh,'Units','normalized','Position', posbut(9,:),'Style','text','FontSize',10, ...
+	'Tag','Evalue','BackgroundColor',DEFAULT_FIG_COLOR,'string','0.00');
+
+%% Text edit fields: NumChans
+
+  u(49) = uicontrol('Parent',figh, ...
+	'Units', 'normalized','Position', posbut(49,:),'Style','edit', ...
+	'Tag','NumChan','BackgroundColor',DEFAULT_PLOT_BACKGROUND,'string',num2str(g.chans),'Callback', 'eegplot_adv(''winelec_text'')' );
+
+  %% Text edit fields: ESpacing
+    u(6) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(6,:),'Style','edit', ...
+    'Tag','ESpacing','BackgroundColor',DEFAULT_PLOT_BACKGROUND,'string',num2str(g.spacing),'Callback', {@change_scale,figh,0,ax1} );
+
+%% Slider for vertical motion
+  u(20) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(20,:),'Style','slider', ...
+   'visible', 'off','sliderstep', [0.9 1],'Tag','eegslider',...
+   'callback',{@draw_data,figh,0,[],[],ax1,'g.elecoffset = get(gcbo, ''value'')*(g.chans-g.dispchans);'}, ...
+   'value', 0);
+
 
 %% ESpacing buttons: + -
-  u(7) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position',posbut(10,:), ...
-	'Tag','Pushbutton5',...
-	'string','+',...
-	'FontSize',10,...
-	'Callback',{@change_scale,figh,1,ax1});
-  u(8) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position',posbut(11,:), ...
-	'Tag','Pushbutton6',...
-	'string','-',...
-	'FontSize',10,...
-	'Callback',{@change_scale,figh,2,ax1});
+  u(7) = uicontrol('Parent',figh,'Units', 'normalized','Position',posbut(10,:), ...
+	'Tag','Pushbutton5','string','+','FontSize',10,'Callback',{@change_scale,figh,1,ax1});
+
+  u(8) = uicontrol('Parent',figh,'Units', 'normalized','Position',posbut(11,:), ...
+	'Tag','Pushbutton6','string','-','FontSize',10,'Callback',{@change_scale,figh,2,ax1});
   
-  u(61) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position',posbut(52,:), ...
-	'Tag','Pushbutton6',...
-	'string','Show all',...
-	'FontSize',10,...
-	'Callback',['eegplot_adv(''winelec_auto'')']);
+  u(61) = uicontrol('Parent',figh,'Units', 'normalized','Position',posbut(52,:), ...
+	'Tag','Pushbutton6','string','Show all','FontSize',10,'Callback',['eegplot_adv(''winelec_auto'')']);
 
 %% Button for Normalizing data
-u(21) = uicontrol('Parent',figh, ...
-    'Units', 'normalized', ...
-    'Position',posbut(21,:), ...
-    'Tag','Norm',...
-    'string','Norm', 'callback', {@normalize_chan,figh});
+u(21) = uicontrol('Parent',figh,'Units', 'normalized','Position',posbut(21,:), ...
+    'Tag','Norm','string','Norm', 'callback', {@normalize_chan,figh});
 
 cb_envelope = ['g = get(gcbf,''userdata'');'...
     'hmenu = findobj(gcf, ''Tag'', ''Envelope_menu'');' ...
@@ -1591,11 +1389,8 @@ cb_envelope = ['g = get(gcbf,''userdata'');'...
     'eegplot_adv(''drawp'',0);clear g;'];
 
 %% Button to plot envelope of data
-u(22) = uicontrol('Parent',figh, ...
-    'Units', 'normalized', ...
-    'Position',posbut(22,:), ...
-    'Tag','Envelope',...
-    'string','Stack', 'callback', cb_envelope);
+u(22) = uicontrol('Parent',figh,'Units', 'normalized','Position',posbut(22,:), ...
+    'Tag','Envelope','string','Stack', 'callback', cb_envelope);
 
   if isempty(g.command) tmpcom = 'fprintf(''Rejections saved in variable TMPREJ\n'');';   
   else tmpcom = g.command;
@@ -1621,14 +1416,15 @@ u(22) = uicontrol('Parent',figh, ...
 % 						'Tag','Accept',...
 % 						'string',g.butlabel, 'callback', acceptcommand);
   end
-  
-  u(13) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position',posbut(13,:), ...
-	'string',fastif(isempty(g.command),'CLOSE', 'CLOSE'), 'callback', ...
-		[	'g = get(gcbf, ''userdata'');' ...
-            'if g.children, delete(g.children); end;' ...
-			'close(gcbf);'] );
+
+%   Commented/deprecated the close button for UX purposes
+%   u(13) = uicontrol('Parent',figh, ...
+% 	'Units', 'normalized', ...
+% 	'Position',posbut(13,:), ...
+% 	'string',fastif(isempty(g.command),'CLOSE', 'CLOSE'), 'callback', ...
+% 		[	'g = get(gcbf, ''userdata'');' ...
+%             'if g.children, delete(g.children); end;' ...
+% 			'close(gcbf);'] );
 
 % save button #Ugo
 if isempty(g.command) 
@@ -1650,21 +1446,16 @@ end
 		  				  tmpsavecom]; % quitting expression
                       
   if ~isempty(g.savecommand)
-    u(42) = uicontrol('Parent',figh, ...
-	'Units', 'normalized', ...
-	'Position', posbut(42,:), ...
-	'Tag','SaveButton',...
-    'BackgroundColor',[.5 1 0.5],...
-	'string','Transfer to EEGLAB',...
-	'Callback', savecommand );
+    
+      u(42) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(42,:), ...
+	   'Tag','SaveButton', 'BackgroundColor',[.5 1 0.5],'string','Transfer to EEGLAB','Callback', savecommand );
+
   end
 
  acceptandsavecommand = [savecommand acceptcommand];
 
   if ~isempty(g.events)
-      u(17) = uicontrol('Parent',figh, ...
-                        'Units', 'normalized', ...
-                        'Position',posbut(17,:), ...
+      u(17) = uicontrol('Parent',figh,'Units', 'normalized','Position',posbut(17,:), ...
                         'string', 'Events', 'callback', 'eegplot_adv(''drawlegend'', gcbf)');
   end
 
@@ -1944,7 +1735,7 @@ end
   else
       set(figh, 'WindowButtonDownFcn',   {@mouse_down,figh});
       set(figh, 'WindowButtonupFcn',     {@mouse_up,figh});
-  end;
+  end
 
   set(figh, 'WindowScrollWheelFcn',  {@mouse_scroll_wheel,figh,ax0,ax1,u(10),u(11),u(9)});
   set(figh, 'WindowButtonMotionFcn', {@mouse_motion,figh,ax0,ax1,u(10),u(11),u(9)});
@@ -1959,14 +1750,14 @@ end
   % prepare event array if any
   % --------------------------
   if ~isempty(g.events)
-      if ~isfield(g.events, 'type') || ~isfield(g.events, 'latency'), g.events = []; end;
-  end;
+      if ~isfield(g.events, 'type') || ~isfield(g.events, 'latency'), g.events = []; end
+  end
       
   if ~isempty(g.events)
       if ischar(g.events(1).type)
            [g.eventtypes, ~, indexcolor] = unique_bc({g.events.type}); % indexcolor countinas the event type
       else [g.eventtypes, ~, indexcolor] = unique_bc([ g.events.type ]);
-      end;
+      end
       %indexcolor=length(indexcolor)-indexcolor+1;
       g.eventcolors     = { 'r', [0 0.8 0], 'b', 'm', [1 0.5 0],  [0.5 0 0.5], [0.6 0.3 0] };  
       g.eventstyle      = { '-' '-' '-'  '-'  '-' '-' '-' '--' '--' '--'  '--' '--' '--' '--'};
@@ -1987,8 +1778,8 @@ end
               g.eventtypecolors{index} = 'c';
               g.eventstyle(find(indexcolor==index))={'-'};
               g.eventcolors(find(indexcolor==index))={'c'};
-          end;
-      end;
+          end
+      end
       g.eventtypewidths = g.eventwidths (mod(indexwidth([1:length(g.eventtypes)])-1 ,length(g.eventwidths))+1);
       g.eventwidths     = g.eventwidths (mod(indexwidth(indexcolor)-1               ,length(g.eventwidths))+1);
       
@@ -2000,12 +1791,12 @@ end
            durations(cellfun(@isempty, durations)) = { NaN };
            g.eventlatencyend   = g.eventlatencies + [durations{:}]+1;
       else g.eventlatencyend   = [];
-      end;
+      end
       g.plotevent       = 'on';
-  end;
+  end
   if isempty(g.events)
       g.plotevent      = 'off';
-  end;
+  end
 
   set(figh, 'userdata', g);
   
@@ -2030,7 +1821,7 @@ end
   eegplot_adv('scaleeye', [], gcf);
   if strcmp(lower(g.scale), 'off')
 	  eegplot_adv('scaleeye', 'off', gcf);
-  end;
+  end
   
   eegplot_adv('drawp', 0);
   if g.dispchans ~= g.chans
@@ -2070,7 +1861,7 @@ end
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 else
-  try p1 = varargin{1}; p2 = varargin{2}; catch, end;
+  try p1 = varargin{1}; p2 = varargin{2}; catch, end
   fig = findobj('tag','eegplot_adv');
   switch data
   case 'RESET'
@@ -2169,11 +1960,11 @@ else
     if ~isempty(g.EEG.icaact)
         if g.EEG.plotchannels
             %set(h,'string','EEG data ON');
-            set(h,'string',vert_string('SHOW ICA'));
+            set(h,'string','Show ICA');
             set(h, 'BackGroundColor', DEFAULT_ON_COLOR);
         else
             %set(h,'string','Component Data ON');
-            set(h,'string',vert_string('SHOW EEG'));
+            set(h,'string','Show EEG');
             set(h, 'BackgroundColor', DEFAULT_OFF_COLOR);
         end
     end
@@ -2247,7 +2038,7 @@ else
         g.wincolor = DEFAULT_PLOT_REJ; % BACKGROUND OF REJECTIONS
 
         set(dis,'BackgroundColor',DEFAULT_OFF_COLOR);
-        set(dis,'string',vert_string('REJCT MODE'));
+        set(dis,'string','Rection Mode');
 
         set(figh,'Color',DEFAULT_FIG_COLOR2);
         set(findobj(fig,'Style','Text'),'BackgroundColor',DEFAULT_FIG_COLOR2)
@@ -2255,7 +2046,7 @@ else
         g.wincolor = DEFAULT_PLOT_INTERP; % BACKGROUND OF INTERPOLATIONS
 
         set(dis,'BackgroundColor',DEFAULT_ON_COLOR);
-        set(dis,'string',vert_string('INTRP MODE'));
+        set(dis,'string','Interpolation Mode');
 
         set(figh,'Color',DEFAULT_FIG_COLOR); % 
         set(findobj(fig,'Style','Text'),'BackgroundColor',DEFAULT_FIG_COLOR)
@@ -2276,7 +2067,7 @@ else
         g.time = g.time * epoch;
         
         set(dis,'BackgroundColor',DEFAULT_ON_COLOR); %make display red
-        set(dis,'string',vert_string('HIDE EPOCH'));
+        set(dis,'string','Hide Epoch');
         
         draw_data([],[],fig,5,[],g);
     else
@@ -2285,7 +2076,7 @@ else
         
         g.time = g.time * epoch;
         set(dis,'BackgroundColor',DEFAULT_OFF_COLOR); %make display green
-        set(dis,'string',vert_string('SHOW EPOCH'));
+        set(dis,'string','Show Epoch');
 
         draw_data([],[],fig,5,[],g);
     end
@@ -2311,7 +2102,7 @@ else
     % -------------------------------------
     g = get(fig,'UserData');
 	result       = inputdlg2( { fastif(g.trialstag==-1,'New window length (s):', 'Number of epoch(s):') }, 'Change window length', 1,  { num2str(g.winlength) });
-	if size(result,1) == 0 return; end;
+	if size(result,1) == 0 return; end
 
 	g.winlength = eval(result{1}); 
 	set(fig, 'UserData', g);
@@ -2365,7 +2156,7 @@ end
    g.dispchans = eval(result{1});
    if g.dispchans<0 || g.dispchans>g.chans
        g.dispchans = g.chans;
-   end;
+   end
    set(fig, 'UserData', g);
    
    eegplot_adv('updateslider', fig);
@@ -2418,10 +2209,10 @@ end
       
   case 'loadelect' % load channels
 	[inputname,inputpath] = uigetfile('*','Channel locations file');
-	if inputname == 0 return; end;
+	if inputname == 0 return; end
 	if ~exist([ inputpath inputname ],'file')
 		error('no such file');
-	end;
+	end
 
 	AXH0 = findobj('tag','eegaxis','parent',fig);
 	eegplot_adv('setelect',[ inputpath inputname ],AXH0);
@@ -2462,11 +2253,11 @@ end
 	
 	if ~isempty(h)
 		result       = inputdlg2( { 'New title:' }, 'Change title', 1,  { get(h(1), 'string') });
-		if ~isempty(result), set(h, 'string', result{1}); end;
+		if ~isempty(result), set(h, 'string', result{1}); end
 	else 
 		result       = inputdlg2( { 'New title:' }, 'Change title', 1,  { '' });
-		if ~isempty(result), h = textsc(result{1}, 'title'); set(h, 'tag', 'eegplottitle');end;
-	end;
+		if ~isempty(result), h = textsc(result{1}, 'title'); set(h, 'tag', 'eegplottitle');end
+	end
 	
 	return;
 
@@ -2488,7 +2279,7 @@ end
 			else
 				set(children, 'visible', 'on');
 				set(eyeaxes, 'visible', 'on');
-			end;
+			end
 		else
 			toggle = get(obj,'checked');
 			if strcmp(toggle,'on')
@@ -2500,9 +2291,9 @@ end
 				set(children, 'visible', 'on');
 				set(eyeaxes, 'visible', 'on');
 				set(obj,'checked','on');
-			end;
+			end
         end
-    end;
+    end
 	
 	eyeaxes = findobj('tag','eyeaxes','parent',figh);
     ax1 = findobj('tag','eegaxis','parent',fig); % axes handle
@@ -2664,7 +2455,7 @@ end
 %     g = get(fig,'UserData');
 %     if ~isstruct(g.eloc_file) || ~isfield(g.eloc_file, 'theta') || isempty( [ g.eloc_file.theta ])
 %         return;
-%     end;
+%     end
 %     ax1 = findobj('tag','backeeg','parent',fig); 
 %     tmppos = get(ax1, 'currentpoint');
 %     ax1 = findobj('tag','eegaxis','parent',fig); % axes handle
@@ -2675,7 +2466,7 @@ end
 %     if g.trialstag ~= -1
 %           lowlim = round(g.time*g.trialstag+1);
 %     else, lowlim = round(g.time*g.srate+1);
-%     end;
+%     end
 %     data = get(ax1,'UserData');
 %     datapos = max(1, round(tmppos(1)+lowlim));
 %     datapos = min(datapos, g.frames);
@@ -2691,7 +2482,7 @@ end
 %         trial = ceil((datapos-1)/g.trialstag);
 %         latintrial = eeg_point2lat(datapos, trial, g.srate, g.limits, 0.001);
 %         title(sprintf('Latency of %d ms in trial %d', round(latintrial), trial));
-%     end;
+%     end
     
   % release button: check window consistency, add to trial boundaries
   % -------------------------------------------------------------------
@@ -2846,7 +2637,7 @@ function draw_data(varargin)
     end
     
     if ~isempty(custom_command)
-        try eval(custom_command); catch, end;
+        try eval(custom_command); catch, end
     end
     
     switch p1
@@ -3154,12 +2945,12 @@ if ~isempty(g.winrej) && g.winstatus
 %                 tmpcols  = g.winrej(indices,3:5);
 %             else
 %                 tmpcols  = g.wincolor;
-%             end;
+%             end
 %             try    [cumul, indicescount] = histc(  tmpwins1, (min(tmpwins1)-1):g.trialstag:max(tmpwins2));
 %             catch, [cumul, indicescount] = myhistc(tmpwins1, (min(tmpwins1)-1):g.trialstag:max(tmpwins2));
-%             end;
+%             end
 %             count = zeros(size(cumul));
-%             %if ~isempty(find(cumul > 1)), find(cumul > 1), end;
+%             %if ~isempty(find(cumul > 1)), find(cumul > 1), end
 %             for tmpi = 1:length(tmpwins1)
 %                 poscumul = indicescount(tmpi);
 %                 heightbeg = count(poscumul)/cumul(poscumul);
@@ -3173,9 +2964,9 @@ if ~isempty(g.winrej) && g.winstatus
 %                     patch(patch_params{:});
 %                 else
 %                     patch(ax0, patch_params{:});
-%                 end;
-%             end;
-%         end;
+%                 end
+%             end
+%         end
 %    else
 
         %patch(ax0,[0 0 1 1],DEFAULT_FIG_COLOR);
@@ -3293,9 +3084,9 @@ end
 % 	for tmptag = trialtag
 %		if tmptag >= lowlim & tmptag <= highlim
 %			plot([tmptag-lowlim tmptag-lowlim], [0 1], 'b--');
-%		end;
-%	end;
-%end;
+%		end
+%	end
+%end
 
 % draw events if any
 % ------------------
@@ -3611,18 +3402,18 @@ function change_scale(varargin)
 % push mouse button
 % ---------------------------------
 function mouse_down(varargin)
-fig = varargin{3};
+
+fig = findobj('tag');
 g = get(fig,'UserData');
 QuickLabDefs;
 %get(fig, 'SelectionType') % prints what selection has been done
 if strcmp(get(fig, 'SelectionType'),'extend')
+    
     if g.EEG.plotchannels
         plot_topoplot_CHANNEL(fig,{'v'})
     else
         eegplot_adv('topoplot', fig);
     end
-    
-    
     return;
 end
 %show_mocap_timer = timerfind('tag','mocapDisplayTimer'); if ~isempty(show_mocap_timer),  end% nima
@@ -4556,7 +4347,7 @@ EEG = g.EEG;
 
                         case 'g'
                         %EpochAverage2 = std((EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),0,2);
-                        EpochAverage = std((EEG.data(:,:)),0,2)
+                        EpochAverage = std((EEG.data(:,:)),0,2);
                         %EpochAverage = FullAverage - EpochAverage2;
                         set(findobj(gcf,'Tag','headmap'),'String','Full - Std. Dev.');
                             
@@ -4892,11 +4683,11 @@ function g = APPLY(g)
     EEG.ICA = 0;
     if g.EEG.plotchannels
         g.winrej_ch = g.winrej;
-        applycom_ch = 'NEW=EEG;[NEW LASTCOM1] = eeg_eegrej2(NEW,g.winrej,1,find([g.eloc_file.badchan])); ' ; %modified for eegrej2
+        applycom_ch = 'NEW=EEG;[NEW LASTCOM1] = eeg_eegrej_adv(NEW,g.winrej,1,find([g.eloc_file.badchan])); ' ; %modified for eegrej2
         eval(applycom_ch);
     else
         g.winrej_pc = g.winrej;
-        applycom_pc = 'NEW=EEG;[NEW LASTCOM1] = eeg_eegrej2(NEW,g.winrej,2,find([g.eloc_file.badchan])); ' ; %modified for eegrej2
+        applycom_pc = 'NEW=EEG;[NEW LASTCOM1] = eeg_eegrej_adv(NEW,g.winrej,2,find([g.eloc_file.badchan])); ' ; %modified for eegrej2
         eval(applycom_pc);
 %         if isempty(NEW.icaact)
 %             NEW.icaact = (NEW.icaweights*NEW.icasphere)*NEW.data(NEW.icachansind,:);
@@ -5420,8 +5211,8 @@ end
     partial_interps = num2str(sum(sum(g.winrej(find(g.winrej(:,4) == 1),6:end),2))); %finds greends, get columns sum, get total sum
 end
 % creates strings for printing
-total_chanmarks = strcat('Chan: ',{' '},bad_chans,' +',{' '}, partial_interps, ' p','art');
-total_marks = strcat('Trial: ',{' '},reds,' red + ',{' '}, greens, ' g','reen');
+total_chanmarks = strcat('Marked Channels: ',{' '},bad_chans,' +',{' '}, partial_interps, ' p','art');
+total_marks = strcat('Marked Trials: ',{' '},reds,' red + ',{' '}, greens, ' g','reen');
 
 % prints on menu using these tags
 set(findobj(gcf, 'Tag', 'Count_Channels'),'string',total_chanmarks);%
@@ -5571,7 +5362,7 @@ function g = detect_channelpop(g,max_num_changes,min_threshold)
    ipt = [];
    for i=1:size(EEG.icaact,1)
         for j=1:size(EEG.icaact,2)
-            [ipt,res] = findchangepts(EEG.icaact(i,j,:),"MaxNumChanges",max_num_changes,"MinThreshold",min_threshold,"MinDistance",minDistance)
+            [ipt,res] = findchangepts(EEG.icaact(i,j,:),"MaxNumChanges",max_num_changes,"MinThreshold",min_threshold,"MinDistance",minDistance);
         if ~isempty(ipt)
             winrej(i,j) = 1;
         end
@@ -5718,9 +5509,9 @@ end
         %lim = clim %for debugging
 
         %title = get(findobj(gcf,'tag','headmap'),'String');
-        set(findobj(gcf,'tag','headmap'),'String','Data Matrix');
+        set(findobj(gcf,'tag','headmap'),'String','Current Data Marks');
     else
-        set(findobj(gcf,'tag','headmap'),'String','Data Matrix');
+        set(findobj(gcf,'tag','headmap'),'String','Current Data Marks');
         matrix_pic = findobj('tag','matrix');
         set(matrix_pic,'CData',plot_matrix);
         %repeat coloring and axes to avoid issues.
@@ -5874,7 +5665,9 @@ fig = findobj('tag','eegplot_adv');
 set(fig,'Name',['Advanced EEG Data Editor by Ugo Bruzadin Nunes -- eegplot_adv(): ',EEG.filename]);
 
 % change folder and file name on the dropmenu
+%store = ['[ALLEEG, EEG, CURRENTSET] = eeg_store( ALLEEG, EEG, 0 )'];
 loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
+
 eval(loaddircommand);
 
 elecrange = [1:EEG.nbchan];
@@ -5924,8 +5717,10 @@ end
 
 g.dispchans  = size(data,1);
 
+set(findobj( 'tag','NumChan'),'String',g.dispchans);
+
 if ~isempty(g.events)
-    if ~isfield(g.events, 'type') || ~isfield(g.events, 'latency'), g.events = []; end;
+    if ~isfield(g.events, 'type') || ~isfield(g.events, 'latency'), g.events = []; end
 end
 
 %[~,g.frames, tmpnb] = size(data);
