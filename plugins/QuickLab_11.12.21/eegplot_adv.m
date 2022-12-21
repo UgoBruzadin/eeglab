@@ -5315,8 +5315,8 @@ end
     partial_interps = num2str(sum(sum(g.winrej(find(g.winrej(:,4) == 1),6:end),2))); %finds greends, get columns sum, get total sum
 end
 % creates strings for printing
-total_chanmarks = strcat('Marked Channels: ',{' '},bad_chans,' +',{' '}, partial_interps, ' p','art');
-total_marks = strcat('Marked Trials: ',{' '},reds,' red + ',{' '}, greens, ' g','reen');
+total_chanmarks = strcat('Marked Channels: ',{' '},bad_chans,' (', partial_interps, ' P','arts)');
+total_marks = strcat('Marked Trials: ',{' '},reds,' Red,',{' '}, greens, ' G','reen');
 
 % prints on menu using these tags
 set(findobj(gcf, 'Tag', 'Count_Channels'),'string',total_chanmarks);%
