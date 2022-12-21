@@ -3464,8 +3464,7 @@ if ismember(SelectionType, {'normal', 'alt'})
     ax1 = findobj('tag','backeeg','parent',fig);
     tmppos = get(ax1, 'currentpoint');
     g = get(fig,'UserData'); % get data of backgroung image {g.trialstag g.winrej incallback}
-    g.thinking = 0;   
-    
+    g.thinking = 0;
     %if g.thinking == 0
         if g.incallback ~= 1 % interception of nestest calls
             if g.trialstag ~= -1
@@ -3612,14 +3611,14 @@ g.thinking = 0;
 %if g.thinking == 0
     g.thinking = 1; % THIS IS THE FIX hopefully the damn error of mouse_motion
     set(fig,'UserData',g);
-    if g.trialstag ~= -1
-        lowlim = round(g.time*g.trialstag+1);
-        highlim = round(g.winlength*g.trialstag);
-    else
-        lowlim  = round(g.time*g.srate+1);
-        highlim = round(g.winlength*g.srate);
-    end
-
+            if g.trialstag ~= -1
+                lowlim = round(g.time*g.trialstag+1);
+                highlim = round(g.winlength*g.trialstag);
+            else
+                lowlim  = round(g.time*g.srate+1);
+                highlim = round(g.winlength*g.srate);
+            end
+    
     if g.incallback && g.trialstag == -1
         tmppos_x=mouse_near_boundary_correction(tmppos(1)+lowlim,g);
         g.winrej = [g.winrej(1:end-1,:)' [g.winrej(end,1) tmppos_x g.winrej(end,3:end)]']';
