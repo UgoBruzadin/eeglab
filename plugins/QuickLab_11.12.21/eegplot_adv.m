@@ -5498,10 +5498,13 @@ hold on; % not sure if necessary
 
 % --- making empty matrix
 %if EEG.plotchannels
-    plot_matrix = zeros(g.chans,EEG.trials);
-%else
-%    plot_matrix = zeros(size(g.eloc_file,1),EEG.trials);
-%end
+if EEG.trials ~= 1
+   plot_matrix = zeros(g.chans,EEG.trials);
+   splits = EEG.pnts;
+else
+   plot_matrix = zeros(g.chans,100);
+   splits = floor(EEG.pnts/100);
+end
 
 plot_matrix = plot_matrix - 10;
 
@@ -5513,10 +5516,10 @@ if ~isempty(g.winrej)
     rej_winrej = winrej(winrej(:,3) == 1,:);
     
     if ~isempty(rej_winrej)
-        rej_epoch_id = floor(1+rej_winrej(:,1)/EEG.pnts); % gets all red epochs
+        rej_epoch_id = floor(1+rej_winrej(:,1)/splits); % gets all red epochs
 
         % --- paint rej epochs 
-        plot_matrix(:,rej_epoch_id) = 20; % populates them with a color
+        plot_matrix(:,rej_epoch_id) = 20; % populates them with a color red
 
         nb_rejs = size(rej_epoch_id,1);
         rej_parts = rej_winrej(:,6:end);
@@ -5541,10 +5544,10 @@ if ~isempty(g.winrej)
     int_winrej = winrej(winrej(:,4) == 1,:);
     
     if ~isempty(int_winrej)
-        int_epoch_id = floor(1+int_winrej(:,1)/EEG.pnts); % gets all red epochs
+        int_epoch_id = floor(1+int_winrej(:,1)/splits); % gets all green epochs
 
         % --- paint int epochs 
-        plot_matrix(:,int_epoch_id) = 10; % populates them with a color
+        plot_matrix(:,int_epoch_id) = 10; % populates them with a color green
 
         nb_ints = size(int_epoch_id,1);
         int_parts = int_winrej(:,6:end);
