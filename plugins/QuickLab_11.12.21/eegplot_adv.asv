@@ -3464,10 +3464,8 @@ if ismember(SelectionType, {'normal', 'alt'})
     ax1 = findobj('tag','backeeg','parent',fig);
     tmppos = get(ax1, 'currentpoint');
     g = get(fig,'UserData'); % get data of backgroung image {g.trialstag g.winrej incallback}
-    g.thinking = 0;
+    g.thinking = 0;   
     
-    
-
     %if g.thinking == 0
         if g.incallback ~= 1 % interception of nestest calls
             if g.trialstag ~= -1
@@ -5500,10 +5498,11 @@ hold on; % not sure if necessary
 
 % --- making empty matrix
 %if EEG.plotchannels
+if ~g.trialstag == -1
     plot_matrix = zeros(g.chans,EEG.trials);
-%else
-%    plot_matrix = zeros(size(g.eloc_file,1),EEG.trials);
-%end
+else
+   plot_matrix = zeros(g.chans,flEEG.pnts/250);
+end
 
 plot_matrix = plot_matrix - 10;
 
