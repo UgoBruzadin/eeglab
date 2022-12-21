@@ -308,7 +308,10 @@ if isstruct(EEG)
         EEG.plotchannels = 1;
     end
     if ~isfield(EEG,'plotEp')
-        EEG.plotEp = 1;d
+        EEG.plotEp = 1;
+    end
+    if ~isfield(EEG, 'plotchannels')
+        EEG.plotchannels = 1;
     end
     if EEG.plotchannels == 1
         data = EEG.data;
@@ -1915,6 +1918,9 @@ else
       %fig = findobj('tag','eegplot_adv');
       g = get(fig,'UserData'); 
       EEG = g.EEG; 
+      if ~isfield(g.EEG, 'plotchannels')
+          g.EEG.plotchannels = 1;
+      end
        if EEG.plotchannels == 1
            EEG.chanrej = g.winrej;
            EEG.comprej = g.winrej_pc;
@@ -2917,11 +2923,14 @@ function draw_data(varargin)
 function draw_background(varargin)
 QuickLabDefs;
 
+fig = findobj('tag','eegplot_adv');
+
 if nargin >= 3
     fig = varargin{3};
 else
     fig = findobj('tag','eegplot_adv');
 end
+
 if nargin >= 4
     g = varargin{4};
 else
@@ -2931,7 +2940,7 @@ if ~isfield(g,'trialstag')
     return;
 end
 
-ax0 = findobj('tag','backeeg','parent',fig); % axes handle
+ax0 = findobj(fig,'tag','backeeg','parent',fig); % axes handle
 ax1 = findobj('tag','eegaxis','parent',fig); % axes handle
 
 % compare versions once, because it slows down drawing
@@ -5796,6 +5805,12 @@ if ~isempty(EEG.icasphere)
     g.eloc_file_pc = tmpcompstruct;
     
 end
+EEG = g.EEG;
+
+
+if ~isfield(g.EEG, 'plotchannels')
+    g.EEG.plotchannels = 1;
+end
 
 if EEG.plotchannels == 1
     g.chans = EEG.nbchan;
@@ -6003,7 +6018,7 @@ if tmprank ~= tmprank2
 end
 
 
-function g = RESET(p1)
+function g = RESET()
    
    fig = findobj('tag','eegplot_adv');
    g = get(fig,'UserData');
@@ -6012,9 +6027,13 @@ function g = RESET(p1)
 
    %if ~isfield(g.EEG,'suffix'); g.EEG.suffix = ''; end
    
+   if ~isfield(g.EEG, 'plotchannels')
+        g.EEG.plotchannels = 1;
+   end
+   
    EEG = g.EEG;
-    
-   if g.EEG.plotchannels == 1
+
+   if EEG.plotchannels == 1
        g.data = EEG.data;
    else
        if ~isempty(EEG.icaact)
