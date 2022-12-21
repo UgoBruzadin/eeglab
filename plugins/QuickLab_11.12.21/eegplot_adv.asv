@@ -78,11 +78,9 @@
 %                  given as input). Press "legend" to pop up a legend window for events.
 %
 % Display window interface:
-
 %    "Activity plot" - [main window] This axis displays the channel activities.  For 
 %                  continuous data, the time axis shows time in seconds. For epoched
 %                  data, the axis label indicate time within each epoch.
-
 %    *NEW* 
 %    Left click: Select trial for interpolation (green) or removal (red)
 %    Right click: Select channel for interpolation. If withing a selected trial, will only highlight that window
@@ -149,7 +147,7 @@
 %    "Save to File with Text" - [button] When pressed, saves current dataset adding 
 %                  the text entered to the end of the filename.
 %    "Transfer to EEGLAB" - [button] transfer current data file and state to EEGLAB
-
+%
 %    "Stack/Spread" - [button] "Stack" collapses all channels/activations onto the
 %                  middle axis of the plot. "Spread" undoes the operation.
 %    "Norm/Denorm" - [button] "Norm" normalizes each channel separately such that all
@@ -180,7 +178,7 @@
 %     V, B, N, M [keyboard press]: Plot topoplot Avg. Exp. for that bin or selected area
 %
 %     
-
+%
 %                 
 % Required command line input:
 %    data        - Input data matrix, either continuous 2-D (channels,timepoints) or 
@@ -259,11 +257,11 @@
 % Part of the code was copied and altered from the TBT plugin by Mattan S. Ben-Shachar
 %
 % See also: eeg_multieegplot(), eegplot2event(), eegplot2trial(), eeglab()
-
+%
 % deprecated 
 %    'colmodif'   - nested cell array of window colors that may be marked/unmarked. Default
 %                   is current color only.
-
+%
 % Copyright (C) 2001 Arnaud Delorme & Colin Humphries, Salk Institute, arno@salk.edu
 % Copyright (C) 2017 Mattan S. Ben-Shachar
 % Copyright (C) 2021 Ugo Bruzadin Nunes ugobruzadin@gmail.com
@@ -281,7 +279,7 @@
 % You should have received a copy of the GNU General Public License
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+%
 % Note for programmers - Internal variable structure:
 % All in g. except for Eposition and Eg.spacingwhich are inside the boxes
 % gcf
@@ -310,7 +308,7 @@ if isstruct(EEG)
         EEG.plotchannels = 1;
     end
     if ~isfield(EEG,'plotEp')
-        EEG.plotEp = 1;
+        EEG.plotEp = 1;d
     end
     if EEG.plotchannels == 1
         data = EEG.data;
@@ -863,7 +861,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   posbut(10,:) = [ 0.935    0.70+r    0.020    defaultsizes(1) ]; % +  
   posbut(11,:) = [ 0.915    0.70+r    0.020    defaultsizes(1) ]; % -  
   
-  posbut(20,:) = [ 0.004   0.02    0.010    0.96 ]; % slider  
+  posbut(20,:) = [ 0.004   0.02    0.008    0.96 ]; % slider  
   
   % new TBT options #Ugo
   posbut(25,:) = [ 0.915    0.675+r    0.080    defaultsizes(1) ]; % Title tag
@@ -871,16 +869,16 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   posbut(33,:) = [ 0.915    0.63+r    0.080    defaultsizes(1) ]; % List of Channel/Epoch Methods, drop box, select from list
   posbut(34,:) = [ 0.915    0.60+r    0.080    defaultsizes(1) ]; % TextBox with options
   posbut(35,:) = [ 0.915    0.58+r    0.080    defaultsizes(2) ]; % TextBox with option hints!
-  posbut(36,:) = [ 0.915    0.55+r    0.040    defaultsizes(1) ]; % Percent of Trials Tag
-  posbut(37,:) = [ 0.955    0.55+r    0.040    defaultsizes(1) ]; % Number of Channels Tag
-  posbut(38,:) = [ 0.915    0.53+r    0.040    defaultsizes(1) ]; % Percent of Trials box
-  posbut(39,:) = [ 0.955    0.53+r    0.040    defaultsizes(1) ]; % Number of Channels Box
+  posbut(36,:) = [ 0.915    0.545+r    0.040    defaultsizes(1) ]; % Percent of Trials Tag
+  posbut(37,:) = [ 0.955    0.545+r    0.040    defaultsizes(1) ]; % Number of Channels Tag
+  posbut(38,:) = [ 0.915    0.525+r    0.040    defaultsizes(1) ]; % Percent of Trials box
+  posbut(39,:) = [ 0.955    0.525+r    0.040    defaultsizes(1) ]; % Number of Channels Box
   
-  posbut(40,:) = [ 0.915    0.51+r    0.040    defaultsizes(1) ]; % Run button % run code from box 1 and 2, add data to winrej, redraw
+  posbut(40,:) = [ 0.915    0.505+r    0.040    defaultsizes(1) ]; % Run button % run code from box 1 and 2, add data to winrej, redraw
   
   %posbut(32,:) = [ 0.96    0.51+r    0.040    defaultsizes(1) ]; % Apply Rejections;
   
-  posbut(41,:) = [ 0.955    0.51+r    0.040    defaultsizes(1) ]; % Clear marks button
+  posbut(41,:) = [ 0.955    0.505+r    0.040    defaultsizes(1) ]; % Clear marks button
   %posbut(50,:) = [ 0.96    0.49+r    0.020    defaultsizes(1) ]; % UNDO BUTTON
   %posbut(53,:) = [ 0.98    0.49+r    0.020    defaultsizes(1) ]; % REDO BUTTON
  
@@ -899,8 +897,8 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
   %posbut(26,:) = [ 0.93    0.25    0.080    defaultsizes(1) ]; % Plot data difference #Ugo
 % original = works
   
-  posbut(54,:) = [ 0.915    0.25+r    0.040    defaultsizes(1) ]; % plot FFT
-  posbut(55,:) = [ 0.955    0.25+r    0.040    defaultsizes(1) ]; % plot ICA headmaps
+  posbut(54,:) = [ 0.915    0.255+r    0.040    defaultsizes(1) ]; % plot FFT
+  posbut(55,:) = [ 0.955    0.255+r    0.040    defaultsizes(1) ]; % plot ICA headmaps
   %posbut(56,:) = [ 0.915    0.43    0.040    defaultsizes(1) ]; % plot AVG FFT
 
    posbut(51,:) = [ 0.915    0.23+r    0.080    defaultsizes(1) ]; % Epoched/Continuous Mode
@@ -976,7 +974,7 @@ loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1
 loadfilecommand = ['try cd(EEG.filepath); catch, end;files = dir(''*.set''); newEEG = pop_loadset(files(get(findobj(''tag'',''FolderList''),''value'')).name, pwd);com = pop_eegplot_adv(newEEG, 1, 2, 1, 1);[ALLEEG newEEG CURRENTSET] = eeg_store(ALLEEG, newEEG, CURRENTSET);'];
 
 u(59) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(59,:),'Style','text','FontSize',8,...
-	'Tag','save_file_title','BackgroundColor',DEFAULT_FIG_COLOR,'string','Enter text to add to filename');
+	'Tag','save_file_title','BackgroundColor',DEFAULT_FIG_COLOR,'string','Enter Text to Add to Filename');
 
 u(58) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(58,:),'Style','text','FontSize',8,...
 	'Tag','load_dir_title','BackgroundColor',DEFAULT_FIG_COLOR,'string','Load File From This Folder');
@@ -1027,13 +1025,14 @@ u(50) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(44,:),	
 if isstruct(EEG)
 QuickLabDefs;
 
-    g.eegmethods = ['ICA|','BSS EMG|',...
+    g.eegmethods = ['ICA|',...
+        'BSS EMG (AAR)|',...
         'Re-reference|'...
         'Reduce headmodel to 94|'...
         'Re-epoch|'...
         'Quick DotLoc(HM92,Ep6,ICA)|'...
         'BSS + ICA|' ...
-        'DipFit'];
+        'DipFit (par)'];
 
     g.eegoptions = {...
         ['[], ''' ICATYPE ''' , 0'],...
@@ -1113,22 +1112,18 @@ QuickLabDefs;
         ...
         };
 
-    g.tbtmethods = ['Detect Flatline|' ...
-        'Abnormal values|'...
+    g.tbtmethods = ['Abnormal values|'...
         'Abnormal trends|'...
         'Improbable data|'...
         'Abnormal distributions|'...
         'Abnormal spectra|'...
         'Max-Min Threshold|'...
-        'Detect Channel Pops'];
+        'Detect Flatline (cleanline)|' ...
+        'Detect Channel Pops (by Ugo)'];
     
     g.tbtoptions = {...
-        ['5, 20'],...
-        ['fl duration, max jitter'],...
-        '';...
-        ...
         ['-500 , 500 ,' num2str(EEG.xmin) ' , ' num2str(EEG.xmax)],...
-        'lowthresh, upthresh, starttime, endtime',...
+        'low/up thresh, starttime, endtime',...
         'pop_eegthresh';...
         ...
         [num2str(EEG.pnts) ' , 0.5 , 0.3'],...
@@ -1150,6 +1145,10 @@ QuickLabDefs;
         ['[1:' num2str(EEG.nbchan) '],[' num2str([EEG.xmin EEG.xmax]*1000) '],100,' num2str([EEG.xmax - EEG.xmin]*1000) ',1,0'],...
         'chRange,timeRange,minmaxThresh,winSize,stepSize,maW',...
         'pop_eegmaxmin';...
+        ...
+        ['5, 20'],...
+        ['fl duration, max jitter'],...
+        '';...
         ...
         ['{5, 8, 100, 2, [],''mean''}'],...
         ['SumWindow, StdRej, max rej win, Chancomps, type'],...
@@ -1181,37 +1180,37 @@ end
 g.allmethods = ['TBT|' ...
         'QUICKLAB|'...
         'ICLABEL|' ...
-        'PLOTS'];
+        'QUICKLAB PLOTS'];
 
 g.currentoptions = g.tbtoptions;
 
 % Choose Methods tag
   u(25) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(25,:),'Style','text','FontSize',8, ...
-	'Tag','ListTag','BackgroundColor',DEFAULT_FIG_COLOR,'string','Select Functions Library');
+	'Tag','ListTag','BackgroundColor',DEFAULT_FIG_COLOR,'string','Select Library of Functions');
 
-% Methods tag
+% Functions Library
   u(32) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(31,:),'Style','popupmenu','HorizontalAlignment', 'center','FontSize',10,...
-    'Tag','ListPopup','BackgroundColor',DEFAULT_PLOT_BACKGROUND,'string',g.allmethods,'callback',@change_list);
+    'Tag','ListPopup','BackgroundColor',DEFAULT_PLOT_BACKGROUND,'string',g.allmethods,'callback',@change_list,'TooltipString','Select a library of functions');
 
 % methods
   u(33) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(33,:),'Style','popupmenu',...
-	'Tag','ALLmethods','BackgroundColor',DEFAULT_PLOT_BACKGROUND,'string',g.tbtmethods,'callback',@change_options);
+	'Tag','ALLmethods','BackgroundColor',DEFAULT_PLOT_BACKGROUND,'string',g.tbtmethods,'callback',@change_options,'TooltipString','Select a function of the chosen library');
 
 % options
   u(34) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(34,:),'Style','edit',...
-	'Tag','ALLoptions','BackgroundColor',DEFAULT_PLOT_BACKGROUND,'string',g.tbtoptions{1});
+	'Tag','ALLoptions','BackgroundColor',DEFAULT_PLOT_BACKGROUND,'string',g.tbtoptions{1},'TooltipString','Options for the selected function');
 
 % options hints
   u(35) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(35,:),'Style','text','FontSize',8,...
-    'Tag','ALLhints','BackgroundColor',DEFAULT_FIG_COLOR,'string',g.tbtoptions{1,2});
+    'Tag','ALLhints','BackgroundColor',DEFAULT_FIG_COLOR,'string',g.tbtoptions{1,2},'TooltipString',['Hints for the function options,',newline,g.tbtoptions{1,2}]);
 % hint
 
 % tag
   u(36) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(36,:),'Style','text','FontSize',8,...
-	'Tag','TBT%tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','% trials 4 rej');
+	'Tag','TBT%tag','BackgroundColor',DEFAULT_FIG_COLOR,'string','% Trials 4 rej.','TooltipString','Minimal percentage of trials necessary for a channel to be selected for rejection');
 
   u(37) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(37,:),'Style','text','FontSize',8,...
-	'Tag','TBTnchanstag','BackgroundColor',DEFAULT_FIG_COLOR,	'string','#chans 4 rej');
+	'Tag','TBTnchanstag','BackgroundColor',DEFAULT_FIG_COLOR,	'string','# Chans 4 rej.','TooltipString','Minimal number of channels necessary for a trial to be selected for rejection');
 
   u(38) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(38,:),'Style','edit',...
 	'Tag','TBT%','BackgroundColor',DEFAULT_PLOT_BACKGROUND,'string','60');
@@ -1374,7 +1373,7 @@ end
 	'Tag','Pushbutton6','string','-','FontSize',10,'Callback',{@change_scale,figh,2,ax1});
   
   u(61) = uicontrol('Parent',figh,'Units', 'normalized','Position',posbut(52,:), ...
-	'Tag','Pushbutton6','string','Show all','FontSize',10,'Callback',['eegplot_adv(''winelec_auto'')']);
+	'Tag','Pushbutton6','string','Show All','FontSize',10,'Callback',['eegplot_adv(''winelec_auto'')']);
 
 %% Button for Normalizing data
 u(21) = uicontrol('Parent',figh,'Units', 'normalized','Position',posbut(21,:), ...
@@ -1955,7 +1954,7 @@ else
   case 'SWITCH'
     g = get(fig,'UserData');
     g = SWITCH(g);
-
+    
     h = findobj(fig, 'tag', 'SWITCH');
     if ~isempty(g.EEG.icaact)
         if g.EEG.plotchannels
@@ -1968,6 +1967,7 @@ else
             set(h, 'BackgroundColor', DEFAULT_OFF_COLOR);
         end
     end
+    
     %change_scale([],[],fig,p1)
 %    eegplot_adv('zoom', fig);
 %    egplot_w3('updateslider', fig);
@@ -1975,6 +1975,7 @@ else
 %    eegplot_adv('scaleeye', [], fig);
     ax2 = findobj('tag','eegaxis','parent',fig);
     change_scale([],[],fig,4,ax2);
+    
 
   case 'UNDO'
 
@@ -1996,7 +1997,7 @@ else
       %     g = get(fig,'UserData');
 %     EEG = g.EEG;
 %     tmpcolor = g.color;
-%     draw_data2(fig,[],[],tmpcolor)
+%     draw_data_quick(fig,[],[],tmpcolor)
     %figure; spy(g.winrej)
     %interpolation_plot(g)
     %draw_matrix(fig,g);
@@ -2118,6 +2119,8 @@ else
    
    g.dispchans = g.chans;
 
+   set(findobj('tag','NumChan'),'String',num2str(g.dispchans));
+
    set(fig, 'UserData', g);
     ax1 = findobj('tag','eegaxis','parent',fig);
     try
@@ -2159,27 +2162,36 @@ end
    end
    set(fig, 'UserData', g);
    
+   set(findobj('tag','NumChan'),'String',num2str(g.dispchans));
+
    eegplot_adv('updateslider', fig);
    eegplot_adv('drawp',0);	
    eegplot_adv('scaleeye', [], fig);
-   %g = THINKING(g,0);
-   set(fig, 'UserData', g);
 
-   %MarkChannel([],[],fig,0,0);
-   %Fixing UGO
-   %set(fig,'UserData',g);
-   %draw_data([],[],fig,0,[],g);
+   set(fig, 'UserData', g);
    
    return;
    
   case 'winelec_text'  % change channel window size
                   % get new window length with dialog box
                   % -------------------------------------
-   fig = fig;
    g = get(fig,'UserData');
-   
-   g.dispchans = str2num(get(findobj('tag','NumChan'),'String'));
 
+   EChan = findobj('tag','NumChan');
+   EChanString = EChan.String;
+   % removing letters from text.
+   % Exclude characters, which are accepted by sscanf:
+   EChanString(ismember(EChan.String, '-+eEgG')) = ' ';
+   % Convert to one number and back to a string:
+   EChanString = sprintf('%g', sscanf(EChanString, '%g', 1));
+   
+   if ~isempty(EChanString)
+       set(EChan, 'String', EChanString);
+       g.dispchans = str2double(EChanString);
+   else
+       set(EChan, 'String', num2str(g.dispchans));
+   end
+   
    if isempty(g.dispchans) || g.dispchans < 0 || g.dispchans > g.chans
        g.dispchans = g.chans;
    end
@@ -2499,9 +2511,9 @@ end
   
 end
 
-% NEW FUNCTION: FAST PLOTTING ONE CHANNEL OR ONE PART AT A TIME.
+% DRAW DATA QUICK FUNCTION: FAST PLOTTING ONE CHANNEL OR ONE PART AT A TIME.
 
-function draw_data2(figh,g,channel,winrej,tmpcolor)
+function draw_data_quick(figh,g,channel,winrej,tmpcolor)
 %tic
 ax1 = findobj('tag','eegaxis','parent',figh);
 
@@ -2562,6 +2574,7 @@ end
 % ---------------------------------
 function draw_data(varargin)
 
+    
     try
         QuickLabDefs;
     catch
@@ -2574,10 +2587,13 @@ function draw_data(varargin)
     else
         figh = findobj('tag','eegplot_adv');
     end
+    
     if strcmp(get(figh,'tag'),'dialog')
         figh = get(figh,'UserData');
     end
-    
+
+    figh = findobj('tag','eegplot_adv');
+
     if nargin >= 4
         p1 = varargin{4};
         if ~isnumeric(p1)
@@ -2650,6 +2666,7 @@ function draw_data(varargin)
         case 4
         g.time = g.time+g.winlength;     % >> add one window length
         case 5
+            % switched bewteen epoched and unepoched
             tmpEEG = g.EEG;
             epoch = abs(tmpEEG.xmin - tmpEEG.xmax);
             if g.trialstag(1) ~= -1
@@ -2688,12 +2705,21 @@ function draw_data(varargin)
         set(EPosition,'string',num2str(g.time+1)); 
     end
     set(figh, 'userdata', g);
-
-    lowlim = round(g.time*multiplier+1);
-
-    highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
-
     
+    % Something is wrong when epoched data switches to unepoched data.
+    % the g.time and g.winlength are not correct, g.time grows exponentially
+    % with time, not in perfect bin windows (isntead of 1048 bins, it's a
+    % a bit bigger very time.
+    if g.trialstag ~= -1 % time in second or in trials
+        lowlim = round(g.time*multiplier+1);
+        highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
+    else
+        lowlim = round(g.time*multiplier+1);
+        highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
+    end
+
+
+   
     % Plot data and update axes
     % -------------------------
     switch lower(g.submean) % subtract the mean ?
@@ -2707,7 +2733,7 @@ function draw_data(varargin)
     end
     
     if strcmpi(g.plotdata2, 'off')
-        cla(ax1)
+        cla(ax1);
     end
     
     oldspacing = g.spacing;
@@ -2889,9 +2915,7 @@ function draw_data(varargin)
 % Draw background
 % ---------------------------------
 function draw_background(varargin)
-QuickLabDefs
-
-
+QuickLabDefs;
 
 if nargin >= 3
     fig = varargin{3};
@@ -3099,9 +3123,14 @@ if strcmpi(g.plotevent, 'on')
         MAXEVENTSTRING=75;
     end
     % JavierLC ###############################
-    AXES_POSITION = [0.05 0.03 0.865 1-(MAXEVENTSTRING-4)/100];
+    %AXES_POSITION = [0.05 0.03 0.865 1-(MAXEVENTSTRING-4)/100];
+    % FIXED BUG WHERE WINDOW WOULD INCREASE IN SIZE
+    AXES_POSITION = get(findobj('tag','eegaxis'),'Position');
+
 else % JavierLC
-    AXES_POSITION = [0.05 0.03 0.865 0.94];
+    %AXES_POSITION = [0.05 0.03 0.865 0.94];
+    % FIXED BUG WHERE WINDOW WOULD INCREASE IN SIZE
+    AXES_POSITION = get(findobj('tag','eegaxis'),'Position');
 end
 
 if ~isempty(g.events)
@@ -3346,6 +3375,19 @@ function change_scale(varargin)
     data = get(ax1, 'userdata');
     ESpacing = findobj('tag','ESpacing','parent',fig);   % ui handle
     EPosition = findobj('tag','EPosition','parent',fig); % ui handle
+
+    % removing letters from text.
+    ESpacing2 = ESpacing.String;
+    EPosition2 = EPosition.String;
+    % Exclude characters, which are accepted by sscanf:
+    ESpacing2(ismember(ESpacing2, '-+eEgG')) = ' ';
+    EPosition2(ismember(EPosition2, '-+eEgG')) = ' ';
+    % Convert to one number and back to a string:
+    ESpacing3 = sprintf('%g', sscanf(ESpacing2, '%g', 1));
+    set(ESpacing, 'String', ESpacing3);
+    EPosition3 = sprintf('%g', sscanf(EPosition2, '%g', 1));
+    set(EPosition, 'String', EPosition3);
+
     if g.trialstag(1) == -1
         g.time = str2num(get(EPosition,'string'));  
     else 
@@ -3403,7 +3445,7 @@ function change_scale(varargin)
 % ---------------------------------
 function mouse_down(varargin)
 
-fig = findobj('tag');
+fig = findobj('tag','eegplot_adv');
 g = get(fig,'UserData');
 QuickLabDefs;
 %get(fig, 'SelectionType') % prints what selection has been done
@@ -3492,13 +3534,18 @@ end
 % ---------------------------------
 function mouse_up(varargin)
 fig = varargin{3};
+fig = findobj('tag','eegplot_adv');
 g = get(fig,'UserData');
+
+if strcmp(get(fig, 'SelectionType'),'extend')
+    return;
+end
 
 %if g.thinking == 1
 
 g.incallback = 0;
 %set(fig,'UserData', g);  % early save in case of bug in the following
-if strcmp(g.mocap,'on'), g.winrej = g.winrej(end,:);end % nima
+%if strcmp(g.mocap,'on'), g.winrej = g.winrej(end,:);end % nima
 if ~isempty(g.winrej)'
     if g.winrej(end,1) == g.winrej(end,2) % remove unitary windows
         g.winrej = g.winrej(1:end-1,:);
@@ -3527,9 +3574,8 @@ if ~isempty(g.winrej)'
             end
         end
     end
+    g.winrej = sortrows(g.winrej,'ascend');
 end
-
-g.winrej = sortrows(g.winrej,'ascend');
 
 update_trial_rejections(g)
 
@@ -3537,10 +3583,10 @@ set(fig,'UserData', g);
 
 draw_background([],[],fig,g);
 
-if strcmp(g.mocap,'on')
-    show_mocap_for_eegplot_adv(g.winrej); 
-    g.winrej = g.winrej(end,:); 
-end % nima
+% if strcmp(g.mocap,'on')
+%     show_mocap_for_eegplot_adv(g.winrej); 
+%     g.winrej = g.winrej(end,:); 
+% end % nima
 %end
 
 
@@ -3565,12 +3611,13 @@ g.thinking = 0;
 %if g.thinking == 0
     g.thinking = 1; % THIS IS THE FIX hopefully the damn error of mouse_motion
     set(fig,'UserData',g);
-    if g.trialstag ~= -1
-        lowlim = round(g.time*g.trialstag+1);
-    else
-        lowlim = round(g.time*g.srate+1);
-        highlim = round(g.winlength*g.srate);
-    end
+            if g.trialstag ~= -1
+                lowlim = round(g.time*g.trialstag+1);
+                highlim = round(g.winlength*g.trialstag);
+            else
+                lowlim  = round(g.time*g.srate+1);
+                highlim = round(g.winlength*g.srate);
+            end
     
     if g.incallback && g.trialstag == -1
         tmppos_x=mouse_near_boundary_correction(tmppos(1)+lowlim,g);
@@ -3910,7 +3957,7 @@ if isfield(g, 'eloc_file')
     
     %draw_data([],[],fig,0,[],g); % draws data
     
-    draw_data2(gcf,g,channel_index,winrej,tmpcolor)
+    draw_data_quick(gcf,g,channel_index,winrej,tmpcolor)
     %draw_matrix(g); % draws matrix
     end
 end
@@ -3991,9 +4038,26 @@ else
     fig = gcf;
 end
 g = get(fig,'UserData');
+ax2 = findobj('tag','eegaxis','parent',fig);
+tmppos = get(fig.Parent, 'currentpoint');
+try g = get(fig,'UserData'); catch return; end
 
-%if g.thinking == 0
-    g.thinking = 1;
+if g.trialstag ~= -1
+    lowlim = round(g.time*g.trialstag+1);
+    highlim = round(g.winlength*g.trialstag);
+else
+    lowlim  = round(g.time*g.srate+1);
+    highlim = round(g.winlength*g.srate);
+end
+
+if g.trialstag ~= -1
+    point_is_valid = tmppos(1) >= 0 && tmppos(1) < lowlim;
+else
+    point_is_valid = tmppos(1) >= 0 && tmppos(1) <= highlim;
+end
+
+if point_is_valid
+    
     ax1 = findobj('tag','backeeg','parent',fig);
     ax2 = findobj('tag','eegaxis','parent',fig);
 
@@ -4118,7 +4182,7 @@ g = get(fig,'UserData');
 %g.thinking = 0;
 
 %catch g.thinking = 0; return;
-%end
+end
 
 
 % Created this function to facilitate drawing and plotting channels, Ugo 2021
@@ -4269,9 +4333,7 @@ EEG = g.EEG;
     ax1 = findobj('tag','backeeg','parent',fig);
     tmppos = get(ax1, 'currentpoint');
     ax1 = findobj('tag','eegaxis','parent',fig); % axes handle
-    % plot vertical line
-    %yl = ylim(ax1);
-    %plot(ax1, [ tmppos tmppos ], yl, 'color', [0.8 0.8 0.8]);
+
     if g.trialstag ~= -1 % time in second or in trials
         multiplier = g.trialstag;
     else
@@ -4286,15 +4348,32 @@ EEG = g.EEG;
     else
         point_is_valid=tmppos(1) >= 0 && tmppos(1) <= highlim;
     end
+
+    point_is_valid = 1;
+
     if point_is_valid
         data = get(ax1,'UserData');
         datapos = max(1, round(tmppos(1)+lowlim));
         datapos = min(datapos, g.frames);
         
-        colormap("default")
-        ax_pic = findobj('tag','topo');
-        ax_matrix = findobj('tag','figure');
+        % finding time value for title purposes
+        if g.trialstag ~= -1
+            tmpval = mod(tmppos(1)+lowlim-1,g.trialstag)/g.trialstag*(g.limits(2)-g.limits(1)) + g.limits(1);
+            if g.isfreq, tmpval = tmpval/1000 + g.freqs(1); end
+        else
+            tmpval = (tmppos(1)+lowlim-1)/g.srate;
+            if g.isfreq, tmpval = tmpval+g.freqs(1); end
+        end
+        
 
+
+        colormap("default")
+        ax_pic = findobj(fig,'tag','topo');
+        ax_matrix = findobj(fig,'tag','matrix');
+        if ~isempty(ax_matrix)
+            set(ax_matrix, "Visible",'off')
+            set(ax_matrix.Parent, "Visible",'off')
+        end
 %         if isempty(ax_pic)
 %             ax_pic = axes('Parent', gcf, 'position',g.matrixpos,'units','normalized','tag','topo','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
 %         else
@@ -4308,12 +4387,24 @@ EEG = g.EEG;
         % plot topo % it changes the background color of the figure to EEGLAB's default
         %topoplot(data(:,datapos), g.eloc_file);
         if ~isempty(g.winrej)
+
             % LOOPS FOR EVERY STRETCH OF REJECTION
             %for k=1:size(g.winrej,1)
             print_id = datapos >= g.winrej(:,1) & datapos <= g.winrej(:,2);
                 % CHECKS FOR MOUSE POSITION WITHIN A REJECTION STRETCH
                 if any(print_id)
                     rej_part = find(print_id);
+
+                    % finding epoch value for title purposes
+                    if g.trialstag ~= -1
+                        sel_epoch = floor(datapos/g.trialstag + 1);
+                        tmptitle = ['Epoch #',num2str(sel_epoch)];
+                    else
+                        %sel_epoch = '';
+                        tmptitle = ['Region ',num2str(rej_part)];
+                    end
+
+                    
                     % Calculates the averageb for that stretch
                     if iscell (button)
                         button = button{:};
@@ -4321,41 +4412,42 @@ EEG = g.EEG;
                     switch button
                         case 'v'
                         EpochAverage = var(EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2)),0,2);
-                        set(findobj(gcf,'Tag','headmap'),'String','Variance');
+                        set(findobj(gcf,'Tag','headmap'),'String',['Mean Var. ', tmptitle]);
 
                         case 'b'
                         EpochAverage = std((EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),0,2);
-                        set(findobj(gcf,'Tag','headmap'),'String','Std. Dev.');
+                        set(findobj(gcf,'Tag','headmap'),'String',['Mean Std. ', tmptitle]);
                         
                         case 'n'
                         EpochAverage = mean(abs(EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),2);
-                        set(findobj(gcf,'Tag','headmap'),'String','Abs. Mean');
+                        set(findobj(gcf,'Tag','headmap'),'String',['Abs. Mean ', tmptitle]);
                         
                         case 'm'
                         EpochAverage = mean(log10(abs(EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2)))),2);
-                        set(findobj(gcf,'Tag','headmap'),'String','log Mean');
+                        set(findobj(gcf,'Tag','headmap'),'String',['Mean Log. ', tmptitle]);
 
                         case 'l'
-                        EpochAverage = mean(exp(EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),2);
-                        set(findobj(gcf,'Tag','headmap'),'String','exp Mean');
+                          % Is Crashing #bug #Ugo
+%                         EpochAverage = mean(exp(EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),2);
+%                         set(findobj(gcf,'Tag','headmap'),'String',['Mean Exp. ', tmptitle]);
 
                         case 'h'
-                        EpochAverage2 = std((EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),0,2);
-                        FullAverage = std((EEG.data(:,:)),0,2);
+                        EpochAverage2 = var((EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),0,2);
+                        FullAverage = var((EEG.data(:,:)),0,2);
                         EpochAverage = FullAverage - EpochAverage2;
-                        set(findobj(gcf,'Tag','headmap'),'String','Full - Std. Dev.');
+                        set(findobj(gcf,'Tag','headmap'),'String',['Data Var - Var ', tmptitle]);
 
                         case 'g'
                         %EpochAverage2 = std((EEG.data(:,g.winrej(rej_part,1):g.winrej(rej_part,2))),0,2);
-                        EpochAverage = std((EEG.data(:,:)),0,2);
+                        EpochAverage = var((EEG.data(:,:)),0,2);
                         %EpochAverage = FullAverage - EpochAverage2;
-                        set(findobj(gcf,'Tag','headmap'),'String','Full - Std. Dev.');
+                        set(findobj(gcf,'Tag','headmap'),'String','Data Avg. Std');
                             
                     end
                     MeanDeviation = mean(EpochAverage);
                     EpochAverage = EpochAverage - MeanDeviation;
                     % PLOTS AVERAGE OF THAT STRETCH
-                    colormap("default")
+                    colormap("default");
                     topoplot(EpochAverage, EEG.chanlocs(:));
                     %set(topo,'tag','topo');
                     % This makes sure it only prints once
@@ -4371,12 +4463,14 @@ EEG = g.EEG;
                 %ax_pic = axes('Parent', gcf, 'position',g.matrixpos,'units','normalized','tag','topo','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
                 colormap("default")
                 topoplot(EEG.data(:,datapos), EEG.chanlocs(:));
+                set(findobj(gcf,'Tag','headmap'),'String',['Heatmap at time: ',num2str(tmpval)]);
                 %set(topo,'tag','topo');
             end
         else
             %ax_pic = axes('Parent', gcf, 'position',g.matrixpos,'units','normalized','tag','topo','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
             colormap("default")
             topoplot(EEG.data(:,datapos), EEG.chanlocs(:));
+            set(findobj(gcf,'Tag','headmap'),'String',['Heatmap at time: ',num2str(tmpval)]);
             %set(topo,'tag','topo');
         end
         
@@ -5053,27 +5147,27 @@ function g = REDO(g)
         
         switch method(1).Value
 
-            case 1
+            case 7
                 opt = options(1).String;
                 g = detect_flatline(g);
                 update_trial_rejections(g);
                 return;
-            case 2
+            case 1
                 comrej  = ['EEG = pop_eegthresh(EEG, ' icacomp ',' chancomps ',' options(1).String ', 1, 0);'];
                 chosen_func    = 'rejthreshE';
-            case 3
+            case 2
                 comrej  = ['[EEG, comrej] = pop_rejtrend(EEG, ' icacomp ', ' chancomps ',' options(1).String ', 1, 0,0);'];
                 chosen_func    = 'rejconstE';
-            case 4
+            case 3
                 comrej  = ['[EEG, ~,~,~,comrej] = pop_jointprob(EEG, ' icacomp ', ' chancomps ',' options(1).String ', 1, 0, 0);'];
                 chosen_func    = 'rejjpE';
-            case 5
+            case 4
                 comrej  = ['[EEG, ~,~,~,comrej] = pop_rejkurt(EEG, ' icacomp ', ' chancomps ',' options(1).String ', 1, 0, 0);'];
                 chosen_func    = 'rejkurtE';
-            case 6
+            case 5
                 comrej  = ['[EEG, ~, comrej]    = pop_rejspec(EEG, ' icacomp ',' options(1).String , ',''elecrange'',' chancomps ');'];
                 chosen_func    = 'rejfreqE';
-            case 7
+            case 6
                 comrej  = ['[EEG, comrej]    = pop_eegmaxmin(EEG,' options(1).String ');'];
                 chosen_func    = 'rejmaxminE';
                 ica = ''; %rejmaxminE doesn't have options for ICA
@@ -5386,16 +5480,18 @@ First = 0;
 
 % --- make axis for plot
 ax_pic_topo = findobj('tag','topo');
-ax_pic = findobj('tag','matrix_axis');
+ax_pic = findobj('tag','matrix');
 
 if ~isempty(ax_pic_topo)
     delete(ax_pic_topo);
-    First = 1;
+    %First = 1;
 end
 
 if isempty(ax_pic)
     First = 1;
     ax_pic = axes('Parent', gcf, 'position',g.matrixpos,'units','normalized','tag','matrix_axis','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
+else
+    set(ax_pic,"Visible",'on')
 end
 hold on; % not sure if necessary
 
@@ -5492,8 +5588,9 @@ end
     %% plots image
     if First
         matrix_pic = imagesc(ax_pic,plot_matrix);
-        set(matrix_pic,'tag','matrix')
-        axis tight;
+        set(matrix_pic,'tag','matrix');
+        hold on;
+        axis(ax_pic,'tight');
         xticks(ax_pic,EEG.trials);
         yticks(ax_pic,size(g.eloc_file,2));
         %% defining colors and axis
@@ -5514,6 +5611,8 @@ end
         set(findobj(gcf,'tag','headmap'),'String','Current Data Marks');
         matrix_pic = findobj('tag','matrix');
         set(matrix_pic,'CData',plot_matrix);
+        mymap = [.5 .5 .8; 0 0 0; 1 1 0; 0 1 0; 1 0 0]; % color map of matrix
+        colormap(mymap)
         %repeat coloring and axes to avoid issues.
 %         mymap = [.5 .5 .8; 0 0 0; 1 1 0; 0 1 0; 1 0 0]; % color map of matrix
 %         xticks(ax_pic,EEG.trials);
