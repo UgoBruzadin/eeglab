@@ -52,7 +52,7 @@ if isempty(EEG.icaact)
     EEG.icaact = (EEG.icaweights*EEG.icasphere)*EEG.data(EEG.icachansind,:);
 end
 
-[EEG,com] = pop_iclabel(EEG,type);
+[EEG,com] = pop_par_iclabel(EEG,type);
 EEG = eegh(com, EEG);
 if df
     [EEG,com] = quick_dipfit(EEG);
