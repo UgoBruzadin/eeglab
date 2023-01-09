@@ -21,5 +21,6 @@ if ~isfield(EEG,'fft')
     EEG.interpolatedChannels = [];
 end
     
-end
 eeglab redraw
+end
+
