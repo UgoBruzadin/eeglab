@@ -60,7 +60,7 @@ else
     EEG = eegh(com, EEG);
 end
 
-[EEG,com] = pop_iclabel(EEG,ICLABELDEFS(1));
+[EEG,com] = pop_par_iclabel(EEG,ICLABELDEFS(1));
 
 if disp
     [EEG,com] = quick_IClabel(EEG);
