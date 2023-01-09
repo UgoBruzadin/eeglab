@@ -1867,18 +1867,32 @@ else
   fig = findobj('tag','eegplot_adv');
   switch data
   case 'RESET'
-     g = RESET();
+    g = RESET();
+    loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
+    eval(loaddircommand);
 
   case 'MERGE_REJECTION'
-    tmpstatus = get(findobj('parent', fig, 'Style', 'checkbox'), 'value');
+    
+    fig = gcf;
+    if ~contains(fig.Tag,'topo')
+        allfigs = findobj('type','figure');
+        for i=1:length(allfigs)
+            if contains(fig.Tag,'topo')
+                fig = allfigs(i);
+            end
+        end
+    end
+    try tmpstatus = get(findobj('parent', gcf, 'Style', 'checkbox'), 'value');
     comps = fliplr([tmpstatus{:}]);
-    close(fig);
+    close(gcf);
+    catch 
+    end
     %EEG = p1;
     
     fig = findobj('tag','eegplot_adv');
 %     g = get(fig,'UserData'); 
 %     if size(fig,1) > 2
-         g = get(fig,'UserData');
+    g = get(fig,'UserData');
 %     end
     
     %[ICL,~] = quick_IClabel(g.EEG); 
@@ -1887,18 +1901,17 @@ else
     if g.EEG.plotchannels == 1
         g = SWITCH(g);
         g.eloc_file = g.eloc_file_pc;
-        g.EEG.reject.gcompreject
     else
-    for i = comps
-        g.eloc_file(i).badchan = 1;
-    end
+        for i = comps
+            g.eloc_file(i).badchan = 1;
+        end
     end
     update_trial_rejections(g);
     draw_data([],[],fig,0,[],g);
 
-      case 'TYPING'
-        g = get(fig,'UserData'); 
-        %g = TYPING(g,p1);
+  case 'TYPING'
+     g = get(fig,'UserData'); 
+     %g = TYPING(g,p1);
 
   case 'mouse_motion'
 
@@ -1946,6 +1959,9 @@ else
       %eeglab redraw;
       set(findobj('tag','eegplot_adv'),'UserData',g);
 
+      loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
+      eval(loaddircommand);
+
   case 'METHODS'
     g = get(fig,'UserData');
     g = methods(g);
@@ -1956,6 +1972,9 @@ else
         normalize_chan([],[],fig);
     end
     g = APPLY(g);
+    loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
+    eval(loaddircommand);
+
     
   case 'SWITCH'
     g = get(fig,'UserData');
@@ -2020,6 +2039,15 @@ else
       g = QUICKLAB(g);
       ax2 = findobj('tag','eegaxis','parent',fig);
       change_scale([],[],fig,4,ax2);
+    if g.EEG.plotchannels == 1
+        eegplot_adv('SWITCH');
+        g.eloc_file = g.eloc_file_pc;
+    else
+        for i = comps
+            g.eloc_file(i).badchan = 1;
+        end
+    end
+      
   
   case 'ICLABEL'
       g = get(fig,'UserData');
@@ -2045,7 +2073,7 @@ else
         g.wincolor = DEFAULT_PLOT_REJ; % BACKGROUND OF REJECTIONS
 
         set(dis,'BackgroundColor',DEFAULT_OFF_COLOR);
-        set(dis,'string','Rection Mode');
+        set(dis,'string','Rejection Mode');
 
         set(figh,'Color',DEFAULT_FIG_COLOR2);
         set(findobj(fig,'Style','Text'),'BackgroundColor',DEFAULT_FIG_COLOR2)
@@ -2716,15 +2744,13 @@ function draw_data(varargin)
     % the g.time and g.winlength are not correct, g.time grows exponentially
     % with time, not in perfect bin windows (isntead of 1048 bins, it's a
     % a bit bigger very time.
-    if g.trialstag ~= -1 % time in second or in trials
-        lowlim = round(g.time*multiplier+1);
-        highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
-    else
-        lowlim = round(g.time*multiplier+1);
-        highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
-    end
-
-
+%     if g.trialstag ~= -1 % time in second or in trials
+%         lowlim = round(g.time*multiplier+1);
+%         highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
+%     else
+         lowlim = round(g.time*multiplier+1);
+         highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
+%     end
    
     % Plot data and update axes
     % -------------------------
@@ -3798,6 +3824,7 @@ end
 
 hmenu = findobj(fig, 'Tag', 'Normalize_menu');
 hbutton = findobj(fig, 'Tag', 'Norm');
+ax2 = findobj('tag','backeeg','parent',fig);
 ax1 = findobj('tag','eegaxis','parent',fig);
 data = get(ax1,'UserData');
 
@@ -4047,30 +4074,40 @@ if nargin >= 3
 else
     fig = gcf;
 end
-g = get(fig,'UserData');
-ax2 = findobj('tag','eegaxis','parent',fig);
-tmppos = get(ax2, 'currentpoint');
+
 try g = get(fig,'UserData'); catch return; end
+%g = get(fig,'UserData');
 
-if g.trialstag ~= -1
-    lowlim = round(g.time*g.trialstag+1);
-    highlim = round(g.winlength*g.trialstag);
-else
-    lowlim  = round(g.time*g.srate+1);
-    highlim = round(g.winlength*g.srate);
-end
+ax1 = findobj('tag','backeeg','parent',fig);
+ax2 = findobj('tag','eegaxis','parent',fig);
 
-if g.trialstag ~= -1
-    point_is_valid = tmppos(1) >= 0 && tmppos(1) < lowlim;
-else
-    point_is_valid = tmppos(1) >= 0 && tmppos(1) <= highlim;
-end
+tmppos = get(ax1, 'currentpoint');
+
+    if g.trialstag ~= -1 % time in second or in trials
+        multiplier = g.trialstag;
+    else
+        multiplier = g.srate;
+    end
+
+    lowlim = round(g.time*multiplier+1);
+    highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
+
+% if g.trialstag ~= -1
+%     lowlim = round(g.time*g.trialstag+1);
+%     highlim = round(g.winlength*g.trialstag);
+% else
+%     lowlim  = round(g.time*g.srate+1);
+%     highlim = round(g.winlength*g.srate);
+% end
+
+% if g.trialstag ~= -1
+%     point_is_valid = tmppos(1) >= 0 && tmppos(1) <= highlim;
+% else
+     point_is_valid = tmppos(1) >= 0 && tmppos(1) <= highlim;
+% end
 
 if point_is_valid
     
-    ax1 = findobj('tag','backeeg','parent',fig);
-    ax2 = findobj('tag','eegaxis','parent',fig);
-
     modifiers = get(fig,'currentModifier');
     switch evnt.Key
         case 'pageup'
