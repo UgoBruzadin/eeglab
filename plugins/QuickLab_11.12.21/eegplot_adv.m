@@ -972,7 +972,7 @@ u(69) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(69,:),'
 
 %% NEW BUTTONS SAVE AND LOAD
 % load directory
-loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
+%loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
 % filelist
 loadfilecommand = ['try cd(EEG.filepath); catch, end;files = dir(''*.set''); newEEG = pop_loadset(files(get(findobj(''tag'',''FolderList''),''value'')).name, pwd);com = pop_eegplot_adv(newEEG, 1, 2, 1, 1);[ALLEEG newEEG CURRENTSET] = eeg_store(ALLEEG, newEEG, CURRENTSET);'];
 
@@ -984,8 +984,8 @@ u(58) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(58,:),'
 
 u(57) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(57,:),'Style','popupmenu',...
     'Tag','FolderList','string','',    'callback',loadfilecommand);
-
-eval(loaddircommand); % loads the folder of the file
+load_directory(EEG,figh)
+%eval(loaddircommand); % loads the folder of the file
 
 %% Channel rejection callbacks
 % get channels for partial interpolation
@@ -1868,8 +1868,9 @@ else
   switch data
   case 'RESET'
     g = RESET();
-    loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
-    eval(loaddircommand);
+    load_directory(EEG,fig)
+%     loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
+%     eval(loaddircommand);
 
   case 'MERGE_REJECTION'
     
@@ -1958,9 +1959,9 @@ else
       g.EEG = EEG; %save set ADDED BY UGO
       %eeglab redraw;
       set(findobj('tag','eegplot_adv'),'UserData',g);
-
-      loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
-      eval(loaddircommand);
+        load_directory(EEG,fig)
+%       loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
+%       eval(loaddircommand);
 
   case 'METHODS'
     g = get(fig,'UserData');
@@ -1972,8 +1973,7 @@ else
         normalize_chan([],[],fig);
     end
     g = APPLY(g);
-    loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
-    eval(loaddircommand);
+    EEG = g.EEG; 
 
     
   case 'SWITCH'
@@ -4998,7 +4998,7 @@ function g = REDO(g)
        case 2
            newcom = ['[EEG,com] = quick_IClabel(g.EEG,[],[],[],[],[''eegplot_adv(''''MERGE_REJECTION'''')'']);'];
        case 3
-           newcom = ['[EEG,com] = pop_viewprops3_par(EEG, 0, [], 1:size(EEG.icawinv,2), {''freqrange'',[2 55]},{},' , opt ,');'];
+           newcom = ['[EEG,com] = pop_viewprops_adv(EEG, 0, [], 1:size(EEG.icawinv,2), {''freqrange'',[2 55]},{},' , opt ,');'];
    end
 
    eval(newcom);
@@ -5815,9 +5815,10 @@ set(fig,'Name',['Advanced EEG Data Editor by Ugo Bruzadin Nunes -- eegplot_adv()
 
 % change folder and file name on the dropmenu
 %store = ['[ALLEEG, EEG, CURRENTSET] = eeg_store( ALLEEG, EEG, 0 )'];
-loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
-
-eval(loaddircommand);
+% loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
+% 
+% eval(loaddircommand);
+load_directory(EEG,fig)
 
 elecrange = [1:EEG.nbchan];
 
@@ -6115,3 +6116,17 @@ tmpdata = tmpdata - repmat(mean(tmpdata,2), [1 size(tmpdata,2)]); % zero mean
 tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
 
 set(findobj('Tag','ICA weights'),'string',strcat(num2str(size(EEG.icaact,1)),'/', num2str(tmprank)));
+
+function load_directory(EEG,fig)
+
+% loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
+% eval(loaddircommand);
+
+findex = [1];
+try cd(EEG.filepath); 
+catch
+end 
+files = dir('*.set');
+findex = find(strcmp({files.name}, EEG.filename));
+set(findobj(fig,'tag','FolderList'),'string',{files(1:end).name},'value',find(strcmp({files.name}, EEG.filename)));
+
