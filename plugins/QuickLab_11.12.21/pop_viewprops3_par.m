@@ -547,7 +547,7 @@ cancel  = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', DEFAULT_OFF_C
 
 % Plot ScrollPlot button
 % -------------
-commandPlot = ['pop_eegplot_w2(EEG, 2, 2, 1, 1);'];
+commandPlot = ['pop_eegplot_adv(EEG, 2, 2, 1, 1);'];
         
 plotComp = uicontrol(gcf, 'Style', 'pushbutton', 'backgroundcolor', DEFAULT_ON_COLOR, 'string', 'Plot Component Scroll', 'Units','Normalized','Position',[30 -10 15 6].*s+q, 'callback', commandPlot');
 
