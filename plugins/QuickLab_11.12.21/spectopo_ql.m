@@ -577,7 +577,7 @@ g.eegspecdB = eegspecdB;
 % --- stores frequecies
 g.freqs = freqs;
 % --- creates an invisible object that contains the g data in UserData
-fig = uicontrol(gcf, 'Style', 'text', 'UserData', g, 'Tag', 'Data', Visible='off');
+fig = uicontrol(gcf, 'Style', 'text', 'UserData', g, 'Tag', 'Data', 'Visible','off');
 
 currentfigtag = ['spectra' num2str(floor(rand*1000))]; % generate a random figure tag
 set(gcf,'tag', currentfigtag);
@@ -610,7 +610,7 @@ if strcmpi(g.plot, 'on')
 %                 'power,frequency = getPlotPoint(' index ')'];
             
             pl(index)=plot(freqs(1:maxfreqidx),specdata(index,1:maxfreqidx)', ...
-                           'color', tmpcol, 'Tag',num2str(index),'ButtonDownFcn', dispallcom,Visible='on'); hold on;
+                           'color', tmpcol, 'Tag',num2str(index),'ButtonDownFcn', dispallcom,'Visible','on'); hold on;
         end
     else 
         for index = 1:size(eegspecdBtoplot,1)
@@ -619,7 +619,7 @@ if strcmpi(g.plot, 'on')
             command = [ 'disp(''Channel ' int2str(g.plotchan(index)) ''')' ];
                         
             pl(index)=plot(freqs(1:maxfreqidx),eegspecdBtoplot(index,1:maxfreqidx)', ...
-                           'color', tmpcol, 'Tag',num2str(index), 'ButtonDownFcn', command,Visible='on'); hold on;
+                           'color', tmpcol, 'Tag',num2str(index), 'ButtonDownFcn', command,'Visible','on'); hold on;
         end
     end
     set(pl,'LineWidth',2);
@@ -834,7 +834,7 @@ if ~isempty(haspar)
         headax;
         maplimits;
         %AXES_FONTSIZE_L;
-        newfig(f) = figure('tag',strcat('fig',int2str(f),currentfigtag),Visible='off');
+        newfig(f) = figure('tag',strcat('fig',int2str(f),currentfigtag),'Visible','off');
 
         ax(f) = axes('Tag',strcat('Ax',int2str(f),currentfigtag));
         %,'Position',get(headax(realpos(f)),'position')
@@ -881,7 +881,7 @@ else
         headax;
         maplimits;
         %AXES_FONTSIZE_L;
-        newfig(f) = figure('tag',strcat('fig',int2str(f),currentfigtag),Visible='off');
+        newfig(f) = figure('tag',strcat('fig',int2str(f),currentfigtag),'Visible','off');
 
         ax(f) = axes('Tag',strcat('Ax',int2str(f),currentfigtag));
         %,'Position',get(headax(realpos(f)),'position')
