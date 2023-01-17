@@ -4425,7 +4425,7 @@ EEG = g.EEG;
 %             ax_pic = axes('Parent', gcf, 'position',g.matrixpos,'units','normalized','tag','topo','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
 %         else
 %             %delete(ax_pic,ax_matrix);
-             ax_pic = axes('Parent', gcf, 'position',g.matrixpos,'units','normalized','tag','topo','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
+             ax_pic = axes('Parent', gcf, 'position',g.matrixpos,'units','normalized','tag','topo','XTickLabel',{[]},'YTickLabel',{[]},'Color',[.93 .96 1]);
 %         end
         % get color
         BackColor = get(fig,'Color');
@@ -5536,7 +5536,7 @@ end
 
 if isempty(ax_pic)
     First = 1;
-    ax_pic = axes('Parent', gcf, 'position',g.matrixpos,'units','normalized','tag','matrix_axis','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
+    ax_pic = axes('Parent', gcf, 'position',g.matrixpos,'units','normalized','tag','matrix_axis','XTickLabel',{[]},'YTickLabel',{[]},'Color',[.93 .96 1]);
 else
     set(ax_pic,"Visible",'on')
 end
@@ -5650,7 +5650,7 @@ end
         mymap = [.5 .5 .8; 0 0 0; 1 1 0; 0 1 0; 1 0 0]; % color map of matrix
         colormap(mymap) % applies new colors
         try clim('manual'); catch, caxis('manual'); end% makes color limits manual,
-        clim(ax_pic,[-10,20]); % fixes color patterns so that alwasy plots the same colors
+        try clim(ax_pic,[-10,20]); catch, caxis(ax_pic,[-10,20]); end% fixes color patterns so that alwasy plots the same colors
 
         % makes axis tight to bounderies, filling full space
         %lim = clim %for debugging
