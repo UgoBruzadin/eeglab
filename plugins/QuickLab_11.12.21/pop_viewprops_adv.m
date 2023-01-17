@@ -247,7 +247,7 @@ if ~isempty(haspar)
     parfor ri = chanorcomp
         %% plot the topoplot headmap
         %QuickLabDefs;
-        figure('tag',strcat('fig',int2str(ri),currentfigtag),Visible='off');
+        figure('tag',strcat('fig',int2str(ri),currentfigtag),'Visible','off');
         ax(ri) = axes('Tag',strcat('Ax',int2str(ri),currentfigtag));
         if typecomp
             switch fig_opts{1}
@@ -309,7 +309,7 @@ else
     for ri = chanorcomp
         %% plot the topoplot headmap
 
-        figure('tag',strcat('fig',int2str(ri),currentfigtag),Visible='off');
+        figure('tag',strcat('fig',int2str(ri),currentfigtag),'Visible','off');
         ax(ri) = axes('Tag',strcat('Ax',int2str(ri),currentfigtag));
         
         if typecomp
