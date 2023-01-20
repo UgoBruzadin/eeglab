@@ -5,7 +5,11 @@ if nargin < 1
     axis = findobj('Tag','pie_chart');
 end
 
-%axis = axes(axis, 'Tag','pie_chart','Position', [0 0 1 1]);
+% if ~isempty(axis)
+%     delete(axis);
+% end
+% 
+% axis = axes(axis, 'Tag','pie_chart','Position', [0 0 1 1]);
 
 Ep63 = dir('*T63.set');
 Ep60 = dir('*T60.set');
@@ -17,9 +21,14 @@ AllFilesFoldersName = [AllFilesFolder.name];
 
 % finalized files
 %final_files = dir('*bssICA.set');
+
 final_files = dir('*HM9*Ep6*ICA.set');
-% preprocessed files & filnalized files
-%final_files = dir('*ICA.set');
+
+final_files2 = dir('*DONE*.set');
+
+final_files3 = dir('*FIN*.set');
+totalcompleted = cat(1,final_files,final_files3);
+totalcompleted = cat(1,totalcompleted,final_files2);
 
 totalstarted = 0;
 
@@ -35,8 +44,26 @@ for i = 1:totalFilesInFolder
 
 end
 
-totalstarted = totalstarted - size(final_files,1);
-totalfinished = size(final_files,1);
+allcompletedfiles = [totalcompleted.name];
+totalfinished = 0;
+
+for i = 1:length(allStartedFiles)
+    
+    LocationOfFileStrings = strfind(allcompletedfiles,allStartedFiles(i).name(1:end-4));
+    %LocationOfFileStrings = contains(AllFilesFoldersName,strcat(allStartedFiles(i).name(1:end-4),'*','bssICA*.set'));
+    NumberOfCountedFiles = length(LocationOfFileStrings);
+    
+    if NumberOfCountedFiles > 0
+        totalfinished = totalfinished + 1;
+    end
+
+end
+
+
+
+
+totalstarted = totalstarted - totalfinished;
+%totalfinished = size(totalcompleted,1);
 totalleft = totalFilesInFolder-totalstarted-totalfinished; 
 
 % total
