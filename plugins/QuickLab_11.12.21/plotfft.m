@@ -8,8 +8,12 @@ function rec = plotfft(EEG,files,jpgindex)
 W_MAIN = findobj('Tag','EEGLAB');
 
 axisPie = findobj('tag','PieChart');
+pie_axis  = findobj('tag','pie_chart');
 if isempty(axisPie)
     axisPie = uipanel(W_MAIN, 'Position',[.87 .05 .10 .30],'Tag','PieChart','Visible','on','BackgroundColor',W_MAIN.Color,'BorderType','none');
+end
+if ~isempty(pie_axis)
+    delete(pie_axis);
 end
 % % Create a new axis on the panel
 pieAxis = axes(axisPie, 'Tag','pie_chart','Position', [0.2 0.2 .6 .6],'Visible','on');
