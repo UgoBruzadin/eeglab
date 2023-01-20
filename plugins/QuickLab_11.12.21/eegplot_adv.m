@@ -4875,7 +4875,11 @@ function g = APPLY(g)
     [g.EEG] = eeg_store([], g.EEG);
     ax1 = findobj('tag','eegaxis','parent',gcf); % axes handle
     set(ax1,'UserData',g.data);
-    draw_matrix(g);
+
+    update_trial_rejections(g);
+
+    % creates strings for printing
+
     %draw_data([],[],gcf,9,[],g);
     eegplot_adv('winelec_auto');
 
