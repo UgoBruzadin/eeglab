@@ -70,7 +70,14 @@ totalleft = totalFilesInFolder-totalstarted-totalfinished;
 % totalstarted
 % totalstarted/total*100
 
-pie(axis,[totalleft,totalstarted,totalfinished],{num2str(totalleft),num2str(totalstarted),num2str(totalfinished)})
+OLDPIEtext = findobj(gcf,'type','text');
+OLDPIEpatch = findobj(gcf,'type','patch');
+if ~isempty(OLDPIEtext)
+    delete(OLDPIEtext);
+    delete(OLDPIEpatch);
+end
+
+PIE = pie(axis,[totalleft,totalstarted,totalfinished],{num2str(totalleft),num2str(totalstarted),num2str(totalfinished)});
 %pie(axis,[totalleft,totalstarted],{num2str(totalleft),num2str(totalstarted)})
 
 % pie([total-totalstarted,totalstarted])
