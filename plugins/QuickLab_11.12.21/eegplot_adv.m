@@ -1035,7 +1035,8 @@ QuickLabDefs;
         'Re-epoch|'...
         'Quick DotLoc(HM92,Ep6,ICA)|'...
         'BSS + ICA|' ...
-        'DipFit (par)'];
+        'DipFit (par)|...' ...
+        'ICA + ICL.8 + BSS + ICA'];
 
     g.eegoptions = {...
         ['[], ''' ICATYPE ''' , 0'],...
@@ -1069,6 +1070,11 @@ QuickLabDefs;
         ['[],1'],...
         '[components], dipoles',...
         'quick_dipfit';...
+        ...
+        [''],...
+        'ICA + ICL.8 + BSS + ICA',...
+        '';...
+        ...
         };
 
     g.iclmethods = ['All but Brain and Other|' ...
@@ -4351,7 +4357,7 @@ else
         %labls = get(ax1, 'YtickLabel');
         %component = str2num(labls(tmpelec+1,:));
 
-        pop_prop_extended2(EEG, 0, tmpelec,'NaN',{'freqrange', [2 55]});
+        pop_prop_extended_adv(EEG, 0, tmpelec,'NaN',{'freqrange', [2 55]});
     end
 end
 %     if g.trialstag == -1
@@ -4598,7 +4604,7 @@ function plot_topoplot_old(fig)
         %labls = get(ax1, 'YtickLabel');
         %component = str2num(labls(tmpelec+1,:));
         
-        pop_prop_extended2(EEG, 0, tmpelec,'NaN',{'freqrange', [2 55]});
+        pop_prop_extended_adv(EEG, 0, tmpelec,'NaN',{'freqrange', [2 55]});
     end
     end
 %     if g.trialstag == -1
@@ -5131,6 +5137,10 @@ function g = REDO(g)
        case 8
            newcom = [strcat('[NEW,com] = quick_dipfit(EEG,', opt, ');')];
            suffix = 'DF';
+       case 9
+           newcom = '[NEW,com] = quick_icrejBSS(EEG)';
+           
+           suffix = strcat('ICAPJ_BSSICA');
    end
     
    eval(newcom);
