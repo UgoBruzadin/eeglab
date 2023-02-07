@@ -35,6 +35,11 @@ COLOR_MODE = 'Default';
 %COLOR_MODE = 'Default';
 
 c = clock; %loads clock
+% Uncomment these lines to turn on darkmode! open quick_colormode to change
+% colors of all quicklab Ui and plots! WARNING: WILL AFFECT SOME EEGLAB
+% FIGURES AND PLOTS. 
+
+
 % if c(4) >= 16 || c(4) < 5 % If after 6 PM and before 5 AM, changes color scheme to dark mode
 %     COLOR_MODE = 'DarkMode';
 % else
@@ -43,7 +48,7 @@ c = clock; %loads clock
 
 quick_colormode; % loads colorscheme from quick_colormode
 
-%% EEGPLOTW2 DEFAULTS
+%% EEGPLOT_ADV DEFAULTS
 
 
 %% SPECTOPO DISPLAY DEFAULTS
@@ -54,7 +59,7 @@ SPECTRATOPO = [4 5 6 7 8 9 10 11 12 15 18 20 25 30 36];
 
 %% Headmodel and references defaults
 % Location of Headmodel(s)
-HEADMODELLOCATION = [''];
+HEADMODELLOCATION = ['']; % location of headmodel file
 
 % References
 OG_REF = 'Cz';
@@ -86,6 +91,7 @@ ICATYPE = 'cudaica';
 EXTENDED = 1;
 VERBOSE = 'off';
 PCADEFS = ['icatype',ICATYPE,'extended',EXTENDED,'verbose',VERBOSE];
+
 % ICLABEL type, Highest Frequency, Lowest Frquency
 
 ICLABELDEFS = ['default',40,2];
