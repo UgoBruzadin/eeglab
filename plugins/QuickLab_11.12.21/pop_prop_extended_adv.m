@@ -40,7 +40,7 @@ function [fh, EEG, com] = pop_prop_extended_adv(EEG, typecomp, chanorcomp, winha
 %try
 % setup
 if nargin < 1
-	help pop_prop_extended;
+	help pop_prop_extended_adv;
 	return;   
 end;
 if nargin < 5
@@ -102,7 +102,7 @@ if nargin == 2
     end
         
 	result       = inputdlg3( 'prompt', promptstr,'style', stylestr, 'default',  inistr, ...
-        'title', [fastif(typecomp,'Channel','Component') ' properties - pop_prop_extended2()']);
+        'title', [fastif(typecomp,'Channel','Component') ' properties - pop_prop_extended_adv()']);
 	if size( result, 1 ) == 0
         return; end
    
@@ -121,9 +121,9 @@ end;
 % -------------------------------------
 if length(chanorcomp) > 1
     for index = chanorcomp
-        pop_prop_extended2(EEG, typecomp, index, nan, spec_opt, erp_opt, scroll_event, classifier_name, varargin{:});  % call recursively for each chanorcomp
+        pop_prop_extended_adv(EEG, typecomp, index, nan, spec_opt, erp_opt, scroll_event, classifier_name, varargin{:});  % call recursively for each chanorcomp
     end;
-	com = sprintf('pop_prop_extended2( %s, %d, [%s], NaN, %s, %s, %d, ''%s''', inputname(1), ...
+	com = sprintf('pop_prop_extended_adv( %s, %d, [%s], NaN, %s, %s, %d, ''%s''', inputname(1), ...
                   typecomp, int2str(chanorcomp), vararg2str({spec_opt}), vararg2str({erp_opt}), scroll_event, classifier_name);
     if ~isempty(varargin)
         com = [com sprintf(', %s', vararg2str(varargin))];
@@ -150,7 +150,7 @@ if typecomp
 else
     basename = ['IC' int2str(chanorcomp) ];
 end
-fh = figure('name', [basename ' - pop_prop_extended2()'],...
+fh = figure('name', [basename ' - pop_prop_extended_adv()'],...
     'Color', BACKGROUNDCOLOR,...
     'numbertitle', 'off',...
     'PaperPositionMode','auto',...
