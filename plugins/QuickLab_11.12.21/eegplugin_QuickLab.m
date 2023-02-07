@@ -31,26 +31,29 @@ supermenu = uimenu(fig, 'label', 'QuickLab');
 
 QuickLabDefs;
 
+uimenu( supermenu, 'label', 'Adv. Data Editor', 'callback', ...
+    ['com = pop_eegplot_adv(EEG, 1, 2, 1, 1);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+
+uimenu( supermenu, 'label', 'Edit QuickLab Defaults', 'callback', ...
+    ['open QuickLabDefs;']);
+
 com = '';
 % --- first submenu: Quick plots
 plotmenu = uimenu (supermenu, 'label', 'Quick Plots');
 
-uimenu( plotmenu, 'label', 'Adv. Data Editor', 'callback', ...
-    ['com = pop_eegplot_adv(EEG, 1, 2, 1, 1);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
-
-uimenu( supermenu, 'label', 'Adv. Data Editor', 'callback', ...
-    ['com = pop_eegplot_adv(EEG, 1, 2, 1, 1);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+% uimenu( plotmenu, 'label', 'Adv. Data Editor', 'callback', ...
+%     ['com = pop_eegplot_adv(EEG, 1, 2, 1, 1);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 ogplotmenu = findobj(fig.Children,'Text','Plot');
 
 uimenu( ogplotmenu, 'label', 'Adv. Data Editor', 'callback', ...
     ['com = pop_eegplot_adv(EEG, 1, 2, 1, 1);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
-uimenu( plotmenu, 'label', 'OLD Channel Scroll++ for Interpolation', 'callback', ...
-    ['com = pop_eegplot_w2old(EEG, 1, 2, 1, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
-
-uimenu( plotmenu, 'label', 'OLD Component Scroll++ for Interpolation', 'callback', ...
-    ['com = pop_eegplot_w2old(EEG, 2, 2, 1, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+% uimenu( plotmenu, 'label', 'OLD Channel Scroll++ for Interpolation', 'callback', ...
+%     ['com = pop_eegplot_w2old(EEG, 1, 2, 1, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+% 
+% uimenu( plotmenu, 'label', 'OLD Component Scroll++ for Interpolation', 'callback', ...
+%     ['com = pop_eegplot_w2old(EEG, 2, 2, 1, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 % 
 % uimenu( plotmenu, 'label', 'Frequency Scroll++ for Interpolation', 'callback', ...
@@ -103,7 +106,7 @@ uimenu( printmenu, 'label', 'Print FFT', 'callback', ...
 
 % plot fft difference!
 
-uimenu(supermenu, 'label','Quick DotLoc Defaults','callback',...
+uimenu(supermenu, 'label','Quick DotLoc','callback',...
     ['[EEG,com] = quick_dotloc(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 % --- second submenu: Quick ICA/PCAs
