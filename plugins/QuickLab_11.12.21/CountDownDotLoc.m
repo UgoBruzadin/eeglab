@@ -32,6 +32,8 @@ totalcompleted = cat(1,totalcompleted,final_files2);
 
 totalstarted = 0;
 
+leftoverfiles_started = allStartedFiles;
+
 for i = 1:totalFilesInFolder
     
     LocationOfFileStrings = strfind(AllFilesFoldersName,allStartedFiles(i).name(1:end-4));
@@ -39,13 +41,15 @@ for i = 1:totalFilesInFolder
     NumberOfCountedFiles = length(LocationOfFileStrings);
     
     if NumberOfCountedFiles > 1
+        leftoverfiles_started(i-totalstarted) = [];
         totalstarted = totalstarted + 1;
     end
-
 end
 
+leftoverfiles_completed = allStartedFiles;
 allcompletedfiles = [totalcompleted.name];
 totalfinished = 0;
+
 
 for i = 1:length(allStartedFiles)
     
@@ -54,9 +58,9 @@ for i = 1:length(allStartedFiles)
     NumberOfCountedFiles = length(LocationOfFileStrings);
     
     if NumberOfCountedFiles > 0
+        leftoverfiles_completed(i-totalfinished) = [];
         totalfinished = totalfinished + 1;
     end
-
 end
 
 
