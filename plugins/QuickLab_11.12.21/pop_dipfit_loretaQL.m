@@ -32,7 +32,7 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-function [EEG,com] = pop_dipfit_loretaQL(EEG, select, range, frequencies, varargin)
+function [EEG,com,EEGspread] = pop_dipfit_loretaQL(EEG, select, range, frequencies, varargin)
 
 if nargin < 1
     help pop_dipfit_loreta;
@@ -107,20 +107,28 @@ if nargin < 4
     frequencies = 18;
 end
 
+atlas = ft_read_atlas('ROI_MNI_V4.nii');
 
 %% compute spectral params (only need to be done once to get the right structures)
-dataPre = eeglab2fieldtrip(EEG, 'preprocessing', 'none');
+EEGdata = eeglab2fieldtrip(EEG, 'preprocessing', 'none');
+
+%EEG_PC_data = eeglab2fieldtrip(EEG.icaact(11,:,:), 'preprocessing', 'none');
+
 cfg = [];
 cfg.method    = 'mtmfft';
 cfg.output    = 'powandcsd';
 cfg.tapsmofrq = 10;
 cfg.foilim    = range;
 cfg.pad = 'nextpow2';
-freqPre = ft_freqanalysis(cfg, dataPre);
+cfg.gpu = 'yes';
+fftdata = ft_freqanalysis(cfg, EEGdata);
 %freqPre = rmfield(freqPre,'labelcmb');
+
 if ~isfield(EEG,'lor')
     EEG.lor = struct();
 end 
+
+    EEG.fftdata = fftdata;
 
 %% read headmodel
 p = fileparts(which('eeglab'));
@@ -133,77 +141,80 @@ else
 end
 %% prepare leadfield matrix
 
-if ~isfield(EEG.lor,'grid')
+%if ~isfield(EEG.lor,'grid')
     cfg                 = [];
-    cfg.elec            = freqPre.elec;
+    cfg.elec            = fftdata.elec;
     cfg.headmodel       = headmodel;
     cfg.reducerank      = 2;
     cfg.grid.resolution = 10;   % use a 3-D grid with a 1 cm resolution
     cfg.grid.unit       = 'mm';
     cfg.channel         = { 'all' };
+    cfg.parallel = 'yes';
+    cfg.solver = 'cg';
+
     [grid] = ft_prepare_leadfield(cfg);
     EEG.lor.grid = grid;
-else 
-    grid = EEG.lor.grid;
-end
+% else 
+%     grid = EEG.lor.grid;
+% end
 
 %% load MRI and plot
-if ~isfield(EEG.lor,'mri')
+%if ~isfield(EEG.lor,'mri')
     mri = load('-mat', EEG.dipfit.mrifile);
     mri = ft_volumereslice([], mri.mri);
     EEG.lor.mri = mri;
-else 
-    mri = EEG.lor.mri;
-end
+%else 
+   % mri = EEG.lor.mri;
+%end
 % source localization
 
 counter = 0;
-for freq = frequencies
-    counter = counter + 1;
+EEGspread = deal(EEG);
+numfreq = size(frequencies,2);
+
+vol = load('-mat', EEG.dipfit.hdmfile);
+
+for i = 1:numfreq
+    
+    atlas = ft_read_atlas('ROI_MNI_V4.nii');
+
+    freq = frequencies(i);
+    
     cfg              = struct(g.ft_sourceanalysis_params{:});
     cfg.frequency    = freq;
     cfg.grid         = grid;
     cfg.headmodel    = headmodel;
+    cfg.method = 'eloreta';
+    cfg.atlas = atlas;
+    cfg.roi = atlas.tissuelabel;
     cfg.dics.projectnoise = 'yes';
     cfg.dics.lambda       = 5;
+    cfg.gpu = 'yes';
+    
+    sourcePost = ft_sourceanalysis(cfg, fftdata);
+    
+    EEGspread(i).lor.cfg(freq) = cfg;
+    EEGspread(i).lor.freq(freq) = fftdata;
+    EEGspread(i).lor.source(freq) = sourcePost;
 
-%for iSelect = select(:)'
-    %freqPre.powspctrm = EEG.icawinv(:,iSelect).*EEG.icawinv(:,iSelect);
-    %freqPre.crsspctrm = EEG.icawinv(:,iSelect)*EEG.icawinv(:,iSelect)';
-    
-    %freqPre.powspctrm = EEG.icawinv(:,:).*EEG.icawinv(:,:);
-    %freqPre.crsspctrm = EEG.icawinv(:,:)*EEG.icawinv(:,:)';    
-    
-    %freqPre.powspctrm = EEG.data(:,:);
-    %freqPre.crsspctrm = EEG.data(:,:)';    
-    
-    sourcePost_nocon = ft_sourceanalysis(cfg, freqPre);
-    
-    EEG.lor.cfg(counter) = cfg;
-    EEG.lor.freq(counter) = freqPre;
-    EEG.lor.source(counter) = sourcePost_nocon;
+     %% load MRI and INTERPOLATE
 
-%     %% load MRI and plot
-%     mri = load('-mat', EEG.dipfit.mrifile);
-%     mri = ft_volumereslice([], mri.mri);
+    cfg2                 = [];
+    cfg2.downsample      = 2;
+    cfg2.parameter       = 'avg.pow';
+    sourcePost.oridimord = 'pos';
+    sourcePost.momdimord = 'pos';
+    sourcePostInt        = ft_sourceinterpolate(cfg2, sourcePost , mri);
     
-    cfg2            = [];
-    cfg2.downsample = 2;
-    cfg2.parameter = 'avg.pow';
-    sourcePost_nocon.oridimord = 'pos';
-    sourcePost_nocon.momdimord = 'pos';
-    sourcePostInt_nocon  = ft_sourceinterpolate(cfg2, sourcePost_nocon , mri);
+    EEGspread(i).lor.source_int(freq) = sourcePostInt;
+    cfg2                 = struct(g.ft_sourceplot_params{:});
+    cfg2.funparameter    = 'pow';
     
-    EEG.lor.source_int(counter) = sourcePostInt_nocon;
-    open
-    cfg2              = struct(g.ft_sourceplot_params{:});
-    cfg2.funparameter = 'pow';
+    %cfg2.atlas = ft_read_atlas('ROI_MNI_V4.nii'); % not working
     
-%    cfg2.atlas = ft_read_atlas('ROI_MNI_V7.nii'); % not working
-    
-    ft_sourceplot(cfg2,sourcePostInt_nocon);
+    ft_sourceplot(cfg2,sourcePostInt);
     textsc(sprintf('eLoreta source localization of %d frequency power',freq), 'title');
-
+    EEGspread(i).lor.source_int(freq) = sourcePostInt;
 %     cfg = [];
 %     cfg.nonlinear = 'no';
 %     sourceDiffIntNorm = ft_volumenormalise(cfg, sourcePostInt_nocon);
@@ -215,13 +226,30 @@ for freq = frequencies
 %     cfg3.funcolorlim   = [0.0 1.2];
 %     cfg3.opacitylim    = [0.0 1.2];
 %     cfg3.opacitymap    = 'rampup';
-%     cfg3.atlas = ft_read_atlas('ROI_MNI_V7.nii');
-%     ft_sourceplot(cfg3, sourcePostInt_nocon);
+%     cfg3.atlas = ft_read_atlas('ROI_MNI_V4.nii');
+%     ft_sourceplot(cfg3, sourcePostInt);
 %     
 end
+
+
 %     ft_sourceplot(cfg3, sourceDiffIntNorm);
 %end
+% % 
+%  for j=1:size(EEGspread,2)
+%      freq = frequencies(j);
+%      cfg2            = [];
+%      cfg2.downsample = 2;
+%      cfg2.parameter = 'avg.pow';
+%      sourcePost_nocon.oridimord = 'pos';
+%      sourcePost_nocon.momdimord = 'pos';
+%      EEGspread(j).lor.source_int2(freq)  = ft_sourceinterpolate(cfg2, EEGspread(j).lor.source_int(freq) , mri);
+%      
+%      cfg2              = struct(g.ft_sourceplot_params{:});
+%      cfg2.funparameter = 'pow';
+%      ft_sourceplot(cfg2,EEGspread(j).lor.source_int(freq));
+%  end
 
+%ft_sourceplot(cfg2,sourcePostInt_nocon_int);
 %% history
 disp('Done');
 com = sprintf('pop_dipfit_loretaQL(EEG, %s);', vararg2str( { select, range, frequencies, varargin}));
