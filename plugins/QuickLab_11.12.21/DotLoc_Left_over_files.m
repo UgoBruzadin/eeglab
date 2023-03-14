@@ -20,8 +20,12 @@ final_files = dir('*HM9*Ep6*ICA.set');
 final_files2 = dir('*DONE*.set');
 
 final_files3 = dir('*FIN*.set');
+
+final_files4 = dir('*Hm9*Ep6*ICA.set');
+
 totalcompleted = cat(1,final_files,final_files3);
 totalcompleted = cat(1,totalcompleted,final_files2);
+totalcompleted = cat(1,totalcompleted,final_files4);
 
 totalstarted = 0;
 
@@ -41,16 +45,17 @@ for i = 1:totalFilesInFolder
     end
 end
 
-notfinished = allStartedFiles;
+notfinished = AllFilesFolder;
 %notfinished = sort(notfinished);
 
 allcompletedfiles = [totalcompleted.name];
+
 totalfinished = 0;
 
 
-for i = 1:length(allStartedFiles)
+for i = 1:length(AllFilesFolder)
     
-    LocationOfFileStrings = strfind(allcompletedfiles,allStartedFiles(i).name(1:end-4));
+    LocationOfFileStrings = strfind(allcompletedfiles,AllFilesFolder(i).name(1:12));
     %LocationOfFileStrings = contains(AllFilesFoldersName,strcat(allStartedFiles(i).name(1:end-4),'*','bssICA*.set'));
     NumberOfCountedFiles = length(LocationOfFileStrings);
     
@@ -60,6 +65,10 @@ for i = 1:length(allStartedFiles)
     end
 end
 
+% 
+% allcompletedfiles_strings = string({totalcompleted.name});
+% allfilesinthefolder_strings = string({AllFilesFolder.name});
+% 
 
 
 
