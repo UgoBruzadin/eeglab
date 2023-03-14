@@ -27,8 +27,12 @@ final_files = dir('*HM9*Ep6*ICA.set');
 final_files2 = dir('*DONE*.set');
 
 final_files3 = dir('*FIN*.set');
+
+%final_files4 = dir('*Hm9*Ep6*ICA.set');
+
 totalcompleted = cat(1,final_files,final_files3);
 totalcompleted = cat(1,totalcompleted,final_files2);
+%totalcompleted = cat(1,totalcompleted,final_files4);
 
 totalstarted = 0;
 
@@ -62,9 +66,6 @@ for i = 1:length(allStartedFiles)
         totalfinished = totalfinished + 1;
     end
 end
-
-
-
 
 totalstarted = totalstarted - totalfinished;
 %totalfinished = size(totalcompleted,1);
