@@ -693,16 +693,18 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
           if isfield(EEG,'chanrej')
               g.winrej = EEG.chanrej;
               g.winrej_ch = EEG.chanrej;
-              try g.winrej_pc = EEG.comprej; catch; end
+              %try g.winrej_pc = EEG.comprej; catch; end
           end
+          try g.winrej_pc = EEG.comprej; catch; end
       else
           g.eloc_file = g.eloc_file_pc;
           g.chans = size(g.eloc_file_pc,2);
           if isfield(EEG,'comprej')
               g.winrej = EEG.comprej;
               g.winrej_pc = EEG.comprej;
-              g.winrej_ch = EEG.chanrej;
+              %g.winrej_ch = EEG.chanrej;
           end
+          try g.winrej_ch = EEG.chanrej; catch; end
       end
   end
 
