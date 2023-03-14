@@ -18,9 +18,10 @@ function [EEGOUT,com] = quick_bss(EEGIN,window,windowshift)
 % You should have received a copy of the GNU General Public License
 % along with this program; if not, write to the Free Software
 
+
 if nargin < 2
-    window = (EEGIN.pnts/EEGIN.srate)*2;
-    
+    %window = (EEGIN.pnts/EEGIN.srate)*2;
+    window = (EEGIN.pnts/EEGIN.srate)*EEGIN.trials;
 end
 
 if nargin < 3
@@ -28,8 +29,9 @@ if nargin < 3
     %windowshift = EEGIN.pnts;
 end
 
-[EEGOUT,com] = pop_autobssemg( EEGIN, [window], [windowshift], 'bsscca', {'eigratio', [1000000]}, 'emg_psd', {'ratio', [10],'fs', EEGIN.srate,'femg', [15],'estimator',spectrum.welch,'range', [0  floor(EEGIN.nbchan/2)]});
+[EEGOUT,com] = pop_par_autobssemg( EEGIN, [window], [windowshift], 'bsscca', {'eigratio', [1000000]}, 'emg_psd', {'ratio', [10],'fs', EEGIN.srate,'femg', [15],'estimator',spectrum.welch,'range', [0  floor(EEGIN.nbchan/2)]});
 
-%plotDifference(EEGIN,EEGOUT)
+EEGOUT.icaact = []; EEGOUT.icawinv = []; EEGOUT.icasphere = []; EEGOUT.icaweights = []; EEGOUT.icachansind = [];
+EEGOUT = eegh(com, EEGOUT);
 
 end
