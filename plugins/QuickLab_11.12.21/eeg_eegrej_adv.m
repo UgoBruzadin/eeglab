@@ -49,6 +49,8 @@
 
 function [EEGOUT, com] = eeg_eegrej_adv( EEG, regions, chanorcomp, tmprej);
 
+
+
 if nargin < 3
     tmprej = 0;
 end
@@ -83,9 +85,32 @@ end
 
 % --- end of compatibility region
 
+%% --- store variables in backup
+if chanorcomp == 1
+    %if isfield(EEG,'chanrej')
+        EEG.chanrej = regions;
+        EEG.reject.rejmanual = regions;
+    %end
+    %if isfield(EEG,'mybadchan')
+        EEG.mybadchan = tmprej;
+        %don't remember where eeglab stores channels for interpolation
+    %end
+else
+    %if isfield(EEG,'comprej')
+        EEG.comprej = regions;
+        EEG.reject.icarejmanual = regions;
+    %end
+    %if isfield(EEG,'mybadcomp')
+        EEG.mybadcomp = tmprej;
+        EEG.gcompreject = tmprej;
+    %end
+end
+
 %% --- STORE CURRENT MARKS TO FILE
 %[EEG] = pop_saveset(EEG, 'filepath',EEG.filepath);
-[EEG] = pop_saveset(EEG, 'filename', [strcat( EEG.filename(1:end-4),'s','.set')],'filepath',EEG.filepath);
+%if SAVEBACKUP == 'YES' %, save
+    [EEG] = pop_saveset(EEG, 'filename', [strcat( EEG.filename(1:end-4),'s','.set')],'filepath',EEG.filepath);
+%end
 EEG.myVariables = {};
 EEG.filename(1:end-4);
 %[EEG] = eeg_store(EEG); 
