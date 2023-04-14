@@ -44,7 +44,7 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-function data = eeglab2fieldtrip(EEG, fieldbox, transform)
+function [data, megheadmodel] = eeglab2fieldtrip(EEG, fieldbox, transform)
 
 if nargin < 2
     help eeglab2fieldtrip
@@ -78,7 +78,7 @@ if strcmpi(fieldbox, 'chanloc_withfid')
     end
 end
 
-if ~isempty(EEG.chanlocs) && ~isempty(EEG.chanlocs(1).X)
+if ~isempty(EEG.chanlocs)
     data.elec.elecpos = zeros(length( EEG.chanlocs ), 3);
     for ind = 1:length( EEG.chanlocs )
         data.elec.label{ind} = EEG.chanlocs(ind).labels;
@@ -93,14 +93,89 @@ if ~isempty(EEG.chanlocs) && ~isempty(EEG.chanlocs(1).X)
     data.elec.pnt = data.elec.elecpos;
 end
 
+% check for MEG channel types
+megFlag = false;
+if ~isempty(EEG.chanlocs)
+    alltypes = { EEG.chanlocs.type };
+    alltypes = cellfun(@char, alltypes, 'UniformOutput',false);
+    containsMEG = cellfun(@(x)contains(x, 'meg', 'IgnoreCase',true), alltypes);
+    containsEEG = cellfun(@(x)contains(x, 'eeg', 'IgnoreCase',true), alltypes);
+    if any(containsMEG) && any(containsEEG)
+        error('Dataset contains both EEG and MEG channels');
+    elseif all(containsEEG) == 0 && any(containsMEG)
+        megFlag = true;
+%         data.grad = data.elec;
+%         data.grad.chanpos = data.grad.elecpos;
+%         data.grad = rmfield(data.grad, 'elecpos');
+%         data.grad = rmfield(data.grad, 'pnt');
+%         data = rmfield(data, 'elec');
+%         disp('Setting gradiometer location unit to cm')
+    end
+end
+
 if nargin > 2
     if strcmpi(transform, 'dipfit')
         if ~isempty(EEG.dipfit.coord_transform)
+            if megFlag && ~isfield(EEG.etc,'fileio_dat')
+                error('To perform MEG source localization, you must import the data using File-io')
+            end
+
             disp('Transforming electrode coordinates to match head model');
-            transfmat = traditionaldipfit(EEG.dipfit.coord_transform);
-            data.elec.elecpos = transfmat * [ data.elec.elecpos ones(size(data.elec.elecpos,1),1) ]';
-            data.elec.elecpos = data.elec.elecpos(1:3,:)';
-            data.elec.pnt = data.elec.elecpos;
+            if megFlag
+                % MEG
+                data = [];
+                data.grad = EEG.etc.fileio_dat.grad;
+                if length(data.grad.label) ~= length(EEG.chanlocs)
+                    chanList = [];
+                    for iChan = 1:length(EEG.chanlocs)
+                        indChan = strmatch(EEG.chanlocs{iChan}, data.grad.label, 'exact');
+                        if length(indChan) ~= 1
+                            error('Non-MEG channel or MEG channel with unknown label found')
+                        end
+                        chanList = [chanList]
+                    end
+                end
+
+                    % this can be fixed by removing rows in the tra matrix
+                end
+                disp('If you have transformed MEG channel coordinates (more than setting the nose direction)')
+                disp('MEG source localization will be innacurate.');
+
+%                 res = EEG.dipfit.hdmfile;
+%                 megheadmodel.bnd = res.vol.bnd;
+% 
+%                 coord_transform = EEG.dipfit.coord_transform;
+%                 if isfield(EEG.chaninfo, 'originalnosedir')
+%                     if strcmpi(EEG.chaninfo.originalnosedir, '+y')
+%                         coord_transform(6) = coord_transform(6) - 270/360*pi;
+%                     elseif strcmpi(chaninfo.nosedir, '-x')
+%                         coord_transform(6) = coord_transform(6) - 180/360*pi;
+%                     else
+%                         coord_transform(6) = coord_transform(6) - 90/360*pi;
+%                     end
+%                 end
+%                 
+%                 % convert coordinate to head model
+%                 coord_transform2 = coord_transform;
+%                 coord_transform2(1:3) = 0;
+%                 coord_transform2(7:9) = 1;
+%                 transfmat = traditionaldipfit(coord_transform);
+%                 transfmatori = traditionaldipfit(coord_transform2);
+%                 data.grad.chanpos = transfmat    * [ data.grad.chanpos ones(size(data.grad.chanpos,1),1) ]';
+%                 data.grad.coilpos = transfmat    * [ data.grad.coilpos ones(size(data.grad.coilpos,1),1) ]';
+%                 data.grad.coilori = transfmatori * [ data.grad.coilori ones(size(data.grad.coilori,1),1) ]';
+%                 data.grad.chanpos = data.grad.chanpos(1:3,:)';
+%                 data.grad.coilpos = data.grad.coilpos(1:3,:)';
+%                 data.grad.coilori = data.grad.coilori(1:3,:)';
+%                 data.grad.unit = 'mm';
+
+            else
+                % EEG
+                transfmat = traditionaldipfit(EEG.dipfit.coord_transform);
+                data.elec.elecpos = transfmat * [ data.elec.elecpos ones(size(data.elec.elecpos,1),1) ]';
+                data.elec.elecpos = data.elec.elecpos(1:3,:)';
+                data.elec.pnt = data.elec.elecpos;
+            end
         else
             disp('Warning: no transformation of electrode coordinates to match head model');
         end
@@ -117,11 +192,16 @@ switch fieldbox
         data.label = getchanlabels(tmpchanlocs, 1:EEG.nbchan);
         if EEG.trials > 1
             res = std_maketrialinfo([], EEG);
-            try
-            data.trialinfo = struct2table(res.datasetinfo.trialinfo);
-            catch
+            if ~isempty(res)
+                data.trialinfo = struct2table(res.datasetinfo.trialinfo);
+            else
+                data.trialinfo = [];
             end
         else
+            if isempty(EEG.subject),   EEG.subject   = 'S01'; end
+            if isempty(EEG.condition), EEG.condition = 'n/a'; end
+            if isempty(EEG.group),     EEG.group     = 'n/a'; end
+            if isempty(EEG.session),   EEG.session   = 1;     end
             res = struct('subject', EEG.subject, 'condition', EEG.condition, 'group', EEG.group, 'session', EEG.session);
             data.trialinfo = struct2table(res);
             if isempty(data.trialinfo)

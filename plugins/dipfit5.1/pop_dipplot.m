@@ -96,13 +96,20 @@ if nargin < 2
     
     geometry = { [2 1] [2 1] [0.8 0.3 1.5] [2.05 0.26 .75] [2.05 0.26 .75] [2.05 0.26 .75] ...
                  [2.05 0.26 .75] [2.05 0.26 .75] [2.05 0.26 .75] [2.05 0.26 .75] [2 1] };
+    if isstruct(EEG.dipfit.mrifile)
+        mristring = 'set in DIPFIT settings';
+        mrienable = 'off';
+    else
+        mristring = EEG.dipfit.mrifile;
+        mrienable = 'on';
+    end
     uilist = { { 'style' 'text' 'string' 'Components indices ([]=all avaliable)' } ...
                { 'style' 'edit' 'string' '' } ...
                { 'style' 'text' 'string' 'Plot dipoles within RV (%) range ([min max])' } ...
                { 'style' 'edit' 'string' '' } ...
                { 'style' 'text' 'string' 'Background image' } ...
-               { 'style' 'pushbutton' 'string' '...' 'callback' commandload } ...
-               { 'style' 'edit' 'string' EEG.dipfit.mrifile 'tag' 'mrifile' } ...
+               { 'style' 'pushbutton' 'string' '...' 'enable' mrienable 'callback' commandload } ...
+               { 'style' 'edit' 'string' mristring 'enable' mrienable 'tag' 'mrifile' } ...
                { 'style' 'text' 'string' 'Plot summary mode' } ...
                { 'style' 'checkbox' 'string' '' } {} ...
                { 'style' 'text' 'string' 'Plot edges' } ...
@@ -128,7 +135,9 @@ if nargin < 2
     options = {};
     if ~isempty(result{1}), comps = eval( [ '[' result{1} ']' ] ); else comps = []; end
     if ~isempty(result{2}), options = { options{:} 'rvrange' eval(  [ '[' result{2} ']' ] ) }; end
-    options = { options{:} 'mri' result{3} };
+    if strcmpi(mrienable, 'on')
+        options = { options{:} 'mri' result{3} };
+    end
     if result{4} == 1, options = { options{:} 'summary'   'on' 'num' 'on' }; end
     if result{5} == 1, options = { options{:} 'drawedges' 'on' }; end
     if result{6} == 1, options = { options{:} 'cornermri' 'on' 'axistight' 'on' }; end
@@ -145,9 +154,11 @@ else
     else
         options = varargin;
     end
-    if ~ismember('mri', lower(options(1:2:end)))
-        options = { options{:} 'mri' EEG.dipfit.mrifile };
-    end
+end
+if ~ismember('mri', lower(options(1:2:end)))
+    optionsmri = { 'mri' EEG.dipfit.mrifile };
+else
+    optionsmri = {};
 end
 
 if strcmpi(typedip, 'besa')
@@ -155,9 +166,9 @@ if strcmpi(typedip, 'besa')
     if ~isempty(comps)
         [~, int] = intersect( [ EEG.sources.component ], comps);
         if isempty(int), error ('Localization not found for selected components'); end
-        dipplot(EEG.sources(int), 'sphere', 1, options{:});
+        dipplot(EEG.sources(int), 'sphere', 1, options{:}, optionsmri{:});
     else
-        dipplot(EEG.sources, options{:});
+        dipplot(EEG.sources, options{:}, optionsmri{:});
     end      
 else 
     if ~isfield(EEG, 'dipfit'), error('No DIPFIT dipole information in dataset');end
@@ -185,14 +196,17 @@ else
     % --------
     tmpoptions = { options{:} 'coordformat', EEG.dipfit.coordformat };
     if strcmpi(EEG.dipfit.coordformat, 'spherical')
-        dipplot(EEG.dipfit.model(comps), tmpoptions{:});
+        dipplot(EEG.dipfit.model(comps), tmpoptions{:}, optionsmri{:});
     elseif strcmpi(EEG.dipfit.coordformat, 'CTF')
-        dipplot(EEG.dipfit.model(comps), tmpoptions{:});
+        dipplot(EEG.dipfit.model(comps), tmpoptions{:}, optionsmri{:});
     else
-        dipplot(EEG.dipfit.model(comps), 'meshdata', EEG.dipfit.hdmfile, tmpoptions{:});
+        if ischar(EEG.dipfit.hdmfile) && isempty(strfind(EEG.dipfit.hdmfile, 'seg'))
+            tmpoptions = [ tmpoptions { 'meshdata', EEG.dipfit.hdmfile }];
+        end
+        dipplot(EEG.dipfit.model(comps), tmpoptions{:}, optionsmri{:});
     end
 end
     
-if nargin < 3
+if nargout > 0
     com = sprintf('pop_dipplot( EEG, %s);', vararg2str({ comps options{:}}));
 end

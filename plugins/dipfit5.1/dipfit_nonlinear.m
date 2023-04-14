@@ -1,24 +1,11 @@
-% dipfit_gridsearch() - do initial batch-like dipole scan and fit to all 
-%                       data components and return a dipole model with a 
-%                       single dipole for each component.
-% 
+% dipfit_nonlinear() - perform nonlinear dipole fit on one of the components
+%                   to improve the initial dipole model. Only selected dipoles
+%                   will be fitted.
+%
 % Usage: 
-%  >> EEGOUT = dipfit_gridsearch( EEGIN, varargin)
+%  >> EEGOUT = dipfit_nonlinear( EEGIN, optarg)
 %
-% Inputs:
-%    ...
-%
-% Optional inputs:
-%   'component' - vector with integers, ICA components to scan
-%   'xgrid'     - vector with floats, grid positions along x-axis
-%   'ygrid'     - vector with floats, grid positions along y-axis
-%   'zgrid'     - vector with floats, grid positions along z-axis
-%
-% Output:
-%    ...
-%
-% Author: Robert Oostenveld, SMI/FCDC, Nijmegen 2003, load/save by
-%         Arnaud Delorme
+% Author: Robert Oostenveld, SMI/FCDC, Nijmegen 2003
 %         Thanks to Nicolas Robitaille for his help on the CTF MEG
 %         implementation
 
@@ -42,7 +29,7 @@
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [EEGOUT] = dipfit_gridsearch(EEG, varargin)
+function [EEGOUT] = dipfit_nonlinear( EEG, varargin )
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % convert the optional arguments into a configuration structure that can be
@@ -50,14 +37,17 @@ function [EEGOUT] = dipfit_gridsearch(EEG, varargin)
 if nargin>2
   cfg = struct(varargin{:});
 else
-  help dipfit_gridsearch
+  help dipfit_nonlinear
   return
 end
 
 % specify the FieldTrip DIPOLEFITTING configuration
 cfg.model      = 'moving';
-cfg.gridsearch = 'yes';
-cfg.nonlinear  = 'no';
+cfg.gridsearch = 'no';
+if ~isfield(cfg, 'nonlinear')
+  % if this flag is set to 'no', only the dipole moment will be fitted
+  cfg.nonlinear  = 'yes';
+end
 % add some additional settings from EEGLAB to the configuration
 tmpchanlocs    = EEG.chanlocs;
 cfg.channel    = { tmpchanlocs(EEG.dipfit.chansel).labels };
@@ -68,17 +58,22 @@ elseif isfield(EEG.dipfit, 'hdmfile')
 else
     error('no head model in EEG.dipfit')
 end
-if isfield(EEG.dipfit, 'elecfile') && ~isempty(EEG.dipfit.elecfile)
+
+if isfield(EEG.dipfit, 'elecfile') & ~isempty(EEG.dipfit.elecfile)
     cfg.elecfile = EEG.dipfit.elecfile;
 end
-if isfield(EEG.dipfit, 'gradfile') && ~isempty(EEG.dipfit.gradfile)
+if isfield(EEG.dipfit, 'gradfile') & ~isempty(EEG.dipfit.gradfile)
     cfg.gradfile = EEG.dipfit.gradfile;
 end
+
+% set up the initial dipole model based on the one in the EEG structure
+cfg.dip.pos = EEG.dipfit.model(cfg.component).posxyz;
+cfg.dip.mom = EEG.dipfit.model(cfg.component).momxyz';
+cfg.dip.mom = cfg.dip.mom(:);
 
 % convert the EEGLAB data structure into a structure that looks as if it
 % was computed using FIELDTRIPs componentanalysis function
 comp = eeglab2fieldtrip(EEG, 'componentanalysis', 'dipfit');
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  Added code to handle CTF data with multipleSphere head model           %
 %  This code is copy-pasted in dipfit_gridSearch, dipfit_nonlinear        %
@@ -87,7 +82,7 @@ comp = eeglab2fieldtrip(EEG, 'componentanalysis', 'dipfit');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Do some trick to force fieldtrip to use the multiple sphere model
-if strcmpi(EEG.dipfit.coordformat, 'CTF')
+if strcmpi(EEG.dipfit.coordformat, 'CTF') && ~isstruct(EEG.dipfit.chanfile)
    cfg = rmfield(cfg, 'channel');
    comp = rmfield(comp, 'elec');
    cfg.gradfile = EEG.dipfit.chanfile;
@@ -96,20 +91,36 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % END                                                                     %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if ~isfield(cfg, 'component')
-  % default is to scan all components
-  cfg.component = 1:size(comp.topo,2);
-end
 
-% for each component scan the whole brain with dipoles using FIELDTRIPs
+% fit the dipoles to the ICA component(s) of interest using FIELDTRIPs
 % dipolefitting function
-source = ft_dipolefitting(cfg, comp);
+
+currentPath = pwd;
+ptmp = which('ft_prepare_vol_sens');
+ptmp = fileparts(ptmp);
+if isempty(ptmp), error('Path to "forward" folder of Fieldtrip missing'); end;
+cd(fullfile(ptmp, 'private'));
+try,
+    source = ft_dipolefitting(cfg, comp);
+catch,
+    cd(currentPath);
+    lasterr
+    error(lasterr);
+end;
+cd(currentPath);
 
 % reformat the output dipole sources into EEGLABs data structure
-for i=1:length(cfg.component)
-  EEG.dipfit.model(cfg.component(i)).posxyz = source.dip(i).pos;
-  EEG.dipfit.model(cfg.component(i)).momxyz = reshape(source.dip(i).mom, 3, length(source.dip(i).mom)/3)';
-  EEG.dipfit.model(cfg.component(i)).rv     = source.dip(i).rv;
-end
+EEG.dipfit.model(cfg.component).posxyz  = source.dip.pos;
+EEG.dipfit.model(cfg.component).momxyz  = reshape(source.dip.mom, 3, length(source.dip.mom)/3)';
+EEG.dipfit.model(cfg.component).diffmap = source.Vmodel - source.Vdata;
+EEG.dipfit.model(cfg.component).sourcepot = source.Vmodel;
+EEG.dipfit.model(cfg.component).datapot   = source.Vdata;
+EEG.dipfit.model(cfg.component).rv        = source.dip.rv;
+%EEG.dipfit.model(cfg.component).rv = sum((source.Vdata - source.Vmodel).^2) / sum( source.Vdata.^2 );
 
+try 
+    EEG = eeg_compatlas(EEG, 'components', cfg.component);
+catch
+    disp('Fail to look up brain areas');
+end
 EEGOUT = EEG;

@@ -42,7 +42,7 @@
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [EEGOUT] = dipfit_gridsearch_loreta(EEG, varargin)
+function [EEGOUT] = dipfit_gridsearch(EEG, varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % convert the optional arguments into a configuration structure that can be
@@ -77,8 +77,8 @@ end
 
 % convert the EEGLAB data structure into a structure that looks as if it
 % was computed using FIELDTRIPs componentanalysis function
-%comp = eeglab2fieldtrip(EEG, 'componentanalysis', 'dipfit');
-comp = eeglab2fieldtrip(EEG, 'raw', 'none');
+comp = eeglab2fieldtrip(EEG, 'componentanalysis', 'dipfit');
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  Added code to handle CTF data with multipleSphere head model           %
 %  This code is copy-pasted in dipfit_gridSearch, dipfit_nonlinear        %
@@ -87,7 +87,7 @@ comp = eeglab2fieldtrip(EEG, 'raw', 'none');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Do some trick to force fieldtrip to use the multiple sphere model
-if strcmpi(EEG.dipfit.coordformat, 'CTF')
+if strcmpi(EEG.dipfit.coordformat, 'CTF') && ~isstruct(EEG.dipfit.chanfile)
    cfg = rmfield(cfg, 'channel');
    comp = rmfield(comp, 'elec');
    cfg.gradfile = EEG.dipfit.chanfile;
@@ -103,15 +103,13 @@ end
 
 % for each component scan the whole brain with dipoles using FIELDTRIPs
 % dipolefitting function
-%source = ft_dipolefitting(cfg, comp);
-source = ft_prepare_sourcemodel(cfg, comp);
+source = ft_dipolefitting(cfg, comp);
+
 % reformat the output dipole sources into EEGLABs data structure
 for i=1:length(cfg.component)
   EEG.dipfit.model(cfg.component(i)).posxyz = source.dip(i).pos;
   EEG.dipfit.model(cfg.component(i)).momxyz = reshape(source.dip(i).mom, 3, length(source.dip(i).mom)/3)';
   EEG.dipfit.model(cfg.component(i)).rv     = source.dip(i).rv;
-  EEG.dipfit.model(i).active = [1];
-  EEG.loreta.model(i).select = [1];
 end
 
 EEGOUT = EEG;
