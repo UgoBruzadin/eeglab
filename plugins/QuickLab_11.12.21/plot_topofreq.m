@@ -4,9 +4,11 @@ currentPoint = get(gca, 'CurrentPoint');
 power = currentPoint(1,2);
 freq = currentPoint(1,1);
 
+global EEG;
+
 set(findobj(gcf,'Tag','power'),'String',power)
 set(findobj(gcf,'Tag','freq'),'String',freq)
-set(findobj('Tag','channel'),'String', int2str(index));
+set(findobj('Tag','channel'),'String', EEG.chanlocs(index).labels);
 
 
 mainfig = findobj('Tag','Data');
