@@ -20,7 +20,7 @@
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-function [EEG,com] = quick_spectra(EEG,high,low,references,topo)
+function [EEG,com] = quick_spectra(EEG,high,low,references,topo,visible)
 
 com = '';
 
@@ -34,7 +34,11 @@ end
 QuickLabDefs; % using SPECTRADEFS 1 for High Frequency filter, 2 for low frequency filter and 3 for maximum points for FFT display
               % also using SPECTRATOPO for defaulty defined frequencies to display
 %% collecting defaults or given variables
-              
+
+if nargin < 6 || isempty(visible)
+    visible = 'on';
+end
+
 if nargin < 5
    topo = SPECTRATOPO; % SPECTRATOPO DEFINED INSIDE QuickLabDefs 
 end
@@ -72,7 +76,7 @@ end
 %% runs pop_spectopo with the given defaults or variables
 
 %tic
-figure; pop_spectopo_ql(EEG, 1, [EEG.xmin*1000  EEG.xmax*1000], 'EEG' , 'freq', [topo], 'freqrange',[low high],'winsize',maxWindow,'electrodes','off');
+figure('Visible',visible); pop_spectopo_ql(EEG, 1, [EEG.xmin*1000  EEG.xmax*1000], 'EEG' , 'freq', [topo], 'freqrange',[low high],'winsize',maxWindow,'electrodes','off');
 %toc
 savecommand = ['saveas(gcf,[EEG.filename(1:end-4),''FFT.jpg'']);'];
 

@@ -1,20 +1,17 @@
+%% 
 % pop_dipfit_loreta() - localize ICA components using eLoreta
-%
-% Usage:
-%  >> EEGOUT = pop_dipfit_gridsearch( EEGIN ); % pop up interactive window
-%  >> EEGOUT = pop_dipfit_gridsearch( EEGIN, comps );
-%
-% Inputs:
-%   EEGIN     - input dataset
-%   comps     - [integer array] component indices
-%
-% Outputs:
-%   EEGOUT      output dataset
-%
+% 
+% Usage: >> EEGOUT = pop_dipfit_gridsearch( EEGIN ); % pop up interactive window 
+% >> EEGOUT = pop_dipfit_gridsearch( EEGIN, comps );
+% 
+% Inputs: EEGIN - input dataset comps - [integer array] component indices
+% 
+% Outputs: EEGOUT output dataset
+% 
 % Authors: Arnaud Delorme, SCCN, La Jolla 2018
-%
-% More help: type help ft_sourceanalysis and help ft_sourceplot for 
-%            parameters to use these functions.
+% 
+% More help: type help ft_sourceanalysis and help ft_sourceplot for parameters 
+% to use these functions.
 
 % Copyright (C) 2018 Arnaud Delorme
 %
@@ -32,72 +29,25 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-function [EEG,com,EEGspread] = pop_dipfit_loretaQL(EEG, select, range, frequencies, varargin)
+function [EEG,com,dataFreq,elec,headmodel,mri,leadfield,source,source_int] = pop_dipfit_loretaQL(EEG, select, range, frequencies, varargin)
 
-if nargin < 1
-    help pop_dipfit_loreta;
-    return;
-end
 
-if ~plugin_askinstall('Fieldtrip-lite', 'ft_dipolefitting'), return; end;
+%range = [3.5 30];
+%frequencies = [3.5 30];
 
-EEG = pop_par_dipfit_settings( EEG, 'hdmfile','C:\\GitHub\\eeglab\\plugins\\dipfit3.7\\standard_BEM\\standard_vol.mat','coordformat','MNI','mrifile','C:\\GitHub\\eeglab\\plugins\\dipfit3.7\\standard_BEM\\standard_mri.mat','chanfile','C:\\GitHub\\eeglab\\plugins\\dipfit3.7\\standard_BEM\\elec\\standard_1005.elc','coord_transform',[0.05476 -17.3653 -8.1318 0.075502 0.0031836 -1.5696 11.7138 12.7933 12.213] ,'chansel',[1:EEG.nbchan] );
+% 
+% if nargin < 1
+%     help pop_dipfit_loreta;
+%     return;
+% end
+% 
+% if ~plugin_askinstall('Fieldtrip-lite', 'ft_dipolefitting'), return; end;
+% 
+FIELDTRIPDIR = 'C:\\GitHub\\eeglab\\plugins\\dipfit5.1\';
 
-EEGOUT = EEG;
-com = '';
+coord_transform = [0.05476 -17.3653 -8.1318 0.075502 0.0031836 -1.5696 11.7138 12.7933 12.213];
 
-if ~isfield(EEG, 'chanlocs')
-    error('No electrodes present');
-end
-
-if ~isfield(EEG, 'icawinv')
-    error('No ICA components to fit');
-end
-        
-if ~isfield(EEG, 'dipfit')
-    error('General dipole fit settings not specified');
-end
-
-if ~isfield(EEG.dipfit, 'vol') && ~isfield(EEG.dipfit, 'hdmfile')
-    end
-if ~isfield(EEG.dipfit, 'coordformat') || ~strcmpi(EEG.dipfit.coordformat, 'MNI')
-    error('For this function, you must use the template BEM model MNI in dipole fit settings');
-end
-
-dipfitdefs;
-if nargin < 2
-     uilist = { { 'style' 'text'        'string'  [ 'Enter indices of components ' 10 '(one figure generated per component)'] } ...
-                { 'style' 'edit'        'string'  '1' } ...
-                { 'style' 'text'        'string'  'ft_sourceanalysis parameters' } ...
-                { 'style' 'edit'        'string'  '''method'', ''eloreta''' } ...
-                { 'style' 'text'        'string'  'ft_sourceplot parameters' } ...
-                { 'style' 'edit'        'string'  '''method'', ''slice''' } };
-     optiongui = { 'geometry', { 1 1 1 1 1 1 }, 'geomvert', [2 1 1 1 1 1], 'uilist', uilist, 'helpcom', 'pophelp(''pop_dipfit_loreta'')', ...
-                  'title', 'Localization of ICA components using eLoreta -- pop_dipfit_loreta()' };
-	[result] = inputgui( optiongui{:});
-    
-    if isempty(result)
-        % user pressed cancel
-        return
-    end
-    
-    % decode parameters
-    select = eval( [ '[' result{1} ']' ]);
-    try, params1 = eval( [ '{' result{2} '}' ]); catch, error('ft_sourceanalysis parameters badly formated'); end
-    try, params2 = eval( [ '{' result{3} '}' ]); catch, error('ft_sourceplot parameters badly formated'); end
-    options = { 'ft_sourceanalysis_params' params1 'ft_sourceplot_params' params2 };
-else
-    options = varargin;
-end
-
-if ~isempty(setdiff(select, [1:size(EEG.icaweights,1)]))
-    error('Some component indices out of range');
-end
-
-g = finputcheck(options, { 'ft_sourceanalysis_params'  'cell'    {}         { 'method' 'eloreta' };
-                           'ft_sourceplot_params'      'cell'    []         { 'method' 'slice' } }, 'pop_dipfit_loreta');
-if isstr(g), error(g); end;
-
+EEG = pop_dipfit_settings( EEG, 'hdmfile','C:\\GitHub\\eeglab\\plugins\\dipfit5.1\\standard_BEM\\standard_vol.mat','mrifile','C:\\GitHub\\eeglab\\plugins\\dipfit5.1\\standard_BEM\\standard_mri.mat','chanfile','C:\\GitHub\\eeglab\\plugins\\dipfit5.1\\standard_BEM\\elec\\standard_1005.elc','coordformat','MNI','coord_transform',[] ,'chansel',[1:92] );
 
 if nargin < 3
     range = [2 40];
@@ -107,149 +57,218 @@ if nargin < 4
     frequencies = 18;
 end
 
-atlas = ft_read_atlas('ROI_MNI_V4.nii');
 
 %% compute spectral params (only need to be done once to get the right structures)
-EEGdata = eeglab2fieldtrip(EEG, 'preprocessing', 'none');
 
-%EEG_PC_data = eeglab2fieldtrip(EEG.icaact(11,:,:), 'preprocessing', 'none');
+%% make eeglab data into fieldtrip
+ftEEG = eeglab2fieldtrip(EEG, 'preprocessing', 'none');
 
-cfg = [];
-cfg.method    = 'mtmfft';
-cfg.output    = 'powandcsd';
-cfg.tapsmofrq = 10;
-cfg.foilim    = range;
-cfg.pad = 'nextpow2';
-cfg.gpu = 'yes';
-fftdata = ft_freqanalysis(cfg, EEGdata);
-%freqPre = rmfield(freqPre,'labelcmb');
+%% perform channel transformation
+
+transform = [0.05476 -17.3653 -8.1318 0.075502 0.0031836 -1.5696 11.7138 12.7933 12.213]; % transformation
+transform = transform.*[1         1       1      1+pi/2        1               1       1       1       1]; % rotate head
+
+elec1    = ftEEG.elec;
+electransf.pnt = [];
+if size(transform,1) > 1
+    electransf.pnt = transform*[ elec1.pnt ones(size(elec1.pnt,1),1) ]';
+else
+    electransf.pnt = traditionaldipfit(transform)*[ elec1.elecpos ones(size(elec1.elecpos,1),1) ]';
+end
+electransf.pnt   = electransf.pnt(1:3,:)';
+%electransf.pnt   = electransf.pnt/10; NEEDEDD TO PLOT THE ELECTRODES CORRECTLY IN ONE MODEL
+
+electransf.label = elec1.label;
+ftEEG.elec.pnt = electransf.pnt;
+ftEEG.elec.elecpos = electransf.pnt;
+
+% segment MRI?
 
 if ~isfield(EEG,'lor')
     EEG.lor = struct();
 end 
 
-    EEG.fftdata = fftdata;
+cfg = [];
+cfg.method    = 'mtmfft';
+cfg.output    = 'fourier';
+%cfg.tapsmofrq = 10;
+%cfg.foilim    = range;
+cfg.taper = 'boxcar';
+cfg.pad = 'nextpow2';
+cfg.gpu = 'yes';
+dataFreq = ft_freqanalysis(cfg, ftEEG);
+elec = dataFreq.elec;
 
-%% read headmodel
+EEG.lor.fftdata = dataFreq;
+
+%% Read headmodel
+
 p = fileparts(which('eeglab'));
-if ~isfield(EEG.lor,'HM')
-    headmodel = load('-mat', EEG.dipfit.hdmfile);
-    headmodel = headmodel.vol;
-    EEG.lor.HM = headmodel;
-else
-    headmodel  = EEG.lor.HM;
-end
-%% prepare leadfield matrix
 
-%if ~isfield(EEG.lor,'grid')
-    cfg                 = [];
-    cfg.elec            = fftdata.elec;
-    cfg.headmodel       = headmodel;
-    cfg.reducerank      = 2;
-    cfg.grid.resolution = 10;   % use a 3-D grid with a 1 cm resolution
-    cfg.grid.unit       = 'mm';
-    cfg.channel         = { 'all' };
-    cfg.parallel = 'yes';
-    cfg.solver = 'cg';
-
-    [grid] = ft_prepare_leadfield(cfg);
-    EEG.lor.grid = grid;
-% else 
-%     grid = EEG.lor.grid;
-% end
+headmodel = load('-mat', EEG.dipfit.hdmfile);
+headmodel = headmodel.vol;
 
 %% load MRI and plot
-%if ~isfield(EEG.lor,'mri')
-    mri = load('-mat', EEG.dipfit.mrifile);
-    mri = ft_volumereslice([], mri.mri);
-    EEG.lor.mri = mri;
-%else 
-   % mri = EEG.lor.mri;
-%end
-% source localization
 
-counter = 0;
-EEGspread = deal(EEG);
-numfreq = size(frequencies,2);
+mri = load('-mat', EEG.dipfit.mrifile);
+mri = ft_volumereslice([], mri.mri);
+mri.mri.coordsys = 'mni';
+mri.coordsys = 'mni';
+%EEG.lor.mri = mri;
 
-vol = load('-mat', EEG.dipfit.hdmfile);
+cfg = [];
+cfg.method = 'ortho';
+
+%% TEST PLOT HEADMODEL AND ELECTRODES
+
+%figure
+%ft_plot_sens(fftdata.elec, 'style', '*b');
+
+%hold on
+%ft_plot_headmodel(headmodel);
+
+
+%% Prepare leadfield matrix
+
+%if ~isfield(EEG.lor,'grid')
+
+if ~isfield(EEG.lor,'leadfield')
+
+cfg                 = [];
+cfg.elec            = dataFreq.elec;
+cfg.headmodel       = headmodel;
+%cfg.reducerank      = 2;
+cfg.resolution = 5;   % use a 3-D grid with a X cm resolution
+cfg.sourcemodel.unit       = 'mm';
+cfg.channel         = { 'all' };
+cfg.parallel = 'yes';
+cfg.solver = 'cg';
+
+[leadfield] = ft_prepare_leadfield(cfg);
+
+EEG.lor.leadfield = leadfield;
+
+save leadfield leadfield
+else
+
+    leadfield = EEG.lor.leadfield;
+
+end
+%% interpolate atlas into sourcemodel
+
+
+% if size(frequencies,1) > 1
+%     numfreq = size(frequencies,1);
+% else
+%     numfreq = size(frequencies,2);
+% end
+
+numfreq = 1;
 
 for i = 1:numfreq
     
-    atlas = ft_read_atlas('ROI_MNI_V4.nii');
-
-    freq = frequencies(i);
+%     if size(frequencies,1) > 1
+         freq = frequencies(1,:);
+%     else
+%         freq = frequencies(i);
+%     end
     
-    cfg              = struct(g.ft_sourceanalysis_params{:});
+    %fftdata2 = fftdata;
+    %[M,I] = min(abs(fftdata.freq - freq));
+    %fftdata.freq = fftdata.freq(I);
+    %fftdata.fourierspctrm = fftdata.fourierspctrm(:,:,I);
+    
+    %cfg              = struct(g.ft_sourceanalysis_params{:});
+    cfg.elec = elec;
+    cfg.eloreta.keepcsd       = 'yes';
+    cfg.eloreta.keepmom = 'yes';
+    cfg.keepleadfield = 'yes'; 
+    cfg.eloreta.keepfilter    = 'yes';
+    cfg.normalize = 'yes';
     cfg.frequency    = freq;
-    cfg.grid         = grid;
+    cfg.sourcemodel  = leadfield;
     cfg.headmodel    = headmodel;
-    cfg.method = 'eloreta';
-    cfg.atlas = atlas;
-    cfg.roi = atlas.tissuelabel;
-    cfg.dics.projectnoise = 'yes';
-    cfg.dics.lambda       = 5;
-    cfg.gpu = 'yes';
-    
-    sourcePost = ft_sourceanalysis(cfg, fftdata);
-    
-    EEGspread(i).lor.cfg(freq) = cfg;
-    EEGspread(i).lor.freq(freq) = fftdata;
-    EEGspread(i).lor.source(freq) = sourcePost;
+   % cfg.sourcemodel = EEG.dipfit.sourcemodel; % NEWLY ADDED
+    cfg.method       = 'eloreta';
+    %cfg.atlas        = source_model_atlas;
+    %cfg.roi          = atlas.tissuelabel;
+    cfg.eloreta.projectnoise = 'yes';
+    cfg.eloreta.lambda   = .5;
+    cfg.gpu           = 'yes';
 
-     %% load MRI and INTERPOLATE
+    source = ft_sourceanalysis(cfg, dataFreq);
+    source.coordsys = 'mni';
 
-    cfg2                 = [];
-    cfg2.downsample      = 2;
-    cfg2.parameter       = 'avg.pow';
-    sourcePost.oridimord = 'pos';
-    sourcePost.momdimord = 'pos';
-    sourcePostInt        = ft_sourceinterpolate(cfg2, sourcePost , mri);
+    %EEG.lor.source = struct();
+    %EEG.lor.source(i) = source;
     
-    EEGspread(i).lor.source_int(freq) = sourcePostInt;
-    cfg2                 = struct(g.ft_sourceplot_params{:});
-    cfg2.funparameter    = 'pow';
+%% INTERPOLATE source to MRI
+
+    cfg                 = [];
+    cfg.downsample      = 2;
+    cfg.parameter       = 'avg.pow';
+    source.oridimord = 'pos';
+    source.momdimord = 'pos';
+    cfg.parameter = 'tissue';
+    source_int        = ft_sourceinterpolate(cfg, source, mri);
     
-    %cfg2.atlas = ft_read_atlas('ROI_MNI_V4.nii'); % not working
+    %EEG.lor.source = struct();
+    %EEG.lor.source_int(i) = source_int;
+
+%% interpolate atlas and plot
+
+     cfg                 = [];    
+%     %cfg2                 = struct(g.ft_sourceplot_params{:});
+     cfg.method          = 'ortho';
+     cfg.funparameter    = 'pow';
+%     cfg.atlas        = atlas_int;
+%     %cfg.roi          = atlas_int.tissuelabel;
+%     %cfg2.maskparameter = cfg2.funparameter;
+%     %cfg2.opacitymap = 'rampup';
+%     %cfg2.location = 'peak';
+%     %cfg2.flipori = 'yes';
+     ft_sourceplot(cfg,source_int);
+%     %textsc(sprintf('eLoreta source localization of %d frequency power',freq), 'title');
+%     ft_sourceplot(cfg,source);
+%     textsc(sprintf('eLoreta source localization of %d frequency power',freq), 'title');
     
-    ft_sourceplot(cfg2,sourcePostInt);
-    textsc(sprintf('eLoreta source localization of %d frequency power',freq), 'title');
-    EEGspread(i).lor.source_int(freq) = sourcePostInt;
-%     cfg = [];
-%     cfg.nonlinear = 'no';
-%     sourceDiffIntNorm = ft_volumenormalise(cfg, sourcePostInt_nocon);
-% %     
-%     cfg3 = [];
-%     cfg3.method        = 'ortho';
-%     cfg3.funparameter  = 'pow';
-%     cfg3.maskparameter = 'pow';
-%     cfg3.funcolorlim   = [0.0 1.2];
-%     cfg3.opacitylim    = [0.0 1.2];
-%     cfg3.opacitymap    = 'rampup';
-%     cfg3.atlas = ft_read_atlas('ROI_MNI_V4.nii');
-%     ft_sourceplot(cfg3, sourcePostInt);
-%     
+    %TESTING THIS WORKS!
+    atlas = ft_read_atlas('ROI_MNI_V4.nii');
+    atlas.coordsys = 'mni';
+
+    cfg = [];
+    cfg.interpmethod = 'nearest';
+    cfg.parameter = 'tissue';
+    atlas_int = ft_sourceinterpolate(cfg,atlas,source);
+    EEG.lor.atlas_int(i) = atlas_int;
+    cfg                 = [];
+    %cfg2                 = struct(g.ft_sourceplot_params{:});
+    cfg.method          = 'ortho';
+    cfg.funparameter    = 'pow';
+    %cfg.avgoverfreq = 'yes';
+    cfg.atlas        = atlas_int;
+    ft_sourceplot(cfg,source);
+
+    %THIS DOESN'T!
+    atlas = ft_read_atlas('ROI_MNI_V4.nii');
+    atlas.coordsys = 'mni';
+    cfg = [];
+    cfg.interpmethod = 'nearest';
+    cfg.parameter = 'tissue';
+    atlas_int_int = ft_sourceinterpolate(cfg,atlas,source_int);
+    EEG.lor.atlas_int_int(i) = atlas_int;
+    cfg                 = [];
+    %cfg2                 = struct(g.ft_sourceplot_params{:});
+    cfg.method          = 'ortho';
+    cfg.funparameter    = 'pow';
+    %cfg.atlas        = atlas_int_int;
+    %ft_sourceplot(cfg,source_int);
+    %cfg.atlas        = atlas_int_int;
+    %try ft_sourceplot(cfg,source_int); catch; end
+
 end
 
-
-%     ft_sourceplot(cfg3, sourceDiffIntNorm);
-%end
-% % 
-%  for j=1:size(EEGspread,2)
-%      freq = frequencies(j);
-%      cfg2            = [];
-%      cfg2.downsample = 2;
-%      cfg2.parameter = 'avg.pow';
-%      sourcePost_nocon.oridimord = 'pos';
-%      sourcePost_nocon.momdimord = 'pos';
-%      EEGspread(j).lor.source_int2(freq)  = ft_sourceinterpolate(cfg2, EEGspread(j).lor.source_int(freq) , mri);
-%      
-%      cfg2              = struct(g.ft_sourceplot_params{:});
-%      cfg2.funparameter = 'pow';
-%      ft_sourceplot(cfg2,EEGspread(j).lor.source_int(freq));
-%  end
-
-%ft_sourceplot(cfg2,sourcePostInt_nocon_int);
 %% history
+
 disp('Done');
 com = sprintf('pop_dipfit_loretaQL(EEG, %s);', vararg2str( { select, range, frequencies, varargin}));

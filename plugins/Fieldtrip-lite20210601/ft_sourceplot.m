@@ -1565,7 +1565,6 @@ opt.ijk = opt.ijk(1:3);
 
 % construct a string with user feedback
 str1 = sprintf('voxel %d, indices [%d %d %d]', sub2ind(functional.dim(1:3), xi, yi, zi), opt.ijk);
-
 if isfield(functional, 'coordsys') && isfield(functional, 'unit')
   % print the location with mm accuracy
   switch functional.unit
@@ -1597,7 +1596,6 @@ elseif ~isfield(functional, 'coordsys') && ~isfield(functional, 'unit')
 else
   str2 = '';
 end
-
 if opt.hasfreq && opt.hastime
   str3 = sprintf('%.1f s, %.1f Hz', functional.time(opt.qi(2)), functional.freq(opt.qi(1)));
 elseif ~opt.hasfreq && opt.hastime
@@ -1607,7 +1605,6 @@ elseif opt.hasfreq && ~opt.hastime
 else
   str3 = '';
 end
-
 if opt.hasfun
   if ~opt.hasfreq && ~opt.hastime
     val = opt.fun(xi, yi, zi);
@@ -1622,8 +1619,7 @@ if opt.hasfun
 else
   str4 = '';
 end
-
-%fprintf('%s %s %s %s\n', str1, str2, str3, str4);
+%fprintf('%s %s %s %s\n', str1, str2, str3, str4); %THIS LETS IT PRINT EVERYTHING UGO
 
 if opt.hasatlas
   %tmp = [opt.ijk(:)' 1] * opt.atlas.transform; % atlas and functional might have different transformation matrices, so xyz cannot be used here anymore
@@ -1644,6 +1640,7 @@ else
   lab = 'NA';
 end
 
+fprintf('%s %s %s %s %s\n', str1, str2, str3, str4,lab); %THIS LETS IT PRINT EVERYTHING UGO
 
 if opt.hasana
   options = {'transform', eye(4),     'location', opt.ijk, 'style', 'subplot',...
@@ -1764,7 +1761,7 @@ if opt.hasfreq && opt.hastime && opt.hasfun
   xlabel('time'); ylabel('freq');
   set(h4, 'tag', 'TF1');
   caxis([opt.fcolmin opt.fcolmax]);
-elseif opt.hasfreq && opt.hasfun
+elseif opt.hasfreq && opt.hasfun % PLOTS FREQUENCY HERE UGO
   h4 = subplot(2,2,4);
   plot(functional.freq, shiftdim(opt.fun(xi,yi,zi,:),3)); xlabel('freq');
   axis([functional.freq(1) functional.freq(end) opt.fcolmin opt.fcolmax]);
@@ -1929,7 +1926,39 @@ switch key
     opt.clim(2) = opt.clim(2)+cscalefactor;
     setappdata(h, 'opt', opt);
     cb_redraw(h);
+
+    case {'multiply' 'asterisk' 'shift+8'} % * or numpad *
+    % jump to max
+
+    [~, maxindx] = max(opt.fun(:));
+    [xi, yi, zi] = ind2sub(opt.dim, maxindx);
     
+    xi = round(xi); xi = max(xi, 1); xi = min(xi, opt.dim(1));
+    yi = round(yi); yi = max(yi, 1); yi = min(yi, opt.dim(2));
+    zi = round(zi); zi = max(zi, 1); zi = min(zi, opt.dim(3));
+    
+    opt.ijk = [xi,yi,zi];
+    
+    setappdata(h, 'opt', opt);
+    cb_redraw(h);
+    
+    case {'divide' 'forwardslash' '/'} % * or numpad *
+    % jump to max
+
+    [~, maxindx] = min(opt.fun(:));
+    [xi, yi, zi] = ind2sub(opt.dim, maxindx);
+    
+    xi = round(xi); xi = max(xi, 1); xi = min(xi, opt.dim(1));
+    yi = round(yi); yi = max(yi, 1); yi = min(yi, opt.dim(2));
+    zi = round(zi); zi = max(zi, 1); zi = min(zi, opt.dim(3));
+    
+    opt.ijk = [xi,yi,zi];
+    
+    setappdata(h, 'opt', opt);
+    cb_redraw(h);
+    
+    
+
   otherwise
     % do nothing
     

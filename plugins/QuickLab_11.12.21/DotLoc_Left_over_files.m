@@ -5,8 +5,6 @@ Ep63 = dir('*T63.set');
 Ep60 = dir('*T60.set');
 allStartedFiles = cat(1,Ep63,Ep60);
 
-
-
 totalFilesInFolder = length(allStartedFiles);
 
 AllFilesFolder = dir('*.set');
@@ -19,13 +17,16 @@ final_files = dir('*HM9*Ep6*ICA.set');
 
 final_files2 = dir('*DONE*.set');
 
-final_files3 = dir('*FIN*.set');
+final_files3 = dir('*Fin*.set');
+
+final_files5 = dir('*Fin.set');
 
 final_files4 = dir('*Hm9*Ep6*ICA.set');
 
 totalcompleted = cat(1,final_files,final_files3);
 totalcompleted = cat(1,totalcompleted,final_files2);
 totalcompleted = cat(1,totalcompleted,final_files4);
+totalcompleted = cat(1,totalcompleted,final_files5);
 
 totalstarted = 0;
 
@@ -64,6 +65,13 @@ for i = 1:length(AllFilesFolder)
         totalfinished = totalfinished + 1;
     end
 end
+
+%save notfinished.csv notfinished
+
+% A = {notfinished.name}';
+% B = char(A);
+% C = B(:,1:12);
+% D = unique(C,'rows');
 
 % 
 % allcompletedfiles_strings = string({totalcompleted.name});

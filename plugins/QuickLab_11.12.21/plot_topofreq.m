@@ -23,8 +23,6 @@ if size(eegspecdB,1) ~= 1
     disp(strcat('Channel selected ','...', num2str(index)));
     A = g.freqs - freq;
     f = find(abs(A) == min(abs(A)));
-
-
     topodata = eegspecdB(:,f)-nan_mean(eegspecdB(:,f));
 
     axes('Parent', gcf, 'position',[ 0.91 0.50 0.085 0.15 ],'units','normalized');

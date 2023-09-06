@@ -304,9 +304,9 @@ outvar1 = 0;
 %% Collects component or channel plot, continuous or epoched plot
 if isstruct(EEG)
     EEG.varargin = varargin;
-    if ~isfield(EEG,'plotIc')
-        EEG.plotchannels = 1;
-    end
+%     if ~isfield(EEG,'plotIc')
+%         EEG.plotchannels = 1;
+%     end
     if ~isfield(EEG,'plotEp')
         EEG.plotEp = 1;
     end
@@ -316,9 +316,13 @@ if isstruct(EEG)
     if EEG.plotchannels == 1
         data = EEG.data;
     else
-        data = eeg_getdatact(EEG, 'component', [1:size(EEG.icaweights,1)]);
+        if ~isempty(EEG.icaact)
+            data = eeg_getdatact(EEG, 'component', [1:size(EEG.icaweights,1)]);
+        else
+            data = EEG.icaact;
+        end
     end
-    if EEG.plotEp ~= 1
+    if EEG.plotEp ~= 1 && size(data,3) > 1
         data = data(:,:);
     end
 else
@@ -393,8 +397,6 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
     if ~isempty (otherfigs)
         close(otherfigs);
     end
-
-
 
     %%
    try
@@ -790,7 +792,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
     
     allnew_menus = findobj(new_menus);
 
-    precallback = ['g = get(findobj(''tag'',''eegplot_adv''),''Userdata''); EEG = g.EEG;'];
+    precallback = ['g = get(findobj(''tag'',''eegplot_adv''),''Userdata''); EEG = g.EEG; figure;'];
     postcallback = ['fig = findobj(''tag'',''eegplot_adv''); g = get(fig,''Userdata''); g.EEG = EEG; set(fig,''Userdata'',g); eegplot_adv(''RESET'')'];
     
      for j = 1:length(allnew_menus)
@@ -1443,7 +1445,7 @@ else
     if g.EEG.plotchannels == 1
         tmpsavecom = g.savecommand;
     else
-        tmpsavecom = g.savecommand_pc;
+        tmpsavecom = g.savecommand2;
     end
 end
   savecommand = [ 'g = get(gcbf, ''userdata'');' ...  
@@ -1838,6 +1840,12 @@ end
   	   eegplot_adv('zoom', gcf);
   end 
   eegplot_adv('scaleeye', [], gcf);
+
+  if g.normed == 1
+      g.normed = 1;
+      normalize_chan([],[],gcf)
+      normalize_chan([],[],gcf)
+  end
   
 
   % set button colors #Ugo #COLORS 
@@ -1874,6 +1882,11 @@ else
   try p1 = varargin{1}; p2 = varargin{2}; catch, end
   fig = findobj('tag','eegplot_adv');
   switch data
+
+  case 'normalize'
+    
+    normalize_chan([],[],fig);
+
   case 'RESET'
     g = RESET();
     load_directory(EEG,fig)
@@ -1977,10 +1990,11 @@ else
 
   case 'APPLY'
     g = get(fig,'UserData');
-    if g.normed
+    if g.normed == 1
         normalize_chan([],[],fig);
     end
     g = APPLY(g);
+    % FIX NORMALIZATION
     EEG = g.EEG; 
 
     
@@ -1989,7 +2003,7 @@ else
     g = SWITCH(g);
     
     h = findobj(fig, 'tag', 'SWITCH');
-    if ~isempty(g.EEG.icaact)
+    if ~isempty(g.EEG.icawinv)
         if g.EEG.plotchannels
             %set(h,'string','EEG data ON');
             set(h,'string','Show ICA');
@@ -2055,7 +2069,6 @@ else
             g.eloc_file(i).badchan = 1;
         end
     end
-      
   
   case 'ICLABEL'
       g = get(fig,'UserData');
@@ -2066,6 +2079,7 @@ else
   case 'ClearMarks'
       g = get(fig,'UserData');
       g.winrej = [];
+      g.EEG.suffix = '';
       for ii=1:length(g.eloc_file)
           g.eloc_file(ii).badchan = 0;
       end
@@ -3862,7 +3876,7 @@ if g.normed == 1
         end
     end
     set(hbutton,'string', 'Norm');
-    set(findobj('tag','ESpacing','parent',fig),'string',num2str(g.oldspacing));
+    try set(findobj('tag','ESpacing','parent',fig),'string',num2str(g.oldspacing)); catch; end
 else
     g.datastd = std(data(:,1:min(1000,g.frames)),[],2); 
     
@@ -4426,8 +4440,8 @@ EEG = g.EEG;
         ax_pic = findobj(fig,'tag','topo');
         ax_matrix = findobj(fig,'tag','matrix');
         if ~isempty(ax_matrix)
-            set(ax_matrix, "Visible",'off')
-            set(ax_matrix.Parent, "Visible",'off')
+            set(ax_matrix, "Visible",'off');
+            try set(ax_matrix.Parent, "Visible",'off'); catch; end %UGO CHANGES .PARENT
         end
 %         if isempty(ax_pic)
 %             ax_pic = axes('Parent', gcf, 'position',g.matrixpos,'units','normalized','tag','topo','XTickLabel',{[]},'YTickLabel',{[]},Color=[.93 .96 1]);
@@ -4706,7 +4720,7 @@ function plot_topoplot_old(fig)
 function g = SWITCH(g)
     
     g = get(gcf,'UserData');
-    if ~isempty(g.EEG.icaact)
+    if ~isempty(g.EEG.icawinv)
     %g = THINKING(g,1);
 
     EEG = g.EEG;
@@ -5041,7 +5055,7 @@ function g = REDO(g)
 
    switch method(1).Value
        case 1
-           [NEW] = pop_par_icflag(NEW, [NaN NaN;opt(1) opt(2);opt(1) opt(2);opt(1) opt(2);opt(1) opt(2);opt(1) opt(2);NaN NaN]);
+           1
        case 2
            [NEW] = pop_par_icflag(NEW, [opt(1) opt(2);NaN NaN;NaN NaN;NaN NaN;NaN NaN;NaN NaN;NaN NaN]);
        case 3
@@ -5379,34 +5393,34 @@ draw_matrix(g);
 
 
 
-function tf = issubfield(S,FIELD)
-    % Posted by Geoff McVittie on Matlab Answers on https://www.mathworks.com/matlabcentral/answers/103924-is-it-possible-to-check-for-existence-of-fields-in-nested-structures-with-isfield-in-matlab-8-1-r20
-%ISSUBFIELD Determine if FIELD is valid in struct S
-%   Determine if the specified FIELD or nested FIELD is present in the
-%   given structure.
-%
-%   A.b.c.d = 1;
-%   issubfield(A,"b.c.d")       % TRUE
-%   issubfield(A,"b")           % TRUE
-%   issubfield(A,"b.c.d.e")     % FALSE
-%   issubfield(A,"f")           % FALSE
-% arguments
-%      S (1,1)  = struct
-%      FIELD (1,1)  = string
+% function tf = issubfield(S,FIELD)
+% % Posted by Geoff McVittie on Matlab Answers on https://www.mathworks.com/matlabcentral/answers/103924-is-it-possible-to-check-for-existence-of-fields-in-nested-structures-with-isfield-in-matlab-8-1-r20
+% %ISSUBFIELD Determine if FIELD is valid in struct S
+% %   Determine if the specified FIELD or nested FIELD is present in the
+% %   given structure.
+% %
+% %   A.b.c.d = 1;
+% %   issubfield(A,"b.c.d")       % TRUE
+% %   issubfield(A,"b")           % TRUE
+% %   issubfield(A,"b.c.d.e")     % FALSE
+% %   issubfield(A,"f")           % FALSE
+% % arguments
+% %      S (1,1)  = struct
+% %      FIELD (1,1)  = string
+% % end
+% SUBFIELD = strsplit(FIELD,'.');
+% if numel(SUBFIELD) == 1
+%     tf = isfield(S,FIELD);
+%     return;    
 % end
-SUBFIELD = strsplit(FIELD,'.');
-if numel(SUBFIELD) == 1
-    tf = isfield(S,FIELD);
-    return;    
-end
-tf = true;
-for i = 2:numel(SUBFIELD)    
-    S = S.(SUBFIELD(i-1));
-    if ~isfield(S,SUBFIELD(i))
-        tf = false;
-        break;
-    end
-end
+% tf = true;
+% for i = 2:numel(SUBFIELD)    
+%     S = S.(SUBFIELD(i-1));
+%     if ~isfield(S,SUBFIELD(i))
+%         tf = false;
+%         break;
+%     end
+% end
 
 
 function winrej_merged = merge_trials(winrej)
@@ -6020,12 +6034,12 @@ u11 = findobj(figh,'Tag','Eelec');
 % u(11) = Evalue
 
 if stop == 1
-  figh.WindowKeyPressFcn = [];
+  %figh.WindowKeyPressFcn = [];
 %   set(ax1, 'windowbuttonmotionfcn', {[]});
 %   set(ax1, 'WindowKeyPressFcn',     {[]});
 else
   %set(ax1, 'WindowScrollWheelFcn',  {@mouse_scroll_wheel,figh,ax0,ax1,B,C,A});
-  try figh.WindowKeyPressFcn = {@eegplot_readkey,figh,ax0,ax1,u10,u9,u11}; catch; end
+  %try figh.WindowKeyPressFcn = {@eegplot_readkey,figh,ax0,ax1,u10,u9,u11}; catch; end
   %set(ax1, 'WindowKeyPressFcn',     {@eegplot_readkey,figh,ax0,ax1,B,C,A});
 end
 
@@ -6137,12 +6151,12 @@ function load_directory(EEG,fig)
 
 % loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
 % eval(loaddircommand);
-
-findex = [1];
-try cd(EEG.filepath); 
-catch
-end 
-files = dir('*.set');
-findex = find(strcmp({files.name}, EEG.filename));
-set(findobj(fig,'tag','FolderList'),'string',{files(1:end).name},'value',find(strcmp({files.name}, EEG.filename)));
-
+if isstruct(EEG)
+    findex = [1];
+    try cd(EEG.filepath);
+    catch
+    end
+    files = dir('*.set');
+    findex = find(strcmp({files.name}, EEG.filename));
+    set(findobj(fig,'tag','FolderList'),'string',{files(1:end).name},'value',find(strcmp({files.name}, EEG.filename)));
+end

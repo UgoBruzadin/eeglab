@@ -39,7 +39,7 @@ kont=0;
 kk=0;
 while kont==0
     kk=kk+1;
-    for i=1:ng
+    parfor i=1:ng
         Winv(:,:,i)=(inv(W(:,:,i)+trace(W(:,:,i))/(ndum*10^6)));
         %if i==ng;disp(W(:,:,i));end
     end
@@ -57,7 +57,7 @@ while kont==0
         [ux,sx,vx]=svd(kwinvkt);
         %disp(sx(1,1)/alpha)
         Wold=W;
-        for i=1:ng
+        parfor i=1:ng
         Lloc=squeeze(L(:,i,:));
         % Wold=W;
         Mb=Lloc'*M*Lloc;
@@ -74,7 +74,7 @@ ktm=LL'*M;
 %ktm=reshape(ktm,ng,ndum,nchan);
  A=zeros(nchan,ng,ndum);
 
- for i=1:ng
+ parfor i=1:ng
      A(:,i,:)=(Winv(:,:,i)*ktm(ndum*(i-1)+1:ndum*i,:))';
  end
  Wout=W;

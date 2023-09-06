@@ -89,7 +89,7 @@ if nargin < 2
                                                      fastif(strcmpi(tmpdat(tmpval).coordformat,'CTF'),3,1)));
         set(findobj(gcf, 'tag', 'mri'  ), 'string', char(tmpdat(tmpval).mrifile));
         set(findobj(gcf, 'tag', 'meg'), 'string', char(tmpdat(tmpval).chanfile));
-        set(findobj(gcf, 'tag', 'coregcheckbox'), 'value', 0);
+        set(findobj(gcf, 'tag', 'coregcheckbox'), 'value', 1);
         if tmpval < 3
             set(findobj(gcf, 'userdata', 'editable'), 'enable', 'off');
         else

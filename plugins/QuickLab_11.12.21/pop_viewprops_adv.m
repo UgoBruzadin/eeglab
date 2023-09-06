@@ -42,7 +42,7 @@
 
 % 01-25-02 reformated help & license -ad
 
-function [EEG,com] = pop_viewprops_adv( EEG, typecomp, newcommand, chanorcomp, spec_opt, erp_opt, fig_opts, scroll_event, classifier_name, fig)
+function [EEG,com] = pop_viewprops_adv( EEG, typecomp, newcommand, chanorcomp, spec_opt, erp_opt, fig_opts, scroll_event, classifier_name, fig,visible)
 
 COLACC = [0.75 1 0.75];
 PLOTPERFIG = size(EEG.icawinv,2);
@@ -50,6 +50,9 @@ com = '';
 
 QuickLabDefs;
 %COLACC = DEFAULT_FIG_COLOR;
+if nargin < 11 || isempty(visible)
+    visible = 'on';
+end
 
 if nargin < 1
     help pop_viewprops2;
@@ -149,13 +152,13 @@ if ~isempty(fig_opts)
     end
 end
 
-if ~exist('spec_opt', 'var') || ~iscell(spec_opt)
+if ~exist('spec_opt', 'var') || ~iscell(spec_opt) || isempty(spec_opt)
     spec_opt = {}; end
-if ~exist('erp_opt', 'var') || ~iscell(erp_opt)
+if ~exist('erp_opt', 'var') || ~iscell(erp_opt) || isempty(erp_opt)
     erp_opt = {}; end
-if ~exist('scroll_event', 'var')
+if ~exist('scroll_event', 'var') || isempty(scroll_event)
     scroll_event = 1; end
-if ~exist('classifier_name', 'var')
+if ~exist('classifier_name', 'var') || isempty(classifier_name)
     classifier_name = ''; end
 fprintf('Drawing figure...\n');
 currentfigtag = ['topo' num2str(floor(rand*1000))]; % generate a random figure tag
@@ -183,9 +186,9 @@ end
 % -----------------
 column = ceil(sqrt( length(chanorcomp) ))+5;
 rows = ceil(length(chanorcomp)/column);
-if ~exist('fig','var')
+if ~exist('fig','var') || isempty(fig)
     figure('name', [ 'View ' fastif(typecomp,'channels','components') ' properties - pop_viewprops2() (dataset: ' EEG.filename ')'], 'tag', currentfigtag, ...
-        'numbertitle', 'off', 'color', BACKCOLOR);
+        'numbertitle', 'off', 'color', BACKCOLOR,'Visible',visible);
     set(gcf,'MenuBar', 'none');
     pos = get(gcf,'Position');
     if ~typecomp && isfield(EEG.etc, 'ic_classification')

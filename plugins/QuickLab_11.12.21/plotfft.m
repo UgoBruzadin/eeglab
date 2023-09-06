@@ -33,7 +33,7 @@ if exist('EEG','var')
             figindex = find(strcmp({figfiles.name}, strcat(EEG.filename(1:end-4),'FFT.fig')));
             if ~isempty(jpgindex)
                 
-                axisFFT = uipanel(W_MAIN, 'Position',[.5 .15 .35 .67],'Tag','Picture','Visible','on','BackgroundColor',W_MAIN.Color,'BorderType','none');
+                axisFFT = uipanel(W_MAIN, 'Position',[.35 .20 .50 .75],'Tag','Picture','Visible','on','BackgroundColor',W_MAIN.Color,'BorderType','none');
                 fftAxis = axes(axisFFT, 'Tag','fft_chart','Position', [0 0 1 1],'Visible','on');
                 pic = jpgfiles(jpgindex).name;
                 rec = imshow(pic,'Parent',fftAxis,'InitialMagnification','fit');

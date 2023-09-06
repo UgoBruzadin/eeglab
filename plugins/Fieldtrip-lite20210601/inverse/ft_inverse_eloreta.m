@@ -151,10 +151,13 @@ if ~hasfilter
   if rank_lf(1)<size(sourcemodel.leadfield{1})
     ft_notice('the forward solutions have a rank of %d, but %d orientations\n',rank_lf(1),size(sourcemodel.leadfield{1},2));
     ft_notice('projecting the forward solutions on the lower dimensional subspace\n');
+    
+    led = sourcemodel.leadfield;
     for i=1:size(sourcemodel.pos,1)
-      [u,s,v{i}] = svd(sourcemodel.leadfield{i}, 'econ');
-      sourcemodel.leadfield{i} = sourcemodel.leadfield{i}*v{i}(:,1:rank_lf(i));
+      [u,s,v{i}] = svd(led{i}, 'econ');
+      led{i} = led{i}*v{i}(:,1:rank_lf(i));
     end
+    sourcemodel.leadfield = led;
   end
 
   % convert the leadfield into Nchan*Ndip*Nori
@@ -163,27 +166,161 @@ if ~hasfilter
   leadfield     = permute(reshape(cat(2,sourcemodel.leadfield{:}),Nchan,Nori,Ndip),[1 3 2]);
     
   filt = mkfilt_eloreta(leadfield, lambda);
-  for i=1:size(sourcemodel.pos,1)
-    sourcemodel.filter{i,1} = squeeze(filt(:,i,:))';
-  end
-end
 
-% get the power
-siz_C  = [size(C) 1 1]; % C can have both a freq and time dimension
-sourcemodel.pow = zeros([size(sourcemodel.pos,1),siz_C(3:4)]);
-sourcemodel.ori = cell(size(sourcemodel.pos,1),1);
-for i=1:size(sourcemodel.pos,1)
-  sourcemodel.ori{i} = zeros([size(sourcemodel.filter{i},1) siz_C(3:4)]);
-  for j=1:siz_C(3)
-    for k=1:siz_C(4)
-      csd               = sourcemodel.filter{i}*C(:,:,j,k)*sourcemodel.filter{i}';
-      [u,s,v]           = svd(real(csd));
-      sourcemodel.pow(i,j,k)    = s(1);
-      sourcemodel.ori{i}(:,j,k) = u(:,1);
+  siz = size(sourcemodel.pos,1);
+  filter = cell(siz,1);
+
+  for i=1:siz
+    filter{i,1} = squeeze(filt(:,i,:))';
+  end
+  sourcemodel.filter = filter;
+end
+% 
+% tic;
+% % get the power
+% siz_C  = [size(C) 1 1]; % C can have both a freq and time dimension
+% sourcemodel.pow = zeros([size(sourcemodel.pos,1),siz_C(3:4)]);
+% sourcemodel.ori = cell(size(sourcemodel.pos,1),1);
+% for i=1:size(sourcemodel.pos,1)
+%   sourcemodel.ori{i} = zeros([size(sourcemodel.filter{i},1) siz_C(3:4)]);
+%   for j=1:siz_C(3)
+%     for k=1:siz_C(4)
+%       csd               = sourcemodel.filter{i}*C(:,:,j,k)*sourcemodel.filter{i}';
+%       [u,s,v]           = svd(real(csd));
+%       sourcemodel.pow(i,j,k)    = s(1);
+%       sourcemodel.ori{i}(:,j,k) = u(:,1);
+%     end
+%   end
+% end
+% toc;
+
+%tic;
+
+%print('')
+
+haspar = [];
+haspar = ver('parallel');
+isworker = getCurrentWorker();
+% if ~isempty(haspar)
+%     p = gcp('nocreate');
+%     
+%     if ~isempty(p)
+%         haspar = [];
+%     end
+% end
+    siz_C  = [size(C) 1 1]; % C can have both a freq and time dimension
+    sourcemodel.pow = zeros([size(sourcemodel.pos,1),siz_C(3:4)]);
+    sourcemodel.ori = cell(size(sourcemodel.pos,1),1);
+
+if isempty(haspar) && isempty(isworker)
+
+    for i=1:size(sourcemodel.pos,1)
+        sourcemodel.ori{i} = zeros([size(sourcemodel.filter{i},1) siz_C(3:4)]);
+        for j=1:siz_C(3)
+            for k=1:siz_C(4)
+                csd               = sourcemodel.filter{i}*C(:,:,j,k)*sourcemodel.filter{i}';
+                [u,s,~]           = svd(real(csd));
+                sourcemodel.pow(i,j,k)    = s(1);
+                sourcemodel.ori{i}(:,j,k) = u(:,1);
+            end
+        end
     end
-  end
+else
+    % Start a parallel pool if it's not already started
+%     if isempty(gcp('nocreate'))
+%         parpool;
+%     end
+
+    % get the power in paralell (~6 seconds)
+tic
+    siz_C  = [size(C) 1 1]; % C can have both a freq and time dimension
+    num_positions = size(sourcemodel.pos,1);
+    sourcemodel.pow = zeros([num_positions, siz_C(3:4)]);
+    sourcemodel.ori = cell(num_positions,1);
+
+    pow = zeros([num_positions, siz_C(3), siz_C(4)]);
+    ori = cell(num_positions,1);
+
+    parfor i=1:num_positions
+        ori_i = zeros([size(sourcemodel.filter{i},1) siz_C(3:4)]);
+        pow_i = zeros([1, siz_C(3), siz_C(4)]);
+        for j=1:siz_C(3)
+            for k=1:siz_C(4)
+                csd               = sourcemodel.filter{i}*C(:,:,j,k)*sourcemodel.filter{i}';
+                [u,s,~]           = svd(real(csd));
+                pow_i(1,j,k)      = s(1);
+                ori_i(:,j,k)      = u(:,1);
+            end
+        end
+        ori{i} = ori_i;
+        pow(i,:,:) = pow_i;
+    end
+    sourcemodel.ori = ori;
+    sourcemodel.pow = pow;
+toc
+%% get the power in GPU (~1 second)
+% tic
+% filter_gpu = cellfun(@gpuArray, sourcemodel.filter, 'UniformOutput', false);
+% C_gpu = gpuArray(C);
+% 
+% pow_gpu = zeros([num_positions, siz_C(3), siz_C(4)]);
+% ori_gpu = zeros([size(sourcemodel.filter{1},1), siz_C(3), siz_C(4), num_positions]);
+% 
+% parfor i=1:num_positions
+%     filter_transposed = filter_gpu{i}';
+%     csd_gpu = pagefun(@mtimes, filter_gpu{i}, pagefun(@mtimes, C_gpu, filter_transposed));
+% 
+%     pow_i_gpu = zeros(1, siz_C(3), siz_C(4), 'gpuArray');
+%     ori_i_gpu = zeros(size(filter_gpu{i}, 1), siz_C(3), siz_C(4), 'gpuArray');
+% 
+%     for j=1:siz_C(3)
+%         for k=1:siz_C(4)
+%             [u,s,~] = svd(real(csd_gpu(:,:,j,k)));
+%             pow_i_gpu(1,j,k) = s(1,1);
+%             ori_i_gpu(:,j,k) = u(:,1);
+%         end
+%     end
+% 
+%     % Assign the results to the corresponding position in pow_gpu and ori_gpu
+%     pow_gpu(i, :, :) = gather(pow_i_gpu);
+%     ori_gpu(:, :, :, i) = gather(ori_i_gpu);
+% end
+% 
+% toc
+% sourcemodel.ori = ori_gpu;
+% sourcemodel.pow = pow_gpu;
+%toc
+
+%toc
+
+% tic
+% C = gpuArray(C);
+% sourcemodel.filter = cellfun(@gpuArray, sourcemodel.filter, 'UniformOutput', false);
+% 
+% pow = gpuArray.zeros(num_positions, siz_C(3), siz_C(4));
+% ori = cell(num_positions, 1);
+% 
+% for i=1:num_positions
+%     ori_i = gpuArray.zeros([size(sourcemodel.filter{i},1) siz_C(3:4)]);
+%     pow_i = gpuArray.zeros([1, siz_C(3), siz_C(4)]);
+%     for j=1:siz_C(3)
+%         for k=1:siz_C(4)
+%             csd               = sourcemodel.filter{i}*C(:,:,j,k)*sourcemodel.filter{i}';
+%             [u,s,~]           = svd(gather(real(csd)));
+%             pow_i(1,j,k)      = s(1);
+%             ori_i(:,j,k)      = gpuArray(u(:,1));
+%         end
+%     end
+%     ori{i} = ori_i;
+%     pow(i,:,:) = pow_i;
+% end
+% 
+% pow = gather(pow);
+% ori = cellfun(@gather, ori, 'UniformOutput', false);
+% toc
 end
 
+%tic
 % get the dipole moment
 if keepmom && ~isempty(dat)
   siz = [size(dat) 1];
@@ -191,10 +328,51 @@ if keepmom && ~isempty(dat)
   if hasmom
     sourcemodel = rmfield(sourcemodel, 'mom');
   end
-  for i=1:size(sourcemodel.pos,1)
-    sourcemodel.mom{i} = reshape(sourcemodel.filter{i}*dat(:,:), [size(sourcemodel.filter{i},1) siz(2:end)]);
+  mom = cell(size(sourcemodel.pos,1),1);
+  %mom2 = mom;
+  %for debugging
+  %haspar = [];
+  tic
+  if isempty(haspar) || isempty(isworker)
+     for i=1:size(sourcemodel.pos,1)
+        mom{i} = reshape(sourcemodel.filter{i}*dat(:,:), [size(sourcemodel.filter{i},1) siz(2:end)]);
+     end
+
+  elseif ~isempty(haspar) || isempty(isworker)
+
+       parfor i=1:size(sourcemodel.pos,1)
+           mom{i} = reshape(sourcemodel.filter{i}*dat(:,:), [size(sourcemodel.filter{i},1) siz(2:end)]);
+       end
+  else
+      % Move data to GPU
+      dat = gpuArray(dat);
+      sourcemodel.filter = cellfun(@gpuArray, sourcemodel.filter, 'UniformOutput', false);
+
+      for i=1:size(sourcemodel.pos,1)
+          mom{i} = reshape(sourcemodel.filter{i}*dat(:,:), [size(sourcemodel.filter{i},1) siz(2:end)]);
+      end
+
+      % Move the result back to the CPU
+      mom = cellfun(@gather, mom, 'UniformOutput', false);
   end
+  toc
+  sourcemodel.mom = mom;
 end
+
+
+
+% % get the dipole moment
+% if keepmom && ~isempty(dat)
+%   siz = [size(dat) 1];
+%   % remove the dipole moment from the input
+%   if hasmom
+%     sourcemodel = rmfield(sourcemodel, 'mom');
+%   end
+%   
+%   for i=1:size(sourcemodel.pos,1)
+%     sourcemodel.mom{i} = reshape(sourcemodel.filter{i}*dat(:,:), [size(sourcemodel.filter{i},1) siz(2:end)]);
+%   end
+% end
 
 % reassign the estimated values over the inside and outside grid positions
 estimate.inside  = originside;
