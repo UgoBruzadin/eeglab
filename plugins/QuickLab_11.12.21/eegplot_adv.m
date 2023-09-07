@@ -1051,7 +1051,7 @@ QuickLabDefs;
         'window, windowshift',...
         'quick_bss2';...
         ...
-        ['AVG'],...
+        [' "AVG" '],...
         'choose reference(s)',...
         'quick_reref';...
         ...
@@ -5137,7 +5137,7 @@ function g = REDO(g)
            suffix = 'BSS';
        case 3
            newcom = [strcat('[NEW,com] = quick_reref(EEG,', opt, ');')];
-           suffix = strcat('ref',opt);
+           suffix = opt;
        case 4
            newcom = ['[NEW,com] = quick_HM94(EEG);'];
            suffix = 'HM94';
@@ -5197,7 +5197,7 @@ function g = REDO(g)
    % ONE OF THESE LOWER FUNCTIONS - PROBABLY WHERE THERE IS A BUG! UGO BUG 12-19-2022
    draw_data([],[],gcf,9,[],g);
    eegplot_adv('setelect');
-   eegplot_adv('winelec_auto');
+   %eegplot_adv('winelec_auto');
 
     function g = TBT(g)
         % This function was adapted from TBT plugin by 
