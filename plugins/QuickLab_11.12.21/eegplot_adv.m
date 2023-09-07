@@ -2021,7 +2021,7 @@ else
 %    eegplot_adv('drawp',0);	
 %    eegplot_adv('scaleeye', [], fig);
     ax2 = findobj('tag','eegaxis','parent',fig);
-    change_scale([],[],fig,4,ax2);
+    %change_scale([],[],fig,4,ax2);
     
 
   case 'UNDO'
@@ -2195,7 +2195,7 @@ if ~isempty(eyeaxes)
 end
    eegplot_adv('setelect');
    try eegplot_adv('updateslider', fig); catch; end
-   eegplot_adv('drawp',0);	
+   %eegplot_adv('drawp',0);	
    eegplot_adv('scaleeye', [], fig);
 
    %g = THINKING(g,0);
@@ -2939,7 +2939,7 @@ function draw_data(varargin)
     set(ax1, 'Xlim', [1 g.winlength*multiplier+1]);
 
     % ordinates: even if all elec are plotted, some may be hidden
-    set(ax1, 'ylim',[g.elecoffset*g.spacing (g.elecoffset+g.dispchans+1)*g.spacing] );
+    %set(ax1, 'ylim',[g.elecoffset*g.spacing (g.elecoffset+g.dispchans+1)*g.spacing] );
     
     if g.children ~= 0
         draw_data([],[],g.children,p1,p2);
@@ -5034,9 +5034,9 @@ function g = REDO(g)
    g = get(gcf,'UserData');
    EEG = g.EEG;
    % set parameters
-   if EEG.plotchannels == 1
-       g = SWITCH(g);
-   end
+%    if EEG.plotchannels == 1
+%        g = SWITCH(g);
+%    end
 
    g.EEGpre = EEG;
    if ~isfield(g,'NEW')
@@ -5055,7 +5055,7 @@ function g = REDO(g)
 
    switch method(1).Value
        case 1
-           1
+           [NEW] = pop_par_icflag(NEW, [NaN NaN;opt(1) opt(2);opt(1) opt(2);opt(1) opt(2);opt(1) opt(2);NaN NaN;NaN NaN]);
        case 2
            [NEW] = pop_par_icflag(NEW, [opt(1) opt(2);NaN NaN;NaN NaN;NaN NaN;NaN NaN;NaN NaN;NaN NaN]);
        case 3
