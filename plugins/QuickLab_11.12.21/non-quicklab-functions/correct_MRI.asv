@@ -1,0 +1,5 @@
+
+function EEG = correct_MRI(EEG)
+
+for 
+EEG.lor.source_int(:).transform() = EEGspread.lor.source_int(10).transform(1,1:3)*-1;

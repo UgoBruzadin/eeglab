@@ -1,0 +1,19 @@
+function plot_topofreq()
+
+mainfig = findobj('Tag','Data');
+
+%mainfig = gca;
+g = mainfig.UserData;
+
+eegspecdB = g.eegspecdB;
+
+[power,freq] = getPlotPoint();
+
+A = g.freqs - freq;
+f = find(abs(A) == min(abs(A)));
+
+topodata = eegspecdB(:,f)-nan_mean(eegspecdB(:,f));
+
+axes('Parent', gcf, 'position',[ 0.91    0.50    0.090    0.10 ],'units','normalized');
+
+topoplot(topodata,g.chanlocs);

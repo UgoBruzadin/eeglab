@@ -1,0 +1,144 @@
+clear all
+clc;
+
+mainfolder = pwd;
+
+% choose high frequency to plot and low frequency to plot
+low = 3.5;
+high = 30;
+%theta (6.5hz to 8hz), alpha-1 (8.5hz to 10hz), alpha-2 (10.5 to 12hz), beta-1 (12.5hz to 18hz), beta-2 (18.5hz to 21hz), beta-3 (21.5hz to 30hz) 
+
+theta = [6.5 8];
+alpha1 = [8.5 10];
+alpha2 = [10.5 12];
+beta1 = [12.5 18];
+beta2 = [18.5 21];
+beta3 = [21.5 30];
+
+% collects all folders with 2 letters!
+[ FullFolderList ] = GetAllDirFolders(pwd,2);
+
+% create a table of tables!
+FinalFolder_tables = cell(size(FullFolderList,1),1);
+
+eeglab;
+%for j = 1: size(FullFolderList,1) % FIX THIS BEFORE SAVING!!
+for j = 2: size(FullFolderList,1)
+
+    cd(strcat(FullFolderList(j).folder,'\',FullFolderList(j).name))
+
+    % collect all files in the directory
+    [ FullFileList ] = GetAllDirFiles(pwd, '.set');
+
+    %load first file to collect information on the srate and winsize
+    [EEG] =  pop_loadset(FullFileList(1).name, FullFileList(1).folder,  'all','all','all','all','auto'); %loads files
+
+    %make max window, if needed be change this ti desired winsize i.e. 512
+    winsize = 2^floor(log2(EEG.pnts));
+
+    %runs spectra on first file, again to know generally the frequencies and
+    %spectra
+    [spectra,freq] = spectopo(EEG.data,EEG.pnts,EEG.srate,'winsize',winsize,'plot','off');
+
+    % makes the right assertion over the number of frequencies to be created,
+    % not sure if this will work for every file, needs to be checked
+    freqsize = (EEG.pnts/2)+1;
+
+    %created an empty table for all frequencies
+    FinalTable = zeros(length(FullFileList),freqsize);
+
+    %freqs = cell(size(FullFileList,1),1);
+
+    % loops through all files, collecting the bins in the FinalTable.
+    for i=1:size(FullFileList,1)
+
+        [EEG] =  pop_loadset(FullFileList(i).name, FullFileList(i).folder,  'all','all','all','all','auto'); %loads files
+
+        [spectra,freqss] = spectopo(EEG.data,EEG.pnts,EEG.srate,'winsize',winsize,'plot','off');
+
+        %print csvs
+        spectra_table = array2table(spectra,'VariableNames',string(freqss));
+
+        writetable(spectra_table,strcat(FullFileList(i).name(1:9),'.csv'));
+        %freqs(i) = freq;
+
+        mean_spectra = mean(spectra);
+
+        FinalTable(i,:) = mean_spectra;
+
+    end
+
+end
+    %[tmp indexfreq] = min(abs(g.freq-freqs));
+
+
+    %saves data from these ffts.
+%     FinalFolder_tables{j} = FinalTable; %store in the big table
+%     save(['All_ffts.mat'],'FinalTable'); %saves the table in .mat format
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % plot spectrum of each file
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% % Adjusts the colors
+% allcolors = { [0 0.7500 0.7500]
+%     [1 0 0]
+%     [0 0.5000 0]
+%     [0 0 1]
+%     [0.2500 0.2500 0.2500]
+%     [0.7500 0.7500 0]
+%     [0.7500 0 0.7500] }; % colors from real plots                };
+% 
+% figure; % makes new figure
+% 
+% mainfig = gca; axis off;
+% %specaxes = sbplot(3,4,[5 12], 'ax', mainfig);
+% specaxes = sbplot(1,1,1, 'ax', mainfig);
+% 
+% % calculates min and max frequencies to plot
+% [tmp maxfreqidx] = min(abs(high-freq));
+% [tmp minfreqidx] = min(abs(low-freq));
+% 
+% % loops through every row ht Final Table and plots
+% for index = 1:size(FinalTable,1)
+%     tmpcol  = allcolors{mod(index, length(allcolors))+1};
+%     command = ['disp(''File  ' FullFileList(index).name ''')']; % this is the command that diplays the file name.
+%     pl(index)=plot(freq(minfreqidx:maxfreqidx),FinalTable(index,minfreqidx:maxfreqidx)', ...
+%         'color', tmpcol, 'ButtonDownFcn', command); hold on;
+% end
+% 
+% % Adjusts the figure
+% set(pl,'LineWidth',2);
+% set(gca,'TickLength',[0.02 0.02]);
+% %     try,
+% %         axis([freqs(minfreqidx) high reallimits(1) reallimits(2)]);
+% %     catch, disp('Could not adjust axis'); end
+% xl=xlabel('Frequency (Hz)');
+% set(xl,'fontsize',12);
+% yl=ylabel('Rel. Power (dB)');
+% yl=ylabel('Log Power Spectral Density 10*log_{10}(\muV^{2}/Hz)');%yl=ylabel('Power 10*log_{10}(\muV^{2}/Hz)');
+% set(yl,'fontsize',12);
+% set(gca,'fontsize',12)
+% box off;
+% 
+% if strcmp(FullFolderList(j).name(1),'E')
+% % Change the title accordingly!
+%     textsc(sprintf(strcat('Mean Spectral Activity for Session',FullFolderList(j).name(2))), 'title');
+% else
+%     groupnumber = str2double(FullFolderList(j).name(end))
+%     switch groupnumber
+%         case 1
+%             groupname = ' BUP'
+%         case 2
+%             groupname = ' NRT'
+%         case 3
+%             groupname = ' PLA'
+%         case 4
+%             groupname = ' SMO'
+%     end
+%     textsc(sprintf(strcat('Mean Spectral Activity for Session ',' ',FullFolderList(j).folder(end),' for ',groupname)), 'title');
+% end
+% set(gca,'fontsize',12)
+% saveas(gcf,'all_ffts.jpg')
+% save(['All_Groups_of_FFts.mat'],'FinalFolder_tables')
+% end

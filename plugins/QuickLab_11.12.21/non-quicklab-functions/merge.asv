@@ -1,0 +1,116 @@
+
+clc;
+clear;
+
+fileINPUT = pwd;
+%cd ..
+
+mkdir('Error');
+cd('./Error');
+fileERROR = pwd;
+cd ..
+
+mkdir('DONE');
+cd('./DONE');
+fileDONE = pwd;
+cd ..
+
+mkdir('MERGED');
+cd('MERGED')
+fileOUTPUT = pwd;
+cd (fileINPUT);
+
+%files = dir('*.set');
+
+%files = getNewFiles(fileOUTPUT,fileINPUT);
+
+
+DL1 = dir('*DL1*.set');
+DL2 = dir('*DL2*.set');
+
+names = char({dir('*.set').name}); % GETS ALL FILE NAMES IN CHARs
+
+list = unique(string((names(:,1:6)))); % GETS ALL UNIQUE STRINGS
+
+for i=1:size(list,1)
+
+    this = dir(strcat(list(i),'*.set'));
+    %try
+        if size(this,1) > 2
+         
+            for j=1:size(this,1)
+                movefile(this(j).name, fileERROR);         
+            end
+
+
+            %identify the repeates
+             DL1s = dir(strcat(list(i),'*DL1*.set'));
+             DL2s = dir(strcat(list(i),'*DL2*.set'));
+% 
+            if size(DL1s,1) > 1
+                dates_array1 = [DL1s.datenum];
+                latestfiledate1 = max(dates_array1);
+                latestfile1 = DL1s([DL1s.datenum] == dates_array1(dates_array1==latestfiledate1));
+                [ALLEEG EEG] = pop_loadset('filename',latestfile1.name,'filepath',pwd);
+            else
+                [ALLEEG EEG] = pop_loadset('filename',Dls(1).name,'filepath',pwd);
+            end
+            if size(DL2s,1) > 1
+                dates_array2 = [DL2s.datenum];
+                latestfiledate2 = max(dates_array2);
+                latestfile2 = DL2s([DL2s.datenum] == dates_array2(dates_array2==latestfiledate2));
+            end
+
+           [ALLEEG EEG] = pop_loadset('filename',latestfile1.name,'filepath',pwd);
+           [ALLEEG EEG] = pop_loadset('filename',latestfile2.name,'filepath',pwd);
+           EEG = pop_mergeset( ALLEEG, [1], 0);
+           
+           EEG = pop_saveset(EEG, 'filename', [this(1).name(1:6),'_MERGED.set'], 'filepath',  fileOUTPUT ); %save set   
+
+        elseif size(this,1) == 2
+           EEG = [];
+           [ALLEEG EEG] = pop_loadset('filename',this(1).name,'filepath',pwd);
+           [ALLEEG EEG] = pop_loadset('filename',this(2).name,'filepath',pwd);
+           EEG = pop_mergeset( ALLEEG, [1], 0);
+           
+           EEG = pop_saveset(EEG, 'filename', [this(1).name(1:6),'_MERGED.set'], 'filepath',  fileOUTPUT ); %save set
+           %[ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, 2,'savenew',[this(1).name(1:6),'_MERGED.set'],'gui','off', 'filepath',  fileOUTPUT );
+           for j=1:size(this,1)
+              movefile(this(j).name, fileDONE);
+           end
+        else
+            %for j=1:size(this,1)
+                EEG = [];
+                [EEG] = pop_loadset('filename',this.name,'filepath',pwd);
+                EEG = pop_saveset(EEG, 'filename', [this.name(1:6),'_NOT_MERGED.set'], 'filepath',  fileOUTPUT ); %save set
+            %end
+                movefile(this.name, fileDONE);
+        end
+
+%     catch
+%         if size(this,1) > 2
+%          for j=1:size(this,1)
+%              movefile(this(j).name, fileERROR);
+%          end
+%         else
+%             movefile(this.name, fileERROR);
+%         end
+%     end
+%    end
+
+end
+% for i=1:length(DL1,1)
+% 
+% EEG = pop_loadset('filename','1101E1DL1_HA255N44T60sTJ4sIcLPJ14sPJ8Hm92Ep6ICAsPJ2ssPCA30PJ1DONE_QC.set','filepath',pwd);
+% [ALLEEG, EEG, CURRENTSET] = eeg_store( ALLEEG, EEG, 0 );
+% EEG = eeg_checkset( EEG );
+% EEG = pop_loadset('filename','1101E1DL2_HA255N44T63SMTrRj2ICAsIcLPJ16spPIPJ9Hm92Ep6ICAsPJ3DONEbad_QC.set','filepath',pwd);
+% [ALLEEG, EEG, CURRENTSET] = eeg_store( ALLEEG, EEG, 0 );
+% EEG = eeg_checkset( EEG );
+% EEG = pop_mergeset( ALLEEG, [1], 0);
+% [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, 2,'savenew','1101E1DL_MERGED','gui','off'); 
+% 
+% end
+
+
+
