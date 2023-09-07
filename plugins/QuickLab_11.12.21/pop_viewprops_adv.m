@@ -351,9 +351,9 @@ else
             case 1
                 set(to(ri),'ButtonDownFcn', checkcom);
             case 2
-                set(axhndls(1),'ButtonDownFcn', checkcom);
+                set(axhndls{1},'ButtonDownFcn', checkcom);
             case 3
-                set(axhndls(1),'ButtonDownFcn', checkcom);
+                set(axhndls{1},'ButtonDownFcn', checkcom);
         end
         axis square;
 
