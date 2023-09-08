@@ -690,8 +690,12 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
       % --- select which eloc_file to use and collects winrejs
 
       if g.EEG.plotchannels == 1
+          
           g.eloc_file = g.eloc_file_ch;
-          g.chans = size(g.eloc_file_ch,2);
+            
+            %g.chans = size(g.eloc_file_ch,2);
+            %if g.chans 
+
           if isfield(EEG,'chanrej')
               g.winrej = EEG.chanrej;
               g.winrej_ch = EEG.chanrej;
@@ -4130,6 +4134,14 @@ tmppos = get(ax1, 'currentpoint');
         multiplier = g.srate;
     end
 
+    if g.trialstag ~= -1
+        lowlim = round(g.time*g.trialstag+1);
+        highlim = round(g.winlength*g.trialstag);
+    else
+        lowlim  = round(g.time*g.srate+1);
+        highlim = round(g.winlength*g.srate);
+    end
+
     lowlim = round(g.time*multiplier+1);
     highlim = round(min((g.time+g.winlength)*multiplier+2,g.frames));
 
@@ -4842,6 +4854,7 @@ function g = APPLY(g)
     %g = THINKING(g,1); %blocks all clicks and movements to avoid crashes and errors
 
     EEG = g.EEG;
+    %draw_data([],[],gcf,9,[],g);
 
     %store current g in backup g.old
 %     if ~isfield(g,'old')
@@ -4921,8 +4934,8 @@ function g = APPLY(g)
 
     % creates strings for printing
 
-    %draw_data([],[],gcf,9,[],g);
-    eegplot_adv('winelec_auto');
+    draw_data([],[],gcf,9,[],g);
+    %eegplot_adv('winelec_auto');
 
     
 function g = UNDO(g)
