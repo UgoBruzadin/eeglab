@@ -229,7 +229,7 @@ weights    = 0;                      % defaults defined below
 ncomps     = chans;
 biasflag   = DEFAULT_BIASFLAG;
 
-interrupt  = DEFAULT_INTERRUPT;
+interrupt  = 'off';
 extended   = DEFAULT_EXTENDED;
 extblocks  = DEFAULT_EXTBLOCKS;
 kurtsize   = MAX_KURTSIZE;
