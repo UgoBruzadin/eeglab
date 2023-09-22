@@ -4425,6 +4425,10 @@ end
 g = get(fig,'UserData');
 EEG = g.EEG;
 
+if ~isfield(EEG.chanlocs, 'theta') || all(cellfun('isempty', { EEG.chanlocs.theta }))
+    return;
+end
+
 %if EEG.plotchannels == 1
     if ~isstruct(g.eloc_file) || ~isfield(g.eloc_file, 'theta') || isempty( [ g.eloc_file.theta ])
         g.eloc_file = EEG.chanlocs(:);
@@ -4464,8 +4468,6 @@ EEG = g.EEG;
             tmpval = (tmppos(1)+lowlim-1)/g.srate;
             if g.isfreq, tmpval = tmpval+g.freqs(1); end
         end
-        
-
 
         colormap("default")
         ax_pic = findobj(fig,'tag','topo');
