@@ -491,6 +491,10 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    try g.colmodif; 		    catch, g.colmodif   = { g.wincolor }; end
    try g.scale; 		    catch, g.scale      = 'on'; end
    try g.events; 		    catch, g.events      = []; end
+     try g.allevents; 		    catch, g.allevents      = []; end
+     try g.events_show; 		catch, g.events_show    = []; end
+     try g.e;                   catch, g.e = []; end
+
    try g.ploteventdur;      catch, g.ploteventdur = 'off'; end
    try g.data2;             catch, g.data2      = []; end
    try g.plotdata2;         catch, g.plotdata2 = 'off'; end
@@ -526,11 +530,11 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    gfields = fieldnames(g);
    for index=1:length(gfields)
       switch gfields{index}
-          case { 'spacing_ch' 'data' 'data_pc' 'data_ch' 'spacing_pc' 'rand' 'old' 'gnumber' 'typing' 'thinking' 'backcolor' 'EEG' 'winrej' 'winrej_ch' 'winrej_pc' 'srate' 'eloc_file' 'eloc_file_ch' 'eloc_file_pc' 'winlength' 'fullscreen' 'position' 'title' 'plottitle' ...
+          case { 'spacing_ch' 'data' 'data_pc' 'e' 'data_ch' 'spacing_pc' 'rand' 'old' 'gnumber' 'typing' 'thinking' 'backcolor' 'EEG' 'winrej' 'winrej_ch' 'winrej_pc' 'srate' 'eloc_file' 'eloc_file_ch' 'eloc_file_pc' 'winlength' 'fullscreen' 'position' 'title' 'plottitle' ...
                'trialstag' 'tag' 'xgrid' 'ygrid' 'color' 'colmodif' 'spacing' 'normed' 'normed_ch' 'normed_pc' 'datastd' 'datastd_ch'  'datastd_pc' ...
                'freqs' 'freqlimits' 'submean' 'children' 'limits' 'matrixpos' 'headpos' 'dispchans' 'wincolor' 'currentoptions' ...
                'maxeventstring' 'ploteventdur' 'butlabel' 'scale' 'events' 'data2' 'plotdata2' 'command'  'command2' 'savecommand' 'savecommand2'...
-               'mocap' 'selectcommand' 'ctrlselectcommand' 'envelope' 'isfreq'  'tbtmethods' 'tbtoptions' 'plotmethods' 'plotoptions' }
+               'mocap' 'selectcommand' 'ctrlselectcommand' 'envelope' 'isfreq'  'tbtmethods' 'tbtoptions' 'plotmethods' 'plotoptions' 'allevents' 'events_show'}
       otherwise, error(['eegplot_adv: unrecognized option: ''' gfields{index} '''' ]);
       end
    end
@@ -1491,7 +1495,7 @@ end
 
   if ~isempty(g.events)
       u(17) = uicontrol('Parent',figh,'Units', 'normalized','Position',posbut(17,:), ...
-                        'string', 'Events', 'callback', 'eegplot_adv(''drawlegend'', gcbf)');
+                        'string', 'Events', 'callback', 'eegplot_adv(''drawlegend'', gcbf);');
   end
 
   for i = 1: length(u) % Matlab 2014b compatibility
@@ -1795,7 +1799,7 @@ end
       end
       %indexcolor=length(indexcolor)-indexcolor+1;
       g.eventcolors     = { 'r', [0 0.8 0], 'b', 'm', [1 0.5 0],  [0.5 0 0.5], [0.6 0.3 0] };  
-      g.eventstyle      = { '-' '-' '-'  '-'  '-' '-' '-' '--' '--' '--'  '--' '--' '--' '--'};
+      g.eventstyle      = { '-' '-' '-'  '-'  '-' '-' '-' '--' '--' '--'  '--' '--' '--' '--'}; 
       g.eventwidths     = [ 2.5 1 ];
       g.eventtypecolors = g.eventcolors(mod([1:length(g.eventtypes)]-1 ,length(g.eventcolors))+1);
       g.eventcolors     = g.eventcolors(mod(indexcolor-1               ,length(g.eventcolors))+1);
@@ -2512,55 +2516,119 @@ end
       g = get(fig,'UserData');
       
       if ~isempty(g.events) % draw vertical colored lines for events, add event name text above
-          nleg = length(g.eventtypes);
-          fig2 = figure('numbertitle', 'off', 'name', '', 'visible', 'off', 'menubar', 'none', 'color', DEFAULT_FIG_COLOR);
+            if isempty(g.allevents)
+                g.allevents = g.events;
+            end
+          
+          nleg = length(unique({g.allevents.type}));
+          fig2 = figure('numbertitle', 'off', 'name', 'Select Events to Display', 'visible', 'off', 'menubar', 'none', 'color', DEFAULT_FIG_COLOR);
           pos = get(fig2, 'position');
           set(fig2, 'position', [ pos(1) pos(2) 130 14*nleg+20]);
           
-          for index = 1:nleg
-              plot([10 30], [(index-0.5) * 10 (index-0.5) * 10], 'color', g.eventtypecolors{index}, 'linestyle', ...
-                          g.eventtypestyle{ index }, 'linewidth', g.eventtypewidths( index )); hold on;
-              if iscell(g.eventtypes)
-                  th=text(35, (index-0.5)*10, g.eventtypes{index}, ...
-                                    'color', g.eventtypecolors{index});
-              else
-                  th=text(35, (index-0.5)*10, num2str(g.eventtypes(index)), ...
-                                    'color', g.eventtypecolors{index});
-              end
-          end
-          xlim([0 130]);
-          ylim([0 nleg*10]);
-          axis off;
-          set(fig2, 'visible', 'on');
+
+
+            if isempty(g.events_show)
+                g.events_show = ones(nleg,1);
+            end
+
+            set(fig,'UserData',g);
+
+                if ischar(g.allevents(1).type)
+                    [g.e.eventtypes, ~, indexcolor] = unique_bc({g.allevents.type}); % indexcolor countinas the event type
+                else [g.e.eventtypes, ~, indexcolor] = unique_bc([ g.allevents.type ]);
+                end
+                %indexcolor=length(indexcolor)-indexcolor+1;
+                g.e.eventcolors     = { 'r', [0 0.8 0], 'b', 'm', [1 0.5 0],  [0.5 0 0.5], [0.6 0.3 0] };
+                g.e.eventstyle      = { '-' '-' '-'  '-'  '-' '-' '-' '--' '--' '--'  '--' '--' '--' '--'};
+                g.e.eventwidths     = [ 2.5 1 ];
+                g.e.eventtypecolors = g.e.eventcolors(mod([1:length(g.e.eventtypes)]-1 ,length(g.e.eventcolors))+1);
+                g.e.eventcolors     = g.e.eventcolors(mod(indexcolor-1               ,length(g.e.eventcolors))+1);
+                g.e.eventtypestyle  = g.e.eventstyle (mod([1:length(g.e.eventtypes)]-1 ,length(g.e.eventstyle))+1);
+                g.e.eventstyle      = g.e.eventstyle (mod(indexcolor-1               ,length(g.e.eventstyle))+1);
+
+                % for width, only boundary events have width 2 (for the line)
+                % -----------------------------------------------------------
+                indexwidth = ones(1,length(g.e.eventtypes))*2;
+                if iscell(g.e.eventtypes)
+                    index=find(ismember(g.e.eventtypes,{'boundary'}));
+                    if ~isempty(index)
+                        indexwidth(index) = 1;
+                        g.e.eventtypestyle{index} = '-';
+                        g.e.eventtypecolors{index} = 'c';
+                        g.e.eventstyle(find(indexcolor==index))={'-'};
+                        g.e.eventcolors(find(indexcolor==index))={'c'};
+                    end
+                end
+                g.e.eventtypewidths = g.e.eventwidths (mod(indexwidth([1:length(g.e.eventtypes)])-1 ,length(g.e.eventwidths))+1);
+                g.e.eventwidths     = g.e.eventwidths (mod(indexwidth(indexcolor)-1               ,length(g.e.eventwidths))+1);
+
+                % latency and duration of events
+                % ------------------------------
+                g.e.eventlatencies  = [ g.allevents.latency ]+1;
+                if isfield(g.allevents, 'duration')
+                    durations = { g.allevents.duration };
+                    durations(cellfun(@isempty, durations)) = { NaN };
+                    g.e.eventlatencyend   = g.e.eventlatencies + [durations{:}]+1;
+                else g.e.eventlatencyend   = [];
+                end
+
+            for index = 1:nleg
+                % Adding checkbox UGO 2023
+
+                checkcom  = {@checkbox,int2str(index),1};
+
+                check = uicontrol(fig2, 'Style', 'checkbox','Units','Normalized','Tag',int2str(index), 'Value',g.events_show(index),'Position',...
+                    [.05 [.1 + .0085*index] .1 .0225],'Visible','on','Callback',checkcom);
+
+                line = plot([10 30], [(index-0.5) * 10 (index-0.5) * 10], 'color', g.e.eventtypecolors{index}, 'linestyle', ...
+                    g.e.eventtypestyle{ index }, 'linewidth', g.e.eventtypewidths( index ), 'Tag','LINE'); hold on;
+
+                if iscell(g.e.eventtypes)
+                    th=text(35, (index-0.5)*10, g.e.eventtypes{index}, ...
+                        'color', g.e.eventtypecolors{index});
+                else
+                    th=text(35, (index-0.5)*10, num2str(g.e.eventtypes(index)), ...
+                        'color', g.e.eventtypecolors{index});
+                end
+            end
+
+            %apply_eventchanges = {@apply_eventchanges,~,~};
+
+            ApplyButton = uicontrol(fig2, 'Style','pushbutton','String','Apply','Callback',@apply_eventchanges,'Units', 'normalized');
+
+            xlim([0 130]);
+            ylim([0 nleg*10]);
+            axis off;
+            set(fig2, 'visible', 'on');
       end
 
 
-  % motion button: move windows or display current position (channel, g.time and activation)
-  % ----------------------------------------------------------------------------------------
-   % case moved as subfunction    
-  % add topoplot
-  % ------------
-  case 'topoplot'
-    fig = varargin{1};
-    plot_topoplot(fig);
-%     g = get(fig,'UserData');
-%     if ~isstruct(g.eloc_file) || ~isfield(g.eloc_file, 'theta') || isempty( [ g.eloc_file.theta ])
-%         return;
-%     end
-%     ax1 = findobj('tag','backeeg','parent',fig); 
-%     tmppos = get(ax1, 'currentpoint');
-%     ax1 = findobj('tag','eegaxis','parent',fig); % axes handle
-%     % plot vertical line
-%     %yl = ylim(ax1);
-%     %plot(ax1, [ tmppos tmppos ], yl, 'color', [0.8 0.8 0.8]);
-%     
-%     if g.trialstag ~= -1
-%           lowlim = round(g.time*g.trialstag+1);
-%     else, lowlim = round(g.time*g.srate+1);
-%     end
-%     data = get(ax1,'UserData');
-%     datapos = max(1, round(tmppos(1)+lowlim));
-%     datapos = min(datapos, g.frames);
+      % motion button: move windows or display current position (channel, g.time and activation)
+      % ----------------------------------------------------------------------------------------
+      % case moved as subfunction
+      % add topoplot
+      % ------------
+      case 'topoplot'
+          fig = varargin{1};
+          plot_topoplot(fig);
+          %     g = get(fig,'UserData');
+          %     if ~isstruct(g.eloc_file) || ~isfield(g.eloc_file, 'theta') || isempty( [ g.eloc_file.theta ])
+          %         return;
+          %     end
+          %     ax1 = findobj('tag','backeeg','parent',fig);
+          %     tmppos = get(ax1, 'currentpoint');
+          %     ax1 = findobj('tag','eegaxis','parent',fig); % axes handle
+          %     % plot vertical line
+          %     %yl = ylim(ax1);
+          %     %plot(ax1, [ tmppos tmppos ], yl, 'color', [0.8 0.8 0.8]);
+          %
+          %     if g.trialstag ~= -1
+          %           lowlim = round(g.time*g.trialstag+1);
+          %     else, lowlim = round(g.time*g.srate+1);
+          %     end
+          %     data = get(ax1,'UserData');
+          %     datapos = max(1, round(tmppos(1)+lowlim));
+          %     datapos = min(datapos, g.frames);
     
     %STOPPED HERE
     
@@ -2820,7 +2888,7 @@ function draw_data(varargin)
     
     % plot data
     % ---------
-    hold(ax1,'on')
+    hold(ax1,'on');
     
 %     if ~isfield(g.eloc_file, 'display')
 %         for ii=1:length(g.eloc_file)
@@ -2910,7 +2978,7 @@ function draw_data(varargin)
                 tmp_plot_data_x=1:tmp_plot_data_x_N;
                 tmp_plot_data_y=nan(length(chans_list_good),tmp_plot_data_x_N);
             case 2
-                tmp_plot_data_x= repmat([1:tmp_plot_data_x_N NaN],1,chans_list_good_N) ;
+                tmp_plot_data_x= repmat([1:tmp_plot_data_x_N NaN],1,chans_list_good_N);
                 tmp_plot_data_y= nan(1, chans_list_good_N*(tmp_plot_data_x_N+1));
         end
         for ii = 1:chans_list_good_N
@@ -2922,7 +2990,7 @@ function draw_data(varargin)
             switch plot_at_once
                 case 0
                     tmpcolor = g.color{mod(g.chans-i,length(g.color))+1};
-                    plot(tmp_plot_data_y_i, 'color', tmpcolor, 'clipping','on')
+                    plot(tmp_plot_data_y_i, 'color', tmpcolor, 'clipping','on');
                 case 1
                     tmp_plot_data_y(ii,tmp_plot_data_x)=tmp_plot_data_y_i;
                 case 2
@@ -2954,7 +3022,7 @@ function draw_data(varargin)
             chanrej = abs(chanrej - g.chans - 1);
             for i = chanrej
                 plot(ax1,abscmin+1:abscmax+1,data(g.chans-i+1,abscmin+lowlim:abscmax+lowlim) ...
-                    -meandata(g.chans-i+1)+i*g.spacing + (g.dispchans+1)*(oldspacing-g.spacing)/2 +g.elecoffset*(oldspacing-g.spacing), 'color',DEFAULT_PLOT_SELECTED,'clipping','on')
+                    -meandata(g.chans-i+1)+i*g.spacing + (g.dispchans+1)*(oldspacing-g.spacing)/2 +g.elecoffset*(oldspacing-g.spacing), 'color',DEFAULT_PLOT_SELECTED,'clipping','on');
             end
         end
     end
@@ -3242,7 +3310,7 @@ if strcmpi(g.plotevent, 'on') || ismember('boundary',eventlist)
     for evnt_group_idx_tmp=1:length(event2plot_ut)
         %Just repeat for the first one
         if evnt_group_idx_tmp == 1
-            EVENTFONT = ' \fontsize{8} ';
+            EVENTFONT = ' \fontsize{10} ';
             ylims=ylim(ax0);
         end
         evnt_group=event2plot_ut{evnt_group_idx_tmp};
@@ -6159,9 +6227,9 @@ function g = RESET()
    set(ax1,'UserData',g.data);
 
    % ONE OF THESE LOWER FUNCTIONS - PROBABLY WHERE THERE IS A BUG! UGO BUG 12-19-2022
-   %draw_data([],[],fig,9,[],g);
-   eegplot_adv('setelect');
-   eegplot_adv('winelec_auto');
+   draw_data([],[],fig,9,[],g);
+   %eegplot_adv('setelect');
+   %eegplot_adv('winelec_auto');
 
 function update_file_texts(g)
 
@@ -6194,3 +6262,153 @@ if isstruct(EEG)
     findex = find(strcmp({files.name}, EEG.filename));
     set(findobj(fig,'tag','FolderList'),'string',{files(1:end).name},'value',find(strcmp({files.name}, EEG.filename)));
 end
+
+function selectall(src,evt,value)
+    
+    
+    % --- click or unclick the tag
+    %clickVal = get(findobj(gcf,'Style','checkbox));
+    
+    set(findobj(gcf,'Style','checkbox'),'Value', value);
+    
+    % --- turn button color red or green
+    
+    clickVal = abs(value);
+    
+    % --- get all component buttons
+    all_buttons = findobj(gcf,'Style','pushbutton');
+    % --- 9 is the number of buttons on the end of the page! If I add more buttons
+    % IF I AD MORE BUTTONS 9 NEEDS TO CHANGE!
+    
+    comp_buttons = all_buttons(9:end);
+    
+    if clickVal == 1
+        %set(findobj(gcf,'Style','checkbox'),'BackgroundColor',[1 .5 .5])
+        set(comp_buttons,'BackgroundColor',[1 .5 .5])
+    else
+        %set(findobj(gcf,'Style','checkbox'),'BackgroundColor',[.75 1 .75])
+        set(comp_buttons,'BackgroundColor',[.75 1 .75])
+    end
+
+
+
+function checkbox(src,evt,index,clicked_box,fig)
+    
+    fig = findobj('Tag','eegplot_adv');
+
+    if nargin < 3
+        clicked_box = 0;
+    end
+    g = get(fig,'UserData');
+    
+    g.events_show(str2num(index)) = abs(g.events_show(str2num(index)) - 1);
+
+    % remove this event from the events list
+    % or add the event back to the events list
+
+    set(fig,'UserData',g)
+ 
+    % --- click or unclick the tag
+%     clickVal = get(findobj(fig,'Tag',index),'Value');
+%     if clicked_box == 0
+%         clickVal = abs(clickVal-1);
+%     end
+
+    %set(findobj(fig,'Tag',index),'Value', clickVal);
+    
+    % --- turn button color red or green
+%     
+%     if clickVal == 1
+%         %set(findobj(gcf,'Style','checkbox'),'BackgroundColor',[1 .5 .5])
+%         set(findobj(fig,'Tag',strcat('comp',index)),'BackgroundColor',[1 .5 .5])
+%     else
+%         %set(findobj(gcf,'Style','checkbox'),'BackgroundColor',[.75 1 .75])
+%         set(findobj(fig,'Tag',strcat('comp',index)),'BackgroundColor',[.75 1 .75])
+%     end
+
+
+function apply_eventchanges(src,evt)
+
+
+fig = findobj('Tag','eegplot_adv');
+g = get(findobj('Tag','eegplot_adv'),'UserData');
+
+% pop events unselected events out of g.allevents using g.events_show
+% redo all events
+
+tmpevents = g.allevents;
+
+toberemoved = g.eventtypes(~g.events_show');
+
+tmpremovelist = [];
+
+for i = 1:size(g.allevents,2)
+
+    if any(tmpevents(i).type == string(toberemoved))
+        tmpremovelist = cat(2,tmpremovelist,double(i));
+
+    end
+
+end
+
+tmpevents(tmpremovelist) = [];
+
+g.events = tmpevents;
+
+  if ~isempty(g.events)
+      if ~isfield(g.events, 'type') || ~isfield(g.events, 'latency'), g.events = []; end
+  end
+      
+  if ~isempty(g.events)
+      if ischar(g.events(1).type)
+           [g.eventtypes, ~, indexcolor] = unique_bc({g.events.type}); % indexcolor countinas the event type
+      else [g.eventtypes, ~, indexcolor] = unique_bc([ g.events.type ]);
+      end
+      %indexcolor=length(indexcolor)-indexcolor+1;
+      g.eventcolors     = { 'r', [0 0.8 0], 'b', 'm', [1 0.5 0],  [0.5 0 0.5], [0.6 0.3 0] };  
+      g.eventstyle      = { '-' '-' '-'  '-'  '-' '-' '-' '--' '--' '--'  '--' '--' '--' '--'};
+      g.eventwidths     = [ 2.5 1 ];
+      g.eventtypecolors = g.eventcolors(mod([1:length(g.eventtypes)]-1 ,length(g.eventcolors))+1);
+      g.eventcolors     = g.eventcolors(mod(indexcolor-1               ,length(g.eventcolors))+1);
+      g.eventtypestyle  = g.eventstyle (mod([1:length(g.eventtypes)]-1 ,length(g.eventstyle))+1);
+      g.eventstyle      = g.eventstyle (mod(indexcolor-1               ,length(g.eventstyle))+1);
+      
+      % for width, only boundary events have width 2 (for the line)
+      % -----------------------------------------------------------
+      indexwidth = ones(1,length(g.eventtypes))*2;
+      if iscell(g.eventtypes)
+          index=find(ismember(g.eventtypes,{'boundary'}));
+          if ~isempty(index)
+              indexwidth(index) = 1;
+              g.eventtypestyle{index} = '-';
+              g.eventtypecolors{index} = 'c';
+              g.eventstyle(find(indexcolor==index))={'-'};
+              g.eventcolors(find(indexcolor==index))={'c'};
+          end
+      end
+      g.eventtypewidths = g.eventwidths (mod(indexwidth([1:length(g.eventtypes)])-1 ,length(g.eventwidths))+1);
+      g.eventwidths     = g.eventwidths (mod(indexwidth(indexcolor)-1               ,length(g.eventwidths))+1);
+      
+      % latency and duration of events
+      % ------------------------------
+      g.eventlatencies  = [ g.events.latency ]+1;
+      if isfield(g.events, 'duration')
+           durations = { g.events.duration };
+           durations(cellfun(@isempty, durations)) = { NaN };
+           g.eventlatencyend   = g.eventlatencies + [durations{:}]+1;
+      else g.eventlatencyend   = [];
+      end
+      g.plotevent       = 'on';
+  end
+  if isempty(g.events)
+      g.plotevent      = 'off';
+  end
+
+  close(gcf);
+
+  set(fig,'UserData',g);
+
+  eegplot_adv('drawp', 0);
+
+  %draw_data([],[],fig,9,[],g);
+
