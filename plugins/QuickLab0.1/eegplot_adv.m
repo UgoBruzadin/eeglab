@@ -2514,92 +2514,95 @@ end
    case 'drawlegend'
       fig = varargin{1};
       g = get(fig,'UserData');
-      
+
       if ~isempty(g.events) % draw vertical colored lines for events, add event name text above
-            if isempty(g.allevents)
-                g.allevents = g.events;
-            end
-          
+          if isempty(g.allevents)
+              g.allevents = g.events;
+          end
+
           nleg = length(unique({g.allevents.type}));
           fig2 = figure('numbertitle', 'off', 'name', 'Select Events to Display', 'visible', 'off', 'menubar', 'none', 'color', DEFAULT_FIG_COLOR);
           pos = get(fig2, 'position');
-          set(fig2, 'position', [ pos(1) pos(2) 130 14*nleg+20]);
-          
+          set(fig2, 'position', [ pos(1) pos(2) 200 14*nleg+20]);
 
+          if isempty(g.events_show)
+              g.events_show = ones(nleg,1);
+          end
 
-            if isempty(g.events_show)
-                g.events_show = ones(nleg,1);
-            end
+          set(fig,'UserData',g);
 
-            set(fig,'UserData',g);
+          if ischar(g.allevents(1).type)
+              [g.e.eventtypes, ~, indexcolor] = unique_bc({g.allevents.type}); % indexcolor countinas the event type
+          else [g.e.eventtypes, ~, indexcolor] = unique_bc([ g.allevents.type ]);
+          end
+          %indexcolor=length(indexcolor)-indexcolor+1;
+          g.e.eventcolors     = { 'r', [0 0.8 0], 'b', 'm', [1 0.5 0],  [0.5 0 0.5], [0.6 0.3 0] };
+          g.e.eventstyle      = { '-' '-' '-'  '-'  '-' '-' '-' '--' '--' '--'  '--' '--' '--' '--'};
+          g.e.eventwidths     = [ 2.5 1 ];
+          g.e.eventtypecolors = g.e.eventcolors(mod([1:length(g.e.eventtypes)]-1 ,length(g.e.eventcolors))+1);
+          g.e.eventcolors     = g.e.eventcolors(mod(indexcolor-1               ,length(g.e.eventcolors))+1);
+          g.e.eventtypestyle  = g.e.eventstyle (mod([1:length(g.e.eventtypes)]-1 ,length(g.e.eventstyle))+1);
+          g.e.eventstyle      = g.e.eventstyle (mod(indexcolor-1               ,length(g.e.eventstyle))+1);
 
-                if ischar(g.allevents(1).type)
-                    [g.e.eventtypes, ~, indexcolor] = unique_bc({g.allevents.type}); % indexcolor countinas the event type
-                else [g.e.eventtypes, ~, indexcolor] = unique_bc([ g.allevents.type ]);
-                end
-                %indexcolor=length(indexcolor)-indexcolor+1;
-                g.e.eventcolors     = { 'r', [0 0.8 0], 'b', 'm', [1 0.5 0],  [0.5 0 0.5], [0.6 0.3 0] };
-                g.e.eventstyle      = { '-' '-' '-'  '-'  '-' '-' '-' '--' '--' '--'  '--' '--' '--' '--'};
-                g.e.eventwidths     = [ 2.5 1 ];
-                g.e.eventtypecolors = g.e.eventcolors(mod([1:length(g.e.eventtypes)]-1 ,length(g.e.eventcolors))+1);
-                g.e.eventcolors     = g.e.eventcolors(mod(indexcolor-1               ,length(g.e.eventcolors))+1);
-                g.e.eventtypestyle  = g.e.eventstyle (mod([1:length(g.e.eventtypes)]-1 ,length(g.e.eventstyle))+1);
-                g.e.eventstyle      = g.e.eventstyle (mod(indexcolor-1               ,length(g.e.eventstyle))+1);
+          % for width, only boundary events have width 2 (for the line)
+          % -----------------------------------------------------------
+          indexwidth = ones(1,length(g.e.eventtypes))*2;
+          if iscell(g.e.eventtypes)
+              index=find(ismember(g.e.eventtypes,{'boundary'}));
+              if ~isempty(index)
+                  indexwidth(index) = 1;
+                  g.e.eventtypestyle{index} = '-';
+                  g.e.eventtypecolors{index} = 'c';
+                  g.e.eventstyle(find(indexcolor==index))={'-'};
+                  g.e.eventcolors(find(indexcolor==index))={'c'};
+              end
+          end
+          g.e.eventtypewidths = g.e.eventwidths (mod(indexwidth([1:length(g.e.eventtypes)])-1 ,length(g.e.eventwidths))+1);
+          g.e.eventwidths     = g.e.eventwidths (mod(indexwidth(indexcolor)-1               ,length(g.e.eventwidths))+1);
 
-                % for width, only boundary events have width 2 (for the line)
-                % -----------------------------------------------------------
-                indexwidth = ones(1,length(g.e.eventtypes))*2;
-                if iscell(g.e.eventtypes)
-                    index=find(ismember(g.e.eventtypes,{'boundary'}));
-                    if ~isempty(index)
-                        indexwidth(index) = 1;
-                        g.e.eventtypestyle{index} = '-';
-                        g.e.eventtypecolors{index} = 'c';
-                        g.e.eventstyle(find(indexcolor==index))={'-'};
-                        g.e.eventcolors(find(indexcolor==index))={'c'};
-                    end
-                end
-                g.e.eventtypewidths = g.e.eventwidths (mod(indexwidth([1:length(g.e.eventtypes)])-1 ,length(g.e.eventwidths))+1);
-                g.e.eventwidths     = g.e.eventwidths (mod(indexwidth(indexcolor)-1               ,length(g.e.eventwidths))+1);
+          % latency and duration of events
+          % ------------------------------
+          g.e.eventlatencies  = [ g.allevents.latency ]+1;
+          if isfield(g.allevents, 'duration')
+              durations = { g.allevents.duration };
+              durations(cellfun(@isempty, durations)) = { NaN };
+              g.e.eventlatencyend   = g.e.eventlatencies + [durations{:}]+1;
+          else g.e.eventlatencyend   = [];
+          end
 
-                % latency and duration of events
-                % ------------------------------
-                g.e.eventlatencies  = [ g.allevents.latency ]+1;
-                if isfield(g.allevents, 'duration')
-                    durations = { g.allevents.duration };
-                    durations(cellfun(@isempty, durations)) = { NaN };
-                    g.e.eventlatencyend   = g.e.eventlatencies + [durations{:}]+1;
-                else g.e.eventlatencyend   = [];
-                end
+          for index = 1:nleg
+              % Adding checkbox UGO 2023
 
-            for index = 1:nleg
-                % Adding checkbox UGO 2023
+              line = plot([10 30], [(index-0.5) * 10 (index-0.5) * 10], 'color', g.e.eventtypecolors{index}, 'linestyle', ...
+                  g.e.eventtypestyle{ index }, 'linewidth', g.e.eventtypewidths( index ), 'Tag','LINE'); hold on;
 
-                checkcom  = {@checkbox,int2str(index),1};
+              if iscell(g.e.eventtypes)
+                  th=text(35, (index-0.5)*10, g.e.eventtypes{index}, ...
+                      'color', g.e.eventtypecolors{index}); hold on;
+              else
+                  th=text(35, (index-0.5)*10, num2str(g.e.eventtypes(index)), ...
+                      'color', g.e.eventtypecolors{index}); hold on;
+              end
 
-                check = uicontrol(fig2, 'Style', 'checkbox','Units','Normalized','Tag',int2str(index), 'Value',g.events_show(index),'Position',...
-                    [.05 [.1 + .0085*index] .1 .0225],'Visible','on','Callback',checkcom);
+              checkcom  = {@checkbox,int2str(index),1};
 
-                line = plot([10 30], [(index-0.5) * 10 (index-0.5) * 10], 'color', g.e.eventtypecolors{index}, 'linestyle', ...
-                    g.e.eventtypestyle{ index }, 'linewidth', g.e.eventtypewidths( index ), 'Tag','LINE'); hold on;
+              check = uicontrol(fig2, 'Style', 'checkbox','Units','Normalized','Tag',int2str(index), 'Value',g.events_show(index),'Position',...
+                  [.1 index*(.82/nleg)+.1 .08 .02],'Visible','on','Callback',checkcom); 
 
-                if iscell(g.e.eventtypes)
-                    th=text(35, (index-0.5)*10, g.e.eventtypes{index}, ...
-                        'color', g.e.eventtypecolors{index});
-                else
-                    th=text(35, (index-0.5)*10, num2str(g.e.eventtypes(index)), ...
-                        'color', g.e.eventtypecolors{index});
-                end
-            end
+               %check = uicontrol(fig2, 'Style', 'checkbox','Units','Normalized','Tag',int2str(index), 'Value',g.events_show(index),'Position',...
+               %    [.1 [(index-0.5)*.065]+.25 .08 .08],'Visible','on','Callback',checkcom); 
 
-            %apply_eventchanges = {@apply_eventchanges,~,~};
+              %check = uicontrol(fig2, 'Style', 'checkbox','Tag',int2str(index), 'Value',g.events_show(index),'Visible','on','Callback',checkcom);
+          end
 
-            ApplyButton = uicontrol(fig2, 'Style','pushbutton','String','Apply','Callback',@apply_eventchanges,'Units', 'normalized');
+          %apply_eventchanges = {@apply_eventchanges,~,~};
 
-            xlim([0 130]);
-            ylim([0 nleg*10]);
-            axis off;
-            set(fig2, 'visible', 'on');
+          ApplyButton = uicontrol(fig2, 'Style','pushbutton','String','Apply','Callback',@apply_eventchanges,'Units', 'normalized','Position',[.05 .05 .5 .05]);
+
+          xlim([0 160]);
+          ylim([0 nleg*10]);
+          axis off;
+          set(fig2, 'visible', 'on');
       end
 
 
