@@ -1027,8 +1027,8 @@ plotdiffcom = ['EEG.myVariables{2} = get(findobj(gcf, ''Tag'', ''datadiff''),''V
 % get channels for complete interpolation
 chaninterp2 = ['EEG.myVariables{3} = get(findobj(gcf, ''Tag'', ''Removal''),''string'');'];
 
-displayep = ['eegplot_adv(''redraw'')'];
-togglerej = ['eegplot_adv(''rejection'')'];
+displayep = ['eegplot_adv(''redraw'');'];
+togglerej = ['eegplot_adv(''rejection'');'];
 displaycomp = ['EEG.plotEp = 1 - EEG.plotEp; eegplot_adv(EEG,varargin);'];
 
 %% --- start trial by trial options
@@ -1307,7 +1307,7 @@ else
 end
 
 u(45) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(51,:),...
-	'Tag','SWITCH','BackgroundColor',cmodecolor,'string',cmode,'Callback', ['eegplot_adv(''SWITCH'')']);
+	'Tag','SWITCH','BackgroundColor',cmodecolor,'string',cmode,'Callback', ['eegplot_adv(''SWITCH'');']);
 
 % u(46) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(50,:), ...
 % 	'Tag','UNDO', 'BackgroundColor',[.7 .7 1],'string','Undo','Callback', ['eegplot_adv(''UNDO'')']);
