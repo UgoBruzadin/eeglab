@@ -396,7 +396,7 @@ if ~isempty(regions_for_rej)
         [EEGOUT,com] = pop_rejepoch( EEGOUT, rejected_epochs,0);
         EEGOUT.suffix = strcat(EEGOUT.suffix,strcat('TJ',num2str(size(regions_for_rej,1))));
     else
-        [EEGOUT,com] = eeg_eegrej( EEGOUT, regions_for_rej );
+        [EEGOUT,com] = eeg_eegrej( EEGOUT, regions_for_rej(:,1:2) );
         EEGOUT.suffix = strcat(EEGOUT.suffix,strcat('TJ',num2str(size(regions_for_rej,1))));
     end
 end
@@ -414,7 +414,11 @@ try EEGOUT.suffix = replace(EEGOUT.suffix,';',''); catch; end
 if isfield(EEGOUT,'save')
     if EEGOUT.save == 1
         EEGOUT.save = 0;
-        EEGOUT = pop_saveset(EEGOUT, 'filename', [strcat( EEGOUT.filename(1:end-4),EEGOUT.suffix,'.set')],'filepath',EEGOUT.filepath);
+
+        ss = EEGOUT.suffix;
+        EEGOUT.suffix = [];
+        EEGOUT = pop_saveset(EEGOUT, 'filename', [strcat( EEGOUT.filename(1:end-4),ss,'.set')],'filepath',EEGOUT.filepath);
+        %EEGOUT.suffix = [];
         EEGOUT.filename(1:end-4)
         if isfield(EEGOUT,'ICA')
             if EEGOUT.ICA == 1
