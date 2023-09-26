@@ -19,34 +19,6 @@
 %
 % You should have received a copy of the GNU General Public License
 % along with this program; if not, write to the Free Software
-%% COLOR DEFAULTS
-
-COLOR_MODE = 'Default';
-
-% darkmode = readtext('IsDarkmodeOn.txt');
-% if iscell(darkmode)
-%     darkmode = darkmode{:};
-% end
-% 
-% if darkmode == "YES"
-%     COLOR_MODE = 'DarkMode';
-% end
-
-%COLOR_MODE = 'Default';
-
-c = clock; %loads clock
-% Uncomment these lines to turn on darkmode! open quick_colormode to change
-% colors of all quicklab Ui and plots! WARNING: WILL AFFECT SOME EEGLAB
-% FIGURES AND PLOTS. 
-
-
-% if c(4) >= 16 || c(4) < 5 % If after 6 PM and before 5 AM, changes color scheme to dark mode
-%     COLOR_MODE = 'DarkMode';
-% else
-     COLOR_MODE = 'Default';
-% end
-
-quick_colormode; % loads colorscheme from quick_colormode
 
 %% EEGPLOT_ADV DEFAULTS
 
@@ -66,18 +38,18 @@ OG_REF = 'Cz';
 CZ_REF = 'Cz';
 LE_REFS = [57 100];
 
-try
-    if ~isempty(EEG)
-        if EEG.nbchan == 92
-            LE_REFS = [44 74];
-        elseif EEG.nbchan == 128
-            LE_REFS = [57 100];
-        else
-            LE_REFS = [57 100];
-        end
-    end
-catch
-end
+% try
+%     if ~isempty(EEG)
+%         if EEG.nbchan == 92
+%             LE_REFS = [44 74];
+%         elseif EEG.nbchan == 128
+%             LE_REFS = [57 100];
+%         else
+%             LE_REFS = [57 100];
+%         end
+%     end
+% catch
+% end
 
 REFLOC = struct('labels',{'Cz'},'Y',{0},'X',{0},'Z',{8.7919},'sph_theta',{0},'sph_phi',{0},'sph_radius',{0},'theta',{0},'radius',{0},'type',{''},'ref',{'Cz'},'urchan',{[]},'datachan',{0});
 KEEPREF = 'on';
@@ -121,11 +93,40 @@ EPOCHLENGTH = 1;
 %% Binary default options for data plotting and saving in QuickLab
 
 % Should ICLABEL be plotted after every iclabel run?
-PLOTICLABELS = 1;
+PLOTICLABELS = 0;
 % Should every data modification try to plot the data difference?
-PLOTDATADIFF = 1;
+PLOTDATADIFF = 0;
 
 % Should every data modification save the markers in a new file?
 SAVADATAMARKERS = 1;
 % if so, what should the new file markers be named?
 SAVEDATAMARKERTITLE = 'SM';
+
+%% COLOR DEFAULTS
+
+COLOR_MODE = 'Default';
+
+% darkmode = readtext('IsDarkmodeOn.txt');
+% if iscell(darkmode)
+%     darkmode = darkmode{:};
+% end
+% 
+% if darkmode == "YES"
+%     COLOR_MODE = 'DarkMode';
+% end
+
+%COLOR_MODE = 'Default';
+
+c = clock; %loads clock
+% Uncomment these lines to turn on darkmode! open quick_colormode to change
+% colors of all quicklab Ui and plots! WARNING: WILL AFFECT SOME EEGLAB
+% FIGURES AND PLOTS. 
+
+
+% if c(4) >= 16 || c(4) < 5 % If after 6 PM and before 5 AM, changes color scheme to dark mode
+%     COLOR_MODE = 'DarkMode';
+% else
+     COLOR_MODE = 'Default';
+% end
+
+quick_colormode; % loads colorscheme from quick_colormode
