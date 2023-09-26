@@ -106,8 +106,8 @@ uimenu( printmenu, 'label', 'Print FFT', 'callback', ...
 
 % plot fft difference!
 
-uimenu(supermenu, 'label','Quick DotLoc','callback',...
-    ['[EEG,com] = quick_dotloc(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+% uimenu(supermenu, 'label','Quick DotLoc','callback',...
+%     ['[EEG,com] = quick_dotloc(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 % --- second submenu: Quick ICA/PCAs
 pcamenu = uimenu (supermenu, 'label', 'Quick PCA');
