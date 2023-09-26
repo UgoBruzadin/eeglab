@@ -513,7 +513,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    try g.savecommand;            catch, g.savecommand = '';    end % Ugo
        try g.savecommand2;       catch, g.savecommand2 = '';    end % Ugo
        try g.matrixpos;           catch, g.matrixpos = [ 0.922   0.25      0.075    0.13 ]; end % Ugo
-       try g.headpos;           catch, g.headpos = [ 0.915    0.25    0.080    0.13 ]; end % Ugo
+       try g.headpos;           catch, g.headpos = [ .915    0.25    0.080    0.13 ]; end % Ugo
    
    
    %% continue defaults
@@ -608,7 +608,18 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    % max event string;  JavierLC
    % ---------------------------------
    MAXEVENTSTRING = g.maxeventstring;
-   DEFAULT_AXES_POSITION = [0.045 0.03 0.865 1-(MAXEVENTSTRING-4)/100]; %[0.095 0.35 0.842 0.75-(MAXEVENTSTRING-5)/100];
+
+   screen_size = get(0,'screensize');
+   
+   % create an adjustment for screensizes smaller than 1080p
+   adj = 0;
+   if screen_size(4) < 1080
+       adj = -.05;
+   else
+       adj = 0;
+   end
+
+   DEFAULT_AXES_POSITION = [0.045 0.03 0.85+adj 1-(MAXEVENTSTRING-4)/100]; %[0.095 0.35 0.842 0.75-(MAXEVENTSTRING-5)/100];
    
    % convert color to modify into array of float
    % -------------------------------------------
@@ -817,128 +828,137 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
 
   %% Set up uicontrols
   % %%%%%%%%%%%%%%%%%%%%%%%%%
-
-  defaultsizes = [0.02,0.015,0.03,0.04];
+  
+  div = 0.02 + DEFAULT_AXES_POSITION(2) + DEFAULT_AXES_POSITION(3); % this contains the right end of plot
+  max_wi = 1 - div - .005;
+  half_wi = max_wi/2;
+  un = (max_wi/16);
+  heights =      [.02, .015,.03, .04];
+  bottoms =      [div,div+half_wi,div+un*2,div+un*5,div+un*11,div+un*14,div+un*4,div+un*3/2];
+  widths =       [max_wi/2,max_wi,max_wi/8,3*(max_wi/16),max_wi/4,];
+  %heights =      [.02, .015,.03, .04];
+  %bottoms =      [.915,.955,.925,.935,.94,.97,0.985,.922];
+  %widths =       [.04,.08,.01,.015,.20];
 
   r = -.01;
 
 % positions of buttons
 %                  bottom  left    width    heigth
 % numbers go from 1 and end at 47 (need to be reorganized)
-  posbut(22,:) = [ 0.915    0.98+r    0.040    defaultsizes(1) ]; % stack channels(same offset)  
-  posbut(21,:) = [ 0.915    0.96+r    0.040    defaultsizes(1) ]; % normalize
-  posbut(17,:) = [ 0.915    0.94+r    0.040    defaultsizes(1) ]; % events types
+  posbut(22,:) = [ bottoms(1)    0.98+r    widths(1)    heights(1) ]; % stack channels(same offset)  
+  posbut(21,:) = [ bottoms(1)    0.96+r    widths(1)    heights(1) ]; % normalize
+  posbut(17,:) = [ bottoms(1)    0.94+r    widths(1)    heights(1) ]; % events types
   
-  posbut(14,:) = [ 0.915    0.90+r    0.040    defaultsizes(1) ]; % elec tag
-  posbut(7,:) =  [ 0.915    0.885+r    0.040    defaultsizes(1) ]; % elec
+  posbut(14,:) = [ bottoms(1)    0.90+r    widths(1)    heights(1) ]; % elec tag
+  posbut(7,:) =  [ bottoms(1)    0.885+r    widths(1)    heights(1) ]; % elec
   
-  posbut(16,:) = [ 0.915    0.86+r    0.040    defaultsizes(1) ]; % value tag
-  posbut(9,:) =  [ 0.915    0.845+r    0.040    defaultsizes(1) ]; % value
+  posbut(16,:) = [ bottoms(1)    0.86+r    widths(1)    heights(1) ]; % value tag
+  posbut(9,:) =  [ bottoms(1)    0.845+r    widths(1)    heights(1) ]; % value
   
-  posbut(15,:) = [ 0.915    0.82+r    0.040    defaultsizes(1) ]; % g.time tag
-  posbut(8,:) =  [ 0.915    0.805+r    0.040    defaultsizes(1) ]; % g.time   
+  posbut(15,:) = [ bottoms(1)    0.82+r    widths(1)    heights(1) ]; % g.time tag
+  posbut(8,:) =  [ bottoms(1)    0.805+r    widths(1)    heights(1) ]; % g.time   
 
 %% New file description texts about the file
 
-  posbut(60,:) = [ 0.955    0.98+r    0.040    defaultsizes(1) ]; % Number of Channels tag
-  posbut(61,:) = [ 0.955    0.965+r    0.040    defaultsizes(1) ]; % Number of Channels
+  posbut(60,:) = [ bottoms(2)    0.98+r    widths(1)    heights(1) ]; % Number of Channels tag
+  posbut(61,:) = [ bottoms(2)    0.965+r    widths(1)    heights(1) ]; % Number of Channels
   
-  posbut(62,:) = [ 0.955    0.94+r    0.040    defaultsizes(1) ]; % Frames/Sampling Rate tag
-  posbut(63,:) = [ 0.955    0.925+r    0.040    defaultsizes(1) ]; % Frames/Sampling Rate
+  posbut(62,:) = [ bottoms(2)    0.94+r    widths(1)    heights(1) ]; % Frames/Sampling Rate tag
+  posbut(63,:) = [ bottoms(2)    0.925+r    widths(1)    heights(1) ]; % Frames/Sampling Rate
 
-  posbut(64,:) = [ 0.955    0.90+r    0.040    defaultsizes(1) ]; % Epochs/Events tag
-  posbut(65,:) = [ 0.955    0.885+r    0.040    defaultsizes(1) ]; % Epochs/Events
+  posbut(64,:) = [ bottoms(2)    0.90+r    widths(1)    heights(1) ]; % Epochs/Events tag
+  posbut(65,:) = [ bottoms(2)    0.885+r    widths(1)    heights(1) ]; % Epochs/Events
 
-  posbut(66,:) = [ 0.955    0.86+r    0.040    defaultsizes(1) ]; % Epoch Start/End tag
-  posbut(67,:) = [ 0.955    0.845+r    0.040    defaultsizes(1) ]; % Epoch Start/End
+  posbut(66,:) = [ bottoms(2)    0.86+r    widths(1)    heights(1) ]; % Epoch Start/End tag
+  posbut(67,:) = [ bottoms(2)    0.845+r    widths(1)    heights(1) ]; % Epoch Start/End
 
-  posbut(68,:) = [ 0.955    0.82+r    0.040    defaultsizes(1) ]; %  ICA weights/rank tag
-  posbut(69,:) = [ 0.955    0.805+r    0.040    defaultsizes(1) ]; %  ICA weights/rank
+  posbut(68,:) = [ bottoms(2)    0.82+r    widths(1)    heights(1) ]; %  ICA weights/rank tag
+  posbut(69,:) = [ bottoms(2)    0.805+r    widths(1)    heights(1) ]; %  ICA weights/rank
 
 %% Epoch editbox, arrows, scale size, number of channels display
 
-  posbut(5,:) =  [ 0.915    0.78+r    0.080    defaultsizes(1) ]; % Eposition .52
-  posbut(46,:) = [ 0.915    0.76+r    0.010    defaultsizes(1) ]; % |<<  % NEW UGO
-  posbut(1,:) =  [ 0.925    0.76+r    0.015    defaultsizes(1) ]; % <<  
-  posbut(2,:) =  [ 0.94   0.76+r    0.015    defaultsizes(1) ]; % <  
-  posbut(3,:) =  [ 0.955    0.76+r    0.015    defaultsizes(1) ]; % >
-  posbut(4,:) =  [ 0.970   0.76+r    0.015    defaultsizes(1) ]; % >>  
-  posbut(47,:) = [ 0.985    0.76+r    0.010    defaultsizes(1) ]; % >>|  % NEW UGO
+  posbut(5,:) =  [ bottoms(1)    0.78+r    widths(2)    heights(1) ]; % Eposition .52
+  posbut(46,:) = [ bottoms(1)    0.76+r    widths(3)        heights(1) ]; % |<<  % NEW UGO
+  posbut(1,:) =  [ bottoms(3)    0.76+r    widths(4)        heights(1) ]; % <<  
+  posbut(2,:) =  [ bottoms(4)    0.76+r    widths(4)        heights(1) ]; % <  
+  posbut(3,:) =  [ bottoms(2)    0.76+r    widths(4)        heights(1) ]; % >
+  posbut(4,:) =  [ bottoms(5)    0.76+r    widths(4)        heights(1) ]; % >>  
+  posbut(47,:) = [ bottoms(6)    0.76+r    widths(3)        heights(1) ]; % >>|  % NEW UGO
 
-  posbut(23,:) = [ 0.915    0.735+r    0.040    defaultsizes(1) ]; % Espacing/scale tag
-  posbut(6,:) =  [ 0.915    0.72+r    0.040    defaultsizes(1) ]; % Espacing/scale  
+  posbut(23,:) = [ bottoms(1)    0.735+r   widths(1)    heights(1) ]; % Espacing/scale tag
+  posbut(6,:) =  [ bottoms(1)    0.72+r    widths(1)    heights(1) ]; % Espacing/scale  
 
-   posbut(48,:) = [ 0.955    0.735+r    0.040    defaultsizes(1) ]; % NumChan tag % NEW UGO
-   posbut(49,:) = [ 0.955    0.72+r    0.040    defaultsizes(1) ]; % NumChan % NEW UGO
+   posbut(48,:) = [ bottoms(2)   0.735+r   widths(1)    heights(1) ]; % NumChan tag % NEW UGO
+   posbut(49,:) = [ bottoms(2)   0.72+r    widths(1)    heights(1) ]; % NumChan % NEW UGO
 
-  posbut(52,:) = [ 0.955    0.70+r    0.040    defaultsizes(1) ]; % Reset chan numbers to max auto % NEW UGO
+  posbut(52,:) = [ bottoms(2)    0.70+r    widths(1)    heights(1) ]; % Reset chan numbers to max auto % NEW UGO
 
-  posbut(10,:) = [ 0.935    0.70+r    0.020    defaultsizes(1) ]; % +  
-  posbut(11,:) = [ 0.915    0.70+r    0.020    defaultsizes(1) ]; % -  
+  posbut(10,:) = [ bottoms(7)    0.70+r    widths(5)    heights(1) ]; % +  
+  posbut(11,:) = [ bottoms(1)    0.70+r    widths(5)    heights(1) ]; % -  
   
   posbut(20,:) = [ 0.004   0.02    0.008    0.96 ]; % slider  
   
   % new TBT options #Ugo
-  posbut(25,:) = [ 0.915    0.675+r    0.080    defaultsizes(1) ]; % Title tag
-  posbut(31,:) = [ 0.925    0.66+r    0.060    defaultsizes(1) ]; % List of methods to run in the data
-  posbut(33,:) = [ 0.915    0.63+r    0.080    defaultsizes(1) ]; % List of Channel/Epoch Methods, drop box, select from list
-  posbut(34,:) = [ 0.915    0.60+r    0.080    defaultsizes(1) ]; % TextBox with options
-  posbut(35,:) = [ 0.915    0.58+r    0.080    defaultsizes(2) ]; % TextBox with option hints!
-  posbut(36,:) = [ 0.915    0.545+r    0.040    defaultsizes(1) ]; % Percent of Trials Tag
-  posbut(37,:) = [ 0.955    0.545+r    0.040    defaultsizes(1) ]; % Number of Channels Tag
-  posbut(38,:) = [ 0.915    0.525+r    0.040    defaultsizes(1) ]; % Percent of Trials box
-  posbut(39,:) = [ 0.955    0.525+r    0.040    defaultsizes(1) ]; % Number of Channels Box
+  posbut(25,:) = [ bottoms(1)    0.675+r    widths(2)    heights(1) ]; % Title tag
+  posbut(31,:) = [ bottoms(3)    0.66+r    1.5*widths(1)    heights(1) ]; % List of methods to run in the data
+  posbut(33,:) = [ bottoms(1)    0.63+r    widths(2)    heights(1) ]; % List of Channel/Epoch Methods, drop box, select from list
+  posbut(34,:) = [ bottoms(1)    0.60+r    widths(2)    heights(1) ]; % TextBox with options
+  posbut(35,:) = [ bottoms(1)    0.58+r    widths(2)    heights(2) ]; % TextBox with option hints!
+  posbut(36,:) = [ bottoms(1)    0.545+r    widths(1)    heights(1) ]; % Percent of Trials Tag
+  posbut(37,:) = [ bottoms(2)    0.545+r    widths(1)    heights(1) ]; % Number of Channels Tag
+  posbut(38,:) = [ bottoms(1)    0.525+r    widths(1)    heights(1) ]; % Percent of Trials box
+  posbut(39,:) = [ bottoms(2)    0.525+r    widths(1)    heights(1) ]; % Number of Channels Box
   
-  posbut(40,:) = [ 0.915    0.505+r    0.040    defaultsizes(1) ]; % Run button % run code from box 1 and 2, add data to winrej, redraw
+  posbut(40,:) = [ bottoms(1)    0.505+r    widths(1)    heights(1) ]; % Run button % run code from box 1 and 2, add data to winrej, redraw
   
-  %posbut(32,:) = [ 0.96    0.51+r    0.040    defaultsizes(1) ]; % Apply Rejections;
+  %posbut(32,:) = [ 0.96    0.51+r    widths(1)    defaultsizes(1) ]; % Apply Rejections;
   
-  posbut(41,:) = [ 0.955    0.505+r    0.040    defaultsizes(1) ]; % Clear marks button
+  posbut(41,:) = [ bottoms(2)    0.505+r    widths(1)    heights(1) ]; % Clear marks button
   %posbut(50,:) = [ 0.96    0.49+r    0.020    defaultsizes(1) ]; % UNDO BUTTON
   %posbut(53,:) = [ 0.98    0.49+r    0.020    defaultsizes(1) ]; % REDO BUTTON
  
-  posbut(24,:) = [ 0.915    0.48+r    0.080    defaultsizes(1) ]; % Topoplot tag
+  posbut(24,:) = [ bottoms(1)    0.48+r    widths(2)    heights(1) ]; % Topoplot tag
 
   %this doesnt do anything, just a place so I can remember what the
   %positions are, if I change up top I'll have to change here.
-  g.headpos =     [ 0.922   0.35+r      0.075    0.13 ]; %position of topoplot
-  g.matrixpos =   [ 0.915    0.35+r      0.080    0.13 ];  %position of matrix
+  g.headpos =     [ bottoms(8)   0.35+r      0.075    0.13 ]; %position of topoplot
+  g.matrixpos =   [ bottoms(1)    0.35+r      widths(2)    0.13 ];  %position of matrix
  
-  posbut(30,:) = [ 0.915    0.32+r    0.080    defaultsizes(1) ]; % Counting marks tag #Ugo
-  posbut(29,:) = [ 0.915    0.30+r    0.080    defaultsizes(1) ]; % Counting marks #Ugo
+  posbut(30,:) = [ bottoms(1)    0.32+r    widths(2)    heights(1) ]; % Counting marks tag #Ugo
+  posbut(29,:) = [ bottoms(1)    0.30+r    widths(2)    heights(1) ]; % Counting marks #Ugo
 
-  posbut(32,:) = [ 0.915    0.28+r    0.080    defaultsizes(1) ]; % Apply Rejections;
+  posbut(32,:) = [ bottoms(1)    0.28+r    widths(2)    heights(1) ]; % Apply Rejections;
   % deprecated
-  %posbut(26,:) = [ 0.93    0.25    0.080    defaultsizes(1) ]; % Plot data difference #Ugo
+  %posbut(26,:) = [ 0.93    0.25    widths(2)    defaultsizes(1) ]; % Plot data difference #Ugo
 % original = works
   
-  posbut(54,:) = [ 0.915    0.255+r    0.040    defaultsizes(1) ]; % plot FFT
-  posbut(55,:) = [ 0.955    0.255+r    0.040    defaultsizes(1) ]; % plot ICA headmaps
-  %posbut(56,:) = [ 0.915    0.43    0.040    defaultsizes(1) ]; % plot AVG FFT
+  posbut(54,:) = [ bottoms(1)    0.255+r    widths(1)    heights(1) ]; % plot FFT
+  posbut(55,:) = [ bottoms(2)    0.255+r    widths(1)    heights(1) ]; % plot ICA headmaps
+  %posbut(56,:) = [ bottoms(1)    0.43    widths(1)    defaultsizes(1) ]; % plot AVG FFT
 
-   posbut(51,:) = [ 0.915    0.23+r    0.080    defaultsizes(1) ]; % Epoched/Continuous Mode
-   posbut(28,:) = [ 0.915    0.21+r    0.080    defaultsizes(1) ]; % Rejecting/Interpolating Mode  
-   posbut(27,:) = [ 0.915    0.19+r    0.080    defaultsizes(1) ]; % Components/EEG SWITCH FUNCTION
+   posbut(51,:) = [ bottoms(1)    0.23+r    widths(2)    heights(1) ]; % Epoched/Continuous Mode
+   posbut(28,:) = [ bottoms(1)    0.21+r    widths(2)    heights(1) ]; % Rejecting/Interpolating Mode  
+   posbut(27,:) = [ bottoms(1)    0.19+r    widths(2)    heights(1) ]; % Components/EEG SWITCH FUNCTION
 
 % rotated  new vertical buttons
 %   posbut(51,:) = [ 0.01    0.80    0.015    0.15 ]; % Components/EEG SWITCH FUNCTION  
 %   posbut(28,:) = [ 0.01    0.625    0.015    0.17 ]; % Epoched/Continuous Mode
 %   posbut(27,:) = [ 0.01    0.45    0.015    0.17 ]; % Rejecting/Interpolating Mode 
    
-  posbut(57,:) = [ 0.915    0.14+r    0.080    defaultsizes(1) ]; % Folder dropmenu
-  posbut(58,:) = [ 0.915    0.16+r    0.080    defaultsizes(1) ]; % Folder tag
+  posbut(57,:) = [ bottoms(1)    0.14+r    widths(2)    heights(1) ]; % Folder dropmenu
+  posbut(58,:) = [ bottoms(1)    0.16+r    widths(2)    heights(1) ]; % Folder tag
 
-   %posbut(59,:) = [ 0.915    0.15    0.080    defaultsizes(2) ]; % Components/EEG SWITCH FUNCTION
+   %posbut(59,:) = [ bottoms(1)    0.15    widths(2)    defaultsizes(2) ]; % Components/EEG SWITCH FUNCTION
   
-  %posbut(43,:) = [ 0.915    0.15    0.080    defaultsizes(2) ]; % RUN, TAG AND SAVE
-  posbut(59,:) = [ 0.915    0.11+r    0.080    defaultsizes(1) ]; % Save text tag
-  posbut(44,:) = [ 0.915    0.09+r    0.080    defaultsizes(1) ]; % SAVE TEXT EDIT
+  %posbut(43,:) = [ bottoms(1)    0.15    widths(2)    defaultsizes(2) ]; % RUN, TAG AND SAVE
+  posbut(59,:) = [ bottoms(1)    0.11+r    widths(2)    heights(1) ]; % Save text tag
+  posbut(44,:) = [ bottoms(1)    0.09+r    widths(2)    heights(1) ]; % SAVE TEXT EDIT
 
-  posbut(45,:) = [ 0.915    0.06+r    0.080    defaultsizes(1) ]; % SAVE FILE BUTTON
-  posbut(42,:) = [ 0.915    0.04+r    0.080    defaultsizes(1) ]; % store marks, transfer to eeglab #Ugo
-  posbut(13,:) = [ 0.955    0.02+r    0.040    defaultsizes(1) ]; % cancel/close
+  posbut(45,:) = [ bottoms(1)    0.06+r    widths(2)    heights(1) ]; % SAVE FILE BUTTON
+  posbut(42,:) = [ bottoms(1)    0.04+r    widths(2)    heights(1) ]; % store marks, transfer to eeglab #Ugo
+  posbut(13,:) = [ bottoms(2)    0.02+r    widths(1)    heights(1) ]; % cancel/close
 
-  %posbut(12,:) = [ 0.915    0.02    0.080    defaultsizes(2) ]; % accept/close
+  %posbut(12,:) = [ bottoms(1)    0.02    widths(2)    defaultsizes(2) ]; % accept/close
   
 %% NEW TEXT FOR THE CURRENT EEGLAB FILE
         
