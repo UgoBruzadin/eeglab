@@ -41,8 +41,12 @@ else
     if nargin < 4
         eventname = EEG.event(2).type;
     end
-    [EEG,com] = pop_epoch( EEG, { eventname }, [time1 time2], 'newname', 'Neuroscan EEG data epochs', 'epochinfo', 'yes');
-    EEG.icaact = []; EEG.icawinv = []; EEG.icasphere = []; EEG.icaweights = []; EEG.icachansind = [];
+    if isstring(eventname)
+        [EEG,com] = pop_epoch( EEG, { eventname }, [time1 time2], 'epochinfo', 'yes');
+    else
+        [EEG,com] = pop_epoch( EEG,  cellstr(eventname) , [time1 time2], 'epochinfo', 'yes');
+    end
+        EEG.icaact = []; EEG.icawinv = []; EEG.icasphere = []; EEG.icaweights = []; EEG.icachansind = [];
     
 end
     
