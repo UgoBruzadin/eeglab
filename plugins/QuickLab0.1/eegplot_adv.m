@@ -2541,7 +2541,7 @@ end
       fig = varargin{1};
       g = get(fig,'UserData');
 
-      if ~isempty(g.events) && ~isempty(g.allevents) % draw vertical colored lines for events, add event name text above
+      if ~isempty(g.allevents) % draw vertical colored lines for events, add event name text above
           if isempty(g.allevents)
               g.allevents = g.events;
           end
