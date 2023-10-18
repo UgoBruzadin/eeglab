@@ -1305,18 +1305,18 @@ set(H_MAIN(1), 'unit', 'normalized');
 % save.
 
 % load directory
-loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''LoadFileList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename))); set( findobj( ''tag'',''LoadFileList2'' ),''string'',{notfinished(1:end).name});  rec = plotfft(EEG,files,findex);'];
+loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''LoadFileList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename))); set( findobj( ''tag'',''LoadFileList2'' ),''string'',{notfinished(1:end).name});'];
 % save command
 savecommand = ['[EEG] = pop_saveset(EEG, ''filename'', [strcat( EEG.filename(1:end-4),get(findobj(''tag'',''SAVETEXT''),''string''),''.set'')],''filepath'',EEG.filepath);'...
      '[ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);' loaddircommand 'eeglab redraw;']; %save set ADDED BY UGO
 % moveleft
-loadprecommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex > 1, findex = findex - 1;, EEG = pop_loadset( files(findex).name, pwd); eeglab redraw, end; rec = plotfft(EEG,files,findex);'];
+loadprecommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex > 1, findex = findex - 1;, EEG = pop_loadset( files(findex).name, pwd); eeglab redraw, end;'];
 % move right
-loadpostcommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex < length(files), findex = findex + 1;, EEG = pop_loadset( files(findex).name, pwd); eeglab redraw, end; rec = plotfft(EEG,files,findex);'];
+loadpostcommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex < length(files), findex = findex + 1;, EEG = pop_loadset( files(findex).name, pwd); eeglab redraw, end; '];
 % filelist
-loadfilecommand = ['try cd(EEG.filepath); catch, end;EEG = pop_loadset(files(get(findobj(''tag'',''LoadFileList''),''value'')).name, pwd);eeglab redraw;rec = plotfft(EEG,files,findex);'];
+loadfilecommand = ['try cd(EEG.filepath); catch, end;EEG = pop_loadset(files(get(findobj(''tag'',''LoadFileList''),''value'')).name, pwd);eeglab redraw;'];
 % filelist
-loadfilecommand2 = ['try cd(EEG.filepath); catch, end;EEG = pop_loadset(notfinished(get(findobj(''tag'',''LoadFileList2''),''value'')).name, pwd);eeglab redraw;rec = plotfft(EEG,files,findex);'];
+loadfilecommand2 = ['try cd(EEG.filepath); catch, end;EEG = pop_loadset(notfinished(get(findobj(''tag'',''LoadFileList2''),''value'')).name, pwd);eeglab redraw;'];
 
 
 if ~exist("EEG")
@@ -1467,7 +1467,7 @@ end
 
 EEG = pop_loadset( files2(findex).name, pwd);
 eeglab redraw
-rec = plotfft(EEG,files,findex)
+%rec = plotfft(EEG,files,findex)
 
 %          
 % loaddircommand = ['findex = [1];cd(EEG.filepath);filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));set(findobj(''tag'',''LoadFileList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));rec = plotfft(EEG,files,findex);'];
