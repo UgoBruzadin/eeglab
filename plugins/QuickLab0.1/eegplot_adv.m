@@ -5028,7 +5028,7 @@ function g = APPLY(g)
     fprintf('Rejections applied to new dataset');
 
     set(gcf,'UserData',g);
-    [g.EEG] = eeg_store([], g.EEG);
+    %[g.EEG] = eeg_store([], g.EEG);
     ax1 = findobj('tag','eegaxis','parent',gcf); % axes handle
     set(ax1,'UserData',g.data);
 
