@@ -6,7 +6,8 @@ changeICA = ['h = findobj(gcf, ''tag'', ''val11''); if ~isempty(EEG.icaact), set
 
 %%changeICA = ['h = findobj(gcf, ''tag'', ''val11''); if ~isempty(EEG.icaact), set(h, ''string'', ''TEST''), end;'];
 
-loaddircommand = [changename, changeICA, 'try, if isempty(EEG.setname);EEG = pop_loadset();end; findex = [1];cd(EEG.filepath);filecount = [1];files = dir(''.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''LoadFileList2''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename))); catch; end; quick_eeghack()'];
+loaddircommand = [changename, changeICA, 'try, if isempty(EEG.setname);EEG = pop_loadset();end; findex = [1];cd(EEG.filepath);filecount = [1];files = dir(''.set'');' ...
+    'findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''LoadFileList2''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename))); catch; end; quick_eeghack()'];
 
 savecommand = ['[EEG] = pop_saveset(EEG, ''filename'', [strcat( EEG.filename(1:end-4),get(findobj(''Tag'',''SAVETEXT2''),''String''),''.set'')],''filepath'',EEG.filepath);'...
      '[ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);' loaddircommand 'eeglab redraw; quick_eeghack()']; %save set ADDED BY UGO
