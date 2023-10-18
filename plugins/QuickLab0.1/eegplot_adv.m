@@ -3062,7 +3062,7 @@ function draw_data(varargin)
     set(ax1, 'Xlim', [1 g.winlength*multiplier+1]);
 
     % ordinates: even if all elec are plotted, some may be hidden
-    %set(ax1, 'ylim',[g.elecoffset*g.spacing (g.elecoffset+g.dispchans+1)*g.spacing] );
+    set(ax1, 'ylim',[g.elecoffset*g.spacing (g.elecoffset+g.dispchans+1)*g.spacing] );
     
     if g.children ~= 0
         draw_data([],[],g.children,p1,p2);
@@ -5036,8 +5036,8 @@ function g = APPLY(g)
 
     % creates strings for printing
 
-    draw_data([],[],gcf,9,[],g);
-    %eegplot_adv('winelec_auto');
+    draw_data([],[],gcf,6,[],g);
+    eegplot_adv('winelec_auto');
 
     
 function g = UNDO(g)
