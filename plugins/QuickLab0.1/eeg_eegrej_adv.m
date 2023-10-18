@@ -49,7 +49,7 @@
 
 function [EEGOUT, com] = eeg_eegrej_adv( EEG, regions, chanorcomp, tmprej);
 
-
+setname = EEG.setname;
 
 if nargin < 3
     tmprej = 0;
@@ -412,6 +412,8 @@ try EEGOUT.suffix = replace(EEGOUT.suffix,';',''); catch; end
 
 %% --- Save file
 if isfield(EEGOUT,'save')
+    EEGOUT.setname = setname;
+
     if EEGOUT.save == 1
         EEGOUT.save = 0;
 
@@ -425,7 +427,7 @@ if isfield(EEGOUT,'save')
             [EEGOUT,com] = quick_PCA(EEGOUT,[],[],0);
             EEGOUT.ICA = 0;
             EEGOUT.suffix = [];
-            EEGOUT = quick_eegsave(EEGOUT,'ICA');
+            %EEGOUT = quick_eegsave(EEGOUT,'ICA');
             end
         end
 %         eval(get(findobj('tag','LoadDir'),'Callback'));
