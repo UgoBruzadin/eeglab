@@ -2629,7 +2629,6 @@ end
 % Redraw EEG and change position
 % ---------------------------------
 function draw_data(varargin)
-
     
     try
         QuickLabDefs;
