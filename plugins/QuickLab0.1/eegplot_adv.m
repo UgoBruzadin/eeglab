@@ -2070,8 +2070,8 @@ else
     
     %change_scale([],[],fig,p1)
 %    eegplot_adv('zoom', fig);
-%    egplot_w3('updateslider', fig);
-%    eegplot_adv('drawp',0);	
+%    eegplot_w3('updateslider', fig);
+    eegplot_adv('drawp',0);	
 %    eegplot_adv('scaleeye', [], fig);
     ax2 = findobj('tag','eegaxis','parent',fig);
     %change_scale([],[],fig,4,ax2);
