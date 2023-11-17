@@ -204,17 +204,17 @@ end
     
 % plot time series
 % datax = axes('Parent', fh, 'position','units','normalized');
-try
+%try
 datax = axes('Parent', fh, 'Position',scroll_position,'units','normalized','Color',DEFAULT_PLOT_BACKGROUND,'YColor',DEFAULT_AXIS_COLOR,'XColor',DEFAULT_AXIS_COLOR);
 scrollax = uicontrol('Parent', fh, 'Style', 'Slider', ...
     'Units', 'Normalized', 'Position', [scroll_position(1) 0.6389 scroll_position(3) 0.025]); % Color of background of line plot
 if ~scroll_event
     EEG.event = []; end
 if typecomp
-    datascroll = scrollplot2(EEG.times, single(EEG.data(chanorcomp, :, :)), 5, EEG.event, fh, datax, scrollax);
+    datascroll = scrollplot(EEG.times, single(EEG.data(chanorcomp, :, :)), 5, EEG.event, fh, datax, scrollax);
     tstitle_h = title('Channel Time Series', 'fontsize', 14, 'FontWeight', 'Normal','Color',DEFAULT_FONT_COLOR);
 else
-    datascroll = scrollplot2(EEG.times, single(icaacttmp), 5, EEG.event, fh, datax, scrollax);
+    datascroll = scrollplot(EEG.times, single(icaacttmp), 5, EEG.event, fh, datax, scrollax);
     tstitle_h = title(['Scrolling IC' int2str(chanorcomp) ' Activity'], 'fontsize', 14, 'FontWeight', 'Normal','Color',DEFAULT_FONT_COLOR);
 end
 
@@ -227,8 +227,8 @@ set(tstitle_h,'FontSize',14, 'Position', get(tstitle_h, 'Position'), 'units', 'n
 set(datax,'FontSize',12,'Color',DEFAULT_PLOT_BACKGROUND);
 xlabel(datax,'Time (ms)','fontsize', 14,'Color',DEFAULT_PLOT_TEXT);
 ylabel(datax,'uV','Color',DEFAULT_PLOT_TEXT);
-catch
-end
+%catch
+%end
 % plot scalp map
 axes('Parent', fh, 'position',[0.0143 0.6331 0.3121 0.3267],'units','normalized');
 if typecomp
