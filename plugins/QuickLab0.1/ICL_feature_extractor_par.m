@@ -30,22 +30,22 @@ topo = zeros(32, 32, 1, ncomp);
 
 haspar = [];
 haspar = ver('parallel');
-
-if ~isempty(haspar)
-    parfor it = 1:ncomp
-        if ~exist('OCTAVE_VERSION', 'builtin')
-            [~, temp_topo, plotrad] = ...
-                topoplotFast(EEG.icawinv(:, it), EEG.chanlocs(EEG.icachansind), ...
-                'noplot', 'on');
-        else
-            [~, temp_topo, plotrad] = ...
-                topoplot(EEG.icawinv(:, it), EEG.chanlocs(EEG.icachansind), ...
-                'noplot', 'on', 'gridscale', 32);
-        end
-        temp_topo(isnan(temp_topo)) = 0;
-        topo(:, :, 1, it) = temp_topo / max(abs(temp_topo(:)));
-    end
-else
+% 
+% if ~isempty(haspar)
+%     parfor it = 1:ncomp
+%         if ~exist('OCTAVE_VERSION', 'builtin')
+%             [~, temp_topo, plotrad] = ...
+%                 topoplotFast(EEG.icawinv(:, it), EEG.chanlocs(EEG.icachansind), ...
+%                 'noplot', 'on');
+%         else
+%             [~, temp_topo, plotrad] = ...
+%                 topoplot(EEG.icawinv(:, it), EEG.chanlocs(EEG.icachansind), ...
+%                 'noplot', 'on', 'gridscale', 32);
+%         end
+%         temp_topo(isnan(temp_topo)) = 0;
+%         topo(:, :, 1, it) = temp_topo / max(abs(temp_topo(:)));
+%     end
+% else
     for it = 1:ncomp
         if ~exist('OCTAVE_VERSION', 'builtin')
             [~, temp_topo, plotrad] = ...
@@ -59,7 +59,7 @@ else
         temp_topo(isnan(temp_topo)) = 0;
         topo(:, :, 1, it) = temp_topo / max(abs(temp_topo(:)));
     end
-end
+%end
 % cast
 topo = single(topo);
     
