@@ -32,12 +32,14 @@ supermenu = uimenu(fig, 'label', 'QuickLab');
 QuickLabDefs;
 
 uimenu( supermenu, 'label', 'Adv. Data Editor', 'callback', ...
-    ['com = pop_eegplot_adv(EEG, 1, 2, 1, 1);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['[EEG,LASTCOM] = pop_eegplot_adv(EEG, 1, 2, 1, 1);' ...
+    '[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);' ...
+    'ALLCOM{end+1} = LASTCOM;']);
 
 uimenu( supermenu, 'label', 'Edit QuickLab Defaults', 'callback', ...
     ['open QuickLabDefs;']);
 
-com = '';
+
 % --- first submenu: Quick plots
 plotmenu = uimenu (supermenu, 'label', 'Quick Plots');
 
@@ -47,7 +49,7 @@ plotmenu = uimenu (supermenu, 'label', 'Quick Plots');
 ogplotmenu = findobj(fig.Children,'Text','Plot');
 
 uimenu( ogplotmenu, 'label', 'Adv. Data Editor', 'callback', ...
-    ['com = pop_eegplot_adv(EEG, 1, 2, 1, 1);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['[EEG,LASTCOM] = pop_eegplot_adv(EEG, 1, 2, 1, 1);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 % uimenu( plotmenu, 'label', 'OLD Channel Scroll++ for Interpolation', 'callback', ...
 %     ['com = pop_eegplot_w2old(EEG, 1, 2, 1, 1);;[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
@@ -60,24 +62,24 @@ uimenu( ogplotmenu, 'label', 'Adv. Data Editor', 'callback', ...
 %     ['com = pop_eegplot_w2(EEG, 1, 2, 1, 3);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( plotmenu, 'label', 'Quick IClabel & Viewprops+ plot', 'callback', ...
-    ['[EEG,com] = quick_IClabel(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['[EEG,LASTCOM] = quick_IClabel(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( plotmenu, 'label', 'Quick Plot Channel Spectra - AVG ref', 'callback', ...
-    ['[~, com] = quick_spectra(EEG,40,2,''AVG'');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['[~, LASTCOM] = quick_spectra(EEG,40,2,''AVG'');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 othermenu = uimenu (plotmenu, 'label', 'Other');
 
-uimenu( othermenu, 'label', 'Select Channels Scroll++ for Interpolation', 'callback', ...
-    ['com = pop_eegplot_w2_list(EEG, 1, 2, 1, 1);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+% uimenu( othermenu, 'label', 'Select Channels Scroll++ for Interpolation', 'callback', ...
+%     ['com = pop_eegplot_w2_list(EEG, 1, 2, 1, 1);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( othermenu, 'label', 'Quick Plot Channel Spectra default', 'callback', ...
-    ['[~, com] = quick_spectra(EEG,40,2);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['[~, LASTCOM] = quick_spectra(EEG,40,2);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( othermenu, 'label', 'Quick Plot Channel Spectra - LE ref', 'callback', ...
-    ['[~, com] = quick_spectra(EEG,40,2,''LE'');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['[~, LASTCOM] = quick_spectra(EEG,40,2,''LE'');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( othermenu, 'label', 'Quick ERP Viewprops+ plot', 'callback', ...
-    ['com = pop_viewprops_erp(EEG,0,1:size(EEG.icawinv,2),{''freqrange'',[2 55]});[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['LASTCOM = pop_viewprops_erp(EEG,0,1:size(EEG.icawinv,2),{''freqrange'',[2 55]});[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 
 uimenu( othermenu, 'label', 'Quick IClabel, DIPFIT & Viewprops+ plot', 'callback', ...
@@ -85,10 +87,10 @@ uimenu( othermenu, 'label', 'Quick IClabel, DIPFIT & Viewprops+ plot', 'callback
     '[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( othermenu, 'label', 'Quick Plot Channel Spectra 2 to 22hz', 'callback', ...
-    ['[EEG, com] = quick_spectra(EEG,22,2);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['[EEG, LASTCOM] = quick_spectra(EEG,22,2);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( othermenu, 'label', 'Quick Plot Channel Spectra 18 to 55hz', 'callback', ...
-    ['[EEG, com] = quick_spectra(EEG,55,18);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+    ['[EEG, LASTCOM] = quick_spectra(EEG,55,18);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( othermenu, 'label', 'Plot Last Files Data Differences', 'callback', ...
     ['plotDifference(ALLEEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
@@ -98,8 +100,8 @@ printmenu = uimenu (plotmenu, 'label', 'Quick Print');
 uimenu( printmenu, 'label', 'Print Components', 'callback', ...
     ['print_ICA(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
-uimenu( printmenu, 'label', 'Print Marked Components', 'callback', ...
-    ['print_RejComponents(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
+% uimenu( printmenu, 'label', 'Print Marked Components', 'callback', ...
+%     ['print_RejComponents(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
 
 uimenu( printmenu, 'label', 'Print FFT', 'callback', ...
     ['print_FFT(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
@@ -115,38 +117,38 @@ pcamenu = uimenu (supermenu, 'label', 'Quick PCA');
 dipfitmenu = uimenu (pcamenu, 'label', 'Quick PCA and DipFit');
 
 uimenu( dipfitmenu, 'label', 'Quick ICA & DipFit', 'callback', ...
-    ['EEG = quick_PCA(EEG);EEG = quick_dipfit(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,LASTCOM] = quick_PCA(EEG);EEG = quick_dipfit(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu( dipfitmenu, 'label', 'Quick N-1 PCA & DipFit', 'callback', ...
-    ['EEG = quick_PCA(EEG, strcat(size(EEG.icaact,1)-1));EEG = quick_dipfit(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,LASTCOM] = quick_PCA(EEG, strcat(size(EEG.icaact,1)-1));EEG = quick_dipfit(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 for d=6:2:50
 uimenu( dipfitmenu, 'label', strcat('PCA ',num2str(d),' & DipFit'), 'callback', ...
-    ['EEG = quick_PCA(EEG,' num2str(d) ');EEG = quick_dipfit(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,LASTCOM] = quick_PCA(EEG,' num2str(d) ');EEG = quick_dipfit(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 end
 
 uimenu( pcamenu, 'label', 'ICA no plot', 'callback', ...
-    ['[EEG,com] = quick_PCA(EEG,[],[],0);EEG = quick_eegsave(EEG,''ICA'');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,LASTCOM] = quick_PCA(EEG,[],[],0);EEG = quick_eegsave(EEG,''ICA'');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu( pcamenu, 'label', 'ICA', 'callback', ...
-    ['[EEG,com] = quick_PCA(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,LASTCOM] = quick_PCA(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu( pcamenu, 'label', 'N-1 PCA', 'callback', ...
-    ['[EEG,com] = quick_PCA(EEG,strcat(size(EEG.icaact,1)-1));[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,LASTCOM] = quick_PCA(EEG,strcat(size(EEG.icaact,1)-1));[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 for i=4:35
 uimenu( pcamenu, 'label', strcat('PCA ',num2str(i)), 'callback', ...
-    ['[EEG,com] = quick_PCA(EEG,' num2str(i) ',[],0);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,LASTCOM] = quick_PCA(EEG,' num2str(i) ',[],0);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 end
 for i=36:2:50
 uimenu( pcamenu, 'label', strcat('PCA ',num2str(i)), 'callback', ...
-    ['[EEG,com] = quick_PCA(EEG,' num2str(i) ',[],0);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,LASTCOM] = quick_PCA(EEG,' num2str(i) ',[],0);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 end
 
 secondpcamenu = uimenu (pcamenu, 'label', 'MORE PCAs');
 for g=51:75
     uimenu( secondpcamenu, 'label', strcat('PCA ',num2str(g)), 'callback', ...
-        ['[EEG,com] = quick_PCA(EEG,' num2str(g) ',[],0);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+        ['[EEG,LASTCOM] = quick_PCA(EEG,' num2str(g) ',[],0);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 end
 % 
 % try
@@ -181,13 +183,13 @@ end
 bssmenu = uimenu (supermenu, 'label', 'BSS Menu');
 
 uimenu (bssmenu, 'label', 'Quick BSS 2 epochs', 'callback', ...
-    ['[EEG,com] = quick_bss(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,LASTCOM] = quick_bss(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu (bssmenu, 'label', 'Quick BSS full file', 'callback', ...
-    ['[EEG,com] = quick_bss2(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,LASTCOM] = quick_bss2(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu (bssmenu, 'label', 'Exp PAR BSS full file', 'callback', ...
-    ['[EEG,com] = quick_par_bss2(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,LASTCOM] = quick_par_bss2(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 % 
 % uimenu (bssmenu, 'label', 'BSS+', 'callback', ...
 %     ['[EEG com]  = pop_autobssemgQL(EEG);EEG = eegh(com, EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);']);
@@ -196,7 +198,7 @@ uimenu (bssmenu, 'label', 'Exp PAR BSS full file', 'callback', ...
 channelmenu = uimenu (supermenu, 'label', 'Quick Channel Edit');
 
 uimenu( channelmenu, 'label', 'Quick Re-reference AVG', 'callback', ...
-    ['[EEG,com] = quick_reref(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,LASTCOM] = quick_reref(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 % uimenu( channelmenu, 'label', 'Quick Re-reference Linked Mastoids', 'callback', ...
 %     ['[EEG,com] = quick_reref(EEG,' LE_REFS  ');[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
@@ -209,10 +211,10 @@ uimenu( channelmenu, 'label', 'Quick Re-reference AVG', 'callback', ...
 %     ['[EEG,com] = pop_fastrerefavg(EEG,[55,100]);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu( channelmenu, 'label', 'Quick Reduce to 98/99 Channels (NIDA 5)', 'callback', ...
-    ['[EEG,com] = quick_HM99(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,LASTCOM] = quick_HM99(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 uimenu( channelmenu, 'label', 'Quick Reduce to 93/94 Channels (NIDA 5)', 'callback', ...
-    ['[EEG,com] = quick_HM94(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+    ['[EEG,LASTCOM] = quick_HM94(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 % 
 % interpmenu = uimenu( channelmenu, 'label', 'Quick channel interpolation');
 % 
@@ -246,18 +248,18 @@ end
 
 uimenu( epochsmenu, 'label', 'UN-Epoch (Back to Continuous)', 'callback', ...
     ['[EEG,com] = quick_unepoch(EEG);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
-
-uimenu( epochsmenu, 'label', 'Quick Epoch 0.400 2.448 (DotLoc)', 'callback', ...
-    ['[EEG,com] = quick_epoch(EEG,0.400,2.448);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
-
-uimenu( epochsmenu, 'label', 'Quick Epoch 0.600 2.648 (DotLoc)', 'callback', ...
-    ['[EEG,com] = quick_epoch(EEG,0.600,2.648);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
-
-uimenu( epochsmenu, 'label', 'Quick Epoch 0.700 2.748 (DotLoc)', 'callback', ...
-    ['[EEG,com] = quick_epoch(EEG,0.700,2.748);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
-
-uimenu( epochsmenu, 'label', 'Quick Epoch -1 3.096 (DotLoc)', 'callback', ...
-    ['[EEG,com] = quick_epoch(EEG,-1,3.096);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+% 
+% uimenu( epochsmenu, 'label', 'Quick Epoch 0.400 2.448 (DotLoc)', 'callback', ...
+%     ['[EEG,com] = quick_epoch(EEG,0.400,2.448);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+% 
+% uimenu( epochsmenu, 'label', 'Quick Epoch 0.600 2.648 (DotLoc)', 'callback', ...
+%     ['[EEG,com] = quick_epoch(EEG,0.600,2.648);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+% 
+% uimenu( epochsmenu, 'label', 'Quick Epoch 0.700 2.748 (DotLoc)', 'callback', ...
+%     ['[EEG,com] = quick_epoch(EEG,0.700,2.748);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
+% 
+% uimenu( epochsmenu, 'label', 'Quick Epoch -1 3.096 (DotLoc)', 'callback', ...
+%     ['[EEG,com] = quick_epoch(EEG,-1,3.096);[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);eeglab redraw;']);
 
 % Deprecated!
 % rejmenu = uimenu( epochsmenu, 'label', 'Epoch Rejection by probability');
@@ -300,10 +302,10 @@ uimenu( corrmenu, 'label', 'Quick Run CorrMap', 'callback', ...
 parmenu = uimenu( supermenu, 'label', 'Quick Parallel Processes');
 
 uimenu( parmenu, 'label', 'Parallel DipFit 1 Dipole', 'callback', ...
-    ['[EEG] = quick_dipfit(EEG); eeg_store(ALLEEG, EEG, CURRENTSET); eeglab redraw;']);
+    ['[EEG] = quick_dipfit(EEG);[ALLEEG EEG CURRENTSET] =  eeg_store(ALLEEG, EEG, CURRENTSET); eeglab redraw;']);
 
 uimenu( parmenu, 'label', 'Parallel DipFit 2 Dipoles', 'callback', ...
-    ['[EEG] = quick_dipfit(EEG,[],2); eeg_store(ALLEEG, EEG, CURRENTSET); eeglab redraw;']);
+    ['[EEG] = quick_dipfit(EEG,[],2); [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET); eeglab redraw;']);
 % try
 %     if isstruct(EEG)
 %          h = findobj(gcf, 'tag', 'win1');
