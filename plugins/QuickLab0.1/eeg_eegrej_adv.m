@@ -50,6 +50,7 @@
 function [EEGOUT, com] = eeg_eegrej_adv( EEG, regions, chanorcomp, tmprej);
 
 setname = EEG.setname;
+com = '';
 
 if nargin < 3
     tmprej = 0;
@@ -117,7 +118,7 @@ EEG.filename(1:end-4);
 %eeglab redraw; %save set ADDED BY UGO
 
 %% --- start organizing variables
-com = '';
+%com = '';
 if nargin < 2
     help eeg_eegrej;
     return;
@@ -246,9 +247,9 @@ EEGOG = EEG;
 EEGmod = EEG;
 EEGinterp = EEG;
 EEGcumulative = EEG;
-
+f
 if ~isempty(list_of_chans_or_comps)
-    % --- if only one channel or component was given %MODIFIED BY UGO NUNES JUL/2021
+    % --- if only one channel or component was gifven %MODIFIED BY UGO NUNES JUL/2021
     if isempty(divisors)
         % get channel or component
         compOrChan = str2num(list_of_chans_or_comps);
@@ -366,7 +367,8 @@ end
 %final EEG!
 EEGOUT = EEGmod2;
 
-com = sprintf('EEGOUT = eeg_eegrej_adv( EEGOUT, %s );', vararg2str({ regions, list_of_chans_or_comps, chanorcomp, tmprej }));
+%[EEGOUT, com] = eeg_eegrej_adv( EEG, regions, chanorcomp, tmprej);
+
 
 %% --- Clears rejection variables from EEG variable
 if chanorcomp == 1
@@ -393,10 +395,10 @@ if ~isempty(regions_for_rej)
         for i=1:size(regions_for_rej,1)
             rejected_epochs = [rejected_epochs, floor(regions_for_rej(i,1)/EEG.pnts)+1];
         end
-        [EEGOUT,com] = pop_rejepoch( EEGOUT, rejected_epochs,0);
+        [EEGOUT,~] = pop_rejepoch( EEGOUT, rejected_epochs,0);
         EEGOUT.suffix = strcat(EEGOUT.suffix,strcat('TJ',num2str(size(regions_for_rej,1))));
     else
-        [EEGOUT,com] = eeg_eegrej( EEGOUT, regions_for_rej(:,1:2) );
+        [EEGOUT,~] = eeg_eegrej( EEGOUT, regions_for_rej(:,1:2) );
         EEGOUT.suffix = strcat(EEGOUT.suffix,strcat('TJ',num2str(size(regions_for_rej,1))));
     end
 end
@@ -424,7 +426,7 @@ if isfield(EEGOUT,'save')
         EEGOUT.filename(1:end-4)
         if isfield(EEGOUT,'ICA')
             if EEGOUT.ICA == 1
-            [EEGOUT,com] = quick_PCA(EEGOUT,[],[],0);
+            [EEGOUT,~] = quick_PCA(EEGOUT,[],[],0);
             EEGOUT.ICA = 0;
             EEGOUT.suffix = [];
             %EEGOUT = quick_eegsave(EEGOUT,'ICA');
@@ -435,10 +437,15 @@ if isfield(EEGOUT,'save')
         %eval(get(findobj('tag','LoadPost'),'Callback'));
     end
 end
+% sends com to eegh?
+global ALLCOM
+
+ALLCOM{end+1} = {sprintf('EEGOUT = eeg_eegrej_adv( EEG, %s );', vararg2str({ regions, chanorcomp, tmprej }))};
 
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Function library
-
 
 function res = issameevent(evt1, evt2)
 
