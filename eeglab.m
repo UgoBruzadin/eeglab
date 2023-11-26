@@ -1305,7 +1305,7 @@ set(H_MAIN(1), 'unit', 'normalized');
 % save.
 
 % load directory
-loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''LoadFileList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename))); set( findobj( ''tag'',''LoadFileList2'' ),''string'',{notfinished(1:end).name});'];
+loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''LoadFileList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
 % save command
 savecommand = ['[EEG] = pop_saveset(EEG, ''filename'', [strcat( EEG.filename(1:end-4),get(findobj(''tag'',''SAVETEXT''),''string''),''.set'')],''filepath'',EEG.filepath);'...
      '[ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);' loaddircommand 'eeglab redraw;']; %save set ADDED BY UGO
@@ -1315,15 +1315,13 @@ loadprecommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex >
 loadpostcommand = ['findex = find(strcmp({files.name}, EEG.filename));if findex < length(files), findex = findex + 1;, EEG = pop_loadset( files(findex).name, pwd); eeglab redraw, end; '];
 % filelist
 loadfilecommand = ['try cd(EEG.filepath); catch, end;EEG = pop_loadset(files(get(findobj(''tag'',''LoadFileList''),''value'')).name, pwd);eeglab redraw;'];
-% filelist
-loadfilecommand2 = ['try cd(EEG.filepath); catch, end;EEG = pop_loadset(notfinished(get(findobj(''tag'',''LoadFileList2''),''value'')).name, pwd);eeglab redraw;'];
 
 
 if ~exist("EEG")
     EEG = [];
 end
 % ?, win0, PATH, win1, val2/win2, val3/win3, val4/win4 , val5/win5 , val6/win6, val7/win7, val8/win8, val9/win9
-geometry = { [1] [1] [1] [1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [1 1 1 1 1.5 1.5 1] [1] };
+geometry = { [1] [1] [1] [1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [.3 1] [1 1 1 1 1.5 1.5 1] [1] };
 listui = { { 'style', 'text', 'string', 'Parameters of the current set', 'tag', 'win0' } { } ...
            { 'style', 'text', 'tag', 'win1', 'string', ' ', 'userdata', 'datinfo' } ...
            { 'style', 'text', 'tag', 'PATH', 'string', ' ', 'userdata', 'datinfo' } ...
@@ -1354,7 +1352,6 @@ listui = { { 'style', 'text', 'string', 'Parameters of the current set', 'tag', 
            { 'style', 'edit', 'tag', 'SAVETEXT', 'string', 'New'} ...
            {'style', 'pushbutton', 'tag', 'LoadDir', 'string', 'Load Folder', 'callback', loaddircommand } ...
            {'style', 'popupmenu', 'tag', 'LoadFileList', 'string', '', 'callback', loadfilecommand } ...
-           {'style', 'popupmenu', 'tag', 'LoadFileList2', 'string', '', 'callback', loadfilecommand2 } ...
            {} {}};
        
 % TRY 1
