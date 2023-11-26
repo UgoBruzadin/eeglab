@@ -35,7 +35,7 @@ if nargin < 2
 end
 
 if nargin < 3
-    [EEG,com] = eeg_regepochs(EEG,'recurrence',time1);
+    [EEG] = eeg_regepochs(EEG,'recurrence',time1);
     EEG = eegh(com, EEG);
 else
     if nargin < 4
