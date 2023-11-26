@@ -249,6 +249,7 @@ end
                             'concatenate'    'string'  { 'on','off' }   'off';
                             'concatcond'     'string'  { 'on','off' }   'off';
                             'reorder'        'string'  { 'on','off' }   'on';
+                            'store'          'string'  { 'on','off' }   'off';
                             'chanind'        { 'cell','integer' } { [] [] }        [];}, ...
                             'pop_runica', 'ignore');
 if ischar(g), error(g); end
@@ -600,9 +601,9 @@ end
 
 if nargin < 2 || selectamica
     if ~isempty(g.options)
-        %com = sprintf('EEG = pop_runica(EEG, ''icatype'', ''%s'', %s);', g.icatype, vararg2str(g.options) ); %vararg2str({ 'icatype' g.icatype 'dataset' g.dataset 'options' g.options }) );
+        com = sprintf('EEG = pop_runica(EEG, ''icatype'', ''%s'', %s);', g.icatype, vararg2str(g.options) ); %vararg2str({ 'icatype' g.icatype 'dataset' g.dataset 'options' g.options }) );
     else
-        %com = sprintf('EEG = pop_runica(EEG, ''icatype'', ''%s'');',g.icatype );
+        com = sprintf('EEG = pop_runica(EEG, ''icatype'', ''%s'');',g.icatype );
     end
 end
 
