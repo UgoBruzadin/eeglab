@@ -297,9 +297,9 @@
 %    4 - maxfreq    % empty [] if no gfrequency content
 % 'buttons hold other informations' Eposition for instance hold the current postition
 
-function [outvar1,EEG] = eegplot_adv(EEG, varargin) % p1,p2,p3,p4,p5,p6,p7,p8,p9)
+function [EEG,com] = eegplot_adv(EEG, varargin) % p1,p2,p3,p4,p5,p6,p7,p8,p9)
 
-outvar1 = 0;
+com = '';
 
 %% Collects component or channel plot, continuous or epoched plot
 if isstruct(EEG)
@@ -514,6 +514,9 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
        try g.savecommand2;       catch, g.savecommand2 = '';    end % Ugo
        try g.matrixpos;           catch, g.matrixpos = [ 0.922   0.25      0.075    0.13 ]; end % Ugo
        try g.headpos;           catch, g.headpos = [ .915    0.25    0.080    0.13 ]; end % Ugo
+       
+       try g.com;               catch g.com = ''; end
+       try g.TBTcom;            catch g.TBTcom = ''; end
    
    
    %% continue defaults
@@ -530,7 +533,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    gfields = fieldnames(g);
    for index=1:length(gfields)
       switch gfields{index}
-          case { 'spacing_ch' 'data' 'data_pc' 'e' 'data_ch' 'spacing_pc' 'rand' 'old' 'gnumber' 'typing' 'thinking' 'backcolor' 'EEG' 'winrej' 'winrej_ch' 'winrej_pc' 'srate' 'eloc_file' 'eloc_file_ch' 'eloc_file_pc' 'winlength' 'fullscreen' 'position' 'title' 'plottitle' ...
+          case { 'com' 'TBTcom' 'spacing_ch' 'data' 'data_pc' 'e' 'data_ch' 'spacing_pc' 'rand' 'old' 'gnumber' 'typing' 'thinking' 'backcolor' 'EEG' 'winrej' 'winrej_ch' 'winrej_pc' 'srate' 'eloc_file' 'eloc_file_ch' 'eloc_file_pc' 'winlength' 'fullscreen' 'position' 'title' 'plottitle' ...
                'trialstag' 'tag' 'xgrid' 'ygrid' 'color' 'colmodif' 'spacing' 'normed' 'normed_ch' 'normed_pc' 'datastd' 'datastd_ch'  'datastd_pc' ...
                'freqs' 'freqlimits' 'submean' 'children' 'limits' 'matrixpos' 'headpos' 'dispchans' 'wincolor' 'currentoptions' ...
                'maxeventstring' 'ploteventdur' 'butlabel' 'scale' 'events' 'data2' 'plotdata2' 'command'  'command2' 'savecommand' 'savecommand2'...
@@ -811,8 +814,8 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
     
     allnew_menus = findobj(new_menus);
 
-    precallback = ['g = get(findobj(''tag'',''eegplot_adv''),''Userdata''); EEG = g.EEG; figure;'];
-    postcallback = ['fig = findobj(''tag'',''eegplot_adv''); g = get(fig,''Userdata''); g.EEG = EEG; set(fig,''Userdata'',g); eegplot_adv(''RESET'')'];
+    precallback = ['g = get(findobj(''tag'',''eegplot_adv''),''Userdata''); EEG = g.EEG; fig2 = figure;'];
+    postcallback = ['fig = findobj(''tag'',''eegplot_adv''); g = get(fig,''Userdata''); g.EEG = EEG; set(fig,''Userdata'',g); if isempty(fig2), try close(fig2); catch; end; end; eegplot_adv(''RESET'')'];
     
      for j = 1:length(allnew_menus)
          %if strcmp(allnew_menus.Type,'uimenu')
@@ -1006,7 +1009,7 @@ u(69) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(69,:),'
 % load directory
 %loaddircommand = ['findex = [1];try cd(EEG.filepath); catch, end; filecount = [1];files = dir(''*.set'');findex = find(strcmp({files.name}, EEG.filename));files = dir(''*.set'');set(findobj(''tag'',''FolderList''),''string'',{files(1:end).name},''value'',find(strcmp({files.name}, EEG.filename)));'];
 % filelist
-loadfilecommand = ['try cd(EEG.filepath); catch, end;files = dir(''*.set''); newEEG = pop_loadset(files(get(findobj(''tag'',''FolderList''),''value'')).name, pwd);com = pop_eegplot_adv(newEEG, 1, 2, 1, 1);[ALLEEG newEEG CURRENTSET] = eeg_store(ALLEEG, newEEG, CURRENTSET);'];
+loadfilecommand = ['try cd(EEG.filepath); catch, end;files = dir(''*.set''); newEEG = pop_loadset(files(get(findobj(''tag'',''FolderList''),''value'')).name, pwd);[EEG,com] = pop_eegplot_adv(newEEG, 1, 2, 1, 1);[ALLEEG newEEG CURRENTSET] = eeg_store(ALLEEG, newEEG, CURRENTSET);'];
 
 u(59) = uicontrol('Parent',figh,'Units', 'normalized','Position', posbut(59,:),'Style','text','FontSize',8,...
 	'Tag','save_file_title','BackgroundColor',DEFAULT_FIG_COLOR,'string','Enter Text to Add to Filename');
@@ -2049,7 +2052,6 @@ else
     g = APPLY(g);
     % FIX NORMALIZATION
     EEG = g.EEG; 
-
     
   case 'SWITCH'
     g = get(fig,'UserData');
@@ -2076,7 +2078,6 @@ else
     ax2 = findobj('tag','eegaxis','parent',fig);
     %change_scale([],[],fig,4,ax2);
     
-
   case 'UNDO'
 
     g = get(fig,'UserData');
@@ -2108,6 +2109,8 @@ else
       g = TBT(g);
       ax2 = findobj('tag','eegaxis','parent',fig);
       change_scale([],[],fig,4,ax2);
+      draw_background
+      eegplot_adv('drawp',0);
 
   case 'QUICKLAB'     
       g = get(fig,'UserData');
@@ -5233,6 +5236,7 @@ function g = REDO(g)
    draw_data([],[],gcf,0,[],g);
    draw_matrix(g);
    eegplot_adv('setelect');
+   eegplot_adv('drawp',0);	
 
 
    function g = QUICKLAB(g)
@@ -5314,12 +5318,13 @@ function g = REDO(g)
        if ~isempty(NEW.icaact)
            g.data = NEW.icaact;
        else
-           g = SWITCH(g);
+           g = SWITCH(g); % THIS DOESNT WORK
        end
    end
    %GET ICA DATA AS WELL
 
    % make new eloc_file based on new channels/components
+   g.com = [g.com,com];
    g = make_eloc_file(g);
    g.winrej = []; g.winrej_pc = []; g.winrej_ch = [];
 
