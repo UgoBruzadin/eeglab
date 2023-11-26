@@ -156,7 +156,7 @@ else
     Args.annealstep = num2str(0.90);
 end
 
-%% Perform PCA if requsted
+%% Perform PCA if requested
 if ischar(Args.pca)
     Args.pca = str2double(Args.pca);
 end
@@ -267,7 +267,7 @@ if isempty(sphere)
 end
 
 % If created by cudaica(), remove temporary data file
-delete(Args.WeightsOutFile,Args.SphereFile);
+%delete(Args.WeightsOutFile,Args.SphereFile);
 
 %% Post-Processing
 fprintf('\n====================================\n');
