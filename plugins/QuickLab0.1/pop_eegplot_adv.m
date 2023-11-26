@@ -89,7 +89,7 @@
 function [EEG,com] = pop_eegplot_adv( EEG, plotchannels, superpose, reject, isEpoched, topcommand, varargin)
 
 %% ---  setting defaults
-com = '';
+%com = '';
 if ~exist('topcommand','var')
     topcommand = [];
 end
@@ -264,8 +264,9 @@ else
 end
 
 %% --- run eegplot_adv!!
-[~,EEG] = eegplot_adv( EEG, 'srate', EEG.srate, 'title', [ 'Advanced EEG Data Editor by Ugo Bruzadin Nunes -- eegplot_adv(): ' EEG.filename], ...
+[EEG,com] = eegplot_adv( EEG, 'srate', EEG.srate, 'title', [ 'Advanced EEG Data Editor by Ugo Bruzadin Nunes -- eegplot_adv(): ' EEG.filename], ...
              'limits', [EEG.xmin EEG.xmax]*1000 , 'command', command,'savecommand',savecommand, 'command2', command_pc,'savecommand2',savecommand_pc, eegplotoptions{:}, varargin{:});
 
-com = [ com sprintf('pop_eegplot_adv( %s, %d, %d, %d);', inputname(1), plotchannels, superpose, reject) ];
-return;
+%[EEG,com] = pop_eegplot_adv( EEG, plotchannels, superpose, reject, isEpoched, topcommand, varargin)
+com = [ com sprintf('pop_eegplot_adv( EEG, %s);', vararg2str({plotchannels, superpose, reject, isEpoched}))];
+%return;
