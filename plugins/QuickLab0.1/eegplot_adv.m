@@ -815,7 +815,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
     allnew_menus = findobj(new_menus);
 
     precallback = ['g = get(findobj(''tag'',''eegplot_adv''),''Userdata''); EEG = g.EEG; fig2 = figure;'];
-    postcallback = ['fig = findobj(''tag'',''eegplot_adv''); g = get(fig,''Userdata''); g.EEG = EEG; set(fig,''Userdata'',g); if isempty(fig2), try close(fig2); catch; end; end; eegplot_adv(''RESET'')'];
+    postcallback = ['fig = findobj(''tag'',''eegplot_adv''); g = get(fig,''Userdata''); g.EEG = EEG; set(fig,''Userdata'',g); if isempty(fig2.Children), try close(fig2); catch; end; end; eegplot_adv(''RESET'')'];
     
      for j = 1:length(allnew_menus)
          %if strcmp(allnew_menus.Type,'uimenu')
@@ -4888,7 +4888,7 @@ function g = SWITCH(g)
         
         g.data_ch = g.data;
 %         if isempty(g.data_pc)
-             g.data = EEG.icaact;
+        g.data = EEG.icaact;
 %         else
 %             g.data = g.data_pc;
 %         end
@@ -5530,6 +5530,8 @@ total_marks = strcat('Marked Trials: ',{' '},reds,' Red,',{' '}, greens, ' G','r
 % prints on menu using these tags
 set(findobj(gcf, 'Tag', 'Count_Channels'),'string',total_chanmarks);%
 set(findobj(gcf, 'Tag', 'Count_Trials'),'string',total_marks);%
+
+draw_data([],[],gcf,0,[],g);
 draw_matrix(g);
 
 
