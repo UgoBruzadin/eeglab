@@ -508,7 +508,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
    try g.normed_ch;            catch, g.normed_ch = 0; end %ozgur
    try g.normed_pc;            catch, g.normed_pc = 0; end %ozgur
    try g.envelope;          catch, g.envelope = 0; end%ozgur
-   try g.maxeventstring;    catch, g.maxeventstring = 10; end % JavierLC
+   try g.maxeventstring;    catch, g.maxeventstring = 20; end % JavierLC
    try g.isfreq;            catch, g.isfreq = 0;    end % Ramon
    try g.savecommand;            catch, g.savecommand = '';    end % Ugo
        try g.savecommand2;       catch, g.savecommand2 = '';    end % Ugo
@@ -622,7 +622,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
        adj = 0;
    end
 
-   DEFAULT_AXES_POSITION = [0.045 0.03 0.85+adj 1-(MAXEVENTSTRING-4)/100]; %[0.095 0.35 0.842 0.75-(MAXEVENTSTRING-5)/100];
+   DEFAULT_AXES_POSITION = [0.045 0.03 0.85+adj 1-(10-4)/100]; %[0.095 0.35 0.842 0.75-(MAXEVENTSTRING-5)/100];
    
    % convert color to modify into array of float
    % -------------------------------------------
@@ -3302,8 +3302,8 @@ if strcmpi(g.plotevent, 'on')
     MAXEVENTSTRING = g.maxeventstring;
     if MAXEVENTSTRING<0
         MAXEVENTSTRING = 0;
-    elseif MAXEVENTSTRING>75
-        MAXEVENTSTRING=75;
+    elseif MAXEVENTSTRING>100
+        MAXEVENTSTRING=100;
     end
     % JavierLC ###############################
     %AXES_POSITION = [0.05 0.03 0.865 1-(MAXEVENTSTRING-4)/100];
@@ -3374,18 +3374,30 @@ if strcmpi(g.plotevent, 'on') || ismember('boundary',eventlist)
         end
         for index = 1:length(event2plot_activ)
             tmplat1=tmplat(index);
-            try
-                text_prop={tmplat1, ylims(2)-0.005, [EVENTFONT evntxt], ...
+            %try
+            % This if is a QoL to make events close together more visible. Ugo 2023
+            % odds vs evens
+            if mod(index,2) || length(evntxt) > 10
+                lift = -0.005;
+                rotation = 30;
+            else
+                lift = 0.005;
+                rotation = 45;
+            end
+
+                text_prop={tmplat1, ylims(2)+lift, [EVENTFONT evntxt], ...
                     'color', evnt_group_color, ...
                     'horizontalalignment', 'left',...
-                    'rotation',45}; % CHANGED ROTATION from 90 to 45; UGO
+                    'rotation',rotation}; % CHANGED ROTATION from 90 to variable; UGO 2023
+                %'TooltipString'
+
                 if verLessThan_matlab_9
                     text(text_prop{:});
                 else
                     text(ax0, text_prop{:});
                 end
-            catch
-            end
+            %catch
+            %end
             
             % draw duration is not 0
             % ----------------------
