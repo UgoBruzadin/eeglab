@@ -1929,6 +1929,7 @@ end
   set(h, 'backgroundcolor', cmodecolor);
 
   update_trial_rejections(g)
+  drawnow; pause(0.05);
   
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % End Main Function
