@@ -31,7 +31,7 @@ if nargin < 3 || isempty(type)
 end
 
 if nargin < 4 || isempty(disp)
-    disp = 1;
+    disp = 0;
 end
 mybadcomps = [];
 try mybadcomps = find(EEG.reject.gcompreject); catch; end   %stores the Id of the components to be rejected
