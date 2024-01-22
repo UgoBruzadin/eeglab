@@ -247,7 +247,7 @@ EEGOG = EEG;
 EEGmod = EEG;
 EEGinterp = EEG;
 EEGcumulative = EEG;
-f
+
 if ~isempty(list_of_chans_or_comps)
     % --- if only one channel or component was gifven %MODIFIED BY UGO NUNES JUL/2021
     if isempty(divisors)
