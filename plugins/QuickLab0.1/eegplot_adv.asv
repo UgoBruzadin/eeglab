@@ -815,7 +815,7 @@ if ~ischar(data) % If NOT a 'noui' call or a callback from uicontrols
     allnew_menus = findobj(new_menus);
 
     precallback = ['g = get(findobj(''tag'',''eegplot_adv''),''Userdata''); EEG = g.EEG; fig2 = figure;'];
-    postcallback = ['fig = findobj(''tag'',''eegplot_adv''); g = get(fig,''Userdata''); g.EEG = EEG; set(fig,''Userdata'',g); if isempteegplot_adv(''RESET'')'];
+    postcallback = ['fig = findobj(''tag'',''eegplot_adv''); g = get(fig,''Userdata''); g.EEG = EEG; set(fig,''Userdata'',g); if isempty(fig2.Children), try close(fig2); catch; end; end; eegplot_adv(''RESET'')'];
     
      for j = 1:length(allnew_menus)
          %if strcmp(allnew_menus.Type,'uimenu')
@@ -3374,18 +3374,26 @@ if strcmpi(g.plotevent, 'on') || ismember('boundary',eventlist)
         end
         for index = 1:length(event2plot_activ)
             tmplat1=tmplat(index);
-            try
-                text_prop={tmplat1, ylims(2)-0.005, [EVENTFONT evntxt], ...
+            %try
+            if mod(index,2)
+                lift = 0.005
+            else
+                lift - 0.0
+
+            end
+                text_prop={tmplat1, ylims(2)+0.010, [EVENTFONT evntxt], ...
                     'color', evnt_group_color, ...
                     'horizontalalignment', 'left',...
-                    'rotation',45}; % CHANGED ROTATION from 90 to 45; UGO
+                    'rotation',90}; % CHANGED ROTATION from 90 to 45; UGO 2023
+                %'TooltipString'
+
                 if verLessThan_matlab_9
                     text(text_prop{:});
                 else
                     text(ax0, text_prop{:});
                 end
-            catch
-            end
+            %catch
+            %end
             
             % draw duration is not 0
             % ----------------------
@@ -4888,7 +4896,7 @@ function g = SWITCH(g)
         
         g.data_ch = g.data;
 %         if isempty(g.data_pc)
-             g.data = EEG.icaact;
+        g.data = EEG.icaact;
 %         else
 %             g.data = g.data_pc;
 %         end
@@ -5530,6 +5538,8 @@ total_marks = strcat('Marked Trials: ',{' '},reds,' Red,',{' '}, greens, ' G','r
 % prints on menu using these tags
 set(findobj(gcf, 'Tag', 'Count_Channels'),'string',total_chanmarks);%
 set(findobj(gcf, 'Tag', 'Count_Trials'),'string',total_marks);%
+
+draw_data([],[],gcf,0,[],g);
 draw_matrix(g);
 
 
