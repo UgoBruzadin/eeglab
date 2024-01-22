@@ -36,7 +36,7 @@ end
 
 if nargin < 3
     [EEG] = eeg_regepochs(EEG,'recurrence',time1);
-    EEG = eegh(com, EEG);
+    %EEG = eegh(com, EEG);
 else
     if nargin < 4
         eventname = EEG.event(2).type;
