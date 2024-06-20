@@ -28,8 +28,8 @@ assert(isreal(EEG.icaact), 'Your ICA decomposition must be real to use ICLabel')
 %% calc topo
 topo = zeros(32, 32, 1, ncomp);
 
-haspar = [];
-haspar = ver('parallel');
+%haspar = [];
+%haspar = ver('parallel');
 % 
 % if ~isempty(haspar)
 %     parfor it = 1:ncomp
