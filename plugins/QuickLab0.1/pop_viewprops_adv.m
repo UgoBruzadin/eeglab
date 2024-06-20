@@ -42,7 +42,7 @@
 
 % 01-25-02 reformated help & license -ad
 
-function [EEG,com] = pop_viewprops_adv( EEG, typecomp, newcommand, chanorcomp, spec_opt, erp_opt, fig_opts, scroll_event, classifier_name, fig,visible)
+function [EEG,com,fig] = pop_viewprops_adv( EEG, typecomp, newcommand, chanorcomp, spec_opt, erp_opt, fig_opts, scroll_event, classifier_name, fig,visible)
 
 COLACC = [0.75 1 0.75];
 PLOTPERFIG = size(EEG.icawinv,2);

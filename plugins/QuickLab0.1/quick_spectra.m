@@ -20,7 +20,7 @@
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-function [EEG,com] = quick_spectra(EEG,high,low,references,topo,visible)
+function [EEG,com,fig] = quick_spectra(EEG,high,low,references,topo,visible)
 
 com = '';
 
@@ -76,7 +76,7 @@ end
 %% runs pop_spectopo with the given defaults or variables
 
 %tic
-figure('Visible',visible); pop_spectopo_ql(EEG, 1, [EEG.xmin*1000  EEG.xmax*1000], 'EEG' , 'freq', [topo], 'freqrange',[low high],'winsize',maxWindow,'electrodes','off');
+fig = figure('Visible',visible); pop_spectopo_ql(EEG, 1, [EEG.xmin*1000  EEG.xmax*1000], 'EEG' , 'freq', [topo], 'freqrange',[low high],'winsize',maxWindow,'electrodes','off');
 %toc
 savecommand = ['saveas(gcf,[EEG.filename(1:end-4),''FFT.jpg'']);'];
 
