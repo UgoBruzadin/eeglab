@@ -1,4 +1,4 @@
-% ICADEFS - function to read in a set of EEGLAB system-wide (i.e. lab-wide)
+% icadefs() - function to read in a set of EEGLAB system-wide (i.e. lab-wide)
 %             or working directory-wide constants and preferences. Change the 
 %             way these are defined in the master icadefs.m file (usually
 %             in dir eeglab/functions/sigprocfunc) or make a custom copy of 
@@ -66,11 +66,7 @@ tmpComputer   = computer;
 tmpScreenSize = get(0, 'ScreenSize');
 
 % Graph Definitions
-if ismatlab
-    DEFAULT_COLORMAP = 'turbo';
-else
-    DEFAULT_COLORMAP = 'jet';
-end
+DEFAULT_COLORMAP = 'jet';
 
 if VERS < 8.04
     PLOT_LINEWIDTH   = 2;
@@ -154,25 +150,34 @@ end
 
 clear retinaDisplay tmpScreenSize tmpComputer tmpvers indp;
 
-% the eeg_options.m file also contains additional options
+% the eeg_options.m file also countains additional options
 
 % ----------------------------------------------------------------------
 % ------------------------ END OF DEFINITIONS --------------------------
 % ----------------------------------------------------------------------
 
 % INSERT location of ica executable (UNIX ONLY) for binica.m below
+eeglab_p = fileparts(which('eeglab'));
 if ~isdeployed
-    % ICA binary file in functions/supportfiles
-    ICABINARY = 'ica_linux'; 
+    ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'ica_linux'); 
+    ICABINARY2 = fullfile(eeglab_p, 'functions', 'supportfiles', 'ica_linux'); 
     tmpComputer = computer;
     if strcmpi(tmpComputer(1:3), 'MAC')
-        ICABINARY = 'ica_osx';
+        ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'ica_osx');
+        ICABINARY2 = fullfile(eeglab_p, 'functions', 'supportfiles', 'ica_osx');
     elseif strcmpi(tmpComputer(1:2), 'PC')
-        ICABINARY = 'binica.exe';
+        ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'binica.exe');
+        ICABINARY2 = fullfile(eeglab_p, 'functions', 'supportfiles', 'binica2.exe');
     end
     clear tmpComputer
 else
-    ICABINARY = 'ica_linux';
+    ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', 'ica_linux');
+end
+
+if ispc
+    CUDAICABINARY = fullfile(eeglab_p, 'plugins', 'CudaICA1.0', 'cudaica_win.exe'); % Add by Yunhui on 2018-09-09
+else
+    CUDAICABINARY = fullfile(eeglab_p, 'plugins', 'CudaICA1.0', 'cudaica'); % Add by Yunhui on 2018-04-27
 end
 
 try
@@ -190,7 +195,7 @@ DEFAULT_TIMLIM = [-1000 2000]; % default local epoch limits (ms)
 % Set EEGLAB figure and GUI colors
 % --------------------------------
 lowscreendepth = 0;
-if ~exist('OCTAVE_VERSION', 'builtin')
+if ~exist('OCTAVE_VERSION')
     if get(0, 'screendepth') <=8 % if mono or 8-bit color
 	lowscreendepth = 1; 
     end
@@ -234,3 +239,5 @@ SC  =  ['binica.sc'];           % Master .sc script file for binica.m
                                 % MATLAB will use first such file found
                                 % in its path of script directories.
                                 % Copy to pwd to alter ICA defaults
+
+try QuickLabDefs; catch; end

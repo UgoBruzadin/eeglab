@@ -1,6 +1,6 @@
-% BINICA - Run stand-alone binary version of RUNICA from the
+% binica() - Run stand-alone binary version of runica() from the
 %            Matlab command line. Saves time and memory relative
-%            to RUNICA.  If stored in a float file, data are not 
+%            to runica().  If stored in a float file, data are not 
 %            read into Matlab, and so may be larger than Matlab
 %            can handle owing to memory limitations.
 %
@@ -29,7 +29,7 @@
 %   'maxsteps'   - int>0         {default: 512}
 %   'stop'       - (0<float<<<1) stopping learning rate {default: 1e-7} 
 %                    NB: 'stop' <= 1e-7 recommended
-%   'weightsin'  - Filename string of initial weight matrix of size
+%   'weightsin'  - Filename string of inital weight matrix of size
 %                  (comps,chans) floats, else a weight matrix variable 
 %                  in the current Matlab workspace (copied to a local
 %                  .inwts files). You may want to reduce the starting 
@@ -58,9 +58,9 @@
 %
 % Author: Scott Makeig, SCCN/INC/UCSD, La Jolla, 2000 
 %
-% See also: RUNICA
+% See also: runica()
 
-% Calls binary translation of RUNICA by Sigurd Enghoff
+% Calls binary translation of runica() by Sigurd Enghoff
 
 % Copyright (C) 2000 Scott Makeig, SCCN/INC/UCSD, scott@sccn.ucsd.edu
 %
@@ -97,15 +97,15 @@
 % 11/06/01 add absolute path of files (lines 157-170 & 198) -ad
 % 01-25-02 reformated help & license, added links -ad 
  
-function [wts,sph,tmpint] = binica(data,var2,var3,var4,var5,var6,var7,var8,var9,var10,var11,var12,var13,var14,var15,var16,var17,var18,var19,var20,var21,var22,var23,var24,var25)
-
-if nargin < 1 || nargin > 25
+function [wts,sph,tmpint] = binica(EEG,data,var2,var3,var4,var5,var6,var7,var8,var9,var10,var11,var12,var13,var14,var15,var16,var17,var18,var19,var20,var21,var22,var23,var24,var25)
+%changed name to binica2, added EEG
+%if nargin < 1 || nargin > 25 changed total vars
+if nargin < 1 || nargin > 26
     more on
     help binica
     more off
     return
 end
-
 if size(data,3) > 1, data = reshape(data, size(data,1), size(data,2)*size(data,3) ); end
 
 if any(pwd == ' ')
@@ -113,9 +113,6 @@ if any(pwd == ' ')
 end
 
 icadefs % import ICABINARY and SC
-eeglab_p = fileparts(which('eeglab'));
-ICABINARY = fullfile(eeglab_p, 'functions', 'supportfiles', ICABINARY); % done here and not icadefs because slow
-
 if ~exist('SC')
   fprintf('binica(): You need to update your icadefs file to include ICABINARY and SC.\n')
   return
@@ -138,9 +135,6 @@ else
 		fprintf('binica(): using binary ica file ''\?/%s''\n', ICABINARY);
 	end
 end
-if any(ICABINARYdir == ' ')
-    error('The ICABINARY path defined in icadefs.m cannot contain spaces');
-end
 
 [flags,args] = read_sc(SC); % read flags and args in master SC file
 
@@ -151,26 +145,30 @@ end
 tmpint=[];
 
 if ~ischar(data) % data variable given
+  %firstarg = 2;
   firstarg = 2;
 else % data filename given
+  %firstarg = 4;
   firstarg = 4;
 end
 
 arg = firstarg;
-if arg > nargin
+if arg > nargin-1 % Ugo had to modify 2021
    fprintf('binica(): no optional (flag, argument) pairs received.\n');
 else
- if (nargin-arg+1)/2 > 1
+ if (nargin-1-arg+1)/2 > 1 % Ugo had to modify 2021
     fprintf('binica(): processing %d (flag, arg) pairs.\n',(nargin-arg+1)/2);
  else
     fprintf('binica(): processing one (flag, arg) pair.\n');
  end
- while arg <= nargin %%%%%%%%%%%% process flags & args %%%%%%%%%%%%%%%%
+ %while arg <= nargin %%%%%%%%%%%% process flags & args %%%%%%%%%%%%%%%%
+ while arg <= nargin-1 %%%%%%%%%%%% process flags & args %%%%%%%%%%%%%%%%
 
   eval(['OPTIONFLAG = var' int2str(arg) ';']); 
   % NB: Found that here Matlab var 'FLAG' is (64,3) why!?!?
 
-  if arg == nargin
+  %if arg == nargin
+  if arg == nargin-1
     fprintf('\nbinica(): Flag %s needs an argument.\n',OPTIONFLAG)
     return
   end
@@ -221,9 +219,17 @@ end
 % select random integer 1-10000 to index the binica data files
 % make sure no such script file already exists in the pwd
 %
+t = datetime('now','TimeZone','local','Format','ddMMyy_HH.mm.ss'); %gets the datetime
+            
 scriptfile = ['binica' tmpint '.sc'];
 while exist(scriptfile)
-    tmpint = int2str(round(rand*10000));
+    %if ~isempty(EEG.filename)
+        %tmpint = strcat(EEG.filename(1:8),char(t),'_',int2str(round(rand*1000)));
+        tmpint = int2str(round(rand*10000));
+    %else
+        %tmpint = strcat(char(t),'_',int2str(round(rand*1000)));
+        tmpint = int2str(round(rand*10000));
+    %end
     scriptfile = ['binica' tmpint '.sc'];
 end
 fprintf('scriptfile = %s\n',scriptfile);
@@ -272,6 +278,10 @@ for x=1:length(flags)
   if strcmp(flags{x},'DataFile')
      datafile = fullfile(pwd, datafile);
      args{x} = datafile;
+  elseif strcmp(flags{x},'pca')
+      if str2double(args{x}) ~= 0
+        ICABINARY = ICABINARY2;
+      end
   elseif strcmp(flags{x},'WeightsOutFile')
      weightsfile = ['binica' tmpint '.wts'];
      weightsfile =  fullfile(pwd,  weightsfile);
@@ -315,10 +325,7 @@ if exist('wtsin') % specify WeightsInfile from 'weightsin' flag, arg
        fprintf('binica(): weightsin file|variable not found.\n');
        return
      end 
-    try
-        eval(['!ls -l ' weightsinfile]); 
-    catch
-    end
+    try, eval(['!ls -l ' weightsinfile]); catch, end
     fprintf(fid,'%s %s\n','WeightsInFile',weightsinfile);
 end
 fclose(fid);
@@ -335,6 +342,7 @@ end
    if exist('ncomps')
         fprintf('   Finding %d components.\n',ncomps);
    end
+   %if 
    eval_call = ['!' ICABINARY '<' fullfile(pwd, scriptfile) ];
    eval(eval_call);
 %
@@ -363,16 +371,16 @@ if isempty(sph)
    fprintf('\nbinica():  sphere matrix not read.\n')
    return
 end
-fprintf('\nbinary ica files left in pwd:\n');
-try
-    eval(['!ls -l ' scriptfile ' ' weightsfile ' ' spherefile]); 
-catch
-end
+fprintf('\nbinary ica files deleted:\n'); %changed
+    try %ADDED changed
+        %delete(scriptfile);
+       % delete(weightsfile);
+      %  delete(spherefile);
+    catch
+    end
+try, eval(['!ls -l ' scriptfile ' ' weightsfile ' ' spherefile]); catch, end
 if exist('wtsin')
-   try
-       eval(['!ls -l ' weightsinfile]); 
-   catch 
-   end
+   try, eval(['!ls -l ' weightsinfile]); catch end
 end
 fprintf('\n');
 
@@ -383,14 +391,15 @@ else
 end
 
 %
-% If created by BINICA, rm temporary data file
+% If created by binica(), rm temporary data file
 % NOTE: doesn't remove the .sc .wts and .fdt files
 
 if ~isempty(tmpdata)
-    try
-        delete(datafile); 
-    catch
-    end
+    try, delete(datafile); 
+    delete(scriptfile);
+    delete(weightsfile);
+    delete(spherefile);
+    catch, end
 end
 
 %

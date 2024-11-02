@@ -1,4 +1,4 @@
 #! /bin/bash
 cd  `dirname $0`
 echo `pwd`
-./run_EEGLAB.sh /Applications/MATLAB/MATLAB_Runtime/R2022b/
+./eeglab.app/Contents/MacOS/applauncher

@@ -14,7 +14,7 @@
 % Description:
 %   EEGLAB is Matlab-based software for processing continuous or event-related 
 %   EEG or other physiological data. It is designed for use by both novice and 
-%   expert Matlab users. In normal use, the EEGLAB graphic interface calls 
+%   expert Matlab users. In normal use, the EEGLAB graphic interface calls F:\Triangulation\Reed\IB\DONE
 %   graphic functions via pop-up function windows. The EEGLAB history mechanism 
 %   can save the resulting Matlab calls to disk for later incorporation into 
 %   Matlab scripts.  A single data structure ('EEG') containing all dataset 
@@ -377,6 +377,9 @@ eeg_global;
 % remove empty datasets in ALLEEG
 while ~isempty(ALLEEG) && isempty(ALLEEG(end).data)
     ALLEEG(end) = [];
+end
+if ~exist('CURRENTSTUDY','var')
+    CURRENTSTUDY = [];
 end
 if isempty(CURRENTSET)
     if isequal(CURRENTSTUDY, 0)

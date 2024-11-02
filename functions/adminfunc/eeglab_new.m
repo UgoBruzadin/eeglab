@@ -50,6 +50,9 @@ if ~isempty(LASTCOM) && ~isempty(EEG) ...
 
     % Here the dataset was modified 
     EEG = eegh(LASTCOM, EEG); 
+    if ~exist('STUDY','var')
+        STUDY = [];
+    end
     [ALLEEG, EEG, CURRENTSET, LASTCOM] = pop_newset(ALLEEG, EEG, CURRENTSET, 'study', ~isempty(STUDY)+0);
     eegh(LASTCOM);
     disp('Done');
